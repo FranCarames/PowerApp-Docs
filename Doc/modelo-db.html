@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>PowerApp — Modelo de datos</title>
+<meta name="description" content="Visor del diagrama entidad-relación de la base de datos de PowerApp: zoom, arrastre y descarga en SVG o PDF.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800&family=Saira:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --base:#06070D; --card:#13161F; --el:#1B1F2E;
+    --border:#232739; --border2:#2E3347;
+    --pri:#E8450A; --blue:#4F8DF7;
+    --tp:#F5F1EB; --ts:#8892A8; --tm:#4A5068;
+    --fDisplay:"Saira Condensed",-apple-system,sans-serif;
+    --fBody:"Saira",-apple-system,BlinkMacSystemFont,sans-serif;
+    --fMono:"JetBrains Mono","SF Mono",monospace;
+    --bar:60px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+  html,body{height:100%;overflow:hidden;}
+  body{background:var(--base);font-family:var(--fBody);color:var(--tp);display:flex;flex-direction:column;}
+
+  /* ---------- Barra ---------- */
+  .bar{
+    flex:0 0 auto;min-height:var(--bar);
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    padding:10px clamp(12px,3vw,22px);
+    background:linear-gradient(180deg,var(--card),rgba(19,22,31,.82));
+    border-bottom:1px solid var(--border);
+    z-index:5;
+  }
+  .back{
+    display:inline-flex;align-items:center;gap:8px;flex:0 0 auto;
+    font-family:var(--fMono);font-size:12px;color:var(--ts);text-decoration:none;
+    border:1px solid var(--border);border-radius:10px;padding:8px 13px;
+    transition:color .2s,border-color .2s,background .2s;
+  }
+  .back:hover{color:var(--tp);border-color:var(--border2);background:var(--el);}
+  .back:focus-visible{outline:2px solid var(--pri);outline-offset:2px;}
+
+  .titles{flex:1 1 200px;min-width:0;}
+  .titles h1{font-family:var(--fDisplay);font-size:21px;font-weight:700;letter-spacing:-.2px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .titles h1 b{color:var(--pri);font-weight:700;}
+  .titles .sub{font-family:var(--fMono);font-size:10.5px;color:var(--tm);letter-spacing:.3px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+  .tools{display:flex;align-items:center;gap:8px;flex:0 0 auto;flex-wrap:wrap;}
+  .grp{display:flex;align-items:stretch;background:var(--el);border:1px solid var(--border);border-radius:11px;overflow:hidden;}
+  .grp .btn{border:0;border-radius:0;background:transparent;}
+  .btn{
+    font-family:var(--fMono);font-size:12px;font-weight:500;color:var(--ts);
+    background:var(--el);border:1px solid var(--border);border-radius:11px;
+    padding:9px 13px;cursor:pointer;text-decoration:none;line-height:1;
+    display:inline-flex;align-items:center;gap:7px;
+    transition:color .18s,background .18s,border-color .18s;
+  }
+  .btn:hover{color:var(--tp);background:#232842;}
+  .btn:focus-visible{outline:2px solid var(--blue);outline-offset:2px;}
+  .btn.ico{min-width:38px;justify-content:center;font-size:15px;}
+  .btn.pri{color:var(--tp);border-color:color-mix(in srgb, var(--blue) 42%, transparent);background:color-mix(in srgb, var(--blue) 12%, transparent);}
+  .btn.pri:hover{background:color-mix(in srgb, var(--blue) 22%, transparent);}
+  #zoomLabel{
+    font-family:var(--fMono);font-size:11.5px;color:var(--tp);
+    min-width:64px;text-align:center;padding:0 4px;cursor:pointer;
+    background:transparent;border:0;border-left:1px solid var(--border);border-right:1px solid var(--border);
+  }
+  #zoomLabel:hover{color:var(--blue);}
+  #zoomLabel:focus-visible{outline:2px solid var(--blue);outline-offset:-2px;}
+
+  /* ---------- Lienzo ---------- */
+  .stage{
+    flex:1 1 auto;position:relative;overflow:hidden;
+    background:
+      radial-gradient(700px 420px at 12% 0%, rgba(232,69,10,.10), transparent 62%),
+      radial-gradient(700px 460px at 92% 100%, rgba(79,141,247,.10), transparent 62%),
+      var(--base);
+    cursor:grab;touch-action:none;
+  }
+  .stage::after{
+    content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+    background-image:
+      linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);
+    background-size:44px 44px;
+  }
+  .stage.drag{cursor:grabbing;}
+  .canvas{
+    position:absolute;top:0;left:0;transform-origin:0 0;
+    background:#fff;
+    box-shadow:0 30px 90px -30px rgba(0,0,0,.9);
+    will-change:transform;
+  }
+  .canvas svg{display:block;}
+
+  /* ---------- Estados ---------- */
+  .state{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;
+  }
+  .state p{font-family:var(--fMono);font-size:12.5px;color:var(--ts);max-width:52ch;line-height:1.7;}
+  .state code{background:var(--el);border:1px solid var(--border);border-radius:6px;padding:2px 7px;color:var(--tp);}
+  .spin{
+    width:26px;height:26px;border-radius:50%;
+    border:2px solid var(--border2);border-top-color:var(--pri);
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  [hidden]{display:none!important;}
+
+  /* ---------- Ayuda ---------- */
+  .hint{
+    position:absolute;left:50%;bottom:16px;transform:translateX(-50%);
+    font-family:var(--fMono);font-size:10.5px;color:var(--tm);
+    background:rgba(6,7,13,.78);border:1px solid var(--border);border-radius:999px;
+    padding:7px 15px;pointer-events:none;white-space:nowrap;
+    transition:opacity .6s;
+  }
+
+  @media (max-width:700px){
+    .titles .sub{display:none;}
+    .titles h1{font-size:18px;}
+    .btn{padding:8px 11px;}
+    .hint{display:none;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .spin{animation:none;}
+  }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <a class="back" href="../index.html">&larr; Portada</a>
+  <div class="titles">
+    <h1>Power<b>App</b> — Modelo de datos</h1>
+    <div class="sub" id="meta">Diagrama entidad-relación de la base</div>
+  </div>
+  <div class="tools">
+    <div class="grp">
+      <button class="btn ico" id="zOut" title="Alejar (tecla −)" aria-label="Alejar">&minus;</button>
+      <button id="zoomLabel" title="Volver al 100% (tecla 1)" aria-label="Nivel de zoom, click para volver al 100%">100%</button>
+      <button class="btn ico" id="zIn" title="Acercar (tecla +)" aria-label="Acercar">+</button>
+    </div>
+    <button class="btn" id="fit" title="Ajustar a la pantalla (tecla 0)">Ajustar</button>
+    <a class="btn pri" href="PowerApp%20-%20Modelo%20DB.svg" download title="Descargar el diagrama en SVG">SVG&nbsp;&darr;</a>
+    <a class="btn" href="PowerApp%20-%20Modelo%20DB.pdf" target="_blank" rel="noopener" title="Abrir el diagrama en PDF">PDF</a>
+  </div>
+</header>
+
+<div class="stage" id="stage">
+  <div class="canvas" id="canvas" hidden></div>
+
+  <div class="state" id="loading">
+    <div class="spin" aria-hidden="true"></div>
+    <p>Cargando el diagrama&hellip;</p>
+  </div>
+
+  <div class="state" id="error" hidden>
+    <p id="errMsg"></p>
+    <p>Si estás abriendo el archivo desde el disco, el navegador bloquea la carga.
+       Servido por <code>GitHub Pages</code> o cualquier servidor HTTP funciona.</p>
+    <a class="btn pri" href="PowerApp%20-%20Modelo%20DB.svg">Abrir el SVG directo</a>
+  </div>
+
+  <div class="hint" id="hint">arrastrá para mover &middot; rueda para zoom &middot; doble clic para acercar</div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var SRC = "PowerApp%20-%20Modelo%20DB.svg";
+  var PAD = 48;               // margen al ajustar
+  var MIN = 0.02, MAX = 12;   // límites de zoom
+
+  var stage   = document.getElementById("stage");
+  var canvas  = document.getElementById("canvas");
+  var loading = document.getElementById("loading");
+  var errBox  = document.getElementById("error");
+  var errMsg  = document.getElementById("errMsg");
+  var label   = document.getElementById("zoomLabel");
+  var meta    = document.getElementById("meta");
+  var hint    = document.getElementById("hint");
+  var btnIn   = document.getElementById("zIn");
+  var btnOut  = document.getElementById("zOut");
+  var btnFit  = document.getElementById("fit");
+
+  var k = 1, tx = 0, ty = 0;   // escala y traslación actuales
+  var W = 0, H = 0;            // tamaño natural del diagrama
+  var wasFit = true;           // ¿el usuario sigue en "ajustado"?
+
+  function clamp(v){ return Math.min(MAX, Math.max(MIN, v)); }
+
+  function apply(){
+    canvas.style.transform = "translate(" + tx + "px," + ty + "px) scale(" + k + ")";
+    label.textContent = Math.round(k * 100) + "%";
+  }
+
+  function fit(){
+    var r = stage.getBoundingClientRect();
+    k  = clamp(Math.min((r.width - PAD) / W, (r.height - PAD) / H));
+    tx = (r.width  - W * k) / 2;
+    ty = (r.height - H * k) / 2;
+    wasFit = true;
+    apply();
+  }
+
+  // zoom dejando fijo el punto (cx,cy), en coordenadas del stage
+  function zoomAt(cx, cy, factor){
+    var nk = clamp(k * factor);
+    if (nk === k) return;
+    tx = cx - (cx - tx) * (nk / k);
+    ty = cy - (cy - ty) * (nk / k);
+    k  = nk;
+    wasFit = false;
+    apply();
+  }
+
+  function zoomCenter(factor){
+    var r = stage.getBoundingClientRect();
+    zoomAt(r.width / 2, r.height / 2, factor);
+  }
+
+  function local(e){
+    var r = stage.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  }
+
+  /* ---------- carga del SVG ---------- */
+  fetch(SRC)
+    .then(function(res){
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.text();
+    })
+    .then(function(txt){
+      var doc = new DOMParser().parseFromString(txt, "image/svg+xml");
+      var svg = doc.documentElement;
+      if (!svg || svg.nodeName.toLowerCase() !== "svg") throw new Error("el archivo no es un SVG válido");
+
+      W = parseFloat(svg.getAttribute("width"))  || 1000;
+      H = parseFloat(svg.getAttribute("height")) || 1000;
+
+      svg.removeAttribute("style");
+      svg.setAttribute("width",  W);
+      svg.setAttribute("height", H);
+
+      canvas.appendChild(document.importNode(svg, true));
+      canvas.style.width  = W + "px";
+      canvas.style.height = H + "px";
+      canvas.hidden = false;
+      loading.hidden = true;
+      meta.textContent = "Diagrama entidad-relación · " + Math.round(W) + " × " + Math.round(H) + " px";
+      fit();
+      setTimeout(function(){ if (hint) hint.style.opacity = 0; }, 6000);
+    })
+    .catch(function(err){
+      loading.hidden = true;
+      errMsg.textContent = "No se pudo cargar el diagrama (" + err.message + ").";
+      errBox.hidden = false;
+      if (hint) hint.remove();
+    });
+
+  /* ---------- arrastre y pinch ---------- */
+  var pointers = new Map(), panFrom = null, pinch = null;
+
+  function pinchState(){
+    var a = Array.from(pointers.values());
+    var r = stage.getBoundingClientRect();
+    return {
+      dist: Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y),
+      cx: (a[0].x + a[1].x) / 2 - r.left,
+      cy: (a[0].y + a[1].y) / 2 - r.top
+    };
+  }
+
+  stage.addEventListener("pointerdown", function(e){
+    if (canvas.hidden) return;
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    stage.setPointerCapture(e.pointerId);
+    if (pointers.size === 1){
+      var p = local(e);
+      panFrom = { x: p.x - tx, y: p.y - ty };
+      stage.classList.add("drag");
+    } else if (pointers.size === 2){
+      panFrom = null;
+      pinch = pinchState();
+    }
+  });
+
+  stage.addEventListener("pointermove", function(e){
+    if (!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pointers.size === 2 && pinch){
+      var now = pinchState();
+      if (now.dist > 0 && pinch.dist > 0){
+        zoomAt(pinch.cx, pinch.cy, now.dist / pinch.dist);
+        tx += now.cx - pinch.cx;
+        ty += now.cy - pinch.cy;
+        apply();
+      }
+      pinch = now;
+      return;
+    }
+
+    if (panFrom){
+      var p = local(e);
+      tx = p.x - panFrom.x;
+      ty = p.y - panFrom.y;
+      wasFit = false;
+      apply();
+    }
+  });
+
+  function endPointer(e){
+    pointers.delete(e.pointerId);
+    if (pointers.size < 2) pinch = null;
+    if (pointers.size === 0){
+      panFrom = null;
+      stage.classList.remove("drag");
+    } else if (pointers.size === 1){
+      var only = pointers.values().next().value;
+      var r = stage.getBoundingClientRect();
+      panFrom = { x: (only.x - r.left) - tx, y: (only.y - r.top) - ty };
+    }
+  }
+  stage.addEventListener("pointerup", endPointer);
+  stage.addEventListener("pointercancel", endPointer);
+
+  /* ---------- rueda ---------- */
+  stage.addEventListener("wheel", function(e){
+    if (canvas.hidden) return;
+    e.preventDefault();
+    var p = local(e);
+    var step = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
+    zoomAt(p.x, p.y, Math.exp(-step * 0.0016));
+  }, { passive: false });
+
+  /* ---------- doble clic ---------- */
+  stage.addEventListener("dblclick", function(e){
+    if (canvas.hidden) return;
+    var p = local(e);
+    zoomAt(p.x, p.y, 1.8);
+  });
+
+  /* ---------- botones y teclado ---------- */
+  function toActualSize(){
+    var r = stage.getBoundingClientRect();
+    zoomAt(r.width / 2, r.height / 2, 1 / k);
+  }
+
+  btnIn.addEventListener("click",  function(){ zoomCenter(1.25); });
+  btnOut.addEventListener("click", function(){ zoomCenter(1 / 1.25); });
+  btnFit.addEventListener("click", fit);
+  label.addEventListener("click",  toActualSize);
+
+  document.addEventListener("keydown", function(e){
+    if (canvas.hidden || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.key === "+" || e.key === "=")      { zoomCenter(1.25);     e.preventDefault(); }
+    else if (e.key === "-" || e.key === "_") { zoomCenter(1 / 1.25); e.preventDefault(); }
+    else if (e.key === "0")                  { fit();                e.preventDefault(); }
+    else if (e.key === "1")                  { toActualSize();       e.preventDefault(); }
+  });
+
+  /* ---------- resize: si estaba ajustado, se re-ajusta ---------- */
+  if (window.ResizeObserver){
+    new ResizeObserver(function(){
+      if (!canvas.hidden && wasFit) fit();
+    }).observe(stage);
+  } else {
+    window.addEventListener("resize", function(){
+      if (!canvas.hidden && wasFit) fit();
+    });
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PowerApp — Prototipo</title>
+<style>
+  :root{
+    --base:#0B0D16; --card:#13161F; --el:#1B1F2E; --border:#232739; --border2:#2E3347;
+    --pri:#E8450A; --priL:#FF6B3D; --acc:#8B5CF6;
+    --tp:#F5F1EB; --ts:#8892A8; --tm:#4A5068;
+    --ok:#22C55E; --warn:#F59E0B; --err:#EF4444;
+    --okS:rgba(34,197,94,.12); --warnS:rgba(245,158,11,.12); --errS:rgba(239,68,68,.12);
+    --priS:rgba(232,69,10,.10); --accS:rgba(139,92,246,.12);
+    --fDisplay:"Avenir Next Condensed","Avenir Next",-apple-system,sans-serif;
+    --fBody:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;
+    --fMono:"SF Mono","Courier New",monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+  body{background:#06070D;font-family:var(--fBody);color:var(--tp);padding:40px 20px 80px;}
+
+  /* Page header */
+  .proto-head{max-width:1600px;margin:0 auto 28px;}
+  .proto-head h1{font-family:var(--fDisplay);font-size:34px;font-weight:800;letter-spacing:-1px;display:flex;align-items:center;gap:12px;}
+  .logo-mark{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--pri),var(--priL));display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 20px rgba(232,69,10,.35);position:relative;}
+  .logo-mark::after{content:"";position:absolute;top:-3px;right:-3px;width:13px;height:13px;border-radius:50%;background:var(--acc);box-shadow:0 0 8px var(--acc);}
+  .proto-head p{color:var(--tm);font-size:13px;margin-top:6px;}
+
+  /* Tabs (role switcher) */
+  .role-tabs{display:flex;gap:6px;max-width:1600px;margin:0 auto 32px;flex-wrap:wrap;}
+  .role-tab{padding:10px 20px;border-radius:12px;background:var(--el);border:1px solid var(--border);color:var(--ts);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:8px;}
+  .role-tab .dot{width:8px;height:8px;border-radius:50%;}
+  .role-tab[data-role="auth"] .dot{background:var(--acc);}
+  .role-tab[data-role="usuario"] .dot{background:var(--pri);}
+  .role-tab[data-role="entrenador"] .dot{background:var(--ok);}
+  .role-tab[data-role="admin"] .dot{background:var(--warn);}
+  .role-tab.active{background:var(--card);color:var(--tp);border-color:var(--border2);box-shadow:0 2px 12px rgba(0,0,0,.4);}
+
+  /* Screen grid */
+  .screens{max-width:1600px;margin:0 auto;display:flex;flex-wrap:wrap;gap:48px 40px;justify-content:flex-start;}
+  .screen-wrap{display:none;}
+  .screen-wrap.active{display:flex;flex-wrap:wrap;gap:48px 40px;}
+  .screen-col{display:flex;flex-direction:column;gap:12px;}
+  .screen-title{font-size:13px;font-weight:600;color:var(--ts);letter-spacing:.2px;padding-left:4px;}
+  .screen-title .sub{color:var(--tm);font-weight:400;}
+
+  /* iPhone frame */
+  .phone{width:390px;height:844px;background:var(--base);border-radius:44px;border:2px solid var(--border2);position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.6);}
+  .phone .di{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:120px;height:34px;background:#000;border-radius:18px;z-index:100;}
+  .phone .scroll{height:100%;overflow-y:auto;overflow-x:hidden;}
+  .phone .scroll::-webkit-scrollbar{display:none;}
+
+  /* Status bar spacer */
+  .sb{height:54px;}
+
+  /* Common UI atoms */
+  .scr-head{padding:0 22px 12px;}
+  .eyebrow{font-size:11px;color:var(--tm);text-transform:uppercase;letter-spacing:.7px;}
+  .h-title{font-family:var(--fDisplay);font-size:28px;font-weight:800;letter-spacing:-.5px;margin-top:2px;}
+  .back{font-size:30px;color:var(--ts);line-height:1;padding:0 22px;cursor:pointer;}
+
+  .btn{border:none;border-radius:14px;font-family:var(--fBody);font-weight:700;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;width:100%;}
+  .btn-pri{background:linear-gradient(135deg,var(--pri),var(--priL));color:#fff;box-shadow:0 4px 20px rgba(232,69,10,.3);}
+  .btn-sec{background:var(--priS);color:var(--pri);border:1px solid var(--pri);}
+  .btn-ghost{background:transparent;color:var(--ts);border:1px solid var(--border);}
+  .btn-sm{padding:9px 14px;font-size:13px;width:auto;border-radius:10px;}
+
+  .pill{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;}
+  .pill-pri{background:var(--priS);color:var(--pri);}
+  .pill-ok{background:var(--okS);color:var(--ok);}
+  .pill-warn{background:var(--warnS);color:var(--warn);}
+  .pill-err{background:var(--errS);color:var(--err);}
+  .pill-acc{background:var(--accS);color:var(--acc);}
+  .pill-mut{background:var(--el);color:var(--ts);}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:9px;font-weight:700;color:var(--ts);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;}
+  .field .input{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px 14px;font-size:13px;color:var(--tp);display:flex;align-items:center;justify-content:space-between;}
+  .field .input.ph{color:var(--tm);}
+  .field .input.focus{border-color:var(--acc);border-width:1.5px;}
+  .icon-box{width:18px;height:18px;border-radius:4px;background:var(--tm);opacity:.55;}
+
+  /* Fiber fill progress */
+  .fiber{height:6px;background:var(--el);border-radius:999px;overflow:hidden;}
+  .fiber>span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--pri),var(--priL));position:relative;}
+  .fiber>span::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 3px,rgba(255,255,255,.08) 3px,rgba(255,255,255,.08) 4px);}
+  .fiber.acc>span{background:var(--acc);}
+  .fiber.warn>span{background:var(--warn);}
+
+  .data{font-family:var(--fMono);font-variant-numeric:tabular-nums;}
+
+  /* Bottom nav */
+  .bnav{position:absolute;bottom:0;left:0;right:0;height:78px;background:var(--el);border-top:1px solid var(--border);display:flex;padding:8px 4px;z-index:50;}
+  .bnav .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding-top:6px;color:var(--tm);}
+  .bnav .tab.on{color:var(--pri);}
+  .bnav .tab .ti{width:24px;height:24px;border-radius:6px;background:currentColor;opacity:.85;}
+  .bnav .tab span{font-size:9px;font-weight:400;}
+  .bnav .tab.on span{font-weight:700;}
+  .bnav .tab .nd{width:4px;height:4px;border-radius:50%;background:var(--pri);}
+  .bnav .tab:not(.on) .nd{opacity:0;}
+
+  /* List row */
+  .row{display:flex;align-items:center;gap:12px;padding:13px 14px;}
+  .avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--pri),var(--priL));display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:15px;flex-shrink:0;}
+  .avatar.acc{background:linear-gradient(135deg,var(--acc),#A78BFA);}
+  .avatar.gray{background:var(--el);color:var(--ts);}
+
+  .divider{height:1px;background:var(--border);margin:0 22px;}
+  .pad{padding:0 22px;}
+  .thumb{width:48px;height:48px;border-radius:10px;background:var(--el);flex-shrink:0;overflow:hidden;position:relative;}
+  .thumb::after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(232,69,10,.2),rgba(139,92,246,.2));}
+
+  .seg{display:flex;background:var(--el);border-radius:12px;padding:3px;gap:2px;}
+  .seg .s{flex:1;text-align:center;padding:8px;border-radius:9px;font-size:12px;font-weight:600;color:var(--ts);}
+  .seg .s.on{background:var(--card);color:var(--tp);box-shadow:0 1px 4px rgba(0,0,0,.3);}
+
+  .chip{padding:6px 12px;border-radius:999px;font-size:11px;font-weight:700;background:var(--el);color:var(--tm);border:1px solid var(--border);white-space:nowrap;}
+  .chip.on{background:var(--priS);color:var(--pri);border-color:var(--pri);}
+  .chip.acc.on{background:var(--accS);color:var(--acc);border-color:var(--acc);}
+
+  .fab{position:absolute;bottom:96px;right:20px;width:56px;height:56px;border-radius:18px;background:linear-gradient(135deg,var(--pri),var(--priL));display:flex;align-items:center;justify-content:center;font-size:26px;color:#fff;box-shadow:0 6px 24px rgba(232,69,10,.5);z-index:60;}
+
+  .stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .stat-c{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 8px;text-align:center;}
+  .stat-c .ic{width:16px;height:16px;border-radius:4px;margin:0 auto 6px;}
+  .stat-c .v{font-size:22px;font-weight:800;letter-spacing:-.5px;}
+  .stat-c .u{font-size:9px;color:var(--tm);text-transform:uppercase;letter-spacing:.4px;}
+  .stat-c .l{font-size:11px;color:var(--ts);margin-top:2px;}
+</style>
+</head>
+<body>
+  <div class="proto-head">
+    <h1><span class="logo-mark">⚡</span> PowerApp — Prototipo de Interfaces</h1>
+    <p>Alta fidelidad · iOS · Ember Orange ×  Electric Violet · Cubre los casos de uso de Usuario, Entrenador y Admin</p>
+  </div>
+
+  <div class="role-tabs" id="roleTabs">
+    <div class="role-tab active" data-role="auth"><span class="dot"></span>Auth (compartida)</div>
+    <div class="role-tab" data-role="usuario"><span class="dot"></span>Usuario</div>
+    <div class="role-tab" data-role="entrenador"><span class="dot"></span>Entrenador</div>
+    <div class="role-tab" data-role="admin"><span class="dot"></span>Admin</div>
+  </div>
+
+  <div class="screens" id="screensContainer">
+    <!-- SCREENS_INJECTED_HERE -->
+  </div>
+
+
+<script>
+// ============ HELPERS ============
+const phone = (title, sub, inner) => `
+  <div class="screen-col">
+    <div class="screen-title">${title}${sub?` <span class="sub">· ${sub}</span>`:''}</div>
+    <div class="phone"><div class="di"></div><div class="scroll">${inner}</div></div>
+  </div>`;
+
+const bnav = (active, role='user') => {
+  const tabs = role==='user'
+    ? [['Rutina'],['Progreso'],['RMs'],['Perfil']]
+    : role==='coach'
+    ? [['Alumnos'],['Planes'],['Rutinas'],['Perfil']]
+    : [['Inicio'],['Catálogo'],['Coaches'],['Perfil']];
+  return `<div class="bnav">${tabs.map((t,i)=>`
+    <div class="tab ${i===active?'on':''}"><div class="ti"></div><span>${t[0]}</span><div class="nd"></div></div>`).join('')}</div>`;
+};
+
+const head = (eyebrow, title, back=false) => `
+  <div class="sb"></div>
+  ${back?`<div class="back">‹</div>`:''}
+  <div class="scr-head">
+    ${eyebrow?`<div class="eyebrow">${eyebrow}</div>`:''}
+    <div class="h-title">${title}</div>
+  </div>`;
+
+const field = (label, value, ph=false, opts={}) => `
+  <div class="field">
+    <label>${label}</label>
+    <div class="input ${ph?'ph':''} ${opts.focus?'focus':''}">${value}${opts.icon?'<div class="icon-box"></div>':''}</div>
+  </div>`;
+
+// ============ AUTH SCREENS ============
+const AUTH = [
+  // LOGIN
+  phone('Login','Acceso compartido', `
+    <div class="sb"></div>
+    <div style="text-align:center;padding:24px 22px 0">
+      <div class="logo-mark" style="width:60px;height:60px;border-radius:18px;font-size:28px;margin:0 auto 18px"></div>
+      <div style="font-family:var(--fDisplay);font-size:30px;font-weight:800;letter-spacing:-1px">PowerApp</div>
+      <div style="color:var(--ts);font-size:13px;margin-top:4px">Entrená con propósito</div>
+    </div>
+    <div class="pad" style="margin-top:36px">
+      ${field('Email','tu@email.com',true)}
+      ${field('Contraseña','••••••••',false,{icon:true})}
+      <div style="text-align:right;font-size:12px;color:var(--acc);font-weight:500;margin:-4px 0 22px">¿Olvidaste tu contraseña?</div>
+      <button class="btn btn-pri">Iniciar sesión</button>
+      <div style="display:flex;align-items:center;gap:12px;margin:20px 0">
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+        <span style="font-size:11px;color:var(--tm)">o</span>
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+      </div>
+      <button class="btn btn-ghost" style="color:var(--tp)">Crear cuenta nueva</button>
+    </div>`),
+
+  // REGISTRO
+  phone('Registro','Registrar Usuario', `
+    ${head('','Crear cuenta',true)}
+    <div class="pad" style="color:var(--ts);font-size:13px;margin:-6px 0 18px">Empezá tu camino fitness</div>
+    <div class="pad">
+      <div style="display:flex;gap:10px">
+        <div style="flex:1">${field('Nombre','Franco')}</div>
+        <div style="flex:1">${field('Apellido','Carames')}</div>
+      </div>
+      ${field('Email','caramesfranco@gmail.com')}
+      <div class="field">
+        <label>Teléfono</label>
+        <div style="display:flex;gap:8px">
+          <div class="input" style="width:70px;flex-shrink:0">+54</div>
+          <div class="input" style="flex:1">11 2345 6789</div>
+        </div>
+      </div>
+      ${field('Contraseña','Mínimo 8 caracteres',true,{icon:true})}
+      <button class="btn btn-pri" style="margin-top:6px">Registrarme</button>
+      <div style="text-align:center;font-size:10px;color:var(--tm);margin-top:14px">Al registrarte aceptás los Términos y Condiciones</div>
+    </div>`),
+
+  // RECUPERAR
+  phone('Recuperar contraseña','Recuperar acceso', `
+    ${head('','Recuperar acceso',true)}
+    <div class="pad">
+      <div style="width:64px;height:64px;border-radius:18px;background:var(--accS);display:flex;align-items:center;justify-content:center;margin:8px 0 20px">
+        <div style="width:28px;height:28px;border-radius:6px;background:var(--acc)"></div>
+      </div>
+      <div style="color:var(--ts);font-size:13px;line-height:1.6;margin-bottom:28px">Te enviaremos un enlace a tu email para que puedas restablecer tu contraseña.</div>
+      ${field('Email registrado','tu@email.com',true)}
+      <button class="btn btn-pri" style="margin-top:10px">Enviar enlace</button>
+      <div style="text-align:center;font-size:12px;color:var(--acc);font-weight:500;margin-top:24px">Volver al inicio de sesión</div>
+    </div>`),
+
+  // CAMBIAR
+  phone('Cambiar contraseña','Nueva contraseña', `
+    ${head('','Nueva contraseña',true)}
+    <div class="pad" style="color:var(--ts);font-size:13px;margin:-6px 0 18px">Creá una contraseña segura</div>
+    <div class="pad">
+      ${field('Nueva contraseña','Mínimo 8 caracteres',true,{icon:true})}
+      ${field('Repetir contraseña','Repetí la contraseña',true,{icon:true})}
+      <div class="card" style="padding:14px;margin:8px 0 20px">
+        ${[['Mínimo 8 caracteres',true],['Una mayúscula y una minúscula',true],['Al menos un número',false]].map(([t,d])=>`
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <div style="width:16px;height:16px;border-radius:50%;background:${d?'var(--ok)':'var(--el)'};display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff">${d?'✓':''}</div>
+            <span style="font-size:12px;color:${d?'var(--ts)':'var(--tm)'}">${t}</span>
+          </div>`).join('')}
+      </div>
+      <button class="btn btn-pri">Guardar contraseña</button>
+    </div>`),
+];
+
+// ============ USUARIO SCREENS ============
+const USUARIO = [
+  // 1. HOME / MI PLANIFICACIÓN
+  phone('Mi Planificación','Home — Obtener mi Planificación', `
+    <div class="sb"></div>
+    <div class="scr-head" style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div class="eyebrow">Hola, Franco 👋</div>
+        <div class="h-title">Tu Plan</div>
+      </div>
+      <div class="avatar" style="margin-top:8px">F</div>
+    </div>
+    <div class="pad">
+      <div class="card" style="padding:16px;background:var(--priS);border-color:rgba(232,69,10,.2);margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--pri)">Fuerza 5×5 — Avanzado</div>
+            <div style="font-size:11px;color:var(--tm)">Semana 3 de 8 · Coach Diego</div>
+          </div>
+          <div class="data" style="font-size:24px;font-weight:800;color:var(--pri)">37%</div>
+        </div>
+        <div class="fiber"><span style="width:37%"></span></div>
+      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Rutinas de la semana</div>
+    </div>
+    <div class="pad" style="display:flex;flex-direction:column;gap:8px">
+      ${[
+        ['Día A — Empuje','Pecho · Hombro · Tríceps','6 ej.','done'],
+        ['Día B — Tirón','Espalda · Bíceps','5 ej.','today'],
+        ['Día C — Piernas','Cuádriceps · Glúteo','7 ej.','pending'],
+      ].map(([n,m,e,s])=>`
+        <div class="card" style="padding:13px;display:flex;justify-content:space-between;align-items:center;${s==='done'?'opacity:.6':''}">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:40px;height:40px;border-radius:10px;background:${s==='today'?'var(--priS)':'var(--el)'};display:flex;align-items:center;justify-content:center;font-weight:800;color:${s==='today'?'var(--pri)':'var(--ts)'};font-family:var(--fDisplay)">${n[4]}</div>
+            <div>
+              <div style="font-size:14px;font-weight:600">${n}</div>
+              <div style="font-size:11px;color:var(--tm)">${m}</div>
+            </div>
+          </div>
+          <div style="text-align:right">
+            ${s==='done'?'<span class="pill pill-ok">Hecha</span>':s==='today'?'<span class="pill pill-pri">Hoy</span>':`<div style="font-size:11px;color:var(--tm)">${e}</div>`}
+          </div>
+        </div>`).join('')}
+    </div>
+    ${bnav(0,'user')}`),
+
+  // 2. DETALLE DE RUTINA
+  phone('Detalle de Rutina','Ver detalle de Rutina', `
+    ${head('Día B — Semana 3','Tirón',true)}
+    <div class="pad">
+      <div class="stat3" style="margin-bottom:18px">
+        <div class="stat-c"><div class="ic" style="background:var(--pri)"></div><div class="v data">5</div><div class="u">ejercicios</div></div>
+        <div class="stat-c"><div class="ic" style="background:var(--acc)"></div><div class="v data">18</div><div class="u">series</div></div>
+        <div class="stat-c"><div class="ic" style="background:var(--ok)"></div><div class="v data">~45</div><div class="u">min</div></div>
+      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Circuito 1 — Principal</div>
+    </div>
+    <div class="pad" style="display:flex;flex-direction:column;gap:8px">
+      ${[
+        ['Dominadas','Espalda · Bíceps','4 × 8','AMRAP','acc'],
+        ['Remo con barra','Espalda media','4 × 10','RM','acc'],
+        ['Pull-down polea','Dorsal','3 × 12','Normal','mut'],
+        ['Curl con barra','Bíceps','3 × 12','Normal','mut'],
+      ].map(([n,m,s,t,c])=>`
+        <div class="card" style="padding:13px;display:flex;align-items:center;gap:12px">
+          <div class="thumb"></div>
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="font-size:14px;font-weight:600">${n}</div>
+              <span class="pill pill-${c}">${t}</span>
+            </div>
+            <div style="font-size:11px;color:var(--tm);margin-top:2px">${m}</div>
+            <div style="font-size:12px;color:var(--ts);margin-top:4px"><span class="data" style="color:var(--tp);font-weight:700">${s}</span> series × reps</div>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="pad" style="margin-top:14px;padding-bottom:30px">
+      <button class="btn btn-pri">Empezar rutina</button>
+    </div>`),
+
+  // 3. DETALLE DE EJERCICIO (con RMs, nota, marcar)
+  phone('Detalle de Ejercicio','Ver ejercicio · RMs · Nota · Marcar', `
+    <div class="sb"></div>
+    <div style="height:200px;background:linear-gradient(135deg,rgba(232,69,10,.25),rgba(139,92,246,.25));margin:0 0 0;position:relative;display:flex;align-items:flex-end;padding:16px 22px">
+      <div class="back" style="position:absolute;top:0;left:0;color:#fff">‹</div>
+      <div>
+        <span class="pill pill-acc">AMRAP · 40s</span>
+        <div style="font-family:var(--fDisplay);font-size:26px;font-weight:800;margin-top:8px">Dominadas</div>
+      </div>
+    </div>
+    <div class="pad" style="margin-top:18px">
+      <div style="display:flex;gap:8px;margin-bottom:18px">
+        <div class="card" style="flex:1;padding:12px;text-align:center">
+          <div class="data" style="font-size:20px;font-weight:800;color:var(--acc)">85.5<span style="font-size:11px;color:var(--tm)">kg</span></div>
+          <div style="font-size:10px;color:var(--ts);margin-top:2px">Tu RM actual</div>
+        </div>
+        <div class="card" style="flex:1;padding:12px;text-align:center">
+          <div class="data" style="font-size:20px;font-weight:800">4×8</div>
+          <div style="font-size:10px;color:var(--ts);margin-top:2px">Series objetivo</div>
+        </div>
+      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Mis series</div>
+    </div>
+    <div class="pad" style="display:flex;flex-direction:column;gap:6px">
+      ${[[1,8,'done'],[2,8,'done'],[3,6,'now'],[4,0,'next']].map(([n,r,s])=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:${s==='done'?'var(--okS)':s==='now'?'var(--priS)':'var(--el)'};border:1px solid ${s==='done'?'var(--ok)':s==='now'?'var(--pri)':'var(--border)'}">
+          <div style="width:22px;height:22px;border-radius:50%;background:${s==='done'?'var(--ok)':'transparent'};border:${s==='done'?'none':'2px solid var(--tm)'};display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff">${s==='done'?'✓':''}</div>
+          <div style="flex:1;font-size:13px;color:var(--ts)">Serie ${n}</div>
+          <div class="data" style="font-size:13px;font-weight:700;color:${s==='done'?'var(--ok)':'var(--tp)'}">${r>0?r+' reps':'—'}</div>
+        </div>`).join('')}
+    </div>
+    <div class="pad" style="margin-top:14px;display:flex;gap:8px;padding-bottom:24px">
+      <button class="btn btn-sec btn-sm" style="flex:1">📝 Dejar nota</button>
+      <button class="btn btn-pri btn-sm" style="flex:1">✓ Marcar serie</button>
+    </div>`),
+
+  // 4. TEMPORIZADOR
+  phone('Temporizador','Temporizador de descanso', `
+    ${head('Descanso entre series','Temporizador',true)}
+    <div style="text-align:center;margin-top:40px">
+      <div style="width:240px;height:240px;border-radius:50%;border:8px solid var(--el);margin:0 auto;position:relative;display:flex;align-items:center;justify-content:center">
+        <div style="position:absolute;inset:-8px;border-radius:50%;border:8px solid transparent;border-top-color:var(--pri);border-right-color:var(--pri);transform:rotate(45deg)"></div>
+        <div>
+          <div class="data" style="font-size:56px;font-weight:800;letter-spacing:-2px">01:28</div>
+          <div style="font-size:12px;color:var(--ts);text-transform:uppercase;letter-spacing:1px">restante</div>
+        </div>
+      </div>
+    </div>
+    <div class="pad" style="margin-top:40px">
+      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:24px">
+        ${['30s','60s','90s','2:00','3:00'].map((t,i)=>`<div class="chip ${i===2?'on':''}">${t}</div>`).join('')}
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost" style="flex:1">Reiniciar</button>
+        <button class="btn btn-pri" style="flex:2">Pausar</button>
+      </div>
+      <div style="text-align:center;font-size:12px;color:var(--tm);margin-top:20px">Próxima: Serie 4 de Dominadas</div>
+    </div>`),
+
+  // 5. WIKI DE EJERCICIOS
+  phone('Wiki de Ejercicios','Consultar wiki de ejercicios', `
+    ${head('Biblioteca','Ejercicios')}
+    <div class="pad">
+      <div class="input ph" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 14px;font-size:13px;color:var(--tm);display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div class="icon-box" style="opacity:.4"></div> Buscar ejercicio...
+      </div>
+      <div style="display:flex;gap:8px;overflow:hidden;margin-bottom:16px">
+        ${['Todos','Pecho','Espalda','Pierna','Hombro','Brazo'].map((c,i)=>`<div class="chip ${i===0?'on':''}">${c}</div>`).join('')}
+      </div>
+    </div>
+    <div class="pad" style="display:flex;flex-direction:column;gap:8px">
+      ${[
+        ['Press de banca','Pecho · Tríceps','Compuesto'],
+        ['Sentadilla','Cuádriceps · Glúteo','Compuesto'],
+        ['Peso muerto','Espalda · Isquios','Compuesto'],
+        ['Curl de bíceps','Bíceps','Aislamiento'],
+        ['Elevaciones laterales','Deltoides','Aislamiento'],
+      ].map(([n,m,t])=>`
+        <div class="card" style="padding:12px;display:flex;align-items:center;gap:12px">
+          <div class="thumb"></div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:600">${n}</div>
+            <div style="font-size:11px;color:var(--tm);margin-top:2px">${m}</div>
+          </div>
+          <span class="pill pill-mut">${t}</span>
+        </div>`).join('')}
+    </div>
+    ${bnav(0,'user')}`),
+
+  // 6. CALCULADORA DE RM
+  phone('Calculadora RM','Calcular mis RM potenciales', `
+    ${head('Estimá tu máximo','Calculadora RM')}
+    <div class="pad">
+      <div style="color:var(--ts);font-size:13px;line-height:1.6;margin-bottom:20px">Ingresá el peso que levantaste y las repeticiones para estimar tu repetición máxima (1RM).</div>
+      ${field('Ejercicio','Press de banca')}
+      <div style="display:flex;gap:10px">
+        <div style="flex:1">${field('Peso (kg)','70')}</div>
+        <div style="flex:1">${field('Repeticiones','8')}</div>
+      </div>
+      <div class="card" style="padding:20px;text-align:center;background:var(--accS);border-color:rgba(139,92,246,.25);margin:8px 0 18px">
+        <div style="font-size:11px;color:var(--ts);text-transform:uppercase;letter-spacing:1px">Tu 1RM estimado</div>
+        <div class="data" style="font-size:44px;font-weight:800;color:var(--acc);letter-spacing:-2px;margin:4px 0">87<span style="font-size:18px">kg</span></div>
+        <div style="font-size:11px;color:var(--tm)">Fórmula de Epley</div>
+      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Tabla de porcentajes</div>
+      ${[['95%','83 kg','2-3 reps'],['90%','78 kg','4 reps'],['85%','74 kg','6 reps'],['80%','70 kg','8 reps']].map(([p,k,r])=>`
+        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:13px;color:var(--ts)">${p}</span>
+          <span class="data" style="font-size:13px;font-weight:700">${k}</span>
+          <span style="font-size:12px;color:var(--tm)">${r}</span>
+        </div>`).join('')}
+    </div>`),
+
+  // 7. MI CUENTA / EDITAR DATOS
+  phone('Mi Cuenta','Editar datos personales', `
+    ${head('','Mi cuenta')}
+    <div class="pad" style="display:flex;flex-direction:column;align-items:center;margin-bottom:20px">
+      <div class="avatar" style="width:80px;height:80px;font-size:32px">F</div>
+      <div style="font-size:18px;font-weight:700;margin-top:12px">Franco Carames</div>
+      <div style="font-size:12px;color:var(--tm)">Miembro desde Mar 2025</div>
+      <span class="pill pill-ok" style="margin-top:8px">Membresía activa</span>
+    </div>
+    <div class="pad">
+      ${[
+        ['Datos personales','Nombre, email, teléfono'],
+        ['Historial de pagos','Tus membresías y pagos'],
+        ['Mis RMs','Récords por ejercicio'],
+        ['Cambiar contraseña','Seguridad de tu cuenta'],
+        ['Notificaciones','Recordatorios y avisos'],
+      ].map(([t,s])=>`
+        <div class="card" style="padding:14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div>
+            <div style="font-size:14px;font-weight:600">${t}</div>
+            <div style="font-size:11px;color:var(--tm);margin-top:1px">${s}</div>
+          </div>
+          <span style="color:var(--tm);font-size:18px">›</span>
+        </div>`).join('')}
+      <button class="btn btn-ghost" style="color:var(--err);border-color:rgba(239,68,68,.3);margin-top:8px">Cerrar sesión</button>
+    </div>
+    ${bnav(3,'user')}`),
+
+  // 8. HISTORIAL DE PAGOS
+  phone('Historial de Pagos','Obtener historial de pagos', `
+    ${head('Mi cuenta','Historial de pagos',true)}
+    <div class="pad">
+      <div class="card" style="padding:16px;background:var(--okS);border-color:rgba(34,197,94,.2);margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:12px;color:var(--ts)">Membresía actual</div>
+            <div style="font-size:16px;font-weight:700;color:var(--ok)">Plan Mensual</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:11px;color:var(--tm)">Vence</div>
+            <div style="font-size:13px;font-weight:600">15 Jul 2026</div>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Pagos anteriores</div>
+    </div>
+    <div class="pad" style="display:flex;flex-direction:column;gap:8px">
+      ${[
+        ['Jun 2026','Plan Mensual','$18.000','ok'],
+        ['May 2026','Plan Mensual','$18.000','ok'],
+        ['Abr 2026','Plan Mensual','$16.500','ok'],
+        ['Mar 2026','Plan Mensual','$16.500','ok'],
+      ].map(([f,p,m,s])=>`
+        <div class="card" style="padding:14px;display:flex;justify-content:space-between;align-items:center">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:10px;background:var(--okS);display:flex;align-items:center;justify-content:center;color:var(--ok);font-size:16px">✓</div>
+            <div>
+              <div style="font-size:14px;font-weight:600">${p}</div>
+              <div style="font-size:11px;color:var(--tm)">${f}</div>
+            </div>
+          </div>
+          <div class="data" style="font-size:14px;font-weight:700">${m}</div>
+        </div>`).join('')}
+    </div>`),
+];
+
+// ============ ENTRENADOR SCREENS ============
+const ENTRENADOR = [
+  // 1. MIS ALUMNOS (con filtros)
+  phone('Mis Alumnos','Administrar Alumnos · Filtros', `
+    <div class="sb"></div>
+    <div class="scr-head" style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div><div class="eyebrow">Coach Diego</div><div class="h-title">Mis Alumnos</div></div>
+      <div class="avatar acc" style="margin-top:8px">D</div>
+    </div>
+    <div class="pad">
+      <div class="stat3" style="margin-bottom:14px">
+        <div class="stat-c"><div class="v data" style="color:var(--ok)">14</div><div class="l">Activos</div></div>
+        <div class="stat-c"><div class="v data" style="color:var(--warn)">3</div><div class="l">Inactivos</div></div>
+        <div class="stat-c"><div class="v data" style="color:var(--acc)">17</div><div class="l">Total</div></div>
+      </div>
+      <div class="input ph" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--tm);display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div class="icon-box" style="opacity:.4"></div> Buscar por nombre...
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        ${['Todos','Activos','Inactivos'].map((c,i)=>`<div class="chip ${i===0?'on':''}">${c}</div>`).join('')}
+      </div>
+    </div>
+    <div class="pad" style="display:flex;flex-direction:column;gap:10px">
+      ${[
+        ['Lucía Méndez','Fuerza 5×5',true,82,'1'],
+        ['Tomás Ríos','Hipertrofia A/B',true,58,'3'],
+        ['Sofía Paz','Full Body',true,91,'1'],
+        ['Valeria Pérez','Full Body',false,18,'9'],
+      ].map(([n,p,a,adh,d])=>`
+        <div class="card" style="padding:14px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="avatar ${a?'':'gray'}">${n[0]}</div>
+              <div><div style="font-size:14px;font-weight:700">${n}</div><div style="font-size:11px;color:var(--tm)">${p}</div></div>
+            </div>
+            <span class="pill ${a?'pill-ok':'pill-warn'}">${a?'Activo':'Inactivo'}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+            <span style="font-size:11px;color:var(--tm)">Adherencia</span>
+            <span class="data" style="font-size:11px;font-weight:700;color:${a?'var(--pri)':'var(--warn)'}">${adh}%</span>
+          </div>
+          <div class="fiber ${a?'':'warn'}" style="height:4px"><span style="width:${adh}%"></span></div>
+          <div style="font-size:10px;color:var(--tm);margin-top:8px">Última sesión: hace ${d} día${d!=='1'?'s':''}</div>
+        </div>`).join('')}
+    </div>
+    ${bnav(0,'coach')}`),
+
+  // 2. DETALLE DE ALUMNO
+  phone('Detalle de Alumno','Perfil · RMs · Historiales', `
+    ${head('','Lucía Méndez',true)}
+    <div class="pad" style="display:flex;flex-direction:column;align-items:center;margin-bottom:18px">
+      <div class="avatar" style="width:72px;height:72px;font-size:28px">L</div>
+      <span class="pill pill-ok" style="margin-top:10px">Activa · Fuerza 5×5</span>
+    </div>
+    <div class="pad">
+      <div class="stat3" style="margin-bottom:18px">
+        <div class="stat-c"><div class="v data">82%</div><div class="l">Adherencia</div></div>
+        <div class="stat-c"><div class="v data">24</div><div class="l">Sesiones</div></div>
+        <div class="stat-c"><div class="v data">3</div><div class="l">Meses</div></div>
+      </div>
+      ${[
+        ['Ver RMs del alumno','Récords por ejercicio','acc'],
+        ['Historial de entrenamientos','Sesiones completadas','pri'],
+        ['Historial de pagos','Membresías y pagos','ok'],
+        ['Registrar pago','Nuevo pago de membresía','pri'],
+      ].map(([t,s,c])=>`
+        <div class="card" style="padding:14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:10px;background:var(--${c}S,var(--el));display:flex;align-items:center;justify-content:center"><div style="width:16px;height:16px;border-radius:4px;background:var(--${c})"></div></div>
+            <div><div style="font-size:14px;font-weight:600">${t}</div><div style="font-size:11px;color:var(--tm)">${s}</div></div>
+          </div>
+          <span style="color:var(--tm);font-size:18px">›</span>
+        </div>`).join('')}
+      <button class="btn btn-ghost" style="color:var(--err);border-color:rgba(239,68,68,.3);margin-top:8px">Cerrar cuenta del alumno</button>
+    </div>`),
+
+  // 3. REGISTRAR PAGO
+  phone('Registrar Pago','Registrar pago de alumno', `
+    ${head('Lucía Méndez','Registrar pago',true)}
+    <div class="pad">
+      ${field('Tipo de membresía','Plan Mensual')}
+      <div style="display:flex;gap:10px">
+        <div style="flex:1">${field('Monto','$18.000')}</div>
+        <div style="flex:1">${field('Duración','30 días')}</div>
+      </div>
+      ${field('Fecha de pago','13 Jun 2026')}
+      <div class="card" style="padding:16px;margin:8px 0 18px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+          <span style="font-size:12px;color:var(--ts)">Membresía</span>
+          <span style="font-size:13px;font-weight:600">Plan Mensual</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+          <span style="font-size:12px;color:var(--ts)">Vigencia</span>
+          <span style="font-size:13px;font-weight:600">13 Jun → 13 Jul</span>
+        </div>
+        <div style="height:1px;background:var(--border);margin:6px 0"></div>
+        <div style="display:flex;justify-content:space-between">
+          <span style="font-size:13px;font-weight:700">Total</span>
+          <span class="data" style="font-size:16px;font-weight:800;color:var(--pri)">$18.000</span>
+        </div>
+      </div>
+      <button class="btn btn-pri">Confirmar pago</button>
+    </div>`),
+
+  // 4. PLANIFICACIONES (lista)
+  phone('Planificaciones','Administrar Planificaciones Sistémicas', `
+    ${head('Sistémicas','Planificaciones')}
+    <div class="pad" style="display:flex;flex-direction:column;gap:10px">
+      ${[
+        ['Fuerza 5×5','8 semanas · 3 rutinas','12 alumnos','pri'],
+        ['Hipertrofia A/B','6 semanas · 2 rutinas','8 alumnos','acc'],
+        ['Full Body','4 semanas · 3 rutinas','5 alumnos','ok'],
+        ['Powerbuilding','12 semanas · 4 rutinas','2 alumnos','warn'],
+      ].map(([n,d,a,c])=>`
+        <div class="card" style="padding:16px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+            <div style="font-size:15px;font-weight:700;font-family:var(--fDisplay)">${n}</div>
+            <span style="color:var(--tm);font-size:18px">›</span>
+          </div>
+          <div style="font-size:12px;color:var(--ts);margin-bottom:10px">${d}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span class="pill pill-${c}">${a}</span>
+            <div style="display:flex;gap:6px">
+              <span style="font-size:11px;color:var(--acc);font-weight:600">Editar</span>
+              <span style="font-size:11px;color:var(--tm)">·</span>
+              <span style="font-size:11px;color:var(--ts);font-weight:600">Asignar</span>
+            </div>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="fab">+</div>
+    ${bnav(1,'coach')}`),
+
+  // 5. CREAR/EDITAR PLANIFICACIÓN
+  phone('Crear Planificación','Crear Planificación Sistémica', `
+    ${head('Nueva','Planificación',true)}
+    <div class="pad">
+      ${field('Nombre del plan','Fuerza 5×5 — Avanzado')}
+      ${field('Notas del entrenador','Objetivos y observaciones...',true)}
+      <div class="field">
+        <label>Tipo de plan</label>
+        <div style="display:flex;gap:6px">
+          <div class="chip on">Fuerza</div>
+          <div class="chip">Hipertrofia</div>
+          <div class="chip">Resistencia</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <div style="flex:1">${field('Duración','8 semanas')}</div>
+        <div style="flex:1">${field('N° rutinas','3')}</div>
+      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:1px;margin:8px 0 10px">Rutinas asignadas</div>
+      ${['Día A — Empuje','Día B — Tirón','Día C — Piernas'].map(r=>`
+        <div class="card" style="padding:13px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div><div style="font-size:13px;font-weight:600">${r}</div><div style="font-size:11px;color:var(--tm)">Asignada</div></div>
+          <span style="color:var(--err);font-size:13px">✕</span>
+        </div>`).join('')}
+      <button class="btn btn-ghost" style="border-style:dashed;margin:6px 0 16px">+ Asignar rutina</button>
+      <button class="btn btn-pri">Guardar planificación</button>
+    </div>`),
+
+  // 6. RUTINAS (lista)
+  phone('Rutinas','Administrar Rutinas Sistémicas', `
+    ${head('Sistémicas','Rutinas')}
+    <div class="pad" style="display:flex;flex-direction:column;gap:10px">
+      ${[
+        ['Día A — Empuje','Pecho · Hombro · Tríceps','6 ejercicios'],
+        ['Día B — Tirón','Espalda · Bíceps','5 ejercicios'],
+        ['Día C — Piernas','Cuádriceps · Glúteo','7 ejercicios'],
+        ['Full Upper','Tren superior completo','8 ejercicios'],
+        ['Full Lower','Tren inferior completo','6 ejercicios'],
+      ].map(([n,m,e])=>`
+        <div class="card" style="padding:14px;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:14px;font-weight:700">${n}</div>
+            <div style="font-size:11px;color:var(--tm);margin-top:2px">${m}</div>
+            <div style="font-size:11px;color:var(--acc);margin-top:4px">${e}</div>
+          </div>
+          <span style="color:var(--tm);font-size:18px">›</span>
+        </div>`).join('')}
+    </div>
+    <div class="fab">+</div>
+    ${bnav(2,'coach')}`),
+
+  // 7. CREAR RUTINA (con ejercicios)
+  phone('Crear Rutina','Crear Rutina · Obtener ejercicios', `
+    ${head('Nueva','Rutina',true)}
+    <div class="pad">
+      ${field('Nombre de la rutina','Día A — Empuje')}
+      ${field('Nota del coach','Enfocarse en técnica...',true)}
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 0 10px">
+        <span style="font-size:11px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:1px">Circuito 1</span>
+        <span style="font-size:11px;color:var(--ts);font-weight:600">+ Circuito</span>
+      </div>
+      ${[
+        ['Press de banca','4 series','Normal'],
+        ['Press inclinado mancuernas','3 series','Normal'],
+        ['Aperturas','3 series','AMRAP'],
+      ].map(([n,s,t])=>`
+        <div class="card" style="padding:12px;display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <div class="thumb" style="width:40px;height:40px"></div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600">${n}</div><div style="font-size:11px;color:var(--tm)">${s}</div></div>
+          <span class="pill ${t==='AMRAP'?'pill-acc':'pill-mut'}">${t}</span>
+        </div>`).join('')}
+      <button class="btn btn-ghost" style="border-style:dashed;margin:6px 0 16px">+ Agregar ejercicio</button>
+      <button class="btn btn-pri">Guardar rutina</button>
+    </div>`),
+
+  // 8. ASIGNAR PLAN A ALUMNO
+  phone('Asignar a Alumno','Asignar Planificación a Alumno', `
+    ${head('Fuerza 5×5','Asignar a alumno',true)}
+    <div class="pad">
+      <div class="input ph" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--tm);display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <div class="icon-box" style="opacity:.4"></div> Buscar alumno...
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:16px">
+        <div style="flex:1">${field('Fecha inicio','15 Jun 2026')}</div>
+        <div style="flex:1">${field('Fecha fin','10 Ago 2026')}</div>
+      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Seleccioná alumnos</div>
+    </div>
+    <div class="pad" style="display:flex;flex-direction:column;gap:8px">
+      ${[
+        ['Lucía Méndez',true],['Tomás Ríos',true],['Sofía Paz',false],['Martín Soto',false],
+      ].map(([n,sel])=>`
+        <div class="card" style="padding:13px;display:flex;align-items:center;gap:12px;${sel?'border-color:var(--pri)':''}">
+          <div class="avatar" style="width:34px;height:34px;font-size:13px">${n[0]}</div>
+          <div style="flex:1;font-size:14px;font-weight:600">${n}</div>
+          <div style="width:24px;height:24px;border-radius:50%;background:${sel?'var(--pri)':'transparent'};border:${sel?'none':'2px solid var(--border)'};display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px">${sel?'✓':''}</div>
+        </div>`).join('')}
+    </div>
+    <div class="pad" style="margin-top:16px;padding-bottom:24px">
+      <button class="btn btn-pri">Asignar a 2 alumnos</button>
+    </div>`),
+];
+
+// ============ ADMIN SCREENS ============
+const ADMIN = [
+  // 1. DASHBOARD
+  phone('Dashboard','Panel de administración', `
+    <div class="sb"></div>
+    <div class="scr-head" style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div><div class="eyebrow">Panel</div><div class="h-title">Admin</div></div>
+      <div class="avatar gray" style="margin-top:8px">A</div>
+    </div>
+    <div class="pad">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px">
+        ${[
+          ['142','Ejercicios','pri'],['38','Músculos','acc'],
+          ['9','Grupos musc.','ok'],['6','Entrenadores','warn'],
+        ].map(([v,l,c])=>`
+          <div class="card" style="padding:16px">
+            <div style="width:32px;height:32px;border-radius:9px;background:var(--${c}S,var(--el));display:flex;align-items:center;justify-content:center;margin-bottom:10px"><div style="width:16px;height:16px;border-radius:4px;background:var(--${c})"></div></div>
+            <div class="data" style="font-size:26px;font-weight:800;letter-spacing:-1px">${v}</div>
+            <div style="font-size:12px;color:var(--ts)">${l}</div>
+          </div>`).join('')}
+      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--warn);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Gestión del catálogo</div>
+      ${[
+        ['Ejercicios','Crear, editar, eliminar'],
+        ['Músculos','Administrar músculos'],
+        ['Grupos musculares','Organizar grupos'],
+        ['Entrenadores','Gestionar coaches'],
+      ].map(([t,s])=>`
+        <div class="card" style="padding:14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div><div style="font-size:14px;font-weight:600">${t}</div><div style="font-size:11px;color:var(--tm)">${s}</div></div>
+          <span style="color:var(--tm);font-size:18px">›</span>
+        </div>`).join('')}
+    </div>
+    ${bnav(0,'admin')}`),
+
+  // 2. EJERCICIOS (lista CRUD)
+  phone('Ejercicios','Administrar Ejercicios · CRUD', `
+    ${head('Catálogo','Ejercicios')}
+    <div class="pad">
+      <div class="input ph" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--tm);display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div class="icon-box" style="opacity:.4"></div> Buscar ejercicio...
+      </div>
+    </div>
+    <div class="pad" style="display:flex;flex-direction:column;gap:8px">
+      ${[
+        ['Press de banca','Pecho · Tríceps'],
+        ['Sentadilla','Cuádriceps · Glúteo'],
+        ['Peso muerto','Espalda · Isquios'],
+        ['Dominadas','Espalda · Bíceps'],
+        ['Press militar','Hombros · Tríceps'],
+        ['Curl de bíceps','Bíceps'],
+      ].map(([n,m])=>`
+        <div class="card" style="padding:12px;display:flex;align-items:center;gap:12px">
+          <div class="thumb"></div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:600">${n}</div>
+            <div style="font-size:11px;color:var(--tm);margin-top:2px">${m}</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <span style="color:var(--acc);font-size:13px">✎</span>
+            <span style="color:var(--err);font-size:13px">🗑</span>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="fab">+</div>
+    ${bnav(1,'admin')}`),
+
+  // 3. CREAR/EDITAR EJERCICIO
+  phone('Crear Ejercicio','Crear / Editar Ejercicio', `
+    ${head('Nuevo','Ejercicio',true)}
+    <div class="pad">
+      <div style="height:120px;border-radius:14px;background:var(--el);border:1px dashed var(--border2);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;margin-bottom:18px">
+        <div style="width:32px;height:32px;border-radius:8px;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ts)">+</div>
+        <span style="font-size:12px;color:var(--tm)">Subir imagen del ejercicio</span>
+      </div>
+      ${field('Nombre','Press de banca')}
+      ${field('Descripción','Ejercicio compuesto para pecho...',true)}
+      <div class="field">
+        <label>Músculos trabajados</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <div class="chip acc on">Pectoral mayor ✕</div>
+          <div class="chip acc on">Tríceps ✕</div>
+          <div class="chip">+ Agregar</div>
+        </div>
+      </div>
+      ${field('Tips de seguridad','Mantené la espalda apoyada...',true)}
+      ${field('Video (URL)','youtube.com/...',true)}
+      <button class="btn btn-pri" style="margin-top:6px">Guardar ejercicio</button>
+    </div>`),
+
+  // 4. MÚSCULOS
+  phone('Músculos','Administrar Músculos · CRUD', `
+    ${head('Catálogo','Músculos')}
+    <div class="pad" style="display:flex;flex-direction:column;gap:8px">
+      ${[
+        ['Pectoral mayor','Pecho','acc'],
+        ['Dorsal ancho','Espalda','acc'],
+        ['Cuádriceps','Piernas','pri'],
+        ['Bíceps femoral','Piernas','pri'],
+        ['Deltoides','Hombros','ok'],
+        ['Bíceps braquial','Brazos','warn'],
+      ].map(([n,g,c])=>`
+        <div class="card" style="padding:13px;display:flex;align-items:center;gap:12px">
+          <div style="width:40px;height:40px;border-radius:10px;background:var(--${c}S,var(--el));display:flex;align-items:center;justify-content:center"><div style="width:18px;height:18px;border-radius:5px;background:var(--${c})"></div></div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:600">${n}</div>
+            <div style="font-size:11px;color:var(--tm)">${g}</div>
+          </div>
+          <div style="display:flex;gap:10px"><span style="color:var(--acc);font-size:13px">✎</span><span style="color:var(--err);font-size:13px">🗑</span></div>
+        </div>`).join('')}
+    </div>
+    <div class="fab">+</div>
+    ${bnav(1,'admin')}`),
+
+  // 5. GRUPOS MUSCULARES
+  phone('Grupos Musculares','Administrar Grupos Musculares', `
+    ${head('Catálogo','Grupos musculares')}
+    <div class="pad" style="display:flex;flex-direction:column;gap:10px">
+      ${[
+        ['Pecho','3 músculos','pri'],
+        ['Espalda','5 músculos','acc'],
+        ['Piernas','6 músculos','ok'],
+        ['Hombros','3 músculos','warn'],
+        ['Brazos','4 músculos','pri'],
+        ['Core','2 músculos','acc'],
+      ].map(([n,m,c])=>`
+        <div class="card" style="padding:16px;display:flex;justify-content:space-between;align-items:center">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--${c}),${c==='pri'?'var(--priL)':'#A78BFA'});"></div>
+            <div>
+              <div style="font-size:15px;font-weight:700;font-family:var(--fDisplay)">${n}</div>
+              <div style="font-size:11px;color:var(--tm)">${m}</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px"><span style="color:var(--acc);font-size:13px">✎</span><span style="color:var(--err);font-size:13px">🗑</span></div>
+        </div>`).join('')}
+    </div>
+    <div class="fab">+</div>
+    ${bnav(1,'admin')}`),
+
+  // 6. ENTRENADORES
+  phone('Entrenadores','Administrar Entrenadores', `
+    ${head('Gestión','Entrenadores')}
+    <div class="pad" style="display:flex;flex-direction:column;gap:10px">
+      ${[
+        ['Diego Fernández','diego@gym.com','12 alumnos',true],
+        ['Carla Giménez','carla@gym.com','9 alumnos',true],
+        ['Martín López','martin@gym.com','5 alumnos',true],
+        ['Andrea Ruiz','andrea@gym.com','0 alumnos',false],
+      ].map(([n,e,a,act])=>`
+        <div class="card" style="padding:14px;display:flex;align-items:center;gap:12px">
+          <div class="avatar ${act?'acc':'gray'}">${n[0]}</div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:700">${n}</div>
+            <div style="font-size:11px;color:var(--tm)">${e}</div>
+            <div style="font-size:11px;color:var(--acc);margin-top:2px">${a}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+            <span class="pill ${act?'pill-ok':'pill-warn'}">${act?'Activo':'Inactivo'}</span>
+            <span style="color:var(--err);font-size:12px">Eliminar</span>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="pad" style="margin-top:14px">
+      <button class="btn btn-sec">+ Convertir alumno a entrenador</button>
+    </div>
+    ${bnav(2,'admin')}`),
+
+  // 7. CONVERTIR ALUMNO A ENTRENADOR
+  phone('Convertir Alumno','Convertir Alumno a Entrenador', `
+    ${head('Nuevo coach','Convertir alumno',true)}
+    <div class="pad">
+      <div style="color:var(--ts);font-size:13px;line-height:1.6;margin-bottom:18px">Seleccioná un alumno para convertirlo en entrenador. Tendrá acceso al panel de coach.</div>
+      <div class="input ph" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--tm);display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <div class="icon-box" style="opacity:.4"></div> Buscar alumno...
+      </div>
+    </div>
+    <div class="pad" style="display:flex;flex-direction:column;gap:8px">
+      ${[['Sofía Paz',true],['Martín Soto',false],['Julián Vega',false]].map(([n,sel])=>`
+        <div class="card" style="padding:13px;display:flex;align-items:center;gap:12px;${sel?'border-color:var(--pri)':''}">
+          <div class="avatar" style="width:36px;height:36px;font-size:14px">${n[0]}</div>
+          <div style="flex:1"><div style="font-size:14px;font-weight:600">${n}</div><div style="font-size:11px;color:var(--tm)">Alumno activo</div></div>
+          <div style="width:24px;height:24px;border-radius:50%;background:${sel?'var(--pri)':'transparent'};border:${sel?'none':'2px solid var(--border)'};display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px">${sel?'✓':''}</div>
+        </div>`).join('')}
+    </div>
+    <div class="pad" style="margin-top:16px">
+      ${field('Email profesional','sofia.coach@gym.com')}
+      ${field('CUIL','27-12345678-4')}
+      <button class="btn btn-pri" style="margin-top:6px">Convertir a entrenador</button>
+    </div>`),
+];
+
+// ============ RENDER ALL ============
+function buildAll(){
+  const c = document.getElementById('screensContainer');
+  const wrap = (role,screens,active)=>`<div class="screen-wrap ${active?'active':''}" data-role="${role}">${screens.join('')}</div>`;
+  c.innerHTML =
+    wrap('auth',AUTH,true) +
+    wrap('usuario',USUARIO,false) +
+    wrap('entrenador',ENTRENADOR,false) +
+    wrap('admin',ADMIN,false);
+}
+buildAll();
+
+</script>
+
+<script>
+  document.querySelectorAll('.role-tab').forEach(tab=>{
+    tab.addEventListener('click',()=>{
+      document.querySelectorAll('.role-tab').forEach(t=>t.classList.remove('active'));
+      tab.classList.add('active');
+      const role=tab.dataset.role;
+      document.querySelectorAll('.screen-wrap').forEach(w=>{
+        w.classList.toggle('active',w.dataset.role===role);
+      });
+    });
+  });
+</script>
+</body>
+</html>

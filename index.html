@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PowerApp — Backend · Documentación</title>
+<meta name="description" content="Portada de documentación del backend de PowerApp: documentación de la API en Swagger, prototipo de interfaces, estado de implementación de los casos de uso y modelo de datos de la base.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800;900&family=Saira:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --base:#06070D; --card:#13161F; --card2:#0F1219; --el:#1B1F2E;
+    --border:#232739; --border2:#2E3347;
+    --pri:#E8450A; --priL:#FF6B3D; --acc:#8B5CF6; --teal:#12B3A6; --blue:#4F8DF7;
+    --tp:#F5F1EB; --ts:#8892A8; --tm:#4A5068;
+    --fDisplay:"Saira Condensed",-apple-system,sans-serif;
+    --fBody:"Saira",-apple-system,BlinkMacSystemFont,sans-serif;
+    --fMono:"JetBrains Mono","SF Mono",monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--base);
+    font-family:var(--fBody);
+    color:var(--tp);
+    min-height:100vh;
+    padding:clamp(28px,6vw,72px) clamp(20px,5vw,64px) 64px;
+    position:relative;
+    overflow-x:hidden;
+  }
+  /* Atmospheric background: dual glows + grid + grain */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+    background:
+      radial-gradient(680px 480px at 8% -6%, rgba(232,69,10,.18), transparent 60%),
+      radial-gradient(760px 560px at 108% 112%, rgba(18,179,166,.14), transparent 62%),
+      radial-gradient(520px 420px at 92% 4%, rgba(139,92,246,.10), transparent 60%);
+  }
+  body::after{
+    content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.5;
+    background-image:
+      linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
+    background-size:52px 52px;
+    -webkit-mask-image:radial-gradient(120% 100% at 50% 0%, #000 45%, transparent 92%);
+            mask-image:radial-gradient(120% 100% at 50% 0%, #000 45%, transparent 92%);
+  }
+  .grain{
+    position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.035;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .wrap{max-width:1080px;margin:0 auto;position:relative;z-index:1;}
+
+  /* ---------- Header ---------- */
+  .head{
+    display:flex;align-items:center;gap:16px;margin-bottom:14px;
+    opacity:0;animation:rise .7s .05s cubic-bezier(.2,.7,.2,1) forwards;
+  }
+  .logo-mark{
+    width:52px;height:52px;border-radius:15px;flex:0 0 auto;
+    background:linear-gradient(135deg,var(--pri),var(--priL));
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 8px 30px rgba(232,69,10,.4);position:relative;
+  }
+  .logo-mark svg{width:26px;height:26px;}
+  .logo-mark::after{content:"";position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:var(--acc);box-shadow:0 0 12px var(--acc);}
+  .brand h1{font-family:var(--fDisplay);font-size:clamp(30px,5vw,42px);font-weight:800;letter-spacing:-.5px;line-height:1;}
+  .brand h1 span{color:var(--pri);}
+  .brand .sub{font-family:var(--fMono);font-size:12px;color:var(--ts);letter-spacing:.4px;margin-top:7px;}
+
+  /* ---------- Meta chips ---------- */
+  .meta{
+    display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 44px;
+    opacity:0;animation:rise .7s .13s cubic-bezier(.2,.7,.2,1) forwards;
+  }
+  .chip{
+    font-family:var(--fMono);font-size:11px;font-weight:500;letter-spacing:.3px;
+    color:var(--ts);background:rgba(255,255,255,.02);
+    border:1px solid var(--border);border-radius:999px;padding:6px 13px;
+    display:inline-flex;align-items:center;gap:7px;
+  }
+  .chip b{color:var(--tp);font-weight:700;}
+  .chip .dot{width:6px;height:6px;border-radius:50%;}
+
+  /* ---------- Section label ---------- */
+  .sec-label{
+    font-family:var(--fMono);font-size:11px;letter-spacing:1.4px;text-transform:uppercase;
+    color:var(--tm);margin-bottom:18px;display:flex;align-items:center;gap:12px;
+    opacity:0;animation:rise .7s .2s cubic-bezier(.2,.7,.2,1) forwards;
+  }
+  .sec-label::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
+  .sec-label.d1{animation-delay:.17s;}
+  .sec-label.d2{animation-delay:.26s;}
+
+  /* ---------- API en vivo (Swagger) ---------- */
+  .api{
+    --c:var(--teal);
+    display:flex;align-items:center;gap:22px;flex-wrap:wrap;
+    background:linear-gradient(115deg,var(--card),var(--card2) 65%);
+    border:1px solid var(--border);border-radius:20px;
+    padding:22px 26px;margin-bottom:44px;
+    text-decoration:none;color:inherit;position:relative;overflow:hidden;
+    transition:transform .3s cubic-bezier(.2,.7,.2,1), border-color .3s, box-shadow .3s;
+    opacity:0;animation:rise .7s .21s cubic-bezier(.2,.7,.2,1) forwards;
+  }
+  .api::before{
+    content:"";position:absolute;top:0;left:0;bottom:0;width:3px;
+    background:linear-gradient(180deg,var(--c),transparent 85%);opacity:.7;transition:opacity .3s;
+  }
+  .api::after{
+    content:"";position:absolute;top:-70%;left:14%;width:44%;height:240%;
+    background:radial-gradient(circle, color-mix(in srgb, var(--c) 20%, transparent), transparent 70%);
+    opacity:0;transition:opacity .4s;pointer-events:none;
+  }
+  .api:hover{transform:translateY(-3px);border-color:var(--border2);box-shadow:0 22px 46px -20px rgba(0,0,0,.7);}
+  .api:hover::before{opacity:1;}
+  .api:hover::after{opacity:1;}
+  .api:focus-visible{outline:2px solid var(--c);outline-offset:3px;}
+
+  .api-ico{
+    width:46px;height:46px;border-radius:13px;flex:0 0 auto;
+    display:flex;align-items:center;justify-content:center;
+    background:color-mix(in srgb, var(--c) 13%, transparent);
+    border:1px solid color-mix(in srgb, var(--c) 34%, transparent);color:var(--c);
+  }
+  .api-ico svg{width:23px;height:23px;}
+  .api-body{flex:1 1 320px;min-width:0;}
+  .api-body .eyebrow{display:flex;align-items:center;gap:8px;}
+  .api-body h2{font-family:var(--fDisplay);font-size:25px;font-weight:700;letter-spacing:-.3px;line-height:1.05;margin-bottom:8px;}
+  .api-body p{font-size:14px;line-height:1.55;color:var(--ts);max-width:60ch;}
+  .api-url{
+    font-family:var(--fMono);font-size:11.5px;color:var(--ts);
+    background:var(--el);border:1px solid var(--border);border-radius:8px;
+    padding:6px 11px;margin-top:13px;display:inline-block;word-break:break-all;
+  }
+  .api-hint{font-family:var(--fMono);font-size:10.5px;color:var(--tm);margin-top:9px;display:block;}
+  .api-go{
+    margin-left:auto;flex:0 0 auto;display:inline-flex;align-items:center;gap:9px;
+    font-family:var(--fMono);font-size:12.5px;font-weight:500;letter-spacing:.3px;color:var(--tp);
+    background:color-mix(in srgb, var(--c) 10%, transparent);
+    border:1px solid color-mix(in srgb, var(--c) 40%, transparent);
+    border-radius:12px;padding:12px 18px;
+  }
+  .api-go .arw{color:var(--c);font-size:16px;transition:transform .3s;}
+  .api:hover .api-go .arw{transform:translateX(5px);}
+  .live{
+    width:7px;height:7px;border-radius:50%;background:var(--c);flex:0 0 auto;
+    animation:pulse 2.4s ease-out infinite;
+  }
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 color-mix(in srgb, var(--c) 55%, transparent);}
+    70%{box-shadow:0 0 0 8px transparent;}
+    100%{box-shadow:0 0 0 0 transparent;}
+  }
+
+  /* ---------- Cards ---------- */
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
+  .card{
+    --c:var(--pri);
+    position:relative;display:flex;flex-direction:column;
+    background:linear-gradient(180deg,var(--card),var(--card2));
+    border:1px solid var(--border);border-radius:20px;
+    padding:26px 26px 24px;text-decoration:none;color:inherit;overflow:hidden;
+    transition:transform .3s cubic-bezier(.2,.7,.2,1), border-color .3s, box-shadow .3s;
+    opacity:0;animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards;
+  }
+  .card:nth-child(1){animation-delay:.28s;}
+  .card:nth-child(2){animation-delay:.36s; --c:var(--teal);}
+  .card:nth-child(3){animation-delay:.44s; --c:var(--acc);}
+  .card:nth-child(4){animation-delay:.52s; --c:var(--blue);}
+  /* top accent line */
+  .card::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:3px;
+    background:linear-gradient(90deg,var(--c),transparent 70%);
+    opacity:.6;transition:opacity .3s;
+  }
+  /* corner glow on hover */
+  .card::after{
+    content:"";position:absolute;top:-40%;right:-30%;width:70%;height:80%;
+    background:radial-gradient(circle, color-mix(in srgb, var(--c) 26%, transparent), transparent 70%);
+    opacity:0;transition:opacity .4s;pointer-events:none;
+  }
+  .card:hover{transform:translateY(-5px);border-color:var(--border2);box-shadow:0 24px 50px -18px rgba(0,0,0,.7);}
+  .card:hover::before{opacity:1;}
+  .card:hover::after{opacity:1;}
+  .card:focus-visible{outline:2px solid var(--c);outline-offset:3px;}
+
+  .card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:26px;}
+  .card-idx{font-family:var(--fMono);font-size:12px;color:var(--tm);letter-spacing:1px;}
+  .card-ico{
+    width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;
+    background:color-mix(in srgb, var(--c) 13%, transparent);
+    border:1px solid color-mix(in srgb, var(--c) 34%, transparent);color:var(--c);
+  }
+  .card-ico svg{width:23px;height:23px;}
+
+  .eyebrow{font-family:var(--fMono);font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--c);margin-bottom:8px;}
+  .card h2{font-family:var(--fDisplay);font-size:27px;font-weight:700;letter-spacing:-.3px;line-height:1.02;margin-bottom:10px;}
+  .card p{font-size:14.5px;line-height:1.55;color:var(--ts);max-width:42ch;}
+
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:20px;}
+  .tag{font-family:var(--fMono);font-size:10.5px;color:var(--ts);background:var(--el);border:1px solid var(--border);border-radius:7px;padding:4px 9px;}
+
+  .card-go{
+    display:flex;align-items:center;gap:8px;margin-top:22px;padding-top:18px;
+    border-top:1px solid var(--border);
+    font-family:var(--fMono);font-size:12px;font-weight:500;color:var(--tp);letter-spacing:.3px;
+  }
+  .card-go .arw{margin-left:auto;transition:transform .3s;color:var(--c);font-size:16px;}
+  .card:hover .card-go .arw{transform:translateX(5px);}
+
+  /* card con dos destinos (SVG / PDF): no es un link entero */
+  .card--multi{cursor:default;}
+  .card-actions{
+    display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;padding-top:18px;
+    border-top:1px solid var(--border);
+  }
+  .card-btn{
+    display:inline-flex;align-items:center;gap:8px;text-decoration:none;
+    font-family:var(--fMono);font-size:12px;font-weight:500;letter-spacing:.3px;color:var(--tp);
+    background:color-mix(in srgb, var(--c) 10%, transparent);
+    border:1px solid color-mix(in srgb, var(--c) 40%, transparent);
+    border-radius:11px;padding:10px 15px;
+    transition:background .25s,border-color .25s,color .25s;
+  }
+  .card-btn .arw{color:var(--c);font-size:15px;transition:transform .3s;}
+  .card-btn:hover{background:color-mix(in srgb, var(--c) 20%, transparent);border-color:color-mix(in srgb, var(--c) 62%, transparent);}
+  .card-btn:hover .arw{transform:translateX(4px);}
+  .card-btn:focus-visible{outline:2px solid var(--c);outline-offset:3px;}
+  .card-btn.sec{background:transparent;border-color:var(--border2);color:var(--ts);}
+  .card-btn.sec:hover{background:transparent;border-color:var(--c);color:var(--tp);}
+  .card-btn.sec .arw{transform:none;}
+  .card-btn.sec:hover .arw{transform:translateY(2px);}
+
+  /* ---------- Footer ---------- */
+  .foot{
+    margin-top:46px;padding-top:22px;border-top:1px solid var(--border);
+    display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;justify-content:space-between;
+    font-family:var(--fMono);font-size:11.5px;color:var(--tm);
+    opacity:0;animation:rise .7s .58s cubic-bezier(.2,.7,.2,1) forwards;
+  }
+  .foot a{color:var(--ts);text-decoration:none;border-bottom:1px solid transparent;transition:color .2s,border-color .2s;}
+  .foot a:hover{color:var(--pri);border-color:var(--pri);}
+  .foot .repo{display:inline-flex;align-items:center;gap:7px;}
+  .foot .repo svg{width:15px;height:15px;}
+
+  @keyframes rise{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+
+  @media (max-width:620px){
+    .grid{grid-template-columns:1fr;}
+    .card h2{font-size:24px;}
+    .api{padding:20px;}
+    .api-go{margin-left:0;width:100%;justify-content:center;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;}
+    .head,.meta,.sec-label,.card,.api,.foot{opacity:1!important;}
+  }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="wrap">
+
+  <header class="head">
+    <div class="logo-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M13 2 4 14h6l-1 8 9-12h-6z" fill="#fff" stroke="none"/>
+      </svg>
+    </div>
+    <div class="brand">
+      <h1>Power<span>App</span></h1>
+      <div class="sub">Backend · Documentación del proyecto</div>
+    </div>
+  </header>
+
+  <div class="meta">
+    <span class="chip"><span class="dot" style="background:var(--ok,#22C55E)"></span>NestJS · TypeORM · PostgreSQL</span>
+    <span class="chip"><b>75</b> casos de uso</span>
+    <span class="chip"><b>4</b> roles</span>
+    <span class="chip">app de gimnasio &amp; entrenamiento</span>
+  </div>
+
+  <div class="sec-label d1">API en vivo</div>
+
+  <a class="api" href="https://powerapp-backend.onrender.com/docs" target="_blank" rel="noopener">
+    <span class="api-ico" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+      </svg>
+    </span>
+    <div class="api-body">
+      <div class="eyebrow"><span class="live" aria-hidden="true"></span> Swagger · OpenAPI</div>
+      <h2>Documentación de la API</h2>
+      <p>Todos los servicios del backend documentados y listos para probar desde el navegador: endpoints, parámetros, DTOs, esquemas de respuesta y autenticación Bearer JWT.</p>
+      <span class="api-url">https://powerapp-backend.onrender.com/api/v1</span>
+      <span class="api-hint">Render free tier — si el servicio estuvo inactivo, la primera carga puede demorar unos segundos.</span>
+    </div>
+    <span class="api-go">Abrir Swagger <span class="arw">&rarr;</span></span>
+  </a>
+
+  <div class="sec-label d2">Vistas disponibles</div>
+
+  <div class="grid">
+
+    <div class="card card--multi">
+      <div class="card-top">
+        <span class="card-idx">01 / 04</span>
+        <span class="card-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="14" height="10" rx="2"/><line x1="2" y1="18" x2="12" y2="18"/>
+            <rect x="18" y="8" width="4" height="12" rx="1.2"/>
+          </svg>
+        </span>
+      </div>
+      <div class="eyebrow">Prototipo</div>
+      <h2>Interfaces</h2>
+      <p>Mockups navegables de las pantallas, agrupadas por rol (usuario, entrenador, admin y auth). En dos versiones: la app mobile y la web.</p>
+      <div class="tags">
+        <span class="tag">app</span><span class="tag">web</span>
+        <span class="tag">por rol</span>
+      </div>
+      <div class="card-actions">
+        <a class="card-btn" href="UI%20Front/powerapp-prototype-app.html">App <span class="arw">→</span></a>
+        <a class="card-btn" href="UI%20Front/powerapp-prototype-web.html">Web <span class="arw">→</span></a>
+      </div>
+    </div>
+
+    <a class="card" href="Status/dashboard-estado-CU.html">
+      <div class="card-top">
+        <span class="card-idx">02 / 04</span>
+        <span class="card-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="20" x2="4" y2="12"/><line x1="10" y1="20" x2="10" y2="4"/>
+            <line x1="16" y1="20" x2="16" y2="9"/><line x1="22" y1="20" x2="2" y2="20"/>
+          </svg>
+        </span>
+      </div>
+      <div class="eyebrow">Status</div>
+      <h2>Estado de implementación</h2>
+      <p>Dashboard de avance: mapeo 1:1 de cada caso de uso contra el código, con estado, endpoint y conteos por rol.</p>
+      <div class="tags">
+        <span class="tag">CU vs código</span><span class="tag">endpoints</span>
+        <span class="tag">avance por rol</span>
+      </div>
+      <div class="card-go">Abrir dashboard <span class="arw">→</span></div>
+    </a>
+
+    <a class="card" href="Use%20Cases/">
+      <div class="card-top">
+        <span class="card-idx">03 / 04</span>
+        <span class="card-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H16l4 4v12.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19.5z"/>
+            <path d="M15 3v4.5h4.5"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/>
+          </svg>
+        </span>
+      </div>
+      <div class="eyebrow">Documentación</div>
+      <h2>Especificaciones de CU</h2>
+      <p>Las 75 especificaciones de casos de uso, navegables por rol y paquete: actores, alcance, precondiciones y flujos.</p>
+      <div class="tags">
+        <span class="tag">75 CU</span><span class="tag">3 roles</span>
+        <span class="tag">por paquete</span>
+      </div>
+      <div class="card-go">Abrir especificaciones <span class="arw">→</span></div>
+    </a>
+
+    <div class="card card--multi">
+      <div class="card-top">
+        <span class="card-idx">04 / 04</span>
+        <span class="card-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <ellipse cx="12" cy="5" rx="8" ry="3"/>
+            <path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/>
+            <path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/>
+          </svg>
+        </span>
+      </div>
+      <div class="eyebrow">Base de datos</div>
+      <h2>Modelo de datos</h2>
+      <p>Diagrama entidad-relación vigente: tablas, columnas, claves y relaciones. Es la fuente de verdad del modelo del backend.</p>
+      <div class="tags">
+        <span class="tag">entidad-relación</span><span class="tag">zoom y arrastre</span>
+        <span class="tag">vigente</span>
+      </div>
+      <div class="card-actions">
+        <a class="card-btn" href="Doc/modelo-db.html">
+          Abrir el visor <span class="arw">→</span>
+        </a>
+        <a class="card-btn sec" href="Doc/PowerApp%20-%20Modelo%20DB.pdf" target="_blank" rel="noopener">
+          PDF <span class="arw">↓</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="foot">
+    <a class="repo" href="https://github.com/FranCarames/PowerApp-Docs" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.34-1.3-1.7-1.3-1.7-1.06-.72.08-.71.08-.71 1.17.08 1.79 1.2 1.79 1.2 1.04 1.79 2.73 1.27 3.4.97.1-.76.4-1.27.73-1.56-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.24 2.76.12 3.05.74.8 1.19 1.83 1.19 3.09 0 4.42-2.7 5.39-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      FranCarames/PowerApp-Docs
+    </a>
+    <a href="https://powerapp-backend.onrender.com/docs" target="_blank" rel="noopener">API · Swagger</a>
+    <a href="Doc/modelo-db.html">Modelo de datos</a>
+    <span>Documentación estática · GitHub Pages</span>
+  </footer>
+
+</div>
+</body>
+</html>

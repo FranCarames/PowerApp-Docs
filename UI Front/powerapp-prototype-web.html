@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B0D16">
+<title>PowerApp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --base:#0B0D16;--card:#13161F;--el:#1B1F2E;--border:#232739;--border2:#2E3347;
+  --pri:#E8450A;--priL:#FF6B3D;--acc:#8B5CF6;
+  --tp:#F5F1EB;--ts:#8892A8;--tm:#5B6280;
+  --ok:#22C55E;--warn:#F59E0B;--err:#EF4444;
+  --okS:rgba(34,197,94,.12);--warnS:rgba(245,158,11,.12);--errS:rgba(239,68,68,.12);
+  --priS:rgba(232,69,10,.12);--accS:rgba(139,92,246,.14);
+  --fD:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --fB:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --fM:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:dark;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--base)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--base);color:var(--tp);font-family:var(--fB);font-size:14px;line-height:1.4;-webkit-font-smoothing:antialiased;min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:none;text-align:inherit}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:8px}
+svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* Layout */
+.main{width:100%;max-width:560px;margin:0 auto;padding:20px 20px 120px}
+.auth{min-height:100vh;display:flex;justify-content:center;padding:28px 20px 40px}
+.auth-card{width:100%;max-width:420px}
+.sidebar{display:none}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;background:rgba(19,22,31,.95);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--border);padding:8px 4px calc(8px + env(safe-area-inset-bottom,0px))}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;color:var(--tm);font-size:10px;font-weight:500;text-align:center}
+.tab.on{color:var(--pri);font-weight:700}
+.tab .dot{width:4px;height:4px;border-radius:50%;background:currentColor;opacity:0}
+.tab.on .dot{opacity:1}
+
+/* Header */
+.back{display:inline-flex;align-items:center;gap:2px;color:var(--ts);font-size:13px;font-weight:600;margin:0 0 10px -4px;padding:4px}
+.top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px}
+.eyebrow{font-size:12px;color:var(--tm);font-weight:600}
+.title{font-family:var(--fD);font-size:36px;font-weight:800;letter-spacing:-.2px;line-height:1.02;margin-top:2px}
+.top-actions{display:flex;gap:10px;align-items:center;flex-shrink:0}
+.icon-btn{width:42px;height:42px;border-radius:12px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--ts);position:relative}
+.icon-btn:hover{color:var(--tp);border-color:var(--border2)}
+.badge{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;border-radius:9px;background:var(--pri);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid var(--base);padding:0 4px}
+
+/* Content atoms */
+.sec{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:24px 0 10px}
+.sec h4{font-size:12px;font-weight:700;color:var(--acc);letter-spacing:.3px}
+.list{display:grid;gap:10px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;width:100%}
+.click{cursor:pointer;transition:border-color .15s}
+.click:hover{border-color:var(--border2)}
+.row{display:flex;align-items:center;gap:12px}
+.grow{flex:1;min-width:0}
+.name{font-size:14px;font-weight:600}
+.sub{font-size:12px;color:var(--tm);margin-top:2px}
+.muted{color:var(--ts)}
+.chev{color:var(--tm);display:flex}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--pri),var(--priL));display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0}
+.avatar.acc{background:linear-gradient(135deg,var(--acc),#A78BFA)}
+.avatar.gray{background:var(--el);color:var(--ts)}
+.thumb{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,rgba(232,69,10,.22),rgba(139,92,246,.22)),var(--el);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--ts)}
+.tile{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--el);color:var(--ts)}
+.ib{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:var(--acc);flex-shrink:0}
+.ib:hover{background:var(--el)}
+.ib.del{color:var(--err)}
+.link{color:var(--acc);font-size:13px;font-weight:600}
+.empty{text-align:center;color:var(--tm);padding:28px 16px;border:1px dashed var(--border2);border-radius:16px;grid-column:1/-1}
+
+.pill{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap}
+.p-pri{background:var(--priS);color:var(--pri)}.p-ok{background:var(--okS);color:var(--ok)}.p-warn{background:var(--warnS);color:var(--warn)}
+.p-err{background:var(--errS);color:var(--err)}.p-acc{background:var(--accS);color:var(--acc)}.p-mut{background:var(--el);color:var(--ts)}
+
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;border-radius:14px;font-weight:700;font-size:15px;text-align:center}
+.btn-pri{background:linear-gradient(135deg,var(--pri),var(--priL));color:#fff;box-shadow:0 4px 20px rgba(232,69,10,.3)}
+.btn-sec{background:var(--priS);color:var(--pri);border:1px solid var(--pri)}
+.btn-ghost{border:1px solid var(--border);color:var(--ts)}
+.btn-ghost:hover{border-color:var(--border2);color:var(--tp)}
+.btn-danger{border:1px solid rgba(239,68,68,.35);color:var(--err)}
+.btn-danger.solid{background:var(--err);color:#fff;border:none}
+.btn-sm{width:auto;padding:9px 14px;font-size:13px;border-radius:10px}
+.btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
+
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--ts);margin-bottom:6px}
+.input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 14px;font-size:15px;color:var(--tp);outline:none;transition:border-color .15s,box-shadow .15s}
+.input:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(139,92,246,.2)}
+.input::placeholder{color:var(--tm)}
+select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%238892A8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px}
+textarea.input{resize:vertical;min-height:96px;line-height:1.5}
+.search{position:relative;margin-bottom:12px}
+.search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--tm);width:18px;height:18px}
+.search .input{padding-left:42px}
+.pw{position:relative}.pw .input{padding-right:48px}
+.pw button{position:absolute;right:8px;top:50%;transform:translateY(-50%);color:var(--tm);padding:6px;display:flex}
+
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;margin-bottom:10px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{padding:7px 13px;border-radius:999px;font-size:12px;font-weight:700;background:var(--el);color:var(--ts);border:1px solid var(--border);white-space:nowrap}
+.chip.on{background:var(--priS);color:var(--pri);border-color:var(--pri)}
+.chip.acc.on{background:var(--accS);color:var(--acc);border-color:var(--acc)}
+.seg{display:flex;background:var(--el);border-radius:12px;padding:3px;gap:2px;margin-bottom:16px}
+.seg button{flex:1;padding:9px 6px;border-radius:9px;font-size:13px;font-weight:600;color:var(--ts);text-align:center}
+.seg button.on{background:var(--card);color:var(--tp);box-shadow:0 1px 4px rgba(0,0,0,.35)}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 8px;text-align:center}
+.stat .v{font-family:var(--fM);font-size:22px;font-weight:800;letter-spacing:-.5px}
+.stat .l{font-size:11px;color:var(--ts);margin-top:2px}
+.data{font-family:var(--fM);font-variant-numeric:tabular-nums}
+.note{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.5;margin-bottom:18px}
+.note.warn{background:var(--warnS);border:1px solid rgba(245,158,11,.25);color:var(--warn)}
+.note.acc{background:var(--accS);border:1px solid rgba(139,92,246,.25);color:#C4B5FD}
+
+/* Fiber fill — elemento firma */
+.fiber{height:6px;background:var(--el);border-radius:999px;overflow:hidden}
+.fiber>span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--pri),var(--priL));position:relative;transition:width .4s}
+.fiber>span::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 3px,rgba(255,255,255,.1) 3px 4px)}
+.fiber.warn>span{background:var(--warn)}
+.fiber.thin{height:4px}
+
+.fab{position:fixed;right:20px;bottom:calc(96px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:18px;background:linear-gradient(135deg,var(--pri),var(--priL));color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 24px rgba(232,69,10,.5);z-index:30}
+
+/* Home: selector de semana */
+.week{display:flex;align-items:center;gap:6px}
+.wk{width:34px;height:34px;border-radius:10px;background:var(--card);border:1px solid var(--border);color:var(--ts);display:flex;align-items:center;justify-content:center}
+.wk:disabled{opacity:.3;cursor:default}
+.wk-l{text-align:center;min-width:88px;display:flex;flex-direction:column}
+.wk-l b{font-size:13px}.wk-l span{font-size:11px;color:var(--tm)}
+.segs{display:flex;gap:5px;margin-bottom:14px}
+.segs button{flex:1;height:6px;border-radius:3px;background:var(--el);padding:0;transition:transform .15s}
+.segs .done{background:var(--pri);opacity:.5}
+.segs .now{background:var(--priL)}
+.segs .sel{transform:scaleY(1.7);opacity:1}
+
+/* Ejercicio */
+.hero{display:flex;gap:16px;align-items:flex-end;padding:20px;border-radius:20px;background:linear-gradient(135deg,rgba(232,69,10,.28),rgba(139,92,246,.28)),var(--card);min-height:150px}
+.hero-ic{width:68px;height:68px;border-radius:18px;background:rgba(11,13,22,.45);display:flex;align-items:center;justify-content:center;color:var(--tp);flex-shrink:0}
+.set{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border-radius:12px;background:var(--el);border:1px solid var(--border);color:var(--ts);font-size:14px}
+.set .ck{width:22px;height:22px;border-radius:50%;border:2px solid var(--tm);display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0}
+.set .data{font-weight:700;color:var(--tp)}
+.set.done{background:var(--okS);border-color:var(--ok)}
+.set.done .ck{background:var(--ok);border-color:var(--ok)}
+.set.done .data{color:var(--ok)}
+.set.now{background:var(--priS);border-color:var(--pri)}
+
+/* Timer */
+.timer{position:relative;width:min(270px,74vw);aspect-ratio:1;margin:12px auto 26px}
+.timer svg{width:100%;height:100%;transform:rotate(-90deg)}
+.tr-bg{fill:none;stroke:var(--el);stroke-width:10}
+.tr-fg{fill:none;stroke:var(--pri);stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset 1s linear}
+.tm-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+#tm-val{font-size:clamp(44px,15vw,62px);font-weight:800;letter-spacing:-2px}
+
+/* Progreso */
+.bars{display:flex;gap:8px;align-items:stretch;height:130px}
+.bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+.bar .track{flex:1;width:100%;max-width:30px;background:var(--el);border-radius:8px;display:flex;align-items:flex-end;overflow:hidden}
+.bar .track span{width:100%;background:linear-gradient(0deg,var(--pri),var(--priL));border-radius:8px}
+.bar small{font-size:10px;color:var(--tm)}
+
+.trow{display:flex;padding:11px 2px;border-bottom:1px solid var(--border);font-size:14px}
+.trow span{flex:1}.trow span:nth-child(2){text-align:center;font-weight:700}.trow span:last-child{text-align:right;color:var(--tm)}
+.req{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--tm)}
+.req span{width:18px;height:18px;border-radius:50%;background:var(--el);display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0}
+.req.ok{color:var(--ts)}.req.ok span{background:var(--ok)}
+.radio{width:24px;height:24px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0}
+.radio.on{background:var(--pri);border-color:var(--pri)}
+.upload{height:120px;border-radius:14px;background:var(--el);border:1px dashed var(--border2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--tm);margin-bottom:18px;width:100%}
+
+/* Auth */
+.logo{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--pri),var(--priL));display:flex;align-items:center;justify-content:center;color:#fff;position:relative;box-shadow:0 4px 20px rgba(232,69,10,.35);flex-shrink:0}
+.logo::after{content:"";position:absolute;top:-4px;right:-4px;width:15px;height:15px;border-radius:50%;background:var(--acc);box-shadow:0 0 10px var(--acc)}
+.brand{font-family:var(--fD);font-size:40px;font-weight:800;line-height:1}
+.or{display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--tm);font-size:12px}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--border)}
+.demo{margin-top:32px;padding-top:20px;border-top:1px dashed var(--border2)}
+
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(6,7,13,.8);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center;z-index:80;animation:fade .2s}
+.sheet{width:100%;max-width:560px;background:var(--card);border:1px solid var(--border2);border-bottom:none;border-radius:26px 26px 0 0;padding:10px 22px calc(24px + env(safe-area-inset-bottom,0px));animation:up .25s ease;max-height:88vh;overflow:auto}
+.grip{width:40px;height:4px;border-radius:2px;background:var(--border2);margin:4px auto 18px}
+.modal-ic{width:64px;height:64px;border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.sheet h3{font-family:var(--fD);font-size:28px;font-weight:800;text-align:center;line-height:1.1}
+.sheet>p{font-size:14px;color:var(--ts);text-align:center;line-height:1.6;margin-top:8px}
+.sheet b{color:var(--tp)}
+.stack{display:grid;gap:10px;margin-top:20px}
+.temp{background:var(--el);border:1px dashed var(--border2);border-radius:12px;padding:14px;text-align:center;margin-top:16px}
+.temp .data{font-size:26px;font-weight:800;letter-spacing:8px;color:var(--acc);margin-top:4px}
+@keyframes fade{from{opacity:0}}
+@keyframes up{from{transform:translateY(30px);opacity:0}}
+
+#toast{position:fixed;left:50%;bottom:calc(104px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);background:var(--el);border:1px solid var(--border2);color:var(--tp);padding:11px 16px;border-radius:12px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:all .25s;z-index:90;display:flex;gap:8px;align-items:center;max-width:calc(100% - 40px);box-shadow:0 8px 30px rgba(0,0,0,.5)}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#toast.bad svg{color:var(--err)}#toast svg{color:var(--ok)}
+
+/* Desktop */
+@media (min-width:960px){
+  .layout{display:grid;grid-template-columns:264px 1fr;min-height:100vh}
+  .sidebar{display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh;padding:26px 16px 16px;border-right:1px solid var(--border);background:var(--card)}
+  .side-brand{display:flex;align-items:center;gap:12px;padding:0 8px 24px}
+  .side-brand .logo{width:40px;height:40px;border-radius:12px}
+  .side-brand .logo::after{width:11px;height:11px}
+  .side-item{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:12px;color:var(--ts);font-weight:600;font-size:14px;width:100%}
+  .side-item:hover{background:var(--el);color:var(--tp)}
+  .side-item.on{background:var(--priS);color:var(--pri)}
+  .side-sep{font-size:11px;color:var(--tm);font-weight:700;padding:18px 12px 6px}
+  .side-foot{margin-top:auto;display:flex;align-items:center;gap:10px;padding:14px 8px 4px;border-top:1px solid var(--border)}
+  .tabbar{display:none}
+  .main{max-width:940px;margin:0;padding:44px 56px 64px}
+  .title{font-size:46px}
+  .list.g2{grid-template-columns:1fr 1fr}
+  .narrow{max-width:540px}
+  .fab{bottom:40px;right:48px}
+  .overlay{align-items:center;padding:24px}
+  .sheet{max-width:460px;border-radius:24px;border-bottom:1px solid var(--border2);padding-bottom:26px}
+  .auth{align-items:center}
+  #toast{bottom:40px}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+/* ===== Iconos ===== */
+const ICONS={
+  home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',
+  dumbbell:'<path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/>',
+  chart:'<path d="M4 20V11M10 20V5M16 20v-6M2 20h20"/>',
+  trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8"/>',
+  timer:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  users:'<circle cx="9" cy="8" r="3.5"/><path d="M2 20a7 7 0 0 1 14 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 4 6"/>',
+  calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  list:'<path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>',
+  grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+  shield:'<path d="M12 3l8 3v6c0 5-4 8-8 9-4-1-8-4-8-9V6z"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  chev:'<path d="M9 6l6 6-6 6"/>',
+  chevL:'<path d="M15 6l-6 6 6 6"/>',
+  check:'<path d="M5 12l5 5 9-10"/>',
+  x:'<path d="M6 6l12 12M18 6L6 18"/>',
+  edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',
+  trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
+  mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
+  key:'<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3"/>',
+  wallet:'<rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M16 15h2"/>',
+  book:'<path d="M4 4h6a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 4h-6a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z"/>',
+  note:'<path d="M5 3h10l4 4v14H5z"/><path d="M9 12h6M9 16h4"/>',
+  eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  logout:'<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h11"/>',
+  bolt:'<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+  calc:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01"/>',
+  refresh:'<path d="M20 11a8 8 0 1 0-2 6M20 4v7h-7"/>',
+  pause:'<path d="M8 5v14M16 5v14"/>',
+  play:'<path d="M7 4l12 8-12 8z"/>',
+  image:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5L5 20"/>',
+  alert:'<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>',
+};
+const ic=(n,s)=>`<svg class="i" viewBox="0 0 24 24" aria-hidden="true"${s?` style="width:${s}px;height:${s}px"`:''}>${ICONS[n]||''}</svg>`;
+
+/* ===== Utilidades ===== */
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const TODAY=new Date(2026,5,13);
+const dt=iso=>new Date(iso+'T12:00:00');
+const fmtD=d=>`${d.getDate()} ${MES[d.getMonth()]} ${d.getFullYear()}`;
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x;};
+const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const ars=n=>'$'+Number(n).toLocaleString('es-AR');
+const kg=n=>Number(n).toLocaleString('es-AR',{maximumFractionDigits:1});
+const fmtT=s=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+function weekRange(w){const a=addDays(new Date(2026,4,26),7*(w-1)),b=addDays(a,6);
+  return a.getMonth()===b.getMonth()?`${a.getDate()} — ${b.getDate()} ${MES[b.getMonth()]}`:`${a.getDate()} ${MES[a.getMonth()]} — ${b.getDate()} ${MES[b.getMonth()]}`;}
+
+/* ===== Datos de ejemplo ===== */
+const RUT=[{k:'A',n:'Día A — Empuje',m:'Pecho · Hombro · Tríceps',e:6},{k:'B',n:'Día B — Tirón',m:'Espalda · Bíceps',e:5},{k:'C',n:'Día C — Piernas',m:'Cuádriceps · Glúteo',e:7}];
+const EJR=[{n:'Dominadas',m:'Espalda · Bíceps',s:'4 × 8',t:'AMRAP'},{n:'Remo con barra',m:'Espalda media',s:'4 × 10',t:'RM'},{n:'Pull-down polea',m:'Dorsal',s:'3 × 12',t:'Normal'},{n:'Curl con barra',m:'Bíceps',s:'3 × 12',t:'Normal'}];
+const HIST=[['Día A — Empuje','9 Jun · Semana 3','52 min'],['Día C — Piernas','6 Jun · Semana 2','61 min'],['Día B — Tirón','4 Jun · Semana 2','47 min'],['Día A — Empuje','2 Jun · Semana 2','49 min']];
+const PAGOS=[['Jun 2026','Plan Mensual',18000],['May 2026','Plan Mensual',18000],['Abr 2026','Plan Mensual',16500],['Mar 2026','Plan Mensual',16500]];
+const GCOL={Pecho:'pri',Espalda:'acc',Piernas:'ok',Hombros:'warn',Brazos:'pri',Core:'acc'};
+const PEOPLE={user:{n:'Franco Carames',i:'F',label:'Alumno',av:''},coach:{n:'Diego Fernández',i:'D',label:'Entrenador',av:'acc'},admin:{n:'Administrador',i:'A',label:'Admin',av:'gray'}};
+const HOME={user:'u-home',coach:'c-alumnos',admin:'a-home'};
+
+const S={
+  role:'user',week:3,ej:0,setsBy:{0:[true,true,false,false]},notes:{},
+  timer:{total:90,left:88,running:true},calc:{w:70,r:8,ej:'Press de banca'},
+  q:{},f:{},modal:null,pick:[],recMail:'',
+  rms:[{ej:'Press de banca',kg:85.5,f:'2 Jun 2026'},{ej:'Remo con barra',kg:80,f:'30 May 2026'},{ej:'Sentadilla',kg:120,f:'28 May 2026'},{ej:'Peso muerto',kg:140,f:'20 May 2026'}],
+  wiki:[['Press de banca','Pecho · Tríceps','Compuesto','Pecho'],['Sentadilla','Cuádriceps · Glúteo','Compuesto','Pierna'],['Peso muerto','Espalda · Isquios','Compuesto','Espalda'],['Dominadas','Espalda · Bíceps','Compuesto','Espalda'],['Press militar','Hombros · Tríceps','Compuesto','Hombro'],['Remo con barra','Espalda media','Compuesto','Espalda'],['Curl de bíceps','Bíceps','Aislamiento','Brazo'],['Elevaciones laterales','Deltoides','Aislamiento','Hombro'],['Extensión de cuádriceps','Cuádriceps','Aislamiento','Pierna'],['Aperturas','Pectoral mayor','Aislamiento','Pecho']],
+  alum:[{n:'Lucía Méndez',p:'Fuerza 5×5',a:true,adh:82,d:1},{n:'Tomás Ríos',p:'Hipertrofia A/B',a:true,adh:58,d:3},{n:'Sofía Paz',p:'Full Body',a:true,adh:91,d:1},{n:'Martín Soto',p:'Fuerza 5×5',a:true,adh:64,d:2},{n:'Julián Vega',p:'Powerbuilding',a:true,adh:76,d:2},{n:'Valeria Pérez',p:'Full Body',a:false,adh:18,d:9}],
+  memb:[{n:'Lucía Méndez',t:0,v:'2026-07-15'},{n:'Sofía Paz',t:1,v:'2026-08-28'},{n:'Julián Vega',t:2,v:'2027-02-01'},{n:'Franco Carames',t:0,v:'2026-07-15'},{n:'Tomás Ríos',t:0,v:'2026-06-17'},{n:'Martín Soto',t:0,v:'2026-06-15'},{n:'Valeria Pérez',t:0,v:'2026-06-01'}],
+  mtypes:[{n:'Plan Mensual',d:30,p:18000},{n:'Plan Trimestral',d:90,p:48000},{n:'Plan Anual',d:365,p:170000}],
+  planes:[{n:'Fuerza 5×5',w:8,a:12,t:'Fuerza',r:['Día A — Empuje','Día B — Tirón','Día C — Piernas']},{n:'Hipertrofia A/B',w:6,a:8,t:'Hipertrofia',r:['Full Upper','Full Lower']},{n:'Full Body',w:4,a:5,t:'Resistencia',r:['Día A — Empuje','Día B — Tirón','Día C — Piernas']},{n:'Powerbuilding',w:12,a:2,t:'Fuerza',r:['Día A — Empuje','Día B — Tirón','Día C — Piernas','Full Upper']}],
+  ruts:[{n:'Día A — Empuje',m:'Pecho · Hombro · Tríceps',c:[[['Press de banca',4,'Normal'],['Press inclinado mancuernas',3,'Normal'],['Aperturas',3,'AMRAP']]]},{n:'Día B — Tirón',m:'Espalda · Bíceps',c:[[['Dominadas',4,'AMRAP'],['Remo con barra',4,'RM'],['Pull-down polea',3,'Normal'],['Curl con barra',3,'Normal']]]},{n:'Día C — Piernas',m:'Cuádriceps · Glúteo',c:[[['Sentadilla',5,'RM'],['Prensa',4,'Normal'],['Extensión de cuádriceps',3,'Normal']]]},{n:'Full Upper',m:'Tren superior completo',c:[[['Press de banca',4,'Normal'],['Remo con barra',4,'Normal'],['Press militar',3,'Normal']]]},{n:'Full Lower',m:'Tren inferior completo',c:[[['Sentadilla',4,'Normal'],['Peso muerto',3,'RM']]]}],
+  mus:[{n:'Pectoral mayor',g:'Pecho'},{n:'Dorsal ancho',g:'Espalda'},{n:'Trapecio',g:'Espalda'},{n:'Cuádriceps',g:'Piernas'},{n:'Bíceps femoral',g:'Piernas'},{n:'Glúteo mayor',g:'Piernas'},{n:'Deltoides',g:'Hombros'},{n:'Bíceps braquial',g:'Brazos'},{n:'Tríceps',g:'Brazos'},{n:'Recto abdominal',g:'Core'}],
+  gru:['Pecho','Espalda','Piernas','Hombros','Brazos','Core'],
+  coaches:[{n:'Diego Fernández',e:'diego@gym.com',a:12,act:true},{n:'Carla Giménez',e:'carla@gym.com',a:9,act:true},{n:'Martín López',e:'martin@gym.com',a:5,act:true},{n:'Andrea Ruiz',e:'andrea@gym.com',a:0,act:false}],
+  alu:0,pay:{al:'Lucía Méndez',t:0,f:'2026-06-13'},plan:null,draft:null,rut:null,assign:{name:'Fuerza 5×5',kind:'Planificación',back:'c-planes',sel:['Lucía Méndez','Tomás Ríos']},
+  cat:'ejercicios',ejEdit:null,conv:'Sofía Paz',
+};
+
+function membStatus(m){const days=Math.round((dt(m.v)-TODAY)/864e5);
+  if(days<0)return{c:'err',e:'Vencida',r:`hace ${-days} días`};
+  if(days<=7)return{c:'warn',e:'Por vencer',r:`${days} ${days===1?'día':'días'}`};
+  return{c:'ok',e:'Activa',r:`${days} días`};}
+
+/* ===== Helpers de UI ===== */
+let CUR='login';
+const R={};const route=(id,o)=>R[id]=o;
+const backOf=r=>typeof r.back==='function'?r.back():r.back;
+function pageHead(eyebrow,title,actions=''){const b=backOf(R[CUR]||{});
+  return `${b?`<button class="back" data-go="${b}">${ic('chevL',18)} Volver</button>`:''}<div class="top"><div>${eyebrow?`<div class="eyebrow">${eyebrow}</div>`:''}<h1 class="title">${title}</h1></div>${actions?`<div class="top-actions">${actions}</div>`:''}</div>`;}
+const field=(label,attrs='',val='',ph='')=>`<div class="field"><label>${label}</label><input class="input" ${attrs} value="${esc(val)}" placeholder="${esc(ph)}"></div>`;
+const pwField=(label,ph,attrs='')=>`<div class="field"><label>${label}</label><div class="pw"><input class="input" type="password" placeholder="${ph}" ${attrs}><button type="button" data-act="eye" aria-label="Mostrar u ocultar contraseña">${ic('eye',18)}</button></div></div>`;
+const selectF=(label,opts,val,attrs='')=>`<div class="field"><label>${label}</label><select class="input" ${attrs}>${opts.map(o=>{const[v,t]=Array.isArray(o)?o:[o,o];return `<option value="${esc(v)}" ${String(v)===String(val)?'selected':''}>${esc(t)}</option>`}).join('')}</select></div>`;
+const search=(k,ph)=>`<div class="search">${ic('search')}<input class="input" type="search" data-search="${k}" value="${esc(S.q[k]||'')}" placeholder="${ph}" aria-label="${ph}"></div>`;
+const chips=(k,opts,acc)=>`<div class="chips">${opts.map((o,i)=>`<button class="chip ${acc?'acc':''} ${(S.f[k]||opts[0])===o?'on':''}" data-act="filt:${k}|${o}">${o}</button>`).join('')}</div>`;
+const tipoPill=(t,label)=>`<span class="pill ${t==='Normal'?'p-mut':'p-acc'}">${label||t}</span>`;
+const empty=m=>`<div class="empty">${m}</div>`;
+const menu=items=>items.map(([go,t,s,i,act])=>`<div class="card click row" ${go?`data-go="${go}"`:''} ${act?`data-act="${act}"`:''} role="button" tabindex="0"><div class="tile">${ic(i,18)}</div><div class="grow"><div class="name">${t}</div><div class="sub">${s}</div></div><span class="chev">${ic('chev',18)}</span></div>`).join('');
+const allEj=()=>[...new Set([...S.wiki.map(w=>w[0]),'Pull-down polea','Curl con barra','Press inclinado mancuernas','Prensa'])];
+
+/* ===== Shell ===== */
+const TABS={
+  user:[['u-home','Rutina','dumbbell'],['u-progreso','Progreso','chart'],['u-rms','RMs','trophy'],['u-timer','Timer','timer'],['u-perfil','Perfil','user']],
+  coach:[['c-alumnos','Alumnos','users'],['c-planes','Planes','calendar'],['c-rutinas','Rutinas','list'],['c-timer','Timer','timer'],['c-perfil','Perfil','user']],
+  admin:[['a-home','Inicio','home'],['a-catalogo','Catálogo','grid'],['a-coaches','Coaches','shield'],['a-perfil','Perfil','user']],
+};
+function sidebar(r){const P=PEOPLE[r.role];const org=['c-membresias','c-pago'].includes(CUR);
+  return `<aside class="sidebar"><div class="side-brand"><div class="logo">${ic('bolt',18)}</div><div><div style="font-family:var(--fD);font-size:26px;font-weight:800;line-height:1">PowerApp</div><div class="sub">${P.label}</div></div></div>
+  ${TABS[r.role].map(([id,l,i])=>`<button class="side-item ${r.tab===id&&!org?'on':''}" data-go="${id}">${ic(i)} ${l}</button>`).join('')}
+  ${r.role==='coach'?`<div class="side-sep">Organización</div><button class="side-item ${org?'on':''}" data-go="c-membresias">${ic('wallet')} Membresías</button>`:''}
+  <div class="side-foot"><div class="avatar ${P.av}" style="width:36px;height:36px;font-size:14px">${P.i}</div><div class="grow"><div style="font-size:13px;font-weight:700">${P.n}</div><div class="sub" style="margin:0">${P.label}</div></div><button class="ib" data-go="login" aria-label="Cerrar sesión" title="Cerrar sesión" style="color:var(--ts)">${ic('logout',16)}</button></div></aside>`;}
+const tabbar=r=>`<nav class="tabbar" aria-label="Navegación principal">${TABS[r.role].map(([id,l,i])=>`<button class="tab ${r.tab===id?'on':''}" data-go="${id}">${ic(i,22)}<span>${l}</span><i class="dot"></i></button>`).join('')}</nav>`;
+function modalHTML(){const m=S.modal;
+  return `<div class="overlay" data-act="closeBg"><div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(m.title)}"><div class="grip"></div>
+  ${m.ic?`<div class="modal-ic" style="background:var(--${m.tone}S);color:var(--${m.tone})">${ic(m.ic,30)}</div>`:''}
+  <h3>${m.title}</h3>${m.body?`<p>${m.body}</p>`:''}${m.html||''}<div class="stack">${m.actions||''}</div>${m.foot?`<p class="sub" style="text-align:center;margin-top:14px">${m.foot}</p>`:''}</div></div>`;}
+
+function render(){
+  let id=location.hash.replace(/^#\/?/,'')||'login';
+  if(!R[id])id='login';
+  CUR=id;const r=R[id];
+  if(r.role)S.role=r.role;
+  const inner=r.render();
+  let html=r.role?`<div class="layout">${sidebar(r)}<main class="main">${inner}</main>${tabbar(r)}</div>`:`<div class="auth"><div class="auth-card">${inner}</div></div>`;
+  if(S.modal)html+=modalHTML();
+  document.getElementById('app').innerHTML=html;
+  document.title=`${r.t||'PowerApp'} · PowerApp`;
+}
+function rerender(){const y=scrollY;render();scrollTo(0,y);}
+function go(id){S.modal=null;if(location.hash==='#/'+id){render();scrollTo(0,0);}else location.hash='#/'+id;}
+let toastT;function toast(msg,bad){const t=document.getElementById('toast');t.className=bad?'bad':'';t.innerHTML=`${ic(bad?'alert':'check',18)}<span>${msg}</span>`;requestAnimationFrame(()=>t.classList.add('show'));clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2400);}
+function openModal(m){S.modal=m;rerender();setTimeout(()=>{const f=document.querySelector('.sheet input,.sheet textarea,.sheet select');if(f)f.focus();},60);}
+const closeModal=()=>{S.modal=null;rerender();};
+function confirmDel(title,body,act){openModal({ic:'trash',tone:'err',title,body,actions:`<button class="btn btn-danger solid" data-act="${act}">Eliminar</button><button class="btn btn-ghost" data-act="close">Cancelar</button>`});}
+
+/* ===== AUTH ===== */
+const brandBlock=`<div style="text-align:center;margin:28px 0 34px"><div class="logo" style="margin:0 auto 18px">${ic('bolt',26)}</div><div class="brand">PowerApp</div><div class="muted" style="margin-top:6px">Entrená con propósito</div></div>`;
+route('login',{t:'Iniciar sesión',render:()=>`${brandBlock}
+  ${field('Email','type="email" autocomplete="email"','','tu@email.com')}
+  ${pwField('Contraseña','Tu contraseña','autocomplete="current-password"')}
+  <div style="text-align:right;margin:-4px 0 20px"><button class="link" data-go="recover">¿Olvidaste tu contraseña?</button></div>
+  <button class="btn btn-pri" data-act="login">Iniciar sesión</button>
+  <div class="or">o</div>
+  <button class="btn btn-ghost" style="color:var(--tp)" data-go="register">Crear cuenta nueva</button>
+  <div class="demo"><p class="sub" style="text-align:center;margin-bottom:10px">Prototipo: elegí con qué rol entrar</p><div class="seg">${[['user','Usuario'],['coach','Entrenador'],['admin','Admin']].map(([k,l])=>`<button class="${S.role===k?'on':''}" data-act="role:${k}">${l}</button>`).join('')}</div></div>`});
+
+route('register',{t:'Crear cuenta',back:'login',render:()=>`${pageHead('','Crear cuenta')}<p class="muted" style="margin:-8px 0 22px">Empezá tu camino fitness</p>
+  <div class="two">${field('Nombre','autocomplete="given-name"','','Franco')}${field('Apellido','autocomplete="family-name"','','Carames')}</div>
+  ${field('Email','type="email" autocomplete="email"','','tu@email.com')}
+  <div class="field"><label>Teléfono</label><div style="display:grid;grid-template-columns:76px 1fr;gap:8px"><input class="input" value="+54" aria-label="Código de país"><input class="input" type="tel" placeholder="11 2345 6789" aria-label="Teléfono"></div></div>
+  ${pwField('Contraseña','Mínimo 8 caracteres','autocomplete="new-password"')}
+  <button class="btn btn-pri" style="margin-top:6px" data-act="registered">Registrarme</button>
+  <p class="sub" style="text-align:center;margin-top:14px">Al registrarte aceptás los Términos y Condiciones</p>`});
+
+route('recover',{t:'Recuperar acceso',back:'login',render:()=>`${pageHead('Paso 1 de 3','Recuperar acceso')}
+  <div class="tile" style="width:64px;height:64px;border-radius:18px;background:var(--accS);color:var(--acc);margin-bottom:18px">${ic('key',28)}</div>
+  <p class="muted" style="line-height:1.6;margin-bottom:24px">Ingresá tu email y te enviamos una contraseña temporal de 6 dígitos para que puedas volver a entrar.</p>
+  ${field('Email registrado','type="email" id="rec-mail" autocomplete="email"',S.recMail,'tu@email.com')}
+  <button class="btn btn-pri" data-act="sendTemp">Enviar contraseña temporal</button>
+  <div style="text-align:center;margin-top:22px"><button class="link" data-go="login">Volver al inicio de sesión</button></div>`});
+
+route('login-temp',{t:'Ingresar con temporal',render:()=>`${brandBlock}
+  <div class="note acc">${ic('mail',18)}<span>Ingresá con la contraseña temporal que enviamos a ${esc(S.recMail||'tu email')}.</span></div>
+  ${field('Email','type="email"',S.recMail||'franco@email.com')}
+  ${pwField('Contraseña temporal','6 dígitos','inputmode="numeric" maxlength="6"')}
+  <button class="btn btn-pri" data-act="loginTemp">Iniciar sesión</button>`});
+
+function reqs(v){return[['Mínimo 8 caracteres',v.length>=8],['Una mayúscula y una minúscula',/[a-z]/.test(v)&&/[A-Z]/.test(v)],['Al menos un número',/\d/.test(v)]];}
+const reqsHTML=v=>reqs(v).map(([t,d])=>`<div class="req ${d?'ok':''}"><span>${d?ic('check',11):''}</span>${t}</div>`).join('');
+const passForm=(label,next,current)=>`${current?pwField('Contraseña actual','Tu contraseña actual'):''}
+  ${pwField('Nueva contraseña','Mínimo 8 caracteres','id="np1" data-pw autocomplete="new-password"')}
+  ${pwField('Repetir contraseña','Repetí la contraseña','id="np2" autocomplete="new-password"')}
+  <div class="card" id="reqs" style="margin:6px 0 20px;display:grid;gap:10px">${reqsHTML('')}</div>
+  <button class="btn btn-pri" data-act="savePass:${next}">${label}</button>`;
+route('change-pass',{t:'Nueva contraseña',render:()=>`${pageHead('Paso 3 de 3','Nueva contraseña')}
+  <div class="note warn">${ic('key',18)}<span>Ingresaste con una contraseña temporal. Creá una nueva para terminar de recuperar tu cuenta.</span></div>
+  ${passForm('Guardar y continuar','u-home')}`});
+
+/* ===== USUARIO ===== */
+const U=(id,o)=>route(id,{role:'user',...o});
+U('u-home',{t:'Tu plan',tab:'u-home',render:()=>{const w=S.week;
+  return `<div class="top"><div><div class="eyebrow">Hola, Franco 👋</div><h1 class="title">Tu plan</h1></div><div class="top-actions"><button class="icon-btn" data-go="u-wiki" aria-label="Biblioteca de ejercicios" title="Biblioteca de ejercicios">${ic('book')}</button><button class="avatar" data-go="u-perfil" aria-label="Mi cuenta">F</button></div></div>
+  <div class="card" style="background:var(--priS);border-color:rgba(232,69,10,.28)"><div class="row" style="justify-content:space-between;margin-bottom:10px"><div><div style="font-weight:700;color:var(--pri);font-size:15px">Fuerza 5×5 — Avanzado</div><div class="sub">Semana 3 de 8 · Coach Diego</div></div><div class="data" style="font-size:28px;font-weight:800;color:var(--pri)">37%</div></div><div class="fiber"><span style="width:37%"></span></div></div>
+  <div class="sec"><h4>Rutinas de la semana</h4><div class="week"><button class="wk" data-act="week:-1" ${w<=1?'disabled':''} aria-label="Semana anterior">${ic('chevL',16)}</button><div class="wk-l"><b>Semana ${w}</b><span>${weekRange(w)}</span></div><button class="wk" data-act="week:1" ${w>=8?'disabled':''} aria-label="Semana siguiente">${ic('chev',16)}</button></div></div>
+  <div class="segs">${[1,2,3,4,5,6,7,8].map(i=>`<button data-act="setWeek:${i}" class="${i<3?'done':''} ${i===3?'now':''} ${i===w?'sel':''}" aria-label="Ver semana ${i}"></button>`).join('')}</div>
+  <div class="list">${RUT.map(rt=>{const st=w<3?'done':w>3?'next':(rt.k==='A'?'done':rt.k==='B'?'today':'pending');
+    return `<div class="card click row" data-go="u-rutina" role="button" tabindex="0" style="${st==='done'?'opacity:.62':''}"><div class="tile" style="background:${st==='today'?'var(--priS)':'var(--el)'};color:${st==='today'?'var(--pri)':'var(--ts)'};font-family:var(--fD);font-weight:800;font-size:22px">${rt.k}</div><div class="grow"><div class="name">${rt.n}</div><div class="sub">${rt.m}</div></div>${st==='done'?'<span class="pill p-ok">Hecha</span>':st==='today'?'<span class="pill p-pri">Hoy</span>':st==='next'?'<span class="pill p-mut">Próxima</span>':`<span class="sub">${rt.e} ej.</span>`}</div>`;}).join('')}</div>`;}});
+
+U('u-rutina',{t:'Tirón',tab:'u-home',back:'u-home',render:()=>`${pageHead('Día B · Semana 3','Tirón')}
+  <div class="stats"><div class="stat"><div class="v">4</div><div class="l">ejercicios</div></div><div class="stat"><div class="v">14</div><div class="l">series</div></div><div class="stat"><div class="v">~45</div><div class="l">min</div></div></div>
+  <div class="sec"><h4>Circuito 1 · Principal</h4></div>
+  <div class="list">${EJR.map((e,i)=>`<div class="card click row" data-act="ej:${i}" data-go="u-ejercicio" role="button" tabindex="0"><div class="thumb">${ic('dumbbell')}</div><div class="grow"><div class="row" style="justify-content:space-between;gap:8px"><div class="name">${e.n}</div>${tipoPill(e.t)}</div><div class="sub">${e.m}</div><div style="font-size:12px;color:var(--ts);margin-top:4px"><span class="data" style="color:var(--tp);font-weight:700">${e.s}</span> series × reps</div></div></div>`).join('')}</div>
+  <button class="btn btn-pri" style="margin-top:18px" data-act="ej:0" data-go="u-ejercicio">${ic('play',16)} Empezar rutina</button>`});
+
+function getSets(){const e=EJR[S.ej],n=+e.s.split(' × ')[0];return S.setsBy[S.ej]||(S.setsBy[S.ej]=Array(n).fill(false));}
+U('u-ejercicio',{t:'Ejercicio',tab:'u-home',back:'u-rutina',render:()=>{const e=EJR[S.ej],sets=getSets(),reps=e.s.split(' × ')[1],rm=S.rms.find(r=>r.ej===e.n),nx=sets.indexOf(false);
+  return `<button class="back" data-go="u-rutina">${ic('chevL',18)} Volver</button>
+  <div class="hero"><div class="hero-ic">${ic('dumbbell',36)}</div><div>${tipoPill(e.t,e.t==='AMRAP'?'AMRAP · 40s':e.t)}<h1 class="title" style="margin-top:8px">${e.n}</h1><div class="sub" style="color:var(--ts)">${e.m}</div></div></div>
+  <div class="two" style="margin-top:12px"><div class="card" style="text-align:center">${rm?`<div class="data" style="font-size:24px;font-weight:800;color:var(--acc)">${kg(rm.kg)}<span style="font-size:12px;color:var(--tm)"> kg</span></div><div class="sub">Tu RM actual</div>`:`<div style="font-weight:700;color:var(--ts);margin-bottom:4px">Sin RM</div><button class="link" data-act="rmNew:${e.n}">Registrar RM</button>`}</div><div class="card" style="text-align:center"><div class="data" style="font-size:24px;font-weight:800">${e.s.replace(' × ','×')}</div><div class="sub">Series objetivo</div></div></div>
+  <div class="sec"><h4>Mis series</h4><span class="sub" style="margin:0">${sets.filter(Boolean).length} de ${sets.length} hechas</span></div>
+  <div class="list" style="gap:8px">${sets.map((d,i)=>`<button class="set ${d?'done':i===nx?'now':''}" data-act="toggleSet:${i}" aria-pressed="${d}"><span class="ck">${d?ic('check',12):''}</span><span class="grow">Serie ${i+1}</span><span class="data">${d?reps+' reps':'—'}</span></button>`).join('')}</div>
+  ${S.notes[e.n]?`<div class="note acc" style="margin:14px 0 0">${ic('note',18)}<span>${esc(S.notes[e.n])}</span></div>`:''}
+  <div class="two" style="margin-top:16px"><button class="btn btn-sec" data-act="note">${ic('note',16)} ${S.notes[e.n]?'Editar nota':'Dejar nota'}</button><button class="btn btn-pri" data-act="markSet" ${nx<0?'disabled':''}>${ic('check',16)} Marcar serie</button></div>`;}});
+
+const timerHTML=()=>{const t=S.timer,C=691.15,off=C*(1-t.left/t.total),sets=getSets(),nx=sets.indexOf(false);
+  return `${pageHead('Descanso entre series','Temporizador')}
+  <div class="timer"><svg viewBox="0 0 240 240"><circle cx="120" cy="120" r="110" class="tr-bg"/><circle id="tm-ring" cx="120" cy="120" r="110" class="tr-fg" style="stroke-dasharray:${C};stroke-dashoffset:${off}"/></svg><div class="tm-c"><div id="tm-val" class="data" role="timer">${fmtT(t.left)}</div><div class="eyebrow" style="color:var(--ts)">${t.left===0?'Descanso terminado':t.running?'restante':'en pausa'}</div></div></div>
+  <div class="chips" style="justify-content:center">${[30,60,90,120,180].map(s=>`<button class="chip ${t.total===s?'on':''}" data-act="preset:${s}">${s<120?s+'s':(s/60)+':00'}</button>`).join('')}</div>
+  <div style="display:grid;grid-template-columns:1fr 2fr;gap:10px;max-width:440px;margin:6px auto 0"><button class="btn btn-ghost" data-act="treset">${ic('refresh',16)} Reiniciar</button><button class="btn btn-pri" data-act="ttoggle">${t.running?ic('pause',16)+' Pausar':ic('play',16)+(t.left===0?' Repetir':' Reanudar')}</button></div>
+  ${S.role==='user'?`<p class="sub" style="text-align:center;margin-top:18px">Próxima: serie ${nx<0?sets.length:nx+1} de ${EJR[S.ej].n}</p>`:''}`;};
+U('u-timer',{t:'Temporizador',tab:'u-timer',render:timerHTML});
+
+U('u-progreso',{t:'Progreso',tab:'u-progreso',render:()=>`${pageHead('Tu evolución','Progreso')}
+  <div class="stats"><div class="stat"><div class="v" style="color:var(--pri)">24</div><div class="l">Sesiones</div></div><div class="stat"><div class="v" style="color:var(--acc)">82%</div><div class="l">Adherencia</div></div><div class="stat"><div class="v" style="color:var(--ok)">3</div><div class="l">Meses</div></div></div>
+  <div class="sec"><h4>Rutinas completadas por semana</h4></div>
+  <div class="card"><div class="bars">${[100,100,33,0,0,0,0,0].map((v,i)=>`<div class="bar"><div class="track"><span style="height:${v}%"></span></div><small>S${i+1}</small></div>`).join('')}</div></div>
+  <div class="sec"><h4>Historial de entrenamientos</h4></div>
+  <div class="list g2">${HIST.map(h=>`<div class="card row"><div class="tile" style="background:var(--okS);color:var(--ok)">${ic('check',18)}</div><div class="grow"><div class="name">${h[0]}</div><div class="sub">${h[1]}</div></div><span class="data sub" style="margin:0">${h[2]}</span></div>`).join('')}</div>`});
+
+U('u-rms',{t:'Mis RMs',tab:'u-rms',render:()=>`${pageHead('Récords personales','Mis RMs')}
+  <div class="two"><button class="btn btn-pri" data-act="rmNew">${ic('plus',16)} Registrar RM</button><button class="btn btn-sec" data-go="u-calc">${ic('calc',16)} Calculadora</button></div>
+  <div class="sec"><h4>Registrados</h4><span class="sub" style="margin:0">${S.rms.length} ejercicios</span></div>
+  <div class="list g2">${S.rms.length?S.rms.map((r,i)=>`<div class="card row"><div class="tile" style="background:var(--accS);color:var(--acc)">${ic('trophy',18)}</div><div class="grow"><div class="name">${r.ej}</div><div class="sub">${r.f}</div></div><div class="data" style="font-weight:800;font-size:17px;white-space:nowrap">${kg(r.kg)}<span class="sub"> kg</span></div><button class="ib" data-act="rmEdit:${i}" aria-label="Editar RM de ${r.ej}">${ic('edit',16)}</button><button class="ib del" data-act="rmDel:${i}" aria-label="Eliminar RM de ${r.ej}">${ic('trash',16)}</button></div>`).join(''):empty('Todavía no registraste ningún RM. Registrá el primero para seguir tu progreso.')}</div>`});
+
+const calcRM=()=>{const{w,r}=S.calc;if(!(w>0&&r>0))return 0;return r===1?w:w*(1+r/30);};
+const calcRes=()=>{const v=calcRM();return v?`${Math.round(v)}<span style="font-size:18px"> kg</span>`:'—';};
+const calcTable=()=>{const v=calcRM();if(!v)return empty('Ingresá peso y repeticiones');return[[95,2],[90,4],[85,6],[80,8],[75,10]].map(([p,n])=>`<div class="trow"><span>${p}%</span><span class="data">${Math.round(v*p/100)} kg</span><span>${n} reps</span></div>`).join('');};
+U('u-calc',{t:'Calculadora RM',tab:'u-rms',back:'u-rms',render:()=>`${pageHead('Estimá tu máximo','Calculadora RM')}<div class="narrow">
+  <p class="muted" style="line-height:1.6;margin-bottom:18px">Ingresá el peso que levantaste y las repeticiones para estimar tu repetición máxima. Es una estimación: no se guarda en tus RMs.</p>
+  ${selectF('Ejercicio',allEj(),S.calc.ej,'data-calc="ej"')}
+  <div class="two">${field('Peso (kg)','type="number" inputmode="decimal" min="0" step="0.5" data-calc="w"',S.calc.w)}${field('Repeticiones','type="number" inputmode="numeric" min="1" max="12" data-calc="r"',S.calc.r)}</div>
+  <div class="card" style="text-align:center;background:var(--accS);border-color:rgba(139,92,246,.3);padding:20px;margin-top:4px"><div class="eyebrow" style="color:var(--ts)">Tu 1RM estimado</div><div id="c-res" class="data" style="font-size:48px;font-weight:800;color:var(--acc);letter-spacing:-2px">${calcRes()}</div><div class="sub">Fórmula de Epley</div></div>
+  <div class="sec"><h4>Tabla de porcentajes</h4></div><div id="c-table">${calcTable()}</div></div>`});
+
+U('u-wiki',{t:'Ejercicios',tab:'u-home',back:'u-home',list:()=>{const q=(S.q.wiki||'').toLowerCase(),f=S.f.wiki||'Todos';const it=S.wiki.filter(w=>(f==='Todos'||w[3]===f)&&w[0].toLowerCase().includes(q));
+  return it.length?it.map(w=>`<div class="card row"><div class="thumb">${ic('dumbbell')}</div><div class="grow"><div class="name">${w[0]}</div><div class="sub">${w[1]}</div></div><span class="pill p-mut">${w[2]}</span></div>`).join(''):empty('No hay ejercicios con ese nombre. Probá con otra búsqueda o categoría.');},
+  render:()=>`${pageHead('Biblioteca','Ejercicios')}${search('wiki','Buscar ejercicio')}${chips('wiki',['Todos','Pecho','Espalda','Pierna','Hombro','Brazo'])}<div class="list g2" id="list">${R['u-wiki'].list()}</div>`});
+
+U('u-perfil',{t:'Mi cuenta',tab:'u-perfil',render:()=>`${pageHead('','Mi cuenta')}
+  <div style="text-align:center;margin-bottom:22px"><div class="avatar" style="width:80px;height:80px;font-size:32px;margin:0 auto">F</div><div style="font-size:19px;font-weight:700;margin-top:12px">Franco Carames</div><div class="sub">Miembro desde marzo 2025</div><span class="pill p-ok" style="margin-top:8px">Membresía activa</span></div>
+  <div class="list g2">${menu([['u-datos','Datos personales','Nombre, email y teléfono','user'],['u-pagos','Historial de pagos','Tus membresías y pagos','wallet'],['u-rms','Mis RMs','Récords por ejercicio','trophy'],['u-wiki','Biblioteca de ejercicios','Técnica y músculos','book'],['u-pass','Cambiar contraseña','Seguridad de tu cuenta','key']])}</div>
+  <button class="btn btn-danger" style="margin-top:16px" data-go="login">${ic('logout',16)} Cerrar sesión</button>`});
+
+U('u-datos',{t:'Datos personales',tab:'u-perfil',back:'u-perfil',render:()=>`${pageHead('Mi cuenta','Datos personales')}<div class="narrow">
+  <div class="two">${field('Nombre','','Franco')}${field('Apellido','','Carames')}</div>${field('Email','type="email"','caramesfranco@gmail.com')}${field('Teléfono','type="tel"','+54 11 2345 6789')}
+  <button class="btn btn-pri" data-act="saved:Datos actualizados" data-go="u-perfil">Guardar cambios</button></div>`});
+
+U('u-pagos',{t:'Historial de pagos',tab:'u-perfil',back:'u-perfil',render:()=>`${pageHead('Mi cuenta','Historial de pagos')}
+  <div class="card row" style="background:var(--okS);border-color:rgba(34,197,94,.25);justify-content:space-between"><div><div class="sub" style="margin:0;color:var(--ts)">Membresía actual</div><div style="font-size:17px;font-weight:700;color:var(--ok)">Plan Mensual</div></div><div style="text-align:right"><div class="sub" style="margin:0">Vence</div><div style="font-weight:600">15 Jul 2026</div></div></div>
+  <div class="sec"><h4>Pagos anteriores</h4></div>
+  <div class="list g2">${PAGOS.map(p=>`<div class="card row"><div class="tile" style="background:var(--okS);color:var(--ok)">${ic('check',18)}</div><div class="grow"><div class="name">${p[1]}</div><div class="sub">${p[0]}</div></div><div class="data" style="font-weight:700">${ars(p[2])}</div></div>`).join('')}</div>`});
+
+const passRoute=(id,role,back,tab)=>route(id,{t:'Cambiar contraseña',role,tab,back,render:()=>`${pageHead('Seguridad','Cambiar contraseña')}<div class="narrow">${passForm('Guardar contraseña',back,true)}</div>`});
+passRoute('u-pass','user','u-perfil','u-perfil');
+
+/* ===== ENTRENADOR ===== */
+const Cc=(id,o)=>route(id,{role:'coach',...o});
+const membCounts=()=>{const c={ok:0,warn:0,err:0};S.memb.forEach(m=>c[membStatus(m).c]++);return c;};
+Cc('c-alumnos',{t:'Mis alumnos',tab:'c-alumnos',list:()=>{const q=(S.q.alum||'').toLowerCase(),f=S.f.alum||'Todos';
+  const it=S.alum.map((a,i)=>[a,i]).filter(([a])=>(f==='Todos'||(f==='Activos')===a.a)&&a.n.toLowerCase().includes(q));
+  return it.length?it.map(([a,i])=>`<div class="card click" data-act="alu:${i}" data-go="c-alumno" role="button" tabindex="0"><div class="row" style="margin-bottom:12px"><div class="avatar ${a.a?'':'gray'}">${a.n[0]}</div><div class="grow"><div class="name" style="font-weight:700">${a.n}</div><div class="sub">${a.p}</div></div><span class="pill ${a.a?'p-ok':'p-warn'}">${a.a?'Activo':'Inactivo'}</span></div><div class="row" style="justify-content:space-between;margin-bottom:6px"><span class="sub" style="margin:0">Adherencia</span><span class="data" style="font-size:12px;font-weight:700;color:${a.a?'var(--pri)':'var(--warn)'}">${a.adh}%</span></div><div class="fiber thin ${a.a?'':'warn'}"><span style="width:${a.adh}%"></span></div><div class="sub" style="margin-top:8px">Última sesión: hace ${a.d} día${a.d===1?'':'s'}</div></div>`).join(''):empty('No hay alumnos que coincidan con la búsqueda.');},
+  render:()=>{const c=membCounts(),act=S.alum.filter(a=>a.a).length;
+  return `<div class="top"><div><div class="eyebrow">Coach Diego</div><h1 class="title">Mis alumnos</h1></div><div class="top-actions"><button class="icon-btn" data-go="c-membresias" aria-label="Control de membresías: ${c.warn+c.err} requieren atención" title="Control de membresías">${ic('wallet')}${c.warn+c.err?`<span class="badge">${c.warn+c.err}</span>`:''}</button><button class="avatar acc" data-go="c-perfil" aria-label="Mi cuenta">D</button></div></div>
+  <div class="stats" style="margin-bottom:16px"><div class="stat"><div class="v" style="color:var(--ok)">${act}</div><div class="l">Activos</div></div><div class="stat"><div class="v" style="color:var(--warn)">${S.alum.length-act}</div><div class="l">Inactivos</div></div><div class="stat"><div class="v" style="color:var(--acc)">${S.alum.length}</div><div class="l">Total</div></div></div>
+  ${search('alum','Buscar por nombre')}${chips('alum',['Todos','Activos','Inactivos'])}<div class="list g2" id="list">${R['c-alumnos'].list()}</div>`;}});
+
+Cc('c-membresias',{t:'Membresías',tab:'c-alumnos',back:'c-alumnos',list:()=>{const q=(S.q.memb||'').toLowerCase(),f=S.f.memb||'Todas';const map={Activas:'ok','Por vencer':'warn',Vencidas:'err'};
+  const it=S.memb.map((m,i)=>[m,i,membStatus(m)]).filter(([m,,s])=>(f==='Todas'||map[f]===s.c)&&m.n.toLowerCase().includes(q)).sort((a,b)=>dt(a[0].v)-dt(b[0].v));
+  return it.length?it.map(([m,i,s])=>`<div class="card"><div class="row"><div class="avatar ${s.c==='err'?'gray':''}">${m.n[0]}</div><div class="grow"><div class="name" style="font-weight:700">${m.n}</div><div class="sub">${S.mtypes[m.t].n}</div></div><span class="pill p-${s.c}">${s.e}</span></div><div class="row" style="justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)"><div><div class="sub" style="margin:0">Vence</div><div style="font-size:13px;font-weight:600;color:${s.c==='err'?'var(--err)':'var(--tp)'}">${fmtD(dt(m.v))} · ${s.r}</div></div><button class="btn btn-sec btn-sm" data-act="payFor:${m.n}" data-go="c-pago">${s.c==='err'?'Renovar':'Registrar pago'}</button></div></div>`).join(''):empty('No hay membresías en este estado.');},
+  render:()=>{const c=membCounts();
+  return `${pageHead('Organización','Membresías')}
+  <div class="stats" style="margin-bottom:16px"><div class="stat" style="background:var(--okS);border-color:rgba(34,197,94,.22)"><div class="v" style="color:var(--ok)">${c.ok}</div><div class="l">Activas</div></div><div class="stat" style="background:var(--warnS);border-color:rgba(245,158,11,.22)"><div class="v" style="color:var(--warn)">${c.warn}</div><div class="l">Por vencer</div></div><div class="stat" style="background:var(--errS);border-color:rgba(239,68,68,.22)"><div class="v" style="color:var(--err)">${c.err}</div><div class="l">Vencidas</div></div></div>
+  <button class="btn btn-pri" style="margin-bottom:18px" data-act="payFor:" data-go="c-pago">${ic('plus',16)} Registrar nuevo pago</button>
+  ${search('memb','Buscar alumno')}${chips('memb',['Todas','Activas','Por vencer','Vencidas'])}<div class="list g2" id="list">${R['c-membresias'].list()}</div>`;}});
+
+Cc('c-pago',{t:'Registrar pago',tab:'c-alumnos',back:'c-membresias',render:()=>{const p=S.pay,t=S.mtypes[p.t],from=dt(p.f),to=addDays(from,t.d);
+  return `${pageHead(esc(p.al),'Registrar pago')}<div class="narrow">
+  ${selectF('Alumno',S.alum.map(a=>a.n),p.al,'data-pay="al"')}
+  ${selectF('Tipo de membresía',S.mtypes.map((m,i)=>[i,`${m.n} · ${m.d} días`]),p.t,'data-pay="t"')}
+  <div class="two"><div class="field"><label>Monto</label><div class="input data" style="color:var(--ts)">${ars(t.p)}</div></div>${field('Fecha de pago','type="date" data-pay="f"',p.f)}</div>
+  <div class="card" style="margin:6px 0 18px;display:grid;gap:10px"><div class="row" style="justify-content:space-between"><span class="muted">Membresía</span><b>${t.n}</b></div><div class="row" style="justify-content:space-between"><span class="muted">Vigencia</span><b>${fmtD(from)} → ${fmtD(to)}</b></div><div style="height:1px;background:var(--border)"></div><div class="row" style="justify-content:space-between"><b>Total</b><span class="data" style="font-size:18px;font-weight:800;color:var(--pri)">${ars(t.p)}</span></div></div>
+  <button class="btn btn-pri" data-act="confirmPay">Confirmar pago</button></div>`;}});
+
+Cc('c-alumno',{t:'Alumno',tab:'c-alumnos',back:'c-alumnos',render:()=>{const a=S.alum[S.alu];
+  return `${pageHead('Alumno',a.n)}
+  <div class="row" style="margin-bottom:18px"><div class="avatar ${a.a?'':'gray'}" style="width:64px;height:64px;font-size:26px">${a.n[0]}</div><div><span class="pill ${a.a?'p-ok':'p-warn'}">${a.a?'Activo':'Inactivo'}</span><div class="sub" style="margin-top:6px">${a.p}</div></div></div>
+  <div class="stats" style="margin-bottom:18px"><div class="stat"><div class="v">${a.adh}%</div><div class="l">Adherencia</div></div><div class="stat"><div class="v">24</div><div class="l">Sesiones</div></div><div class="stat"><div class="v">3</div><div class="l">Meses</div></div></div>
+  <div class="list g2">${menu([[null,'RMs del alumno','Récords por ejercicio','trophy','alRms'],[null,'Historial de entrenamientos','Sesiones completadas','list','alHist'],[null,'Historial de pagos','Membresías y pagos','wallet','alPagos'],['c-pago','Registrar pago','Nuevo pago de membresía','plus','payFor:'+a.n]])}</div>
+  ${a.a?`<button class="btn btn-danger" style="margin-top:16px" data-act="closeAcc">Cerrar cuenta del alumno</button>`:''}`;}});
+
+Cc('c-planes',{t:'Planificaciones',tab:'c-planes',render:()=>`${pageHead('Sistémicas','Planificaciones')}
+  <div class="list g2">${S.planes.map((p,i)=>`<div class="card click" data-act="plan:${i}" data-go="c-plan" role="button" tabindex="0"><div class="row" style="justify-content:space-between"><div style="font-family:var(--fD);font-size:22px;font-weight:700">${p.n}</div><span class="chev">${ic('chev',18)}</span></div><div class="sub" style="margin:2px 0 12px">${p.w} semanas · ${p.r.length} rutinas · ${p.t}</div><div class="row" style="justify-content:space-between"><span class="pill p-acc">${p.a} alumnos</span><div class="row" style="gap:6px"><button class="btn btn-ghost btn-sm" data-act="plan:${i}" data-go="c-plan">Editar</button><button class="btn btn-sec btn-sm" data-act="assignPlan:${i}" data-go="c-asignar">Asignar</button></div></div></div>`).join('')}</div>
+  <button class="fab" data-act="plan:new" data-go="c-plan" aria-label="Crear planificación">${ic('plus',26)}</button>`});
+
+Cc('c-plan',{t:'Planificación',tab:'c-planes',back:'c-planes',render:()=>{if(!S.draft||!S.draft.r)ACT.plan('new');const d=S.draft;
+  return `${pageHead(S.plan===null?'Nueva':'Editar','Planificación')}<div class="narrow">
+  ${field('Nombre del plan','data-draft="n"',d.n,'Ej: Fuerza 5×5 — Avanzado')}
+  <div class="field"><label>Notas del entrenador</label><textarea class="input" data-draft="notas" placeholder="Objetivos y observaciones">${esc(d.notas||'')}</textarea></div>
+  <div class="field"><label>Tipo de plan</label><div class="chips">${['Fuerza','Hipertrofia','Resistencia'].map(t=>`<button class="chip ${d.t===t?'on':''}" data-act="draftT:${t}">${t}</button>`).join('')}</div></div>
+  ${field('Duración (semanas)','type="number" min="1" data-draft="w"',d.w)}
+  <div class="sec"><h4>Rutinas asignadas</h4><span class="sub" style="margin:0">${d.r.length}</span></div>
+  <div class="list" style="gap:8px">${d.r.length?d.r.map((r,j)=>`<div class="card row" style="padding:12px 14px"><div class="grow name">${r}</div><button class="ib del" data-act="planRm:${j}" aria-label="Quitar ${r}">${ic('x',16)}</button></div>`).join(''):empty('Asigná al menos una rutina a la planificación.')}</div>
+  <button class="btn btn-ghost" style="border-style:dashed;margin:10px 0 18px" data-act="planAdd">${ic('plus',16)} Asignar rutina</button>
+  <button class="btn btn-pri" data-act="planSave">Guardar planificación</button>
+  ${S.plan!==null?`<button class="btn btn-danger" style="margin-top:10px" data-act="planDel">Eliminar planificación</button>`:''}</div>`;}});
+
+Cc('c-rutinas',{t:'Rutinas',tab:'c-rutinas',render:()=>`${pageHead('Sistémicas','Rutinas')}
+  <div class="list g2">${S.ruts.map((r,i)=>`<div class="card click row" data-act="rut:${i}" data-go="c-rutina" role="button" tabindex="0"><div class="grow"><div class="name" style="font-weight:700">${r.n}</div><div class="sub">${r.m}</div><div style="font-size:12px;color:var(--acc);margin-top:4px">${r.c.reduce((s,c)=>s+c.length,0)} ejercicios · ${r.c.length} circuito${r.c.length>1?'s':''}</div></div><span class="chev">${ic('chev',18)}</span></div>`).join('')}</div>
+  <button class="fab" data-act="rut:new" data-go="c-rutina" aria-label="Crear rutina">${ic('plus',26)}</button>`});
+
+Cc('c-rutina',{t:'Rutina',tab:'c-rutinas',back:'c-rutinas',render:()=>{if(!S.draft||!S.draft.c)ACT.rut('new');const d=S.draft;
+  return `${pageHead(S.rut===null?'Nueva':'Editar','Rutina')}<div class="narrow">
+  ${field('Nombre de la rutina','data-draft="n"',d.n,'Ej: Día A — Empuje')}
+  <div class="field"><label>Nota del coach</label><textarea class="input" data-draft="notas" placeholder="Indicaciones para el alumno">${esc(d.notas||'')}</textarea></div>
+  ${d.c.map((c,ci)=>`<div class="sec"><h4>Circuito ${ci+1}</h4>${d.c.length>1?`<button class="link" style="color:var(--err)" data-act="circRm:${ci}">Quitar circuito</button>`:''}</div>
+  <div class="list" style="gap:8px">${c.length?c.map((e,j)=>`<div class="card row" style="padding:10px 12px"><div class="thumb" style="width:40px;height:40px">${ic('dumbbell',18)}</div><div class="grow"><div class="name">${e[0]}</div><div class="sub">${e[1]} series</div></div>${tipoPill(e[2])}<button class="ib del" data-act="ejRm:${ci}|${j}" aria-label="Quitar ${e[0]}">${ic('x',16)}</button></div>`).join(''):empty('Circuito vacío. Agregá ejercicios.')}</div>
+  <button class="btn btn-ghost" style="border-style:dashed;margin-top:8px" data-act="ejAdd:${ci}">${ic('plus',16)} Agregar ejercicio</button>`).join('')}
+  <button class="btn btn-ghost" style="margin:18px 0" data-act="circAdd">${ic('plus',16)} Nuevo circuito</button>
+  <button class="btn btn-pri" data-act="rutSave">Guardar rutina</button>
+  ${S.rut!==null?`<div class="two" style="margin-top:10px"><button class="btn btn-sec" data-act="assignRut" data-go="c-asignar">Asignar a alumno</button><button class="btn btn-danger" data-act="rutDel">Eliminar</button></div>`:''}</div>`;}});
+
+Cc('c-asignar',{t:'Asignar',tab:'c-planes',back:()=>S.assign.back,list:()=>{const q=(S.q.asig||'').toLowerCase(),sel=S.assign.sel;
+  return S.alum.filter(a=>a.a&&a.n.toLowerCase().includes(q)).map(a=>{const on=sel.includes(a.n);return `<button class="card row click" data-act="selAl:${a.n}" aria-pressed="${on}" style="${on?'border-color:var(--pri)':''}"><div class="avatar" style="width:36px;height:36px;font-size:14px">${a.n[0]}</div><div class="grow"><div class="name">${a.n}</div><div class="sub">${a.p}</div></div><span class="radio ${on?'on':''}">${on?ic('check',13):''}</span></button>`;}).join('')||empty('No hay alumnos activos con ese nombre.');},
+  render:()=>{const a=S.assign;
+  return `${pageHead(`${a.kind} · ${esc(a.name)}`,'Asignar a alumnos')}<div class="narrow">
+  ${a.kind==='Planificación'?`<div class="two">${field('Fecha de inicio','type="date"','2026-06-15')}${field('Fecha de fin','type="date"','2026-08-10')}</div>`:''}
+  ${search('asig','Buscar alumno')}
+  <div class="sec" style="margin-top:8px"><h4>Seleccioná alumnos</h4><span class="sub" style="margin:0">${a.sel.length} seleccionados</span></div>
+  <div class="list" style="gap:8px" id="list">${R['c-asignar'].list()}</div>
+  <button class="btn btn-pri" style="margin-top:18px" data-act="assignOk" ${a.sel.length?'':'disabled'}>Asignar a ${a.sel.length} alumno${a.sel.length===1?'':'s'}</button></div>`;}});
+
+const coachTimer=()=>timerHTML();
+Cc('c-timer',{t:'Temporizador',tab:'c-timer',render:coachTimer});
+Cc('c-perfil',{t:'Mi cuenta',tab:'c-perfil',render:()=>`${pageHead('','Mi cuenta')}
+  <div style="text-align:center;margin-bottom:22px"><div class="avatar acc" style="width:80px;height:80px;font-size:32px;margin:0 auto">D</div><div style="font-size:19px;font-weight:700;margin-top:12px">Diego Fernández</div><div class="sub">Entrenador · ${S.alum.filter(a=>a.a).length} alumnos activos</div></div>
+  <div class="list g2">${menu([['c-membresias','Control de membresías','Pagos y vencimientos','wallet'],['c-pass','Cambiar contraseña','Seguridad de tu cuenta','key']])}</div>
+  <button class="btn btn-danger" style="margin-top:16px" data-go="login">${ic('logout',16)} Cerrar sesión</button>`});
+passRoute('c-pass','coach','c-perfil','c-perfil');
+
+/* ===== ADMIN ===== */
+const A=(id,o)=>route(id,{role:'admin',...o});
+A('a-home',{t:'Panel',tab:'a-home',render:()=>`${pageHead('Panel','Administración')}
+  <div class="list" style="grid-template-columns:1fr 1fr;margin-bottom:6px">${[[S.wiki.length,'Ejercicios','pri','dumbbell'],[S.mus.length,'Músculos','acc','grid'],[S.gru.length,'Grupos musculares','ok','list'],[S.coaches.length,'Entrenadores','warn','shield']].map(([v,l,c,i])=>`<div class="card"><div class="tile" style="background:var(--${c}S);color:var(--${c});margin-bottom:12px">${ic(i,18)}</div><div class="data" style="font-size:28px;font-weight:800">${v}</div><div class="sub" style="color:var(--ts)">${l}</div></div>`).join('')}</div>
+  <div class="sec"><h4>Gestión</h4></div>
+  <div class="list g2">${menu([[`a-catalogo`,'Ejercicios','Crear, editar y eliminar','dumbbell','cat:ejercicios'],['a-catalogo','Músculos','Asignados a ejercicios','grid','cat:musculos'],['a-catalogo','Grupos musculares','Agrupan músculos','list','cat:grupos'],['a-membresias','Membresías','Tipos, precios y duración','wallet'],['a-coaches','Entrenadores','Altas, edición y bajas','shield']])}</div>`});
+
+A('a-catalogo',{t:'Catálogo',tab:'a-catalogo',list:()=>{const q=(S.q.cat||'').toLowerCase(),k=S.cat;
+  if(k==='ejercicios'){const it=S.wiki.map((w,i)=>[w,i]).filter(([w])=>w[0].toLowerCase().includes(q));return it.map(([w,i])=>`<div class="card row"><div class="thumb">${ic('dumbbell')}</div><div class="grow"><div class="name">${w[0]}</div><div class="sub">${w[1]}</div></div><button class="ib" data-act="ejEdit:${i}" data-go="a-ejercicio" aria-label="Editar ${w[0]}">${ic('edit',16)}</button><button class="ib del" data-act="del:wiki|${i}" aria-label="Eliminar ${w[0]}">${ic('trash',16)}</button></div>`).join('')||empty('No hay ejercicios con ese nombre.');}
+  if(k==='musculos'){const it=S.mus.map((m,i)=>[m,i]).filter(([m])=>m.n.toLowerCase().includes(q));return it.map(([m,i])=>`<div class="card row"><div class="tile" style="background:var(--${GCOL[m.g]||'acc'}S);color:var(--${GCOL[m.g]||'acc'})">${ic('grid',18)}</div><div class="grow"><div class="name">${m.n}</div><div class="sub">${m.g}</div></div><button class="ib" data-act="musForm:${i}" aria-label="Editar ${m.n}">${ic('edit',16)}</button><button class="ib del" data-act="del:mus|${i}" aria-label="Eliminar ${m.n}">${ic('trash',16)}</button></div>`).join('')||empty('No hay músculos con ese nombre.');}
+  const it=S.gru.map((g,i)=>[g,i]).filter(([g])=>g.toLowerCase().includes(q));return it.map(([g,i])=>{const n=S.mus.filter(m=>m.g===g).length;return `<div class="card row click" data-act="gruView:${i}" role="button" tabindex="0"><div class="tile" style="width:44px;height:44px;background:linear-gradient(135deg,var(--${GCOL[g]||'acc'}),#A78BFA);color:#fff">${ic('list',18)}</div><div class="grow"><div style="font-family:var(--fD);font-size:20px;font-weight:700">${g}</div><div class="sub">${n} músculo${n===1?'':'s'}</div></div><button class="ib" data-act="gruForm:${i}" aria-label="Editar ${g}">${ic('edit',16)}</button><button class="ib del" data-act="del:gru|${i}" aria-label="Eliminar ${g}">${ic('trash',16)}</button></div>`;}).join('')||empty('No hay grupos con ese nombre.');},
+  render:()=>{const k=S.cat,lbl={ejercicios:'ejercicio',musculos:'músculo',grupos:'grupo muscular'}[k];
+  return `${pageHead('Catálogo',{ejercicios:'Ejercicios',musculos:'Músculos',grupos:'Grupos musculares'}[k])}
+  <div class="seg">${[['ejercicios','Ejercicios'],['musculos','Músculos'],['grupos','Grupos']].map(([v,l])=>`<button class="${k===v?'on':''}" data-act="cat:${v}">${l}</button>`).join('')}</div>
+  ${search('cat','Buscar '+lbl)}<div class="list g2" id="list">${R['a-catalogo'].list()}</div>
+  <button class="fab" ${k==='ejercicios'?'data-act="ejEdit:new" data-go="a-ejercicio"':k==='musculos'?'data-act="musForm:new"':'data-act="gruForm:new"'} aria-label="Crear ${lbl}">${ic('plus',26)}</button>`;}});
+
+A('a-ejercicio',{t:'Ejercicio',tab:'a-catalogo',back:'a-catalogo',render:()=>{if(!S.draft||!S.draft.mus)ACT.ejEdit('new');const d=S.draft;
+  return `${pageHead(S.ejEdit===null?'Nuevo':'Editar','Ejercicio')}<div class="narrow">
+  <button class="upload" data-act="soonImg">${ic('image',28)}<span style="font-size:13px">Subir imagen del ejercicio</span></button>
+  ${field('Nombre','data-draft="n"',d.n,'Ej: Press de banca')}
+  <div class="field"><label>Descripción</label><textarea class="input" data-draft="desc" placeholder="Cómo se ejecuta el ejercicio">${esc(d.desc||'')}</textarea></div>
+  <div class="field"><label>Músculos trabajados</label><div class="chips" style="flex-wrap:wrap">${d.mus.map((m,j)=>`<button class="chip acc on" data-act="musRm:${j}" aria-label="Quitar ${m}">${m} ✕</button>`).join('')}<button class="chip" data-act="musAdd">+ Agregar</button></div></div>
+  <div class="field"><label>Tips de seguridad</label><textarea class="input" data-draft="tips" placeholder="Indicaciones para evitar lesiones">${esc(d.tips||'')}</textarea></div>
+  ${field('Video (URL)','type="url" data-draft="video"',d.video||'','https://youtube.com/...')}
+  <button class="btn btn-pri" data-act="ejSave">Guardar ejercicio</button></div>`;}});
+
+A('a-membresias',{t:'Membresías',tab:'a-home',back:'a-home',render:()=>`${pageHead('Configuración','Tipos de membresía')}
+  <div class="list g2">${S.mtypes.map((m,i)=>`<div class="card"><div class="row"><div class="tile" style="background:var(--okS);color:var(--ok)">${ic('wallet',18)}</div><div class="grow"><div class="name" style="font-weight:700">${m.n}</div><div class="sub">${m.d} días · ${S.memb.filter(x=>x.t===i).length} alumnos</div></div><button class="ib" data-act="mtForm:${i}" aria-label="Editar ${m.n}">${ic('edit',16)}</button><button class="ib del" data-act="del:mtypes|${i}" aria-label="Eliminar ${m.n}">${ic('trash',16)}</button></div><div class="data" style="font-size:22px;font-weight:800;margin-top:12px">${ars(m.p)}</div></div>`).join('')}</div>
+  <button class="fab" data-act="mtForm:new" aria-label="Crear membresía">${ic('plus',26)}</button>`});
+
+A('a-coaches',{t:'Entrenadores',tab:'a-coaches',render:()=>`${pageHead('Gestión','Entrenadores')}
+  <button class="btn btn-sec" style="margin-bottom:16px" data-go="a-convertir">${ic('plus',16)} Convertir alumno en entrenador</button>
+  <div class="list g2">${S.coaches.map((c,i)=>`<div class="card row"><div class="avatar ${c.act?'acc':'gray'}">${c.n[0]}</div><div class="grow"><div class="name" style="font-weight:700">${c.n}</div><div class="sub">${c.e}</div><div style="font-size:12px;color:var(--acc);margin-top:2px">${c.a} alumnos</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span class="pill ${c.act?'p-ok':'p-warn'}">${c.act?'Activo':'Inactivo'}</span><div class="row" style="gap:2px"><button class="ib" data-act="coachForm:${i}" aria-label="Editar ${c.n}">${ic('edit',16)}</button><button class="ib del" data-act="del:coaches|${i}" aria-label="Eliminar ${c.n}">${ic('trash',16)}</button></div></div></div>`).join('')}</div>`});
+
+A('a-convertir',{t:'Convertir alumno',tab:'a-coaches',back:'a-coaches',list:()=>{const q=(S.q.conv||'').toLowerCase();const coachN=S.coaches.map(c=>c.n);
+  return S.alum.filter(a=>a.a&&!coachN.includes(a.n)&&a.n.toLowerCase().includes(q)).map(a=>{const on=S.conv===a.n;return `<button class="card row click" data-act="conv:${a.n}" aria-pressed="${on}" style="${on?'border-color:var(--pri)':''}"><div class="avatar" style="width:36px;height:36px;font-size:14px">${a.n[0]}</div><div class="grow"><div class="name">${a.n}</div><div class="sub">Alumno activo</div></div><span class="radio ${on?'on':''}">${on?ic('check',13):''}</span></button>`;}).join('')||empty('No hay alumnos activos para convertir.');},
+  render:()=>`${pageHead('Nuevo entrenador','Convertir alumno')}<div class="narrow">
+  <p class="muted" style="line-height:1.6;margin-bottom:16px">Elegí un alumno para convertirlo en entrenador. Va a tener acceso al panel de coach.</p>
+  ${search('conv','Buscar alumno')}<div class="list" style="gap:8px;margin-bottom:18px" id="list">${R['a-convertir'].list()}</div>
+  ${field('Email profesional','type="email" id="cv-mail"','sofia.coach@gym.com')}${field('CUIL','inputmode="numeric" id="cv-cuil"','27-12345678-4')}
+  <button class="btn btn-pri" data-act="convOk" ${S.conv?'':'disabled'}>Convertir en entrenador</button></div>`});
+
+A('a-perfil',{t:'Mi cuenta',tab:'a-perfil',render:()=>`${pageHead('','Mi cuenta')}
+  <div style="text-align:center;margin-bottom:22px"><div class="avatar gray" style="width:80px;height:80px;font-size:32px;margin:0 auto">A</div><div style="font-size:19px;font-weight:700;margin-top:12px">Administrador</div><div class="sub">admin@powerapp.com</div></div>
+  <div class="list g2">${menu([['a-pass','Cambiar contraseña','Seguridad de tu cuenta','key']])}</div>
+  <button class="btn btn-danger" style="margin-top:16px" data-go="login">${ic('logout',16)} Cerrar sesión</button>`});
+passRoute('a-pass','admin','a-perfil','a-perfil');
+
+/* ===== Acciones ===== */
+const val=id=>(document.getElementById(id)||{}).value||'';
+const pickModal=(title,items,act)=>{S.pick=items;openModal({title,html:items.length?`<div class="list" style="gap:8px;margin-top:16px">${items.map((t,i)=>`<button class="card click row" data-act="${act}:${i}"><span class="grow name">${esc(t)}</span><span style="color:var(--acc);display:flex">${ic('plus',18)}</span></button>`).join('')}</div>`:`<div style="margin-top:16px">${empty('No quedan opciones disponibles.')}</div>`,actions:`<button class="btn btn-ghost" data-act="close">Cancelar</button>`});};
+const ACT={
+  close:()=>closeModal(),
+  closeBg:(a,el,e)=>{if(e.target!==el||S.modal?.lock)return false;closeModal();},
+  eye:(a,el)=>{const i=el.previousElementSibling;i.type=i.type==='password'?'text':'password';return false;},
+  role:k=>{S.role=k;rerender();},
+  login:()=>go(HOME[S.role]),
+  registered:()=>{toast('Cuenta creada');go('u-home');},
+  sendTemp:()=>{const m=val('rec-mail').trim();if(!/^\S+@\S+\.\S+$/.test(m)){toast('Ingresá un email válido',1);return;}S.recMail=m;
+    openModal({ic:'mail',tone:'ok',title:'Revisá tu correo',body:`Generamos una contraseña temporal y la enviamos a <b>${esc(m)}</b>. Usala para iniciar sesión y después vas a poder crear una nueva.`,html:`<div class="temp"><div class="sub" style="margin:0">Llega solo por email</div><div class="data">••••••</div></div>`,actions:`<button class="btn btn-pri" data-go="login-temp">Ir a iniciar sesión</button>`,foot:'¿No te llegó? Revisá spam o volvé a solicitarla.'});},
+  loginTemp:()=>openModal({lock:true,ic:'key',tone:'warn',title:'Actualizá tu contraseña',body:'Estás usando una contraseña temporal. Por tu seguridad, tenés que crear una nueva antes de continuar.',actions:`<button class="btn btn-pri" data-go="change-pass">Crear nueva contraseña</button>`}),
+  savePass:next=>{const a=val('np1'),b=val('np2');if(!reqs(a).every(x=>x[1])){toast('La contraseña no cumple los requisitos',1);return;}if(a!==b){toast('Las contraseñas no coinciden',1);return;}toast('Contraseña actualizada');go(next);},
+  saved:m=>toast(m),
+  week:d=>{S.week=Math.min(8,Math.max(1,S.week+ +d));rerender();},
+  setWeek:w=>{S.week=+w;rerender();},
+  ej:i=>{S.ej=+i;},
+  toggleSet:i=>{const s=getSets();s[i]=!s[i];rerender();},
+  markSet:()=>{const s=getSets(),i=s.indexOf(false);if(i<0)return;s[i]=true;toast(`Serie ${i+1} marcada`);rerender();},
+  note:()=>{const e=EJR[S.ej];openModal({title:'Nota del ejercicio',body:`Dejá una observación sobre ${e.n} para vos y tu entrenador.`,html:`<textarea class="input" id="note-t" style="margin-top:16px" placeholder="Ej: la última serie costó, bajar 2,5 kg">${esc(S.notes[e.n]||'')}</textarea>`,actions:`<button class="btn btn-pri" data-act="saveNote">Guardar nota</button><button class="btn btn-ghost" data-act="close">Cancelar</button>`});},
+  saveNote:()=>{S.notes[EJR[S.ej].n]=val('note-t').trim();S.modal=null;toast('Nota guardada');rerender();},
+  preset:s=>{S.timer={total:+s,left:+s,running:true};rerender();},
+  ttoggle:()=>{const t=S.timer;if(t.left===0){t.left=t.total;t.running=true;}else t.running=!t.running;rerender();},
+  treset:()=>{S.timer.left=S.timer.total;S.timer.running=false;rerender();},
+  rmNew:(ej)=>rmForm(null,ej),
+  rmEdit:i=>rmForm(+i),
+  rmSave:i=>{const ej=val('rm-ej'),k=parseFloat(val('rm-kg').replace(',','.'));if(!(k>0)){toast('Ingresá un peso mayor a 0',1);return;}
+    const idx=i===''?S.rms.findIndex(r=>r.ej===ej):+i;const rec={ej,kg:k,f:fmtD(TODAY)};if(idx>=0)S.rms[idx]=rec;else S.rms.unshift(rec);S.modal=null;toast(idx>=0?'RM actualizado':'RM registrado');rerender();},
+  rmDel:i=>confirmDel('Eliminar RM',`¿Eliminar el RM de <b>${esc(S.rms[i].ej)}</b>? No se puede deshacer.`,`rmDelOk:${i}`),
+  rmDelOk:i=>{S.rms.splice(+i,1);S.modal=null;toast('RM eliminado');rerender();},
+  filt:a=>{const[k,v]=a.split('|');S.f[k]=v;rerender();},
+  alu:i=>{S.alu=+i;},
+  payFor:n=>{S.pay={al:n||S.alum[0].n,t:(S.memb.find(m=>m.n===n)||{t:0}).t,f:iso(TODAY)};},
+  confirmPay:()=>{const p=S.pay,t=S.mtypes[p.t],m=S.memb.find(x=>x.n===p.al),v=iso(addDays(dt(p.f),t.d));if(m){m.v=v;m.t=+p.t;}else S.memb.push({n:p.al,t:+p.t,v});toast(`Pago registrado · ${p.al}`);go('c-membresias');},
+  alRms:()=>openModal({title:`RMs de ${S.alum[S.alu].n}`,html:`<div style="margin-top:14px">${S.rms.map(r=>`<div class="trow"><span>${r.ej}</span><span class="data">${kg(r.kg)} kg</span><span>${r.f}</span></div>`).join('')}</div>`,actions:`<button class="btn btn-ghost" data-act="close">Cerrar</button>`}),
+  alHist:()=>{const opts=['Todos',...new Set(EJR.map(e=>e.n))];openModal({title:'Historial de entrenamientos',html:`<div style="margin-top:14px">${selectF('Filtrar por ejercicio',opts,'Todos','id="hist-f"')}</div><div class="list" style="gap:8px">${HIST.map(h=>`<div class="card row" style="padding:12px"><div class="grow"><div class="name">${h[0]}</div><div class="sub">${h[1]}</div></div><span class="data sub" style="margin:0">${h[2]}</span></div>`).join('')}</div>`,actions:`<button class="btn btn-ghost" data-act="close">Cerrar</button>`});},
+  alPagos:()=>openModal({title:'Historial de pagos',html:`<div style="margin-top:14px">${PAGOS.map(p=>`<div class="trow"><span>${p[0]}</span><span>${p[1]}</span><span class="data" style="color:var(--tp)">${ars(p[2])}</span></div>`).join('')}</div>`,actions:`<button class="btn btn-ghost" data-act="close">Cerrar</button>`}),
+  closeAcc:()=>openModal({ic:'alert',tone:'err',title:'Cerrar cuenta',body:`<b>${esc(S.alum[S.alu].n)}</b> va a dejar de tener acceso a la app. Podés reactivarla más adelante.`,actions:`<button class="btn btn-danger solid" data-act="closeAccOk">Cerrar cuenta</button><button class="btn btn-ghost" data-act="close">Cancelar</button>`}),
+  closeAccOk:()=>{S.alum[S.alu].a=false;toast('Cuenta cerrada');go('c-alumnos');},
+  plan:i=>{S.plan=i==='new'?null:+i;const p=S.plan===null?{n:'',w:8,t:'Fuerza',r:[]}:S.planes[S.plan];S.draft={n:p.n,w:p.w,t:p.t,notas:p.notas||'',r:[...p.r]};},
+  draftT:t=>{S.draft.t=t;rerender();},
+  planRm:j=>{S.draft.r.splice(+j,1);rerender();},
+  planAdd:()=>pickModal('Asignar rutina',S.ruts.map(r=>r.n).filter(n=>!S.draft.r.includes(n)),'planAddOk'),
+  planAddOk:i=>{S.draft.r.push(S.pick[+i]);S.modal=null;rerender();},
+  planSave:()=>{const d=S.draft;if(!d.n.trim()){toast('Poné un nombre a la planificación',1);return;}if(!d.r.length){toast('Asigná al menos una rutina',1);return;}
+    const p={n:d.n.trim(),w:+d.w||1,t:d.t,notas:d.notas,r:d.r,a:S.plan===null?0:S.planes[S.plan].a};if(S.plan===null)S.planes.unshift(p);else S.planes[S.plan]=p;toast('Planificación guardada');go('c-planes');},
+  planDel:()=>confirmDel('Eliminar planificación',`¿Eliminar <b>${esc(S.planes[S.plan].n)}</b>? Se quita de los alumnos que la tengan asignada.`,'planDelOk'),
+  planDelOk:()=>{S.planes.splice(S.plan,1);toast('Planificación eliminada');go('c-planes');},
+  assignPlan:i=>{S.assign={name:S.planes[+i].n,kind:'Planificación',back:'c-planes',sel:[]};S.q.asig='';},
+  assignRut:()=>{S.assign={name:S.ruts[S.rut].n,kind:'Rutina',back:'c-rutina',sel:[]};S.q.asig='';},
+  selAl:n=>{const s=S.assign.sel,i=s.indexOf(n);i<0?s.push(n):s.splice(i,1);rerender();},
+  assignOk:()=>{const a=S.assign;toast(`${a.name} asignada a ${a.sel.length} alumno${a.sel.length===1?'':'s'}`);go(a.back);},
+  rut:i=>{S.rut=i==='new'?null:+i;const r=S.rut===null?{n:'',notas:'',c:[[]]}:S.ruts[S.rut];S.draft={n:r.n,notas:r.notas||'',m:r.m||'',c:r.c.map(c=>c.map(e=>[...e]))};},
+  circAdd:()=>{S.draft.c.push([]);rerender();},
+  circRm:ci=>{S.draft.c.splice(+ci,1);rerender();},
+  ejAdd:ci=>{S.pickC=+ci;pickModal('Agregar ejercicio',allEj().filter(n=>!S.draft.c[+ci].some(e=>e[0]===n)),'ejAddOk');},
+  ejAddOk:i=>{S.draft.c[S.pickC].push([S.pick[+i],3,'Normal']);S.modal=null;rerender();},
+  ejRm:a=>{const[ci,j]=a.split('|');S.draft.c[+ci].splice(+j,1);rerender();},
+  rutSave:()=>{const d=S.draft;if(!d.n.trim()){toast('Poné un nombre a la rutina',1);return;}if(!d.c.some(c=>c.length)){toast('Agregá al menos un ejercicio',1);return;}
+    const r={n:d.n.trim(),notas:d.notas,m:d.m||'Rutina personalizada',c:d.c.filter(c=>c.length)};if(S.rut===null)S.ruts.unshift(r);else S.ruts[S.rut]=r;toast('Rutina guardada');go('c-rutinas');},
+  rutDel:()=>confirmDel('Eliminar rutina',`¿Eliminar <b>${esc(S.ruts[S.rut].n)}</b>? Se quita de las planificaciones que la incluyan.`,'rutDelOk'),
+  rutDelOk:()=>{const n=S.ruts[S.rut].n;S.ruts.splice(S.rut,1);S.planes.forEach(p=>p.r=p.r.filter(x=>x!==n));toast('Rutina eliminada');go('c-rutinas');},
+  cat:k=>{S.cat=k;S.q.cat='';if(CUR==='a-catalogo')rerender();},
+  ejEdit:i=>{S.ejEdit=i==='new'?null:+i;const w=S.ejEdit===null?null:S.wiki[S.ejEdit];S.draft={n:w?w[0]:'',desc:w?'Ejercicio '+w[2].toLowerCase()+' para '+w[1].toLowerCase()+'.':'',tips:'',video:'',mus:w?S.mus.filter(m=>w[1].includes(m.n.split(' ')[0])).map(m=>m.n):[]};},
+  musRm:j=>{S.draft.mus.splice(+j,1);rerender();},
+  musAdd:()=>pickModal('Asignar músculo',S.mus.map(m=>m.n).filter(n=>!S.draft.mus.includes(n)),'musAddOk'),
+  musAddOk:i=>{S.draft.mus.push(S.pick[+i]);S.modal=null;rerender();},
+  soonImg:()=>toast('La carga de imágenes se conecta con el backend'),
+  ejSave:()=>{const d=S.draft;if(!d.n.trim()){toast('Poné un nombre al ejercicio',1);return;}const g=(S.mus.find(m=>m.n===d.mus[0])||{g:'Pecho'}).g;
+    const w=[d.n.trim(),d.mus.join(' · ')||'Sin músculos asignados',d.mus.length>1?'Compuesto':'Aislamiento',{Piernas:'Pierna',Hombros:'Hombro',Brazos:'Brazo'}[g]||g];
+    if(S.ejEdit===null)S.wiki.unshift(w);else S.wiki[S.ejEdit]=w;toast('Ejercicio guardado');go('a-catalogo');},
+  del:a=>{const[k,i]=a.split('|');const item=S[k][+i];const name=typeof item==='string'?item:Array.isArray(item)?item[0]:item.n;
+    confirmDel('Eliminar',`¿Eliminar <b>${esc(name)}</b>? No se puede deshacer.`,`delOk:${a}`);},
+  delOk:a=>{const[k,i]=a.split('|');S[k].splice(+i,1);S.modal=null;toast('Eliminado');rerender();},
+  musForm:i=>{const m=i==='new'?{n:'',g:S.gru[0]}:S.mus[+i];openModal({title:i==='new'?'Nuevo músculo':'Editar músculo',html:`<div style="margin-top:16px">${field('Nombre','id="mf-n"',m.n,'Ej: Dorsal ancho')}${selectF('Grupo muscular',S.gru,m.g,'id="mf-g"')}</div>`,actions:`<button class="btn btn-pri" data-act="musFormOk:${i}">Guardar</button><button class="btn btn-ghost" data-act="close">Cancelar</button>`});},
+  musFormOk:i=>{const n=val('mf-n').trim();if(!n){toast('Poné un nombre',1);return;}const m={n,g:val('mf-g')};if(i==='new')S.mus.push(m);else S.mus[+i]=m;S.modal=null;toast('Músculo guardado');rerender();},
+  gruForm:i=>{const g=i==='new'?'':S.gru[+i];openModal({title:i==='new'?'Nuevo grupo muscular':'Editar grupo',html:`<div style="margin-top:16px">${field('Nombre','id="gf-n"',g,'Ej: Antebrazos')}</div>`,actions:`<button class="btn btn-pri" data-act="gruFormOk:${i}">Guardar</button><button class="btn btn-ghost" data-act="close">Cancelar</button>`});},
+  gruFormOk:i=>{const n=val('gf-n').trim();if(!n){toast('Poné un nombre',1);return;}if(i==='new')S.gru.push(n);else{const old=S.gru[+i];S.mus.forEach(m=>{if(m.g===old)m.g=n;});S.gru[+i]=n;}S.modal=null;toast('Grupo guardado');rerender();},
+  gruView:i=>{const g=S.gru[+i],ms=S.mus.filter(m=>m.g===g);openModal({title:g,body:`${ms.length} músculo${ms.length===1?'':'s'} en este grupo`,html:`<div class="list" style="gap:8px;margin-top:14px">${ms.map(m=>`<div class="card" style="padding:12px 14px">${m.n}</div>`).join('')||empty('Este grupo todavía no tiene músculos.')}</div>`,actions:`<button class="btn btn-ghost" data-act="close">Cerrar</button>`});},
+  mtForm:i=>{const m=i==='new'?{n:'',d:30,p:''}:S.mtypes[+i];openModal({title:i==='new'?'Nueva membresía':'Editar membresía',html:`<div style="margin-top:16px">${field('Nombre','id="mt-n"',m.n,'Ej: Plan Semestral')}<div class="two">${field('Precio ($)','type="number" min="0" id="mt-p"',m.p)}${field('Duración (días)','type="number" min="1" id="mt-d"',m.d)}</div></div>`,actions:`<button class="btn btn-pri" data-act="mtFormOk:${i}">Guardar</button><button class="btn btn-ghost" data-act="close">Cancelar</button>`});},
+  mtFormOk:i=>{const n=val('mt-n').trim(),p=+val('mt-p'),d=+val('mt-d');if(!n||!(p>0)||!(d>0)){toast('Completá nombre, precio y duración',1);return;}const m={n,p,d};if(i==='new')S.mtypes.push(m);else S.mtypes[+i]=m;S.modal=null;toast('Membresía guardada');rerender();},
+  coachForm:i=>{const c=S.coaches[+i];openModal({title:'Editar entrenador',html:`<div style="margin-top:16px">${field('Nombre','id="cf-n"',c.n)}${field('Email profesional','type="email" id="cf-e"',c.e)}</div>`,actions:`<button class="btn btn-pri" data-act="coachFormOk:${i}">Guardar</button><button class="btn btn-ghost" data-act="close">Cancelar</button>`});},
+  coachFormOk:i=>{const c=S.coaches[+i];c.n=val('cf-n').trim()||c.n;c.e=val('cf-e').trim()||c.e;S.modal=null;toast('Entrenador actualizado');rerender();},
+  conv:n=>{S.conv=n;rerender();},
+  convOk:()=>{if(!S.conv)return;S.coaches.push({n:S.conv,e:val('cv-mail')||'',a:0,act:true});toast(`${S.conv} ahora es entrenador`);S.conv='';go('a-coaches');},
+};
+function rmForm(i,ej){const r=i===null?{ej:ej||S.calc.ej,kg:''}:S.rms[i];
+  openModal({title:i===null?'Registrar RM':'Editar RM',body:'Registrá el peso máximo que levantaste en una repetición.',html:`<div style="margin-top:16px">${selectF('Ejercicio',allEj(),r.ej,'id="rm-ej"')}${field('Peso (kg)','type="number" inputmode="decimal" min="0" step="0.5" id="rm-kg"',r.kg,'Ej: 80')}</div>`,actions:`<button class="btn btn-pri" data-act="rmSave:${i===null?'':i}">Guardar RM</button><button class="btn btn-ghost" data-act="close">Cancelar</button>`});}
+
+/* ===== Eventos ===== */
+document.addEventListener('click',e=>{
+  let a=e.target.closest('[data-act]'),g=e.target.closest('[data-go]');
+  if(a&&g&&a!==g){if(a.contains(g))a=null;else if(g.contains(a))g=null;}
+  if(a){const s=a.dataset.act,k=s.indexOf(':'),n=k<0?s:s.slice(0,k),arg=k<0?undefined:s.slice(k+1);
+    if(ACT[n]&&ACT[n](arg,a,e)===false)return;}
+  if(g){e.preventDefault();go(g.dataset.go);}
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&S.modal&&!S.modal.lock)closeModal();
+  if((e.key==='Enter'||e.key===' ')&&e.target.matches('[role="button"]')){e.preventDefault();e.target.click();}
+});
+document.addEventListener('input',e=>{const t=e.target;
+  if(t.dataset.search!==undefined){S.q[t.dataset.search]=t.value;const l=document.getElementById('list');if(l&&R[CUR].list)l.innerHTML=R[CUR].list();}
+  if(t.dataset.calc){S.calc[t.dataset.calc]=t.dataset.calc==='ej'?t.value:parseFloat(t.value)||0;const r=document.getElementById('c-res');if(r){r.innerHTML=calcRes();document.getElementById('c-table').innerHTML=calcTable();}}
+  if(t.dataset.draft&&S.draft)S.draft[t.dataset.draft]=t.value;
+  if(t.dataset.pw!==undefined){const r=document.getElementById('reqs');if(r)r.innerHTML=reqsHTML(t.value);}
+});
+document.addEventListener('change',e=>{const t=e.target;if(t.dataset.pay){S.pay[t.dataset.pay]=t.dataset.pay==='t'?+t.value:t.value;if(t.dataset.pay==='al'){const m=S.memb.find(x=>x.n===t.value);if(m)S.pay.t=m.t;}rerender();}});
+
+setInterval(()=>{const t=S.timer;if(!t.running||t.left<=0)return;t.left--;
+  if(t.left===0){t.running=false;if(CUR.endsWith('timer'))rerender();toast('Descanso terminado');return;}
+  const v=document.getElementById('tm-val'),ring=document.getElementById('tm-ring');if(v){v.textContent=fmtT(t.left);ring.style.strokeDashoffset=691.15*(1-t.left/t.total);}
+},1000);
+
+window.addEventListener('hashchange',()=>{render();scrollTo(0,0);});
+render();
+</script>
+</body>
+</html>

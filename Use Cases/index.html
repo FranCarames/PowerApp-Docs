@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PowerApp — Especificaciones de Casos de Uso</title>
+<meta name="description" content="Las 75 especificaciones de casos de uso del backend de PowerApp, navegables por rol y paquete.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800&family=Saira:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --base:#06070D; --card:#13161F; --card2:#0F1219; --el:#1B1F2E;
+    --border:#232739; --border2:#2E3347;
+    --pri:#E8450A; --priL:#FF6B3D; --acc:#8B5CF6;
+    --usuario:#E8450A; --entrenador:#22C55E; --admin:#F59E0B;
+    --tp:#F5F1EB; --ts:#8892A8; --tm:#4A5068; --doc:#C7CEDB;
+    --fDisplay:"Saira Condensed",-apple-system,sans-serif;
+    --fBody:"Saira",-apple-system,BlinkMacSystemFont,sans-serif;
+    --fMono:"JetBrains Mono","SF Mono",monospace;
+    --side-w:308px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--base);font-family:var(--fBody);color:var(--tp);min-height:100vh;}
+  body::before{
+    content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+    background:
+      radial-gradient(680px 420px at 0% -4%, rgba(232,69,10,.13), transparent 60%),
+      radial-gradient(720px 520px at 100% 104%, rgba(139,92,246,.10), transparent 62%);
+  }
+  a{color:inherit;text-decoration:none;}
+
+  .app{display:grid;grid-template-columns:var(--side-w) 1fr;min-height:100vh;}
+
+  /* ---------- Sidebar ---------- */
+  .side{
+    position:sticky;top:0;height:100vh;overflow-y:auto;
+    background:linear-gradient(180deg,rgba(19,22,31,.86),rgba(15,18,25,.86));
+    border-right:1px solid var(--border);backdrop-filter:blur(8px);
+    padding:20px 14px 40px;
+  }
+  .side::-webkit-scrollbar{width:8px;}
+  .side::-webkit-scrollbar-thumb{background:var(--border2);border-radius:8px;}
+
+  .brand{display:flex;align-items:center;gap:11px;padding:4px 8px 16px;}
+  .brand .mark{
+    width:34px;height:34px;border-radius:10px;flex:0 0 auto;position:relative;
+    background:linear-gradient(135deg,var(--pri),var(--priL));
+    display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(232,69,10,.35);
+  }
+  .brand .mark svg{width:17px;height:17px;}
+  .brand .mark::after{content:"";position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:var(--acc);box-shadow:0 0 8px var(--acc);}
+  .brand .txt b{font-family:var(--fDisplay);font-size:19px;font-weight:800;letter-spacing:-.3px;display:block;line-height:1;}
+  .brand .txt span{font-family:var(--fMono);font-size:10px;color:var(--ts);letter-spacing:.4px;}
+  .home-link{display:inline-flex;align-items:center;gap:6px;font-family:var(--fMono);font-size:11px;color:var(--ts);padding:0 8px 14px;transition:color .2s;}
+  .home-link:hover{color:var(--pri);}
+
+  .search{position:relative;margin:0 6px 16px;}
+  .search input{
+    width:100%;background:var(--card2);border:1px solid var(--border);border-radius:11px;
+    padding:10px 12px 10px 34px;color:var(--tp);font-family:var(--fBody);font-size:13.5px;outline:none;transition:border-color .2s;
+  }
+  .search input::placeholder{color:var(--tm);}
+  .search input:focus{border-color:var(--border2);}
+  .search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--tm);}
+
+  .role-group{margin-bottom:8px;}
+  .role-head{
+    display:flex;align-items:center;gap:9px;padding:9px 10px 7px;
+    font-family:var(--fMono);font-size:10.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--ts);
+  }
+  .role-head .dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto;}
+  .role-head .n{margin-left:auto;color:var(--tm);font-size:10px;background:var(--el);border-radius:20px;padding:2px 7px;}
+  .pkg-head{font-family:var(--fBody);font-size:11px;font-weight:600;color:var(--tm);letter-spacing:.2px;padding:11px 10px 5px;}
+
+  .cu{
+    display:flex;align-items:baseline;gap:9px;padding:7px 10px;border-radius:9px;cursor:pointer;
+    border-left:2px solid transparent;transition:background .15s,border-color .15s;
+  }
+  .cu:hover{background:rgba(255,255,255,.03);}
+  .cu .code{font-family:var(--fMono);font-size:10px;color:var(--tm);flex:0 0 auto;letter-spacing:.2px;}
+  .cu .name{font-size:13px;color:var(--ts);line-height:1.3;}
+  .cu.active{background:color-mix(in srgb,var(--rc,var(--pri)) 12%,transparent);border-left-color:var(--rc,var(--pri));}
+  .cu.active .name{color:var(--tp);font-weight:600;}
+  .cu.active .code{color:var(--rc,var(--pri));}
+  .cu.sub{margin-left:14px;}
+  .cu .tag{margin-left:auto;flex:0 0 auto;font-family:var(--fMono);font-size:9.5px;color:var(--tm);border:1px solid var(--border);border-radius:20px;padding:1px 7px;}
+
+  /* ---------- Main ---------- */
+  .main{min-width:0;padding:clamp(28px,5vw,64px) clamp(22px,6vw,80px);}
+  .doc-wrap{max-width:780px;margin:0 auto;}
+
+  .crumb{
+    display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:22px;
+    font-family:var(--fMono);font-size:11px;color:var(--tm);letter-spacing:.3px;
+  }
+  .crumb .badge{color:var(--rc,var(--pri));background:color-mix(in srgb,var(--rc,var(--pri)) 12%,transparent);
+    border:1px solid color-mix(in srgb,var(--rc,var(--pri)) 30%,transparent);border-radius:7px;padding:3px 9px;font-weight:700;}
+  .crumb .sep{opacity:.5;}
+
+  /* Rendered markdown */
+  .doc{animation:fade .4s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .doc h1{font-family:var(--fDisplay);font-size:clamp(28px,4vw,40px);font-weight:800;letter-spacing:-.5px;line-height:1.05;margin-bottom:6px;}
+  .doc h2{
+    font-family:var(--fDisplay);font-size:20px;font-weight:700;letter-spacing:.1px;color:var(--tp);
+    margin:32px 0 12px;padding-left:12px;border-left:3px solid var(--rc,var(--pri));
+  }
+  .doc h3{font-family:var(--fBody);font-size:15px;font-weight:700;color:var(--ts);margin:22px 0 8px;text-transform:uppercase;letter-spacing:.5px;}
+  .doc p{font-size:15.5px;line-height:1.72;color:var(--doc);margin:11px 0;}
+  .doc strong{color:var(--tp);font-weight:700;}
+  .doc em{color:var(--tp);font-style:italic;}
+  .doc a{color:var(--pri);border-bottom:1px solid rgba(232,69,10,.35);}
+  .doc ul,.doc ol{margin:11px 0 11px 6px;padding-left:22px;}
+  .doc li{font-size:15.5px;line-height:1.7;color:var(--doc);margin:6px 0;}
+  .doc li::marker{color:var(--rc,var(--pri));}
+  .doc ul li::marker{font-size:.9em;}
+  .doc blockquote{border-left:3px solid var(--border2);padding:2px 0 2px 16px;margin:14px 0;color:var(--ts);}
+  .doc code{font-family:var(--fMono);font-size:.86em;background:var(--el);border:1px solid var(--border);border-radius:5px;padding:1px 6px;color:var(--priL);}
+  .doc pre{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:16px;overflow-x:auto;margin:14px 0;}
+  .doc pre code{background:none;border:none;padding:0;color:var(--doc);}
+  .doc hr{border:none;border-top:1px solid var(--border);margin:26px 0;}
+
+  /* Welcome */
+  .welcome{max-width:640px;}
+  .welcome .eyebrow{font-family:var(--fMono);font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--pri);margin-bottom:12px;}
+  .welcome h1{font-family:var(--fDisplay);font-size:clamp(32px,5vw,46px);font-weight:800;letter-spacing:-.5px;line-height:1.02;margin-bottom:14px;}
+  .welcome p{font-size:16px;line-height:1.65;color:var(--ts);margin-bottom:28px;}
+  .stat-row{display:flex;gap:12px;flex-wrap:wrap;}
+  .stat{flex:1;min-width:120px;background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:15px;padding:18px 18px 16px;}
+  .stat .big{font-family:var(--fDisplay);font-size:34px;font-weight:800;line-height:1;}
+  .stat .lbl{font-family:var(--fMono);font-size:11px;color:var(--ts);letter-spacing:.4px;margin-top:7px;display:flex;align-items:center;gap:7px;}
+  .stat .lbl .dot{width:7px;height:7px;border-radius:50%;}
+  .no-res{color:var(--tm);font-family:var(--fMono);font-size:12px;padding:10px;}
+
+  /* Mobile */
+  .menu-btn{display:none;}
+  .scrim{display:none;}
+  @media (max-width:860px){
+    .app{grid-template-columns:1fr;}
+    .side{
+      position:fixed;left:0;top:0;z-index:40;width:min(320px,86vw);
+      transform:translateX(-102%);transition:transform .28s cubic-bezier(.2,.7,.2,1);
+    }
+    body.nav-open .side{transform:none;}
+    .scrim{display:block;position:fixed;inset:0;z-index:30;background:rgba(3,4,8,.6);opacity:0;visibility:hidden;transition:opacity .28s;}
+    body.nav-open .scrim{opacity:1;visibility:visible;}
+    .menu-btn{
+      display:flex;align-items:center;gap:8px;position:fixed;left:16px;bottom:16px;z-index:50;
+      background:linear-gradient(135deg,var(--pri),var(--priL));color:#fff;border:none;cursor:pointer;
+      font-family:var(--fMono);font-size:12px;font-weight:700;padding:12px 16px;border-radius:14px;box-shadow:0 8px 26px rgba(232,69,10,.45);
+    }
+    .menu-btn svg{width:16px;height:16px;}
+    .main{padding:56px 20px 90px;}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="side" id="side">
+    <div class="brand">
+      <span class="mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="#fff"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>
+      </span>
+      <span class="txt"><b>PowerApp</b><span>Casos de Uso</span></span>
+    </div>
+    <a class="home-link" href="../index.html">← Volver a la portada</a>
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
+      <input id="q" type="search" placeholder="Buscar caso de uso…" autocomplete="off" aria-label="Buscar caso de uso">
+    </div>
+    <nav id="nav" aria-label="Índice de casos de uso"></nav>
+  </aside>
+
+  <main class="main">
+    <div class="doc-wrap">
+      <div class="crumb" id="crumb" hidden></div>
+      <div id="content"></div>
+    </div>
+  </main>
+
+</div>
+
+<div class="scrim" id="scrim"></div>
+<button class="menu-btn" id="menuBtn" aria-label="Abrir índice">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+  Índice
+</button>
+
+<script>
+(function(){
+  "use strict";
+  var ROLE_COLORS = { "Usuario":"var(--usuario)", "Entrenador":"var(--entrenador)", "Admin":"var(--admin)" };
+  var byPath = {};      // path -> {code,title,path,role,pkg,color}
+  var contentEl = document.getElementById('content');
+  var crumbEl = document.getElementById('crumb');
+  var navEl = document.getElementById('nav');
+
+  /* ---------- Markdown renderer (subset: h1-6, p, ul, ol, bold, italic, code, links, bq, hr) ---------- */
+  function inline(s){
+    s = s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    var codes = [];
+    s = s.replace(/`([^`]+)`/g, function(_,c){ codes.push(c); return '@@'+(codes.length-1)+'@@'; });
+    s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+    s = s.replace(/(^|[^\w])_([^_\n]+)_(?=[^\w]|$)/g, '$1<em>$2</em>');
+    s = s.replace(/@@(\d+)@@/g, function(_,i){ return '<code>'+codes[i]+'</code>'; });
+    return s;
+  }
+  function render(src){
+    var lines = src.replace(/\r\n?/g,'\n').split('\n');
+    var out = [], i = 0;
+    var isBlank=function(l){return /^\s*$/.test(l);};
+    while(i < lines.length){
+      var line = lines[i];
+      if(isBlank(line)){ i++; continue; }
+      var h = line.match(/^(#{1,6})\s+(.*)$/);
+      if(h){ var lv=h[1].length; out.push('<h'+lv+'>'+inline(h[2].trim())+'</h'+lv+'>'); i++; continue; }
+      if(/^\s*([-*_])\1\1+\s*$/.test(line)){ out.push('<hr>'); i++; continue; }
+      if(/^\s*```/.test(line)){
+        var buf=[]; i++;
+        while(i<lines.length && !/^\s*```/.test(lines[i])){ buf.push(lines[i]); i++; }
+        i++; out.push('<pre><code>'+buf.join('\n').replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</code></pre>'); continue;
+      }
+      if(/^\s*>/.test(line)){
+        var bq=[]; while(i<lines.length && /^\s*>/.test(lines[i])){ bq.push(lines[i].replace(/^\s*>\s?/,'')); i++; }
+        out.push('<blockquote>'+render(bq.join('\n'))+'</blockquote>'); continue;
+      }
+      if(/^\s*[-*+]\s+/.test(line)){
+        var ul=[]; while(i<lines.length && /^\s*[-*+]\s+/.test(lines[i])){ ul.push('<li>'+inline(lines[i].replace(/^\s*[-*+]\s+/,''))+'</li>'); i++; }
+        out.push('<ul>'+ul.join('')+'</ul>'); continue;
+      }
+      if(/^\s*\d+\.\s+/.test(line)){
+        var ol=[]; while(i<lines.length && /^\s*\d+\.\s+/.test(lines[i])){ ol.push('<li>'+inline(lines[i].replace(/^\s*\d+\.\s+/,''))+'</li>'); i++; }
+        out.push('<ol>'+ol.join('')+'</ol>'); continue;
+      }
+      var p=[];
+      while(i<lines.length && !isBlank(lines[i]) && !/^(#{1,6})\s/.test(lines[i]) && !/^\s*[-*+]\s+/.test(lines[i])
+            && !/^\s*\d+\.\s+/.test(lines[i]) && !/^\s*>/.test(lines[i]) && !/^\s*```/.test(lines[i])){
+        var br = /  +$/.test(lines[i]) ? '<br>' : '';
+        p.push(inline(lines[i].trim()) + br); i++;
+      }
+      out.push('<p>'+p.join(' ')+'</p>');
+    }
+    return out.join('\n');
+  }
+
+  /* ---------- Parse README.md into role/package/item tree ---------- */
+  function parseIndex(md){
+    var lines = md.replace(/\r\n?/g,'\n').split('\n');
+    var roles=[], role=null, pkg=null, m;
+    for(var k=0;k<lines.length;k++){
+      var ln = lines[k];
+      if(m = ln.match(/^##\s+Rol\s+(.+?)\s*$/i)){ role={name:m[1].trim(),packages:[]}; roles.push(role); pkg=null; continue; }
+      if(m = ln.match(/^###\s+(.+?)\s*$/)){ if(role){ pkg={name:m[1].trim(),items:[]}; role.packages.push(pkg); } continue; }
+      // Acepta texto despues del link ("— *agrupador*") y detecta los CU anidados por la sangria
+      if(m = ln.match(/^(\s*)-\s+\[`([^`]+)`\s+(.+?)\]\((.+?)\)(.*)$/)){
+        if(pkg){
+          var it = { code:m[2].trim(), title:m[3].trim(), path:m[4].trim(),
+                     sub:m[1].length>0, group:/agrupador/i.test(m[5]),
+                     role:role.name, pkg:pkg.name, color:ROLE_COLORS[role.name]||'var(--pri)' };
+          pkg.items.push(it); byPath[it.path] = it;
+        }
+        continue;
+      }
+    }
+    return roles;
+  }
+
+  /* ---------- Build sidebar ---------- */
+  // Un CU agrupador no se cuenta a si mismo: cuentan sus operaciones anidadas
+  function countCU(p){ return p.items.filter(function(i){ return !i.group; }).length; }
+
+  function buildNav(roles){
+    var frag = document.createDocumentFragment();
+    roles.forEach(function(role){
+      var color = ROLE_COLORS[role.name] || 'var(--pri)';
+      var count = role.packages.reduce(function(a,p){ return a + countCU(p); }, 0);
+      var g = document.createElement('div'); g.className='role-group';
+      var rh = document.createElement('div'); rh.className='role-head';
+      rh.innerHTML = '<span class="dot" style="background:'+color+'"></span>Rol '+role.name+'<span class="n">'+count+'</span>';
+      g.appendChild(rh);
+      role.packages.forEach(function(p){
+        var ph = document.createElement('div'); ph.className='pkg-head'; ph.textContent = p.name; g.appendChild(ph);
+        p.items.forEach(function(it){
+          var a = document.createElement('a');
+          a.className='cu'+(it.sub?' sub':''); a.href = '#'+it.path; a.style.setProperty('--rc', it.color);
+          a.dataset.path = it.path;
+          a.dataset.search = (it.code+' '+it.title).toLowerCase();
+          a.innerHTML = '<span class="code">'+it.code+'</span><span class="name">'+it.title+'</span>'
+                      + (it.group ? '<span class="tag">agrupador</span>' : '');
+          g.appendChild(a);
+        });
+      });
+      frag.appendChild(g);
+    });
+    navEl.innerHTML=''; navEl.appendChild(frag);
+  }
+
+  /* ---------- Welcome screen ---------- */
+  function showWelcome(roles){
+    crumbEl.hidden = true;
+    var total = 0, cards='';
+    var order=[['Usuario','var(--usuario)'],['Entrenador','var(--entrenador)'],['Admin','var(--admin)']];
+    order.forEach(function(o){
+      var r = roles.filter(function(x){return x.name===o[0];})[0];
+      var c = r ? r.packages.reduce(function(a,p){return a+countCU(p);},0) : 0;
+      total += c;
+      cards += '<div class="stat"><div class="big" style="color:'+o[1]+'">'+c+'</div>'
+             + '<div class="lbl"><span class="dot" style="background:'+o[1]+'"></span>'+o[0]+'</div></div>';
+    });
+    contentEl.innerHTML =
+      '<div class="welcome">'
+      + '<div class="eyebrow">Documentación · '+total+' CU</div>'
+      + '<h1>Especificaciones de<br>Casos de Uso</h1>'
+      + '<p>El detalle funcional de cada caso de uso del backend: actores, alcance, precondiciones, '
+      + 'flujo principal y caminos alternativos. Elegí uno del panel de la izquierda para leerlo.</p>'
+      + '<div class="stat-row">'+cards+'</div>'
+      + '</div>';
+    document.title = 'PowerApp — Especificaciones de Casos de Uso';
+  }
+
+  /* ---------- Load & render a CU ---------- */
+  function setActive(path){
+    var items = navEl.querySelectorAll('.cu');
+    for(var j=0;j<items.length;j++){
+      var on = items[j].dataset.path === path;
+      items[j].classList.toggle('active', on);
+      if(on) items[j].scrollIntoView({block:'nearest'});
+    }
+  }
+  function loadCU(path){
+    var meta = byPath[path];
+    if(!meta){ return; }
+    setActive(path);
+    crumbEl.hidden = false;
+    crumbEl.style.setProperty('--rc', meta.color);
+    crumbEl.innerHTML = '<span class="badge">'+meta.code+'</span>'
+      + '<span>Rol '+meta.role+'</span><span class="sep">›</span><span>'+meta.pkg+'</span>';
+    contentEl.innerHTML = '<div class="doc"><p style="color:var(--tm);font-family:var(--fMono);font-size:12px">Cargando…</p></div>';
+    fetch(path).then(function(r){
+      if(!r.ok) throw new Error(r.status);
+      return r.text();
+    }).then(function(md){
+      contentEl.innerHTML = '<div class="doc">'+render(md)+'</div>';
+      document.title = meta.code+' — PowerApp CU';
+      window.scrollTo(0,0);
+    }).catch(function(){
+      contentEl.innerHTML = '<div class="doc"><h1>No se pudo cargar</h1><p>No se encontró <code>'+path+'</code>.</p></div>';
+    });
+  }
+
+  /* ---------- Router ---------- */
+  var allRoles = [];
+  function route(){
+    var path = decodeURIComponent(location.hash.replace(/^#/,''));
+    if(path && byPath[path]){ loadCU(path); }
+    else { showWelcome(allRoles); setActive(null); }
+    document.body.classList.remove('nav-open');
+  }
+
+  /* ---------- Search ---------- */
+  document.getElementById('q').addEventListener('input', function(e){
+    var term = e.target.value.trim().toLowerCase();
+    var groups = navEl.querySelectorAll('.role-group');
+    var noRes = true;
+    groups.forEach(function(g){
+      var anyRole = false;
+      // handle each package block (pkg-head followed by .cu items until next pkg-head/role)
+      var kids = g.children, curPkgHead = null, pkgHasMatch = false;
+      function closePkg(){ if(curPkgHead) curPkgHead.style.display = pkgHasMatch ? '' : 'none'; }
+      for(var n=0;n<kids.length;n++){
+        var el = kids[n];
+        if(el.classList.contains('pkg-head')){ closePkg(); curPkgHead=el; pkgHasMatch=false; continue; }
+        if(el.classList.contains('cu')){
+          var hit = !term || el.dataset.search.indexOf(term) !== -1;
+          el.style.display = hit ? '' : 'none';
+          if(hit){ pkgHasMatch=true; anyRole=true; noRes=false; }
+        }
+      }
+      closePkg();
+      g.style.display = anyRole ? '' : 'none';
+    });
+    var existing = navEl.querySelector('.no-res');
+    if(existing) existing.remove();
+    if(noRes){ var d=document.createElement('div'); d.className='no-res'; d.textContent='Sin resultados.'; navEl.appendChild(d); }
+  });
+
+  /* ---------- Mobile drawer ---------- */
+  document.getElementById('menuBtn').addEventListener('click', function(){ document.body.classList.toggle('nav-open'); });
+  document.getElementById('scrim').addEventListener('click', function(){ document.body.classList.remove('nav-open'); });
+
+  /* ---------- Boot ---------- */
+  fetch('README.md').then(function(r){
+    if(!r.ok) throw new Error(r.status);
+    return r.text();
+  }).then(function(md){
+    allRoles = parseIndex(md);
+    buildNav(allRoles);
+    route();
+    window.addEventListener('hashchange', route);
+  }).catch(function(){
+    contentEl.innerHTML = '<div class="doc"><h1>No se pudo cargar el índice</h1>'
+      + '<p>Este visor necesita ser servido por HTTP (GitHub Pages o un servidor local). '
+      + 'Abrirlo directo desde el archivo (<code>file://</code>) bloquea la carga de los <code>.md</code>.</p></div>';
+  });
+})();
+</script>
+</body>
+</html>
