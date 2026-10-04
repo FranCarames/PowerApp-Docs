@@ -209,7 +209,7 @@ textarea.input{resize:vertical;min-height:96px;line-height:1.5}
 /* Desktop */
 @media (min-width:960px){
   .layout{display:grid;grid-template-columns:264px 1fr;min-height:100vh}
-  .sidebar{display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh;padding:26px 16px 16px;border-right:1px solid var(--border);background:var(--card)}
+  .sidebar{display:flex;flex-direction:column;gap:2px;position:sticky;top:0;height:100vh;overflow-y:auto;padding:26px 16px 16px;border-right:1px solid var(--border);background:var(--card)}
   .side-brand{display:flex;align-items:center;gap:12px;padding:0 8px 24px}
   .side-brand .logo{width:40px;height:40px;border-radius:12px}
   .side-brand .logo::after{width:11px;height:11px}
@@ -269,6 +269,7 @@ const ICONS={
   pause:'<path d="M8 5v14M16 5v14"/>',
   play:'<path d="M7 4l12 8-12 8z"/>',
   image:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5L5 20"/>',
+  cycle:'<path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3"/><path d="M18 3v4h-4M6 21v-4h4"/>',
   alert:'<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>',
 };
 const ic=(n,s)=>`<svg class="i" viewBox="0 0 24 24" aria-hidden="true"${s?` style="width:${s}px;height:${s}px"`:''}>${ICONS[n]||''}</svg>`;
@@ -306,12 +307,13 @@ const S={
   memb:[{n:'Lucía Méndez',t:0,v:'2026-07-15'},{n:'Sofía Paz',t:1,v:'2026-08-28'},{n:'Julián Vega',t:2,v:'2027-02-01'},{n:'Franco Carames',t:0,v:'2026-07-15'},{n:'Tomás Ríos',t:0,v:'2026-06-17'},{n:'Martín Soto',t:0,v:'2026-06-15'},{n:'Valeria Pérez',t:0,v:'2026-06-01'}],
   mtypes:[{n:'Plan Mensual',d:30,p:18000},{n:'Plan Trimestral',d:90,p:48000},{n:'Plan Anual',d:365,p:170000}],
   planes:[{n:'Fuerza 5×5',w:8,a:12,t:'Fuerza',r:['Día A — Empuje','Día B — Tirón','Día C — Piernas']},{n:'Hipertrofia A/B',w:6,a:8,t:'Hipertrofia',r:['Full Upper','Full Lower']},{n:'Full Body',w:4,a:5,t:'Resistencia',r:['Día A — Empuje','Día B — Tirón','Día C — Piernas']},{n:'Powerbuilding',w:12,a:2,t:'Fuerza',r:['Día A — Empuje','Día B — Tirón','Día C — Piernas','Full Upper']}],
-  ruts:[{n:'Día A — Empuje',m:'Pecho · Hombro · Tríceps',c:[[['Press de banca',4,'Normal'],['Press inclinado mancuernas',3,'Normal'],['Aperturas',3,'AMRAP']]]},{n:'Día B — Tirón',m:'Espalda · Bíceps',c:[[['Dominadas',4,'AMRAP'],['Remo con barra',4,'RM'],['Pull-down polea',3,'Normal'],['Curl con barra',3,'Normal']]]},{n:'Día C — Piernas',m:'Cuádriceps · Glúteo',c:[[['Sentadilla',5,'RM'],['Prensa',4,'Normal'],['Extensión de cuádriceps',3,'Normal']]]},{n:'Full Upper',m:'Tren superior completo',c:[[['Press de banca',4,'Normal'],['Remo con barra',4,'Normal'],['Press militar',3,'Normal']]]},{n:'Full Lower',m:'Tren inferior completo',c:[[['Sentadilla',4,'Normal'],['Peso muerto',3,'RM']]]}],
+  circs:[{n:'Empuje — Principal',act:true,ej:[['Press de banca',4,'Normal'],['Press inclinado mancuernas',3,'Normal'],['Aperturas',3,'AMRAP']]},{n:'Tirón — Principal',act:true,ej:[['Dominadas',4,'AMRAP'],['Remo con barra',4,'RM'],['Pull-down polea',3,'Normal'],['Curl con barra',3,'Normal']]},{n:'Piernas — Fuerza',act:true,ej:[['Sentadilla',5,'RM'],['Prensa',4,'Normal'],['Extensión de cuádriceps',3,'Normal']]},{n:'Upper básico',act:true,ej:[['Press de banca',4,'Normal'],['Remo con barra',4,'Normal'],['Press militar',3,'Normal']]},{n:'Lower básico',act:true,ej:[['Sentadilla',4,'Normal'],['Peso muerto',3,'RM']]},{n:'Core finisher',act:true,ej:[['Plancha',3,'AMRAP'],['Elevaciones de piernas',3,'Normal']]}],
+  ruts:[{n:'Día A — Empuje',m:'Pecho · Hombro · Tríceps',c:[0,5]},{n:'Día B — Tirón',m:'Espalda · Bíceps',c:[1]},{n:'Día C — Piernas',m:'Cuádriceps · Glúteo',c:[2,5]},{n:'Full Upper',m:'Tren superior completo',c:[3]},{n:'Full Lower',m:'Tren inferior completo',c:[4,5]}],
   mus:[{n:'Pectoral mayor',g:'Pecho'},{n:'Dorsal ancho',g:'Espalda'},{n:'Trapecio',g:'Espalda'},{n:'Cuádriceps',g:'Piernas'},{n:'Bíceps femoral',g:'Piernas'},{n:'Glúteo mayor',g:'Piernas'},{n:'Deltoides',g:'Hombros'},{n:'Bíceps braquial',g:'Brazos'},{n:'Tríceps',g:'Brazos'},{n:'Recto abdominal',g:'Core'}],
   gru:['Pecho','Espalda','Piernas','Hombros','Brazos','Core'],
   coaches:[{n:'Diego Fernández',e:'diego@gym.com',a:12,act:true},{n:'Carla Giménez',e:'carla@gym.com',a:9,act:true},{n:'Martín López',e:'martin@gym.com',a:5,act:true},{n:'Andrea Ruiz',e:'andrea@gym.com',a:0,act:false}],
   alu:0,pay:{al:'Lucía Méndez',t:0,f:'2026-06-13'},plan:null,draft:null,rut:null,assign:{name:'Fuerza 5×5',kind:'Planificación',back:'c-planes',sel:['Lucía Méndez','Tomás Ríos']},
-  cat:'ejercicios',ejEdit:null,conv:'Sofía Paz',
+  cat:'musculos',ejEdit:null,circEdit:null,cdraft:null,circReturn:'',pickIds:[],conv:'Sofía Paz',
 };
 
 function membStatus(m){const days=Math.round((dt(m.v)-TODAY)/864e5);
@@ -333,20 +335,21 @@ const chips=(k,opts,acc)=>`<div class="chips">${opts.map((o,i)=>`<button class="
 const tipoPill=(t,label)=>`<span class="pill ${t==='Normal'?'p-mut':'p-acc'}">${label||t}</span>`;
 const empty=m=>`<div class="empty">${m}</div>`;
 const menu=items=>items.map(([go,t,s,i,act])=>`<div class="card click row" ${go?`data-go="${go}"`:''} ${act?`data-act="${act}"`:''} role="button" tabindex="0"><div class="tile">${ic(i,18)}</div><div class="grow"><div class="name">${t}</div><div class="sub">${s}</div></div><span class="chev">${ic('chev',18)}</span></div>`).join('');
-const allEj=()=>[...new Set([...S.wiki.map(w=>w[0]),'Pull-down polea','Curl con barra','Press inclinado mancuernas','Prensa'])];
+const allEj=()=>[...new Set([...S.wiki.map(w=>w[0]),'Pull-down polea','Curl con barra','Press inclinado mancuernas','Prensa','Plancha','Elevaciones de piernas'])];
 
 /* ===== Shell ===== */
 const TABS={
   user:[['u-home','Rutina','dumbbell'],['u-progreso','Progreso','chart'],['u-rms','RMs','trophy'],['u-timer','Timer','timer'],['u-perfil','Perfil','user']],
   coach:[['c-alumnos','Alumnos','users'],['c-planes','Planes','calendar'],['c-rutinas','Rutinas','list'],['c-timer','Timer','timer'],['c-perfil','Perfil','user']],
-  admin:[['a-home','Inicio','home'],['a-catalogo','Catálogo','grid'],['a-coaches','Coaches','shield'],['a-perfil','Perfil','user']],
+  admin:[['a-home','Inicio','home'],['a-usuarios','Usuarios','users'],['a-coaches','Entrenadores','shield'],['sep','Entrenamiento'],['a-ejercicios','Ejercicios','dumbbell'],['a-circuitos','Circuitos','cycle'],['a-rutinas','Rutinas','list'],['a-planes','Planificaciones','calendar'],['sep','Configuración'],['a-catalogo','Catálogo','grid'],['a-membresias','Membresías','wallet'],['a-perfil','Perfil','user']],
 };
+const MTABS={admin:[['a-home','Inicio','home'],['a-usuarios','Usuarios','users'],['a-ejercicios','Ejercicios','dumbbell'],['a-rutinas','Rutinas','list'],['a-mas','Más','grid']]};
 function sidebar(r){const P=PEOPLE[r.role];const org=['c-membresias','c-pago'].includes(CUR);
   return `<aside class="sidebar"><div class="side-brand"><div class="logo">${ic('bolt',18)}</div><div><div style="font-family:var(--fD);font-size:26px;font-weight:800;line-height:1">PowerApp</div><div class="sub">${P.label}</div></div></div>
-  ${TABS[r.role].map(([id,l,i])=>`<button class="side-item ${r.tab===id&&!org?'on':''}" data-go="${id}">${ic(i)} ${l}</button>`).join('')}
+  ${TABS[r.role].map(([id,l,i])=>id==='sep'?`<div class="side-sep">${l}</div>`:`<button class="side-item ${r.tab===id&&!org?'on':''}" data-go="${id}">${ic(i)} ${l}</button>`).join('')}
   ${r.role==='coach'?`<div class="side-sep">Organización</div><button class="side-item ${org?'on':''}" data-go="c-membresias">${ic('wallet')} Membresías</button>`:''}
   <div class="side-foot"><div class="avatar ${P.av}" style="width:36px;height:36px;font-size:14px">${P.i}</div><div class="grow"><div style="font-size:13px;font-weight:700">${P.n}</div><div class="sub" style="margin:0">${P.label}</div></div><button class="ib" data-go="login" aria-label="Cerrar sesión" title="Cerrar sesión" style="color:var(--ts)">${ic('logout',16)}</button></div></aside>`;}
-const tabbar=r=>`<nav class="tabbar" aria-label="Navegación principal">${TABS[r.role].map(([id,l,i])=>`<button class="tab ${r.tab===id?'on':''}" data-go="${id}">${ic(i,22)}<span>${l}</span><i class="dot"></i></button>`).join('')}</nav>`;
+const tabbar=r=>{const T=MTABS[r.role]||TABS[r.role],ids=T.map(x=>x[0]);return `<nav class="tabbar" aria-label="Navegación principal">${T.map(([id,l,i])=>{const on=r.tab===id||(id==='a-mas'&&!ids.includes(r.tab));return `<button class="tab ${on?'on':''}" data-go="${id}">${ic(i,22)}<span>${l}</span><i class="dot"></i></button>`;}).join('')}</nav>`;};
 function modalHTML(){const m=S.modal;
   return `<div class="overlay" data-act="closeBg"><div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(m.title)}"><div class="grip"></div>
   ${m.ic?`<div class="modal-ic" style="background:var(--${m.tone}S);color:var(--${m.tone})">${ic(m.ic,30)}</div>`:''}
@@ -525,11 +528,13 @@ Cc('c-alumno',{t:'Alumno',tab:'c-alumnos',back:'c-alumnos',render:()=>{const a=S
   <div class="list g2">${menu([[null,'RMs del alumno','Récords por ejercicio','trophy','alRms'],[null,'Historial de entrenamientos','Sesiones completadas','list','alHist'],[null,'Historial de pagos','Membresías y pagos','wallet','alPagos'],['c-pago','Registrar pago','Nuevo pago de membresía','plus','payFor:'+a.n]])}</div>
   ${a.a?`<button class="btn btn-danger" style="margin-top:16px" data-act="closeAcc">Cerrar cuenta del alumno</button>`:''}`;}});
 
-Cc('c-planes',{t:'Planificaciones',tab:'c-planes',render:()=>`${pageHead('Sistémicas','Planificaciones')}
-  <div class="list g2">${S.planes.map((p,i)=>`<div class="card click" data-act="plan:${i}" data-go="c-plan" role="button" tabindex="0"><div class="row" style="justify-content:space-between"><div style="font-family:var(--fD);font-size:22px;font-weight:700">${p.n}</div><span class="chev">${ic('chev',18)}</span></div><div class="sub" style="margin:2px 0 12px">${p.w} semanas · ${p.r.length} rutinas · ${p.t}</div><div class="row" style="justify-content:space-between"><span class="pill p-acc">${p.a} alumnos</span><div class="row" style="gap:6px"><button class="btn btn-ghost btn-sm" data-act="plan:${i}" data-go="c-plan">Editar</button><button class="btn btn-sec btn-sm" data-act="assignPlan:${i}" data-go="c-asignar">Asignar</button></div></div></div>`).join('')}</div>
-  <button class="fab" data-act="plan:new" data-go="c-plan" aria-label="Crear planificación">${ic('plus',26)}</button>`});
-
-Cc('c-plan',{t:'Planificación',tab:'c-planes',back:'c-planes',render:()=>{if(!S.draft||!S.draft.r)ACT.plan('new');const d=S.draft;
+const P=()=>S.role==='admin'?'a':'c';
+const rutUsos=id=>S.ruts.filter(r=>r.c.includes(id));
+const rutEj=r=>r.c.reduce((n,id)=>n+S.circs[id].ej.length,0);
+const planesList=()=>{const p=P();return `${pageHead('Sistémicas','Planificaciones')}
+  <div class="list g2">${S.planes.map((pl,i)=>`<div class="card click" data-act="plan:${i}" data-go="${p}-plan" role="button" tabindex="0"><div class="row" style="justify-content:space-between"><div style="font-family:var(--fD);font-size:22px;font-weight:700">${pl.n}</div><span class="chev">${ic('chev',18)}</span></div><div class="sub" style="margin:2px 0 12px">${pl.w} semanas · ${pl.r.length} rutinas · ${pl.t}</div><div class="row" style="justify-content:space-between"><span class="pill p-acc">${pl.a} alumnos</span>${p==='c'?`<div class="row" style="gap:6px"><button class="btn btn-ghost btn-sm" data-act="plan:${i}" data-go="c-plan">Editar</button><button class="btn btn-sec btn-sm" data-act="assignPlan:${i}" data-go="c-asignar">Asignar</button></div>`:''}</div></div>`).join('')||empty('Todavía no hay planificaciones.')}</div>
+  <button class="fab" data-act="plan:new" data-go="${p}-plan" aria-label="Crear planificación">${ic('plus',26)}</button>`;};
+const planEditor=()=>{if(!S.draft||!S.draft.r)ACT.plan('new');const d=S.draft;
   return `${pageHead(S.plan===null?'Nueva':'Editar','Planificación')}<div class="narrow">
   ${field('Nombre del plan','data-draft="n"',d.n,'Ej: Fuerza 5×5 — Avanzado')}
   <div class="field"><label>Notas del entrenador</label><textarea class="input" data-draft="notas" placeholder="Objetivos y observaciones">${esc(d.notas||'')}</textarea></div>
@@ -539,22 +544,36 @@ Cc('c-plan',{t:'Planificación',tab:'c-planes',back:'c-planes',render:()=>{if(!S
   <div class="list" style="gap:8px">${d.r.length?d.r.map((r,j)=>`<div class="card row" style="padding:12px 14px"><div class="grow name">${r}</div><button class="ib del" data-act="planRm:${j}" aria-label="Quitar ${r}">${ic('x',16)}</button></div>`).join(''):empty('Asigná al menos una rutina a la planificación.')}</div>
   <button class="btn btn-ghost" style="border-style:dashed;margin:10px 0 18px" data-act="planAdd">${ic('plus',16)} Asignar rutina</button>
   <button class="btn btn-pri" data-act="planSave">Guardar planificación</button>
-  ${S.plan!==null?`<button class="btn btn-danger" style="margin-top:10px" data-act="planDel">Eliminar planificación</button>`:''}</div>`;}});
-
-Cc('c-rutinas',{t:'Rutinas',tab:'c-rutinas',render:()=>`${pageHead('Sistémicas','Rutinas')}
-  <div class="list g2">${S.ruts.map((r,i)=>`<div class="card click row" data-act="rut:${i}" data-go="c-rutina" role="button" tabindex="0"><div class="grow"><div class="name" style="font-weight:700">${r.n}</div><div class="sub">${r.m}</div><div style="font-size:12px;color:var(--acc);margin-top:4px">${r.c.reduce((s,c)=>s+c.length,0)} ejercicios · ${r.c.length} circuito${r.c.length>1?'s':''}</div></div><span class="chev">${ic('chev',18)}</span></div>`).join('')}</div>
-  <button class="fab" data-act="rut:new" data-go="c-rutina" aria-label="Crear rutina">${ic('plus',26)}</button>`});
-
-Cc('c-rutina',{t:'Rutina',tab:'c-rutinas',back:'c-rutinas',render:()=>{if(!S.draft||!S.draft.c)ACT.rut('new');const d=S.draft;
+  ${S.plan!==null?`<button class="btn btn-danger" style="margin-top:10px" data-act="planDel">Eliminar planificación</button>`:''}</div>`;};
+const rutinasList=()=>{const p=P();return `${pageHead('Sistémicas','Rutinas')}
+  <div class="list g2">${S.ruts.map((r,i)=>`<div class="card click row" data-act="rut:${i}" data-go="${p}-rutina" role="button" tabindex="0"><div class="grow"><div class="name" style="font-weight:700">${r.n}</div><div class="sub">${r.m}</div><div style="font-size:12px;color:var(--acc);margin-top:4px">${rutEj(r)} ejercicios · ${r.c.length} circuito${r.c.length===1?'':'s'}</div></div><span class="chev">${ic('chev',18)}</span></div>`).join('')||empty('Todavía no hay rutinas.')}</div>
+  <button class="fab" data-act="rut:new" data-go="${p}-rutina" aria-label="Crear rutina">${ic('plus',26)}</button>`;};
+const rutinaEditor=()=>{if(!S.draft||!S.draft.c)ACT.rut('new');const d=S.draft,p=P();
   return `${pageHead(S.rut===null?'Nueva':'Editar','Rutina')}<div class="narrow">
   ${field('Nombre de la rutina','data-draft="n"',d.n,'Ej: Día A — Empuje')}
   <div class="field"><label>Nota del coach</label><textarea class="input" data-draft="notas" placeholder="Indicaciones para el alumno">${esc(d.notas||'')}</textarea></div>
-  ${d.c.map((c,ci)=>`<div class="sec"><h4>Circuito ${ci+1}</h4>${d.c.length>1?`<button class="link" style="color:var(--err)" data-act="circRm:${ci}">Quitar circuito</button>`:''}</div>
-  <div class="list" style="gap:8px">${c.length?c.map((e,j)=>`<div class="card row" style="padding:10px 12px"><div class="thumb" style="width:40px;height:40px">${ic('dumbbell',18)}</div><div class="grow"><div class="name">${e[0]}</div><div class="sub">${e[1]} series</div></div>${tipoPill(e[2])}<button class="ib del" data-act="ejRm:${ci}|${j}" aria-label="Quitar ${e[0]}">${ic('x',16)}</button></div>`).join(''):empty('Circuito vacío. Agregá ejercicios.')}</div>
-  <button class="btn btn-ghost" style="border-style:dashed;margin-top:8px" data-act="ejAdd:${ci}">${ic('plus',16)} Agregar ejercicio</button>`).join('')}
-  <button class="btn btn-ghost" style="margin:18px 0" data-act="circAdd">${ic('plus',16)} Nuevo circuito</button>
+  <div class="sec"><h4>Circuitos</h4><span class="sub" style="margin:0">${d.c.length}</span></div>
+  <div class="list">${d.c.map((id,ci)=>{const c=S.circs[id],u=rutUsos(id).length;return `<div class="card"><div class="row" style="margin-bottom:10px"><div class="tile" style="background:var(--accS);color:var(--acc)">${ic('cycle',18)}</div><div class="grow"><div class="name" style="font-weight:700">${esc(c.n)}</div><div class="sub">${c.ej.length} ejercicios${u>1?` · se usa en ${u} rutinas`:''}</div></div><button class="ib" data-act="circEdit:${id}" data-go="${p}-circuito" aria-label="Editar ${esc(c.n)}">${ic('edit',16)}</button><button class="ib del" data-act="circRm:${ci}" aria-label="Quitar ${esc(c.n)} de la rutina">${ic('x',16)}</button></div><div style="display:grid;gap:6px">${c.ej.map(e=>`<div class="row" style="font-size:13px;color:var(--ts);gap:8px"><span class="grow">${e[0]}</span><span class="data" style="font-size:12px">${e[1]} series</span>${tipoPill(e[2])}</div>`).join('')}</div></div>`;}).join('')||empty('La rutina todavía no tiene circuitos. Agregá uno existente o creá uno nuevo.')}</div>
+  <div class="two" style="margin:12px 0 18px"><button class="btn btn-ghost" data-act="circPick">${ic('plus',16)} Agregar existente</button><button class="btn btn-ghost" data-act="circEdit:new" data-go="${p}-circuito">${ic('plus',16)} Nuevo circuito</button></div>
   <button class="btn btn-pri" data-act="rutSave">Guardar rutina</button>
-  ${S.rut!==null?`<div class="two" style="margin-top:10px"><button class="btn btn-sec" data-act="assignRut" data-go="c-asignar">Asignar a alumno</button><button class="btn btn-danger" data-act="rutDel">Eliminar</button></div>`:''}</div>`;}});
+  ${S.rut!==null?(p==='c'?`<div class="two" style="margin-top:10px"><button class="btn btn-sec" data-act="assignRut" data-go="c-asignar">Asignar a alumno</button><button class="btn btn-danger" data-act="rutDel">Eliminar</button></div>`:`<button class="btn btn-danger" style="margin-top:10px" data-act="rutDel">Eliminar rutina</button>`):''}</div>`;};
+const stepBtn='width:30px;height:30px;background:var(--el);color:var(--tp);font-weight:700;font-size:16px';
+const circuitEditor=()=>{if(!S.cdraft)ACT.circEdit('new');const d=S.cdraft,id=S.circEdit,c=id===null?null:S.circs[id],us=id===null?[]:rutUsos(id);
+  return `${pageHead(id===null?'Nuevo':'Editar','Circuito')}<div class="narrow">
+  ${us.length>1?`<div class="note warn">${ic('alert',18)}<span>Este circuito se usa en ${us.length} rutinas (${us.map(r=>esc(r.n)).join(', ')}). Los cambios se aplican en todas. Si querés cambiarlo solo para una, duplicalo.</span></div>`:''}
+  ${c&&!c.act?`<div class="note warn">${ic('alert',18)}<span>Circuito inactivo: no se puede agregar a rutinas nuevas.</span></div>`:''}
+  ${field('Nombre del circuito','data-cdraft="n"',d.n,'Ej: Empuje — Principal')}
+  <div class="sec"><h4>Ejercicios</h4><span class="sub" style="margin:0">${d.ej.length}</span></div>
+  <div class="list" style="gap:8px">${d.ej.map((e,j)=>`<div class="card row" style="padding:10px 12px"><div class="thumb" style="width:40px;height:40px">${ic('dumbbell',18)}</div><div class="grow"><div class="name">${e[0]}</div><div class="row" style="gap:6px;margin-top:6px"><button class="ib" style="${stepBtn}" data-act="cdSeries:${j}|-1" aria-label="Menos series">−</button><span class="data" style="font-size:12px;min-width:58px;text-align:center">${e[1]} series</span><button class="ib" style="${stepBtn}" data-act="cdSeries:${j}|1" aria-label="Más series">+</button></div></div><button class="pill ${e[2]==='Normal'?'p-mut':'p-acc'}" data-act="cdTipo:${j}" title="Cambiar tipo de serie">${e[2]}</button><button class="ib del" data-act="cdRm:${j}" aria-label="Quitar ${e[0]}">${ic('x',16)}</button></div>`).join('')||empty('Agregá ejercicios al circuito.')}</div>
+  <button class="btn btn-ghost" style="border-style:dashed;margin:10px 0 18px" data-act="cdAdd">${ic('plus',16)} Agregar ejercicio</button>
+  <button class="btn btn-pri" data-act="circSave">Guardar circuito</button>
+  ${c?`<div class="two" style="margin-top:10px"><button class="btn btn-sec" data-act="circDup">Duplicar</button>${c.act?`<button class="btn btn-danger" data-act="circDel">Desactivar</button>`:`<button class="btn btn-ghost" data-act="circOn">Reactivar</button>`}</div>`:''}</div>`;};
+
+Cc('c-planes',{t:'Planificaciones',tab:'c-planes',render:planesList});
+Cc('c-plan',{t:'Planificación',tab:'c-planes',back:'c-planes',render:planEditor});
+Cc('c-rutinas',{t:'Rutinas',tab:'c-rutinas',render:rutinasList});
+Cc('c-rutina',{t:'Rutina',tab:'c-rutinas',back:'c-rutinas',render:rutinaEditor});
+Cc('c-circuito',{t:'Circuito',tab:'c-rutinas',back:()=>S.circReturn||'c-rutina',render:circuitEditor});
 
 Cc('c-asignar',{t:'Asignar',tab:'c-planes',back:()=>S.assign.back,list:()=>{const q=(S.q.asig||'').toLowerCase(),sel=S.assign.sel;
   return S.alum.filter(a=>a.a&&a.n.toLowerCase().includes(q)).map(a=>{const on=sel.includes(a.n);return `<button class="card row click" data-act="selAl:${a.n}" aria-pressed="${on}" style="${on?'border-color:var(--pri)':''}"><div class="avatar" style="width:36px;height:36px;font-size:14px">${a.n[0]}</div><div class="grow"><div class="name">${a.n}</div><div class="sub">${a.p}</div></div><span class="radio ${on?'on':''}">${on?ic('check',13):''}</span></button>`;}).join('')||empty('No hay alumnos activos con ese nombre.');},
@@ -576,22 +595,26 @@ passRoute('c-pass','coach','c-perfil','c-perfil');
 
 /* ===== ADMIN ===== */
 const A=(id,o)=>route(id,{role:'admin',...o});
+const allUsers=()=>{const cn=S.coaches.map(c=>c.n);return[...S.alum.map((a,i)=>({k:'alum',i,n:a.n,rol:'Alumno',act:a.a,sub:a.p})).filter(u=>!cn.includes(u.n)),...S.coaches.map((c,i)=>({k:'coaches',i,n:c.n,rol:'Entrenador',act:c.act,sub:c.e}))].sort((a,b)=>a.n.localeCompare(b.n));};
 A('a-home',{t:'Panel',tab:'a-home',render:()=>`${pageHead('Panel','Administración')}
-  <div class="list" style="grid-template-columns:1fr 1fr;margin-bottom:6px">${[[S.wiki.length,'Ejercicios','pri','dumbbell'],[S.mus.length,'Músculos','acc','grid'],[S.gru.length,'Grupos musculares','ok','list'],[S.coaches.length,'Entrenadores','warn','shield']].map(([v,l,c,i])=>`<div class="card"><div class="tile" style="background:var(--${c}S);color:var(--${c});margin-bottom:12px">${ic(i,18)}</div><div class="data" style="font-size:28px;font-weight:800">${v}</div><div class="sub" style="color:var(--ts)">${l}</div></div>`).join('')}</div>
+  <div class="list" style="grid-template-columns:1fr 1fr;margin-bottom:6px">${[[allUsers().length,'Usuarios','pri','users','a-usuarios'],[S.wiki.length,'Ejercicios','acc','dumbbell','a-ejercicios'],[S.circs.filter(c=>c.act).length,'Circuitos activos','ok','cycle','a-circuitos'],[S.ruts.length,'Rutinas','warn','list','a-rutinas']].map(([v,l,c,i,g])=>`<div class="card click" data-go="${g}" role="button" tabindex="0"><div class="tile" style="background:var(--${c}S);color:var(--${c});margin-bottom:12px">${ic(i,18)}</div><div class="data" style="font-size:28px;font-weight:800">${v}</div><div class="sub" style="color:var(--ts)">${l}</div></div>`).join('')}</div>
   <div class="sec"><h4>Gestión</h4></div>
-  <div class="list g2">${menu([[`a-catalogo`,'Ejercicios','Crear, editar y eliminar','dumbbell','cat:ejercicios'],['a-catalogo','Músculos','Asignados a ejercicios','grid','cat:musculos'],['a-catalogo','Grupos musculares','Agrupan músculos','list','cat:grupos'],['a-membresias','Membresías','Tipos, precios y duración','wallet'],['a-coaches','Entrenadores','Altas, edición y bajas','shield']])}</div>`});
+  <div class="list g2">${menu([['a-planes','Planificaciones',`${S.planes.length} planes sistémicos`,'calendar'],['a-coaches','Entrenadores',`${S.coaches.filter(c=>c.act).length} activos`,'shield'],['a-catalogo','Músculos','Asignados a ejercicios','grid','cat:musculos'],['a-catalogo','Grupos musculares','Agrupan músculos','list','cat:grupos'],['a-membresias','Membresías','Tipos, precios y duración','wallet']])}</div>`});
 
-A('a-catalogo',{t:'Catálogo',tab:'a-catalogo',list:()=>{const q=(S.q.cat||'').toLowerCase(),k=S.cat;
-  if(k==='ejercicios'){const it=S.wiki.map((w,i)=>[w,i]).filter(([w])=>w[0].toLowerCase().includes(q));return it.map(([w,i])=>`<div class="card row"><div class="thumb">${ic('dumbbell')}</div><div class="grow"><div class="name">${w[0]}</div><div class="sub">${w[1]}</div></div><button class="ib" data-act="ejEdit:${i}" data-go="a-ejercicio" aria-label="Editar ${w[0]}">${ic('edit',16)}</button><button class="ib del" data-act="del:wiki|${i}" aria-label="Eliminar ${w[0]}">${ic('trash',16)}</button></div>`).join('')||empty('No hay ejercicios con ese nombre.');}
-  if(k==='musculos'){const it=S.mus.map((m,i)=>[m,i]).filter(([m])=>m.n.toLowerCase().includes(q));return it.map(([m,i])=>`<div class="card row"><div class="tile" style="background:var(--${GCOL[m.g]||'acc'}S);color:var(--${GCOL[m.g]||'acc'})">${ic('grid',18)}</div><div class="grow"><div class="name">${m.n}</div><div class="sub">${m.g}</div></div><button class="ib" data-act="musForm:${i}" aria-label="Editar ${m.n}">${ic('edit',16)}</button><button class="ib del" data-act="del:mus|${i}" aria-label="Eliminar ${m.n}">${ic('trash',16)}</button></div>`).join('')||empty('No hay músculos con ese nombre.');}
-  const it=S.gru.map((g,i)=>[g,i]).filter(([g])=>g.toLowerCase().includes(q));return it.map(([g,i])=>{const n=S.mus.filter(m=>m.g===g).length;return `<div class="card row click" data-act="gruView:${i}" role="button" tabindex="0"><div class="tile" style="width:44px;height:44px;background:linear-gradient(135deg,var(--${GCOL[g]||'acc'}),#A78BFA);color:#fff">${ic('list',18)}</div><div class="grow"><div style="font-family:var(--fD);font-size:20px;font-weight:700">${g}</div><div class="sub">${n} músculo${n===1?'':'s'}</div></div><button class="ib" data-act="gruForm:${i}" aria-label="Editar ${g}">${ic('edit',16)}</button><button class="ib del" data-act="del:gru|${i}" aria-label="Eliminar ${g}">${ic('trash',16)}</button></div>`;}).join('')||empty('No hay grupos con ese nombre.');},
-  render:()=>{const k=S.cat,lbl={ejercicios:'ejercicio',musculos:'músculo',grupos:'grupo muscular'}[k];
-  return `${pageHead('Catálogo',{ejercicios:'Ejercicios',musculos:'Músculos',grupos:'Grupos musculares'}[k])}
-  <div class="seg">${[['ejercicios','Ejercicios'],['musculos','Músculos'],['grupos','Grupos']].map(([v,l])=>`<button class="${k===v?'on':''}" data-act="cat:${v}">${l}</button>`).join('')}</div>
-  ${search('cat','Buscar '+lbl)}<div class="list g2" id="list">${R['a-catalogo'].list()}</div>
-  <button class="fab" ${k==='ejercicios'?'data-act="ejEdit:new" data-go="a-ejercicio"':k==='musculos'?'data-act="musForm:new"':'data-act="gruForm:new"'} aria-label="Crear ${lbl}">${ic('plus',26)}</button>`;}});
+A('a-usuarios',{t:'Usuarios',tab:'a-usuarios',list:()=>{const q=(S.q.users||'').toLowerCase(),f=S.f.users||'Todos';
+  const it=allUsers().filter(u=>(f==='Todos'||(f==='Alumnos'&&u.rol==='Alumno')||(f==='Entrenadores'&&u.rol==='Entrenador')||(f==='Inactivos'&&!u.act))&&u.n.toLowerCase().includes(q));
+  return it.map(u=>{const m=u.k==='alum'&&S.memb.find(x=>x.n===u.n),ms=m&&membStatus(m);return `<div class="card click row" data-act="userView:${u.k}|${u.i}" role="button" tabindex="0" style="${u.act?'':'opacity:.65'}"><div class="avatar ${!u.act?'gray':u.rol==='Entrenador'?'acc':''}">${u.n[0]}</div><div class="grow"><div class="name" style="font-weight:700">${u.n}</div><div class="sub">${esc(u.sub)}${ms?` · membresía ${ms.e.toLowerCase()}`:''}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px"><span class="pill ${u.rol==='Entrenador'?'p-acc':'p-mut'}">${u.rol}</span>${u.act?'':'<span class="pill p-warn">Inactivo</span>'}</div></div>`;}).join('')||empty('No hay usuarios con ese filtro.');},
+  render:()=>{const u=allUsers();return `${pageHead('Gestión','Usuarios')}
+  <div class="stats" style="margin-bottom:16px"><div class="stat"><div class="v" style="color:var(--pri)">${u.filter(x=>x.rol==='Alumno').length}</div><div class="l">Alumnos</div></div><div class="stat"><div class="v" style="color:var(--acc)">${u.filter(x=>x.rol==='Entrenador').length}</div><div class="l">Entrenadores</div></div><div class="stat"><div class="v" style="color:var(--warn)">${u.filter(x=>!x.act).length}</div><div class="l">Inactivos</div></div></div>
+  ${search('users','Buscar por nombre')}${chips('users',['Todos','Alumnos','Entrenadores','Inactivos'])}<div class="list g2" id="list">${R['a-usuarios'].list()}</div>`;}});
 
-A('a-ejercicio',{t:'Ejercicio',tab:'a-catalogo',back:'a-catalogo',render:()=>{if(!S.draft||!S.draft.mus)ACT.ejEdit('new');const d=S.draft;
+A('a-ejercicios',{t:'Ejercicios',tab:'a-ejercicios',list:()=>{const q=(S.q.ej||'').toLowerCase(),f=S.f.ej||'Todos';
+  const it=S.wiki.map((w,i)=>[w,i]).filter(([w])=>(f==='Todos'||w[3]===f)&&w[0].toLowerCase().includes(q));
+  return it.map(([w,i])=>`<div class="card row"><div class="thumb">${ic('dumbbell')}</div><div class="grow"><div class="name">${w[0]}</div><div class="sub">${w[1]} · ${w[2]}</div></div><button class="ib" data-act="ejEdit:${i}" data-go="a-ejercicio" aria-label="Editar ${w[0]}">${ic('edit',16)}</button><button class="ib del" data-act="del:wiki|${i}" aria-label="Eliminar ${w[0]}">${ic('trash',16)}</button></div>`).join('')||empty('No hay ejercicios con ese filtro.');},
+  render:()=>`${pageHead('Entrenamiento','Ejercicios')}${search('ej','Buscar ejercicio')}${chips('ej',['Todos','Pecho','Espalda','Pierna','Hombro','Brazo'])}<div class="list g2" id="list">${R['a-ejercicios'].list()}</div>
+  <button class="fab" data-act="ejEdit:new" data-go="a-ejercicio" aria-label="Crear ejercicio">${ic('plus',26)}</button>`});
+
+A('a-ejercicio',{t:'Ejercicio',tab:'a-ejercicios',back:'a-ejercicios',render:()=>{if(!S.draft||!S.draft.mus)ACT.ejEdit('new');const d=S.draft;
   return `${pageHead(S.ejEdit===null?'Nuevo':'Editar','Ejercicio')}<div class="narrow">
   <button class="upload" data-act="soonImg">${ic('image',28)}<span style="font-size:13px">Subir imagen del ejercicio</span></button>
   ${field('Nombre','data-draft="n"',d.n,'Ej: Press de banca')}
@@ -601,7 +624,31 @@ A('a-ejercicio',{t:'Ejercicio',tab:'a-catalogo',back:'a-catalogo',render:()=>{if
   ${field('Video (URL)','type="url" data-draft="video"',d.video||'','https://youtube.com/...')}
   <button class="btn btn-pri" data-act="ejSave">Guardar ejercicio</button></div>`;}});
 
-A('a-membresias',{t:'Membresías',tab:'a-home',back:'a-home',render:()=>`${pageHead('Configuración','Tipos de membresía')}
+A('a-catalogo',{t:'Catálogo',tab:'a-catalogo',list:()=>{const q=(S.q.cat||'').toLowerCase(),k=S.cat==='grupos'?'grupos':'musculos';
+  if(k==='musculos'){const it=S.mus.map((m,i)=>[m,i]).filter(([m])=>m.n.toLowerCase().includes(q));return it.map(([m,i])=>`<div class="card row"><div class="tile" style="background:var(--${GCOL[m.g]||'acc'}S);color:var(--${GCOL[m.g]||'acc'})">${ic('grid',18)}</div><div class="grow"><div class="name">${m.n}</div><div class="sub">${m.g}</div></div><button class="ib" data-act="musForm:${i}" aria-label="Editar ${m.n}">${ic('edit',16)}</button><button class="ib del" data-act="del:mus|${i}" aria-label="Eliminar ${m.n}">${ic('trash',16)}</button></div>`).join('')||empty('No hay músculos con ese nombre.');}
+  const it=S.gru.map((g,i)=>[g,i]).filter(([g])=>g.toLowerCase().includes(q));return it.map(([g,i])=>{const n=S.mus.filter(m=>m.g===g).length;return `<div class="card row click" data-act="gruView:${i}" role="button" tabindex="0"><div class="tile" style="width:44px;height:44px;background:linear-gradient(135deg,var(--${GCOL[g]||'acc'}),#A78BFA);color:#fff">${ic('list',18)}</div><div class="grow"><div style="font-family:var(--fD);font-size:20px;font-weight:700">${g}</div><div class="sub">${n} músculo${n===1?'':'s'}</div></div><button class="ib" data-act="gruForm:${i}" aria-label="Editar ${g}">${ic('edit',16)}</button><button class="ib del" data-act="del:gru|${i}" aria-label="Eliminar ${g}">${ic('trash',16)}</button></div>`;}).join('')||empty('No hay grupos con ese nombre.');},
+  render:()=>{const k=S.cat==='grupos'?'grupos':'musculos',lbl=k==='musculos'?'músculo':'grupo muscular';
+  return `${pageHead('Catálogo',k==='musculos'?'Músculos':'Grupos musculares')}
+  <div class="seg">${[['musculos','Músculos'],['grupos','Grupos musculares']].map(([v,l])=>`<button class="${k===v?'on':''}" data-act="cat:${v}">${l}</button>`).join('')}</div>
+  ${search('cat','Buscar '+lbl)}<div class="list g2" id="list">${R['a-catalogo'].list()}</div>
+  <button class="fab" data-act="${k==='musculos'?'musForm:new':'gruForm:new'}" aria-label="Crear ${lbl}">${ic('plus',26)}</button>`;}});
+
+A('a-circuitos',{t:'Circuitos',tab:'a-circuitos',list:()=>{const q=(S.q.circ||'').toLowerCase(),f=S.f.circ||'Activos';
+  const it=S.circs.map((c,i)=>[c,i]).filter(([c])=>(f==='Todos'||(f==='Activos')===c.act)&&c.n.toLowerCase().includes(q));
+  return it.map(([c,i])=>{const u=rutUsos(i).length;return `<div class="card click" data-act="circEdit:${i}" data-go="a-circuito" role="button" tabindex="0" style="${c.act?'':'opacity:.65'}"><div class="row"><div class="tile" style="background:var(--accS);color:var(--acc)">${ic('cycle',18)}</div><div class="grow"><div class="name" style="font-weight:700">${esc(c.n)}</div><div class="sub">${c.ej.length} ejercicios · ${c.ej.reduce((n,e)=>n+e[1],0)} series</div></div>${c.act?`<span class="pill p-acc">${u} rutina${u===1?'':'s'}</span>`:'<span class="pill p-warn">Inactivo</span>'}</div><div class="sub" style="margin-top:10px">${c.ej.map(e=>e[0]).join(', ')}</div></div>`;}).join('')||empty('No hay circuitos con ese filtro.');},
+  render:()=>`${pageHead('Entrenamiento','Circuitos')}
+  <p class="muted" style="line-height:1.6;margin:-6px 0 16px">Un circuito se puede usar en varias rutinas. Si lo editás, el cambio se aplica en todas las que lo usan.</p>
+  ${search('circ','Buscar circuito')}${chips('circ',['Activos','Inactivos','Todos'])}<div class="list g2" id="list">${R['a-circuitos'].list()}</div>
+  <button class="fab" data-act="circEdit:new" data-go="a-circuito" aria-label="Crear circuito">${ic('plus',26)}</button>`});
+A('a-circuito',{t:'Circuito',tab:'a-circuitos',back:()=>S.circReturn||'a-circuitos',render:circuitEditor});
+A('a-rutinas',{t:'Rutinas',tab:'a-rutinas',render:rutinasList});
+A('a-rutina',{t:'Rutina',tab:'a-rutinas',back:'a-rutinas',render:rutinaEditor});
+A('a-planes',{t:'Planificaciones',tab:'a-planes',render:planesList});
+A('a-plan',{t:'Planificación',tab:'a-planes',back:'a-planes',render:planEditor});
+A('a-mas',{t:'Más',tab:'a-mas',render:()=>`${pageHead('Administración','Más secciones')}
+  <div class="list g2">${menu([['a-planes','Planificaciones','Planes sistémicos','calendar'],['a-circuitos','Circuitos','Reutilizables entre rutinas','cycle'],['a-coaches','Entrenadores','Edición y bajas','shield'],['a-catalogo','Catálogo','Músculos y grupos musculares','grid'],['a-membresias','Membresías','Tipos, precios y duración','wallet'],['a-perfil','Mi cuenta','Contraseña y sesión','user']])}</div>`});
+
+A('a-membresias',{t:'Membresías',tab:'a-membresias',render:()=>`${pageHead('Configuración','Tipos de membresía')}
   <div class="list g2">${S.mtypes.map((m,i)=>`<div class="card"><div class="row"><div class="tile" style="background:var(--okS);color:var(--ok)">${ic('wallet',18)}</div><div class="grow"><div class="name" style="font-weight:700">${m.n}</div><div class="sub">${m.d} días · ${S.memb.filter(x=>x.t===i).length} alumnos</div></div><button class="ib" data-act="mtForm:${i}" aria-label="Editar ${m.n}">${ic('edit',16)}</button><button class="ib del" data-act="del:mtypes|${i}" aria-label="Eliminar ${m.n}">${ic('trash',16)}</button></div><div class="data" style="font-size:22px;font-weight:800;margin-top:12px">${ars(m.p)}</div></div>`).join('')}</div>
   <button class="fab" data-act="mtForm:new" aria-label="Crear membresía">${ic('plus',26)}</button>`});
 
@@ -669,23 +716,41 @@ const ACT={
   planAdd:()=>pickModal('Asignar rutina',S.ruts.map(r=>r.n).filter(n=>!S.draft.r.includes(n)),'planAddOk'),
   planAddOk:i=>{S.draft.r.push(S.pick[+i]);S.modal=null;rerender();},
   planSave:()=>{const d=S.draft;if(!d.n.trim()){toast('Poné un nombre a la planificación',1);return;}if(!d.r.length){toast('Asigná al menos una rutina',1);return;}
-    const p={n:d.n.trim(),w:+d.w||1,t:d.t,notas:d.notas,r:d.r,a:S.plan===null?0:S.planes[S.plan].a};if(S.plan===null)S.planes.unshift(p);else S.planes[S.plan]=p;toast('Planificación guardada');go('c-planes');},
+    const p={n:d.n.trim(),w:+d.w||1,t:d.t,notas:d.notas,r:d.r,a:S.plan===null?0:S.planes[S.plan].a};if(S.plan===null)S.planes.unshift(p);else S.planes[S.plan]=p;toast('Planificación guardada');go(P()+'-planes');},
   planDel:()=>confirmDel('Eliminar planificación',`¿Eliminar <b>${esc(S.planes[S.plan].n)}</b>? Se quita de los alumnos que la tengan asignada.`,'planDelOk'),
-  planDelOk:()=>{S.planes.splice(S.plan,1);toast('Planificación eliminada');go('c-planes');},
+  planDelOk:()=>{S.planes.splice(S.plan,1);toast('Planificación eliminada');go(P()+'-planes');},
   assignPlan:i=>{S.assign={name:S.planes[+i].n,kind:'Planificación',back:'c-planes',sel:[]};S.q.asig='';},
   assignRut:()=>{S.assign={name:S.ruts[S.rut].n,kind:'Rutina',back:'c-rutina',sel:[]};S.q.asig='';},
   selAl:n=>{const s=S.assign.sel,i=s.indexOf(n);i<0?s.push(n):s.splice(i,1);rerender();},
   assignOk:()=>{const a=S.assign;toast(`${a.name} asignada a ${a.sel.length} alumno${a.sel.length===1?'':'s'}`);go(a.back);},
-  rut:i=>{S.rut=i==='new'?null:+i;const r=S.rut===null?{n:'',notas:'',c:[[]]}:S.ruts[S.rut];S.draft={n:r.n,notas:r.notas||'',m:r.m||'',c:r.c.map(c=>c.map(e=>[...e]))};},
-  circAdd:()=>{S.draft.c.push([]);rerender();},
+  rut:i=>{S.rut=i==='new'?null:+i;const r=S.rut===null?{n:'',notas:'',m:'',c:[]}:S.ruts[S.rut];S.draft={n:r.n,notas:r.notas||'',m:r.m||'',c:[...r.c]};},
   circRm:ci=>{S.draft.c.splice(+ci,1);rerender();},
-  ejAdd:ci=>{S.pickC=+ci;pickModal('Agregar ejercicio',allEj().filter(n=>!S.draft.c[+ci].some(e=>e[0]===n)),'ejAddOk');},
-  ejAddOk:i=>{S.draft.c[S.pickC].push([S.pick[+i],3,'Normal']);S.modal=null;rerender();},
-  ejRm:a=>{const[ci,j]=a.split('|');S.draft.c[+ci].splice(+j,1);rerender();},
-  rutSave:()=>{const d=S.draft;if(!d.n.trim()){toast('Poné un nombre a la rutina',1);return;}if(!d.c.some(c=>c.length)){toast('Agregá al menos un ejercicio',1);return;}
-    const r={n:d.n.trim(),notas:d.notas,m:d.m||'Rutina personalizada',c:d.c.filter(c=>c.length)};if(S.rut===null)S.ruts.unshift(r);else S.ruts[S.rut]=r;toast('Rutina guardada');go('c-rutinas');},
+  circPick:()=>{const ids=S.circs.map((c,i)=>i).filter(i=>S.circs[i].act&&!S.draft.c.includes(i));S.pickIds=ids;pickModal('Agregar circuito',ids.map(i=>`${S.circs[i].n} · ${S.circs[i].ej.length} ejercicios`),'circPickOk');},
+  circPickOk:i=>{S.draft.c.push(S.pickIds[+i]);S.modal=null;rerender();},
+  circEdit:i=>{S.circReturn=/rutina$/.test(CUR)?CUR:(S.role==='admin'?'a-circuitos':'c-rutina');S.circEdit=i==='new'?null:+i;const c=S.circEdit===null?{n:'',ej:[]}:S.circs[S.circEdit];S.cdraft={n:c.n,ej:c.ej.map(e=>[...e])};},
+  cdSeries:a=>{const[j,d]=a.split('|'),e=S.cdraft.ej[+j];e[1]=Math.max(1,Math.min(10,e[1]+ +d));rerender();},
+  cdTipo:j=>{const e=S.cdraft.ej[+j],T=['Normal','AMRAP','RM'];e[2]=T[(T.indexOf(e[2])+1)%3];rerender();},
+  cdRm:j=>{S.cdraft.ej.splice(+j,1);rerender();},
+  cdAdd:()=>pickModal('Agregar ejercicio',allEj().filter(n=>!S.cdraft.ej.some(e=>e[0]===n)),'cdAddOk'),
+  cdAddOk:i=>{S.cdraft.ej.push([S.pick[+i],3,'Normal']);S.modal=null;rerender();},
+  circSave:()=>{const d=S.cdraft;if(!d.n.trim()){toast('Poné un nombre al circuito',1);return;}if(!d.ej.length){toast('Agregá al menos un ejercicio',1);return;}
+    let id=S.circEdit;const c={n:d.n.trim(),ej:d.ej,act:id===null?true:S.circs[id].act};
+    if(id===null){S.circs.push(c);id=S.circs.length-1;if(/rutina$/.test(S.circReturn)&&S.draft&&S.draft.c)S.draft.c.push(id);}else S.circs[id]=c;
+    S.cdraft=null;toast('Circuito guardado');go(S.circReturn);},
+  circDup:()=>{const o=S.circEdit,c=S.circs[o];S.circs.push({n:c.n+' (copia)',ej:c.ej.map(e=>[...e]),act:true});const nid=S.circs.length-1;let enRutina=false;
+    if(/rutina$/.test(S.circReturn)&&S.draft&&S.draft.c){const k=S.draft.c.indexOf(o);if(k>=0){S.draft.c[k]=nid;enRutina=true;}}
+    S.circEdit=nid;S.cdraft={n:c.n+' (copia)',ej:c.ej.map(e=>[...e])};toast(enRutina?'Copia creada y reemplazada en esta rutina':'Circuito duplicado: estás editando la copia');rerender();},
+  circDel:()=>{const c=S.circs[S.circEdit],u=rutUsos(S.circEdit).length;openModal({ic:'alert',tone:'err',title:'Desactivar circuito',body:`<b>${esc(c.n)}</b> deja de estar disponible para rutinas nuevas.${u?` Las ${u} rutinas que ya lo usan lo conservan.`:''}`,actions:`<button class="btn btn-danger solid" data-act="circDelOk">Desactivar</button><button class="btn btn-ghost" data-act="close">Cancelar</button>`});},
+  circDelOk:()=>{S.circs[S.circEdit].act=false;S.cdraft=null;toast('Circuito desactivado');go(S.circReturn);},
+  circOn:()=>{S.circs[S.circEdit].act=true;toast('Circuito reactivado');rerender();},
+  rutSave:()=>{const d=S.draft;if(!d.n.trim()){toast('Poné un nombre a la rutina',1);return;}if(!d.c.length){toast('Agregá al menos un circuito',1);return;}
+    const r={n:d.n.trim(),notas:d.notas,m:d.m||'Rutina personalizada',c:[...d.c]};if(S.rut===null)S.ruts.unshift(r);else S.ruts[S.rut]=r;S.draft=null;toast('Rutina guardada');go(P()+'-rutinas');},
+  userView:a=>{const[k,i]=a.split('|'),coach=k==='coaches',u=S[k][+i],act=coach?u.act:u.a,m=!coach&&S.memb.find(x=>x.n===u.n),ms=m&&membStatus(m);
+    openModal({title:u.n,body:`${coach?'Entrenador':'Alumno'} · cuenta ${act?'activa':'inactiva'}`,html:`<div style="margin-top:14px">${coach?`<div class="trow"><span>Email</span><span>${esc(u.e)}</span></div><div class="trow"><span>Alumnos a cargo</span><span>${u.a}</span></div>`:`<div class="trow"><span>Planificación</span><span>${u.p}</span></div><div class="trow"><span>Membresía</span><span>${m?S.mtypes[m.t].n+' · '+ms.e:'Sin membresía'}</span></div><div class="trow"><span>Adherencia</span><span>${u.adh}%</span></div>`}</div>`,
+    actions:`${!coach&&act?`<button class="btn btn-sec" data-act="conv:${u.n}" data-go="a-convertir">Convertir en entrenador</button>`:''}${coach?`<button class="btn btn-sec" data-act="coachForm:${i}">Editar datos</button>`:''}<button class="btn ${act?'btn-danger':'btn-ghost'}" data-act="userToggle:${k}|${i}">${act?'Desactivar cuenta':'Reactivar cuenta'}</button><button class="btn btn-ghost" data-act="close">Cerrar</button>`});},
+  userToggle:a=>{const[k,i]=a.split('|'),u=S[k][+i];if(k==='coaches')u.act=!u.act;else u.a=!u.a;const on=k==='coaches'?u.act:u.a;S.modal=null;toast(on?'Cuenta reactivada':'Cuenta desactivada');rerender();},
   rutDel:()=>confirmDel('Eliminar rutina',`¿Eliminar <b>${esc(S.ruts[S.rut].n)}</b>? Se quita de las planificaciones que la incluyan.`,'rutDelOk'),
-  rutDelOk:()=>{const n=S.ruts[S.rut].n;S.ruts.splice(S.rut,1);S.planes.forEach(p=>p.r=p.r.filter(x=>x!==n));toast('Rutina eliminada');go('c-rutinas');},
+  rutDelOk:()=>{const n=S.ruts[S.rut].n;S.ruts.splice(S.rut,1);S.planes.forEach(p=>p.r=p.r.filter(x=>x!==n));toast('Rutina eliminada');go(P()+'-rutinas');},
   cat:k=>{S.cat=k;S.q.cat='';if(CUR==='a-catalogo')rerender();},
   ejEdit:i=>{S.ejEdit=i==='new'?null:+i;const w=S.ejEdit===null?null:S.wiki[S.ejEdit];S.draft={n:w?w[0]:'',desc:w?'Ejercicio '+w[2].toLowerCase()+' para '+w[1].toLowerCase()+'.':'',tips:'',video:'',mus:w?S.mus.filter(m=>w[1].includes(m.n.split(' ')[0])).map(m=>m.n):[]};},
   musRm:j=>{S.draft.mus.splice(+j,1);rerender();},
@@ -694,7 +759,7 @@ const ACT={
   soonImg:()=>toast('La carga de imágenes se conecta con el backend'),
   ejSave:()=>{const d=S.draft;if(!d.n.trim()){toast('Poné un nombre al ejercicio',1);return;}const g=(S.mus.find(m=>m.n===d.mus[0])||{g:'Pecho'}).g;
     const w=[d.n.trim(),d.mus.join(' · ')||'Sin músculos asignados',d.mus.length>1?'Compuesto':'Aislamiento',{Piernas:'Pierna',Hombros:'Hombro',Brazos:'Brazo'}[g]||g];
-    if(S.ejEdit===null)S.wiki.unshift(w);else S.wiki[S.ejEdit]=w;toast('Ejercicio guardado');go('a-catalogo');},
+    if(S.ejEdit===null)S.wiki.unshift(w);else S.wiki[S.ejEdit]=w;toast('Ejercicio guardado');go('a-ejercicios');},
   del:a=>{const[k,i]=a.split('|');const item=S[k][+i];const name=typeof item==='string'?item:Array.isArray(item)?item[0]:item.n;
     confirmDel('Eliminar',`¿Eliminar <b>${esc(name)}</b>? No se puede deshacer.`,`delOk:${a}`);},
   delOk:a=>{const[k,i]=a.split('|');S[k].splice(+i,1);S.modal=null;toast('Eliminado');rerender();},
@@ -729,6 +794,7 @@ document.addEventListener('input',e=>{const t=e.target;
   if(t.dataset.search!==undefined){S.q[t.dataset.search]=t.value;const l=document.getElementById('list');if(l&&R[CUR].list)l.innerHTML=R[CUR].list();}
   if(t.dataset.calc){S.calc[t.dataset.calc]=t.dataset.calc==='ej'?t.value:parseFloat(t.value)||0;const r=document.getElementById('c-res');if(r){r.innerHTML=calcRes();document.getElementById('c-table').innerHTML=calcTable();}}
   if(t.dataset.draft&&S.draft)S.draft[t.dataset.draft]=t.value;
+  if(t.dataset.cdraft&&S.cdraft)S.cdraft[t.dataset.cdraft]=t.value;
   if(t.dataset.pw!==undefined){const r=document.getElementById('reqs');if(r)r.innerHTML=reqsHTML(t.value);}
 });
 document.addEventListener('change',e=>{const t=e.target;if(t.dataset.pay){S.pay[t.dataset.pay]=t.dataset.pay==='t'?+t.value:t.value;if(t.dataset.pay==='al'){const m=S.memb.find(x=>x.n===t.value);if(m)S.pay.t=m.t;}rerender();}});
