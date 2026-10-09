@@ -12,7 +12,7 @@ Sitio publicado: https://francarames.github.io/PowerApp-Docs/ (Pages → "Deploy
 Doc/         → Documentación vigente (fuente de verdad del modelo de datos), specs/ y plans/ de cada cambio, app-ios/, um/.
 Use Cases/   → Especificaciones de CU (fuente de verdad) por rol: admin/, entrenador/, usuario/ + README.md (índice) + index.html (visor).
 UI Front/    → Prototipos HTML (app mobile y web).
-Status/      → COPIA del informe y dashboard de avance por CU (ver más abajo).
+Status/      → COPIA de los informes y dashboards de avance por CU, del backend y de la web (ver más abajo).
 index.html   → Portada de Pages.
 ```
 
@@ -22,7 +22,16 @@ index.html   → Portada de Pages.
 
 ## `Status/` es una copia (IMPORTANTE)
 
-La fuente de `estado-implementacion-CU.md` y `dashboard-estado-CU.html` es la carpeta `Status/` **del backend**: se actualiza junto con cada cambio de código. El usuario las copia a mano a este repo. **No editar `Status/` desde acá** salvo que el usuario lo pida: los cambios se pisarían en la próxima sincronización.
+Hay dos pares de archivos, uno por cada código que se audita contra los CU:
+
+| Par | Fuente (se actualiza junto con cada cambio de código) |
+|---|---|
+| `Status/estado-implementacion-backend.md` + `Status/dashboard-estado-backend.html` | carpeta `Status/` del repo del **backend** (`D:\Power App\Backend\PowerApp-Backend`) |
+| `Status/estado-implementacion-web.md` + `Status/dashboard-estado-web.html` | carpeta `Status/` del repo de la **web** (`D:\Power App\Web\PowerApp-Web`) |
+
+El usuario los copia a mano a este repo. **No editar `Status/` desde acá** salvo que el usuario lo pida: los cambios se pisarían en la próxima sincronización.
+
+Los nombres de archivo están enlazados desde la portada (`index.html`, card "Estado de implementación" con un botón por par) y desde el `README.md`: si se renombran, actualizar ambos.
 
 ## Mantenimiento del sitio (Pages)
 
