@@ -27,7 +27,7 @@ El código de la API vive en el repo hermano **[PowerApp-Backend](https://github
 Doc/         → Documentación vigente: modelo de datos (SVG/PDF + visor), specs y planes de cada cambio, contexto para la app iOS.
 Use Cases/   → Especificaciones de los casos de uso (1 .md por CU, por rol) + índice y visor.
 UI Front/    → Prototipos HTML de las interfaces (app y web).
-Tests/       → Planes de prueba manuales (1 .html por plan) + índice y visor.
+Tests/       → Planes de prueba manuales (una carpeta por plan: .html + resultados en JSON) + índice y visor.
 Status/      → Copia del informe y del dashboard de avance por CU, del backend y de la web.
 index.html   → Portada de GitHub Pages.
 ```

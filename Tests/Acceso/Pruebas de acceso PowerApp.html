@@ -739,7 +739,12 @@ tr:last-child td{border-bottom:0}
   // ── Exportar / importar resultados (JSON para versionar en el repo) ──
   const PLAN_ID = 'pruebas-acceso';
   const EXPORT_VERSION = 1;
-  const EXPORT_FILE = 'pruebas-acceso.resultados.json';
+  // Nombre con fecha y hora para que cada tanda sea un archivo distinto y ordene solo: 2026-10-11-1711-pruebas-acceso.resultados.json
+  const exportFileName = () => {
+    const d = new Date();
+    const p = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}-${PLAN_ID}.resultados.json`;
+  };
 
   function buildExport() {
     const n = { ok: 0, fail: 0, retest: 0, none: 0 };
@@ -760,37 +765,34 @@ tr:last-child td{border-bottom:0}
   }
 
   function exportResults() {
+    const file = exportFileName();
     const blob = new Blob([JSON.stringify(buildExport(), null, 2) + '\n'], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = EXPORT_FILE;
+    a.download = file;
     document.body.appendChild(a);
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    showIo('ok', `Descargué ${EXPORT_FILE}. Para versionarlo, guardalo en Tests/resultados/ del repo.`);
+    showIo('ok', `Descargué ${file}. Para que quede en el sitio, guardalo en Tests/Acceso/ y sumalo bajo este plan en Tests/README.md.`);
   }
 
   // Combina por caso: gana el resultado con la fecha (at) más reciente, así no se pierde nada de lo marcado acá.
   const stamp = (iso) => { const t = iso ? Date.parse(iso) : NaN; return Number.isNaN(t) ? -Infinity : t; };
 
-  async function importResults(file) {
-    let data;
-    try {
-      data = JSON.parse(await file.text());
-    } catch {
-      showIo('err', 'No pude leer el archivo: no es un JSON válido.');
-      return;
-    }
+  // Devuelve un mensaje de error si el JSON no es un export de este plan, o null si está bien.
+  function checkResults(data) {
     if (!data || typeof data !== 'object' || data.plan !== PLAN_ID || !data.results || typeof data.results !== 'object') {
-      showIo('err', `Ese archivo no corresponde a este plan (esperaba plan «${PLAN_ID}»).`);
-      return;
+      return `Ese archivo no corresponde a este plan (esperaba plan «${PLAN_ID}»).`;
     }
     if (typeof data.version !== 'number' || data.version > EXPORT_VERSION) {
-      showIo('err', 'El archivo es de una versión más nueva del plan y no sé leerlo.');
-      return;
+      return 'El archivo es de una versión más nueva del plan y no sé leerlo.';
     }
+    return null;
+  }
+
+  function mergeResults(data) {
     const changed = [];
     let newer = 0;
     CASES.forEach((c) => {
@@ -805,19 +807,74 @@ tr:last-child td{border-bottom:0}
     const unknown = Object.keys(data.results).filter((id) => !state[id]).length;
     changed.forEach((id) => persist(id));
     refreshAll();
+    return { changed: changed.length, newer, unknown };
+  }
+
+  async function importResults(file) {
+    let data;
+    try {
+      data = JSON.parse(await file.text());
+    } catch {
+      showIo('err', 'No pude leer el archivo: no es un JSON válido.');
+      return;
+    }
+    const bad = checkResults(data);
+    if (bad) { showIo('err', bad); return; }
+    const { changed, newer, unknown } = mergeResults(data);
 
     const parts = [];
-    if (changed.length) {
+    if (changed) {
       const when = data.exportedAt ? fmtWhen(data.exportedAt) : '';
-      parts.push(`Importé ${changed.length} ${changed.length === 1 ? 'caso' : 'casos'}${when ? ' (exportado el ' + when + ')' : ''}.`);
+      parts.push(`Importé ${changed} ${changed === 1 ? 'caso' : 'casos'}${when ? ' (exportado el ' + when + ')' : ''}.`);
     } else if (newer) {
       parts.push('No cambié nada: lo que tenés acá es más reciente que el archivo.');
     } else {
       parts.push('El archivo no trae nada nuevo: ya tenés esos resultados.');
     }
-    if (changed.length && newer) parts.push(newer === 1 ? 'Dejé 1 caso que acá ya tenía un resultado más reciente.' : `Dejé ${newer} casos que acá ya tenían un resultado más reciente.`);
+    if (changed && newer) parts.push(newer === 1 ? 'Dejé 1 caso que acá ya tenía un resultado más reciente.' : `Dejé ${newer} casos que acá ya tenían un resultado más reciente.`);
     if (unknown) parts.push(unknown === 1 ? 'Ignoré 1 caso que ya no está en el plan.' : `Ignoré ${unknown} casos que ya no están en el plan.`);
-    showIo(changed.length ? 'ok' : '', parts.join(' '));
+    showIo(changed ? 'ok' : '', parts.join(' '));
+  }
+
+  // ── Resultados guardados en el repo ──────────────────────
+  // Tests/README.md lista las tandas de cada plan (sub-bullets bajo el plan; la última es la más reciente).
+  // Al abrir el plan se busca su entrada, se baja ese JSON y se combina con lo local (gana la fecha más nueva).
+  function lastRunOf(md, readmeUrl, pageKey) {
+    let inFence = false;
+    let mine = false;
+    let last = null;
+    md.split(/\r?\n/).forEach((line) => {
+      if (/^\s*```/.test(line)) { inFence = !inFence; return; }
+      if (inFence) return;
+      const plan = /^-\s+\[[^\]]+\]\(([^)]+)\)/.exec(line);
+      if (plan) {
+        const u = new URL(plan[1], readmeUrl);
+        mine = u.origin + u.pathname === pageKey;
+        return;
+      }
+      const run = /^\s+-\s+\[([^\]]+)\]\(([^)]+)\)/.exec(line);
+      if (run && mine) last = { label: run[1], url: new URL(run[2], readmeUrl).href };
+    });
+    return last;
+  }
+
+  async function loadFromRepo() {
+    try {
+      const readmeUrl = new URL('../README.md', location.href).href;
+      const res = await fetch(readmeUrl, { cache: 'no-cache' });
+      if (!res.ok) return;
+      const last = lastRunOf(await res.text(), readmeUrl, location.origin + location.pathname);
+      if (!last) return;
+      const r = await fetch(last.url, { cache: 'no-cache' });
+      if (!r.ok) return;
+      const data = await r.json();
+      if (checkResults(data)) return;
+      const { changed } = mergeResults(data);
+      if (changed) {
+        const when = data.exportedAt ? fmtWhen(data.exportedAt) : '';
+        showIo('ok', `Cargué ${changed} ${changed === 1 ? 'caso' : 'casos'} de «${last.label}», la última tanda guardada en el repo${when ? ' (exportada el ' + when + ')' : ''}.`);
+      }
+    } catch { /* sin README ni red (por ejemplo, abierto con file://): queda lo que haya en este navegador */ }
   }
 
   document.addEventListener('click', (e) => {
@@ -906,7 +963,7 @@ tr:last-child td{border-bottom:0}
 
   renderStatic();
   refreshAll();
-  initStore();
+  initStore().then(loadFromRepo);
 })();
 </script>
 

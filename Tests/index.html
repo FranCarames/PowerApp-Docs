@@ -12,7 +12,7 @@
   :root{
     --base:#06070D; --card:#13161F; --card2:#0F1219; --el:#1B1F2E;
     --border:#232739; --border2:#2E3347;
-    --pri:#E8450A; --priL:#FF6B3D; --acc:#8B5CF6; --green:#3DD47A;
+    --pri:#E8450A; --priL:#FF6B3D; --acc:#8B5CF6; --green:#3DD47A; --red:#F26464; --amber:#F5B23D;
     --tp:#F5F1EB; --ts:#8892A8; --tm:#4A5068;
     --fDisplay:"Saira Condensed",-apple-system,sans-serif;
     --fBody:"Saira",-apple-system,BlinkMacSystemFont,sans-serif;
@@ -88,11 +88,24 @@
     font-family:var(--fMono);font-size:.86em;background:var(--el);border:1px solid var(--border);
     border-radius:5px;padding:1px 6px;color:var(--priL);
   }
+  /* avance de la última tanda guardada en el repo */
+  .prog{margin-top:20px;display:grid;gap:8px;}
+  .prog-top{display:flex;flex-wrap:wrap;gap:3px 12px;font-family:var(--fMono);font-size:11.5px;color:var(--ts);}
+  .prog-top b{color:var(--tp);font-weight:700;}
+  .prog-top .fail{color:var(--red);}
+  .prog-top .retest{color:var(--amber);}
+  .prog-bar{display:flex;height:8px;border-radius:5px;overflow:hidden;background:var(--el);}
+  .prog-bar span{height:100%;}
+  .prog-bar .ok{background:var(--green);}
+  .prog-bar .fail{background:var(--red);}
+  .prog-bar .retest{background:var(--amber);}
+  .prog-meta{font-family:var(--fMono);font-size:10.5px;color:var(--tm);}
+
   .card-go{
     display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:18px;
     font-family:var(--fMono);font-size:12px;font-weight:500;color:var(--tp);letter-spacing:.3px;
   }
-  .card p + .card-go{margin-top:22px;border-top:1px solid var(--border);}
+  .card p + .card-go,.card .prog + .card-go{margin-top:22px;border-top:1px solid var(--border);}
   .card-go .arw{margin-left:auto;transition:transform .3s;color:var(--c);font-size:16px;}
   .card:hover .card-go .arw{transform:translateX(5px);}
 
@@ -180,20 +193,84 @@
     return span;
   }
 
-  // README.md -> [{ name, plans: [{ title, href, desc }] }]. Ignora los bloques de código (ahí va el ejemplo de formato).
+  // README.md -> [{ name, plans: [{ title, href, desc, runs: [{ label, href }] }] }].
+  // Los sub-bullets bajo un plan son sus tandas de resultados (la última es la más reciente).
+  // Ignora los bloques de código (ahí va el ejemplo de formato).
   function parse(md) {
     var groups = [];
     var current = null;
+    var lastPlan = null;
     var inFence = false;
     md.split(/\r?\n/).forEach(function (line) {
       if (/^\s*```/.test(line)) { inFence = !inFence; return; }
       if (inFence) return;
       var g = /^##\s+(.+?)\s*$/.exec(line);
-      if (g) { current = { name: g[1], plans: [] }; groups.push(current); return; }
+      if (g) { current = { name: g[1], plans: [] }; groups.push(current); lastPlan = null; return; }
       var p = /^-\s+\[([^\]]+)\]\(([^)]+)\)\s*(?:[—–-]\s*(.*))?$/.exec(line);
-      if (p && current) current.plans.push({ title: p[1], href: p[2], desc: p[3] || '' });
+      if (p && current) {
+        lastPlan = { title: p[1], href: p[2], desc: p[3] || '', runs: [] };
+        current.plans.push(lastPlan);
+        return;
+      }
+      var r = /^\s+-\s+\[([^\]]+)\]\(([^)]+)\)/.exec(line);
+      if (r && lastPlan) lastPlan.runs.push({ label: r[1], href: r[2] });
     });
     return groups.filter(function (g) { return g.plans.length; });
+  }
+
+  function when(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+
+  // Avance de un plan a partir de su última tanda. Cuenta desde `results`, no desde `summary`, para no depender de un resumen viejo.
+  function progress(box, runs) {
+    if (!runs.length) {
+      box.appendChild(el('div', 'prog-meta', 'Sin resultados cargados todavía'));
+      return;
+    }
+    var last = runs[runs.length - 1];
+    box.appendChild(el('div', 'prog-meta', 'Leyendo resultados…'));
+    fetch(last.href, { cache: 'no-cache' })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (data) {
+        var res = data && data.results;
+        if (!res || typeof res !== 'object') throw new Error('sin results');
+        var ids = Object.keys(res);
+        var n = { ok: 0, fail: 0, retest: 0 };
+        ids.forEach(function (id) { var s = res[id] && res[id].status; if (n[s] !== undefined) n[s]++; });
+        var tested = n.ok + n.fail + n.retest;
+        var total = ids.length || 1;
+
+        box.textContent = '';
+        var top = el('div', 'prog-top');
+        var main = el('span');
+        main.appendChild(el('b', null, String(tested)));
+        main.appendChild(document.createTextNode('/' + ids.length + ' probados'));
+        top.appendChild(main);
+        top.appendChild(el('span', 'fail', n.fail + (n.fail === 1 ? ' falla' : ' fallas')));
+        top.appendChild(el('span', 'retest', n.retest + ' por re-testear'));
+        box.appendChild(top);
+
+        var bar = el('div', 'prog-bar');
+        bar.setAttribute('role', 'img');
+        bar.setAttribute('aria-label', n.ok + ' funcionan, ' + n.fail + ' fallan, ' + n.retest + ' para re-testear, de ' + ids.length + ' casos');
+        ['ok', 'fail', 'retest'].forEach(function (k) {
+          var s = el('span', k);
+          s.style.width = (n[k] / total * 100) + '%';
+          bar.appendChild(s);
+        });
+        box.appendChild(bar);
+
+        var meta = last.label + (data.exportedAt && when(data.exportedAt) ? ' · exportada el ' + when(data.exportedAt) : '');
+        if (runs.length > 1) meta += ' · ' + runs.length + ' tandas';
+        box.appendChild(el('div', 'prog-meta', meta));
+      })
+      .catch(function () {
+        box.textContent = '';
+        box.appendChild(el('div', 'prog-meta', 'No se pudieron leer los resultados de «' + last.label + '»'));
+      });
   }
 
   function render(groups) {
@@ -219,6 +296,9 @@
           inline(p, plan.desc);
           a.appendChild(p);
         }
+        var prog = el('div', 'prog');
+        a.appendChild(prog);
+        progress(prog, plan.runs);
         var go = el('div', 'card-go', 'Abrir plan ');
         go.appendChild(el('span', 'arw', '→'));
         a.appendChild(go);
@@ -235,7 +315,7 @@
     root.appendChild(m);
   }
 
-  fetch('README.md')
+  fetch('README.md', { cache: 'no-cache' })
     .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
     .then(function (md) { render(parse(md)); })
     .catch(fail);

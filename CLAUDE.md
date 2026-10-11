@@ -12,7 +12,7 @@ Sitio publicado: https://francarames.github.io/PowerApp-Docs/ (Pages → "Deploy
 Doc/         → Documentación vigente (fuente de verdad del modelo de datos), specs/ y plans/ de cada cambio, app-ios/, um/.
 Use Cases/   → Especificaciones de CU (fuente de verdad) por rol: admin/, entrenador/, usuario/ + README.md (índice) + index.html (visor).
 UI Front/    → Prototipos HTML (app mobile y web).
-Tests/       → Planes de prueba manuales (1 .html autocontenido por plan) + README.md (índice) + index.html (visor).
+Tests/       → Planes de prueba manuales: una subcarpeta por plan (p. ej. `Acceso/`) con el .html autocontenido y sus JSON de resultados + README.md (índice) + index.html (visor).
 Status/      → COPIA de los informes y dashboards de avance por CU, del backend y de la web (ver más abajo).
 index.html   → Portada de Pages.
 ```
@@ -40,7 +40,7 @@ Los nombres de archivo están enlazados desde la portada (`index.html`, card "Es
 - **Nombres con espacios** (`Doc/PowerApp - Modelo DB.*`, `UI Front/`, `Use Cases/`): en todo link hay que URL-encodear (`%20`).
 - **Cambia el nombre del archivo del modelo en `Doc/`:** tocar a mano la constante `SRC` de `Doc/modelo-db.html` y los links al PDF (no hay glob).
 - **CU nuevo:** agregarlo a `Use Cases/README.md` con su link relativo (formato `- [`CU-..` Título](path)` bajo `## Rol X` / `### Paquete`). El visor `Use Cases/index.html` se auto-sincroniza desde ese índice; no hay que tocarlo.
-- **Plan de prueba nuevo:** copiar el HTML a `Tests/` y agregarlo a `Tests/README.md` (formato `- [Título](archivo%20con%20espacios.html) — descripción` bajo un `## Web` / `## Backend` / `## App iOS`). El visor `Tests/index.html` se auto-sincroniza desde ese índice; no hay que tocarlo. Los planes son archivos del usuario: no editarlos desde acá salvo que lo pida. Cada plan guarda los resultados en `localStorage` y trae Exportar/Importar a un JSON (`<plan>.resultados.json`), que el usuario versiona en `Tests/resultados/`; si un plan se regenera, hay que conservar esos botones.
+- **Plan de prueba nuevo:** copiar el HTML a una subcarpeta propia de `Tests/` y agregarlo a `Tests/README.md` (formato `- [Título](Carpeta/archivo%20con%20espacios.html) — descripción` bajo un `## Web` / `## Backend` / `## App iOS`). El visor `Tests/index.html` se auto-sincroniza desde ese índice; no hay que tocarlo. Los planes son archivos del usuario: no editarlos desde acá salvo que lo pida. Cada plan guarda los resultados en `localStorage` y trae Exportar/Importar a un JSON (`<fecha>-<plan>.resultados.json`); si un plan se regenera, hay que conservar esos botones y la carga automática desde el repo. **Resultados nuevos:** cuando el usuario sume un JSON de resultados a la carpeta de un plan, agregarlo como sub-bullet (`  - [Tanda N](Carpeta/archivo.json)`) bajo ese plan en `Tests/README.md`; la última línea es la tanda vigente. Ese índice alimenta tanto el avance de las cards del visor como la carga automática al abrir el plan.
 - Los visores (`Use Cases/index.html`, `Doc/modelo-db.html`, `Tests/index.html`) usan `fetch`: **no andan por `file://`**, hay que servirlos por HTTP (`python -m http.server`).
 - `Doc/modelo-db.html` inyecta el SVG inline (no `<img>`) para que carguen las `@font-face` que el SVG trae adentro.
 
