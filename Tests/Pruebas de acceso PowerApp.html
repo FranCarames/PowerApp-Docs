@@ -1,0 +1,810 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Pruebas de acceso PowerApp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: una columna de trabajo (máx. 980px). Resumen arriba, barra de filtros fija, casos agrupados por CU. Paleta de PowerApp, dark-first. */
+:root{
+  --bg:#0B0D16; --card:#13161F; --el:#1B1F2E; --line:#232739; --line2:#2E3347;
+  --tx:#F5F1EB; --tx2:#A3ACC2; --tx3:#6B7390;
+  --pri:#FF6B3D; --priS:rgba(232,69,10,.14); --acc:#A78BFA; --accS:rgba(139,92,246,.16);
+  --ok:#3DD47A; --okS:rgba(34,197,94,.14); --warn:#F5B23D; --warnS:rgba(245,158,11,.14); --err:#F26464; --errS:rgba(239,68,68,.14);
+  --none:#6B7390;
+  --fD:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --fB:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --fM:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#F2F3F7; --card:#FFFFFF; --el:#E8EAF1; --line:#D9DCE6; --line2:#C8CCDA;
+    --tx:#141826; --tx2:#47506A; --tx3:#687089;
+    --pri:#C23A07; --priS:rgba(232,69,10,.10); --acc:#6A3FDB; --accS:rgba(139,92,246,.12);
+    --ok:#157A3C; --okS:rgba(34,197,94,.13); --warn:#A25A06; --warnS:rgba(245,158,11,.16); --err:#C42525; --errS:rgba(239,68,68,.11);
+    --none:#8A91A8;
+    color-scheme:light;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#F2F3F7; --card:#FFFFFF; --el:#E8EAF1; --line:#D9DCE6; --line2:#C8CCDA;
+  --tx:#141826; --tx2:#47506A; --tx3:#687089;
+  --pri:#C23A07; --priS:rgba(232,69,10,.10); --acc:#6A3FDB; --accS:rgba(139,92,246,.12);
+  --ok:#157A3C; --okS:rgba(34,197,94,.13); --warn:#A25A06; --warnS:rgba(245,158,11,.16); --err:#C42525; --errS:rgba(239,68,68,.11);
+  --none:#8A91A8;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--tx);font-family:var(--fB);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding-inline:20px;padding-block:28px 72px}
+code,.mono{font-family:var(--fM);font-size:.86em}
+code{background:var(--el);border:1px solid var(--line);border-radius:5px;padding:1px 5px;overflow-wrap:anywhere}
+.ui{color:var(--tx);font-weight:600}
+a{color:var(--acc)}
+a:focus-visible,button:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+h1,h2,h3{text-wrap:balance}
+
+/* Encabezado */
+.mast{display:grid;gap:6px;margin-bottom:22px}
+.eyebrow{font-family:var(--fM);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--pri);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.eyebrow .sep{color:var(--tx3)}
+h1{font-family:var(--fD);font-weight:800;font-size:clamp(34px,6vw,52px);line-height:1;letter-spacing:-.01em;margin:4px 0 0}
+.lede{color:var(--tx2);max-width:66ch;margin:6px 0 0}
+
+/* Resumen */
+.summary{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:14px;margin-bottom:18px}
+.counts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.count{display:grid;gap:2px}
+.count .n{font-family:var(--fD);font-size:34px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.count .l{font-size:12.5px;color:var(--tx2);display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;flex:none}
+.c-ok .n{color:var(--ok)} .c-ok .dot{background:var(--ok)}
+.c-fail .n{color:var(--err)} .c-fail .dot{background:var(--err)}
+.c-retest .n{color:var(--warn)} .c-retest .dot{background:var(--warn)}
+.c-none .n{color:var(--tx2)} .c-none .dot{background:var(--none)}
+.bar{display:flex;height:10px;border-radius:6px;overflow:hidden;background:var(--el)}
+.bar span{height:100%;transition:width .3s ease}
+.bar .b-ok{background:var(--ok)} .bar .b-fail{background:var(--err)} .bar .b-retest{background:var(--warn)}
+.sumfoot{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.save{font-size:12.5px;color:var(--tx3);display:flex;align-items:center;gap:7px}
+.save .dot{background:var(--tx3)}
+.save.is-db .dot{background:var(--ok)} .save.is-err .dot{background:var(--err)} .save.is-local .dot{background:var(--warn)}
+.btn{font:600 13.5px/1 var(--fB);color:var(--tx);background:var(--el);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{border-color:var(--tx3)}
+.btn.pri{background:var(--priS);border-color:var(--pri);color:var(--pri)}
+.copyfall{display:grid;gap:8px}
+.copyfall textarea{width:100%;min-height:140px;font:13px/1.5 var(--fM);background:var(--el);color:var(--tx);border:1px solid var(--line2);border-radius:10px;padding:10px}
+
+/* Antes de empezar */
+details.prep{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:18px}
+details.prep>summary{cursor:pointer;list-style:none;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+details.prep>summary::-webkit-details-marker{display:none}
+details.prep>summary h2{font-family:var(--fD);font-weight:700;font-size:24px;margin:0}
+.chev{color:var(--tx3);font-family:var(--fM);font-size:13px}
+details[open] .chev .c-open{display:none} details:not([open]) .chev .c-close{display:none}
+.prep-body{padding:0 18px 18px;display:grid;gap:18px}
+.prep h3{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin:0 0 8px;font-weight:700}
+.envs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.env{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg);display:grid;gap:6px;align-content:start;min-width:0}
+.env p{margin:0;font-size:13.5px;color:var(--tx2)}
+.tag{display:inline-flex;align-items:center;font:700 11px/1 var(--fM);letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border-radius:6px;border:1px solid currentColor;white-space:nowrap}
+.t-LOCAL{color:var(--acc)} .t-DEMO{color:var(--warn)} .t-RENDER{color:var(--pri)} .t-TODOS{color:var(--tx2)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);font-weight:700;background:var(--bg)}
+tr:last-child td{border-bottom:0}
+.tips{margin:0;padding-left:18px;display:grid;gap:6px;color:var(--tx2);font-size:14px}
+.tips b{color:var(--tx)}
+.tok{font:500 12.5px/1.3 var(--fM);color:var(--tx);background:var(--el);border:1px dashed var(--line2);border-radius:6px;padding:2px 6px;cursor:copy;overflow-wrap:anywhere;text-align:left}
+.tok:hover{border-color:var(--acc)}
+.tok.copied{border-style:solid;border-color:var(--ok);color:var(--ok)}
+
+/* Filtros */
+.filters{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;margin-bottom:8px;display:grid;gap:8px;border-bottom:1px solid var(--line)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chips .lbl{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);font-weight:700;margin-right:4px}
+.chip{font:600 12.5px/1 var(--fB);color:var(--tx2);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 11px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.chip .k{font-family:var(--fM);font-size:11px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.chip[aria-pressed="true"]{color:var(--tx);border-color:var(--tx2);background:var(--el)}
+.jump{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.jump a{font:600 12px/1 var(--fB);color:var(--tx2);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:6px 9px;white-space:nowrap;background:var(--card)}
+.jump a:hover{color:var(--tx);border-color:var(--line2)}
+.jump .p{font-family:var(--fM);font-size:11px;color:var(--tx3);margin-left:4px}
+
+/* Grupos y casos */
+.group{margin-top:28px;scroll-margin-top:120px}
+.ghead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:12px}
+.ghead h2{font-family:var(--fD);font-weight:700;font-size:28px;margin:0;line-height:1.1}
+.ghead .cu{font-family:var(--fM);font-size:12.5px;color:var(--pri)}
+.ghead .gsub{color:var(--tx3);font-size:13.5px}
+.ghead .gprog{margin-left:auto;font-family:var(--fM);font-size:12px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.cases{display:grid;gap:12px}
+.case{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:grid;gap:12px;min-width:0}
+.case[data-status="fail"]{border-color:color-mix(in srgb,var(--err) 55%,var(--line))}
+.case[data-status="ok"]{border-color:color-mix(in srgb,var(--ok) 40%,var(--line))}
+.case[data-status="retest"]{border-color:color-mix(in srgb,var(--warn) 50%,var(--line))}
+.chead{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+.cid{font:700 13px/1 var(--fM);color:var(--pri);letter-spacing:.02em}
+.chead h3{font-size:16.5px;font-weight:700;margin:0;flex:1 1 220px;min-width:0}
+.ctags{display:flex;gap:6px;flex-wrap:wrap}
+.pill{font:700 11px/1 var(--fB);letter-spacing:.04em;text-transform:uppercase;padding:5px 8px;border-radius:999px;background:var(--el);color:var(--tx3);white-space:nowrap}
+.pill.s-ok{background:var(--okS);color:var(--ok)} .pill.s-fail{background:var(--errS);color:var(--err)} .pill.s-retest{background:var(--warnS);color:var(--warn)}
+.cdata{margin:0;font-size:14px;color:var(--tx2)}
+.cdata b{color:var(--tx);font-weight:600}
+.cbody{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:14px}
+.cbody h4{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin:0 0 6px;font-weight:700}
+.steps{margin:0;padding-left:20px;display:grid;gap:5px;font-size:14px}
+.steps li::marker{font-family:var(--fM);color:var(--tx3);font-size:12px}
+.expect{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;min-width:0}
+.expect p{margin:0}
+.expect ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.known{display:flex;gap:10px;align-items:flex-start;background:var(--warnS);color:var(--tx);border-radius:10px;padding:10px 12px;font-size:13.5px}
+.known b{color:var(--warn)}
+.cfoot{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px 14px;align-items:start;border-top:1px solid var(--line);padding-top:12px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.sb{font:600 13px/1 var(--fB);color:var(--tx2);background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:9px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;min-height:38px}
+.sb .ic{font-family:var(--fM);font-weight:700}
+.sb:hover{color:var(--tx)}
+.sb.v-ok[aria-pressed="true"]{background:var(--okS);border-color:var(--ok);color:var(--ok)}
+.sb.v-fail[aria-pressed="true"]{background:var(--errS);border-color:var(--err);color:var(--err)}
+.sb.v-retest[aria-pressed="true"]{background:var(--warnS);border-color:var(--warn);color:var(--warn)}
+.notewrap{display:grid;gap:4px;min-width:0}
+.note{width:100%;min-height:38px;resize:vertical;font:14px/1.45 var(--fB);color:var(--tx);background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:8px 10px}
+.note::placeholder{color:var(--tx3)}
+.when{font-size:12px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.empty{color:var(--tx2);text-align:center;padding:40px 16px;border:1px dashed var(--line2);border-radius:14px;margin-top:24px}
+
+.summary>*,.prep-body>*,.filters>*,.group,.cases>*{min-width:0}
+@media (max-width:760px){
+  .filters{position:static}
+  .group{scroll-margin-top:16px}
+  .envs{grid-template-columns:minmax(0,1fr)}
+  .cbody{grid-template-columns:minmax(0,1fr)}
+  .cfoot{grid-template-columns:minmax(0,1fr)}
+  .counts{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="eyebrow"><span>PowerApp Web</span><span class="sep">/</span><span>CU-U-01 a CU-U-05</span><span class="sep">/</span><span>Pruebas manuales</span></div>
+    <h1>Pruebas de acceso</h1>
+    <p class="lede">Registro, login, recuperación y cambio de contraseña, cierre de sesión y todo lo que pasa antes de entrar a la app. Cada caso dice cómo probarlo y qué tenés que ver. Marcá el resultado y anotá lo que observes: queda guardado.</p>
+  </header>
+
+  <section class="summary" aria-label="Resumen">
+    <div class="counts">
+      <div class="count c-ok"><span class="n" id="n-ok">0</span><span class="l"><span class="dot"></span>Funciona</span></div>
+      <div class="count c-fail"><span class="n" id="n-fail">0</span><span class="l"><span class="dot"></span>Falla</span></div>
+      <div class="count c-retest"><span class="n" id="n-retest">0</span><span class="l"><span class="dot"></span>Re-testear</span></div>
+      <div class="count c-none"><span class="n" id="n-none">0</span><span class="l"><span class="dot"></span>Sin probar</span></div>
+    </div>
+    <div class="bar" role="img" id="bar" aria-label="Progreso"><span class="b-ok" id="b-ok"></span><span class="b-fail" id="b-fail"></span><span class="b-retest" id="b-retest"></span></div>
+    <div class="sumfoot">
+      <span class="save" id="save"><span class="dot"></span><span id="save-t">Conectando el guardado…</span></span>
+      <button type="button" class="btn pri" id="copy-sum">Copiar resumen de fallas</button>
+    </div>
+    <div class="copyfall" id="copy-fall" hidden>
+      <label for="copy-fall-t" class="when">Tu navegador no dejó copiar automáticamente. El texto ya está seleccionado: copialo con Ctrl+C.</label>
+      <textarea id="copy-fall-t" readonly></textarea>
+    </div>
+  </section>
+
+  <details class="prep" id="prep" open>
+    <summary><h2>Antes de empezar</h2><span class="chev"><span class="c-close">Ocultar</span><span class="c-open">Mostrar</span></span></summary>
+    <div class="prep-body">
+      <div>
+        <h3>Entornos</h3>
+        <div class="envs">
+          <div class="env"><span class="tag t-LOCAL">Local</span><p>Backend local en <code>localhost:3000</code> y el front con <code>npm run dev</code> y <code>VITE_USE_MOCKS=false</code>. Todo es real, y la contraseña temporal sale en la consola del backend.</p></div>
+          <div class="env"><span class="tag t-DEMO">Demo</span><p><code>npm run dev</code> con <code>VITE_USE_MOCKS=true</code>, o el sitio de Render, que hoy tiene los mocks prendidos. Sirve para el cambio obligatorio de contraseña, que con cuentas reales todavía no se activa (B9).</p></div>
+          <div class="env"><span class="tag t-RENDER">Render</span><p><a href="https://powerapp-web.onrender.com" target="_blank" rel="noopener">powerapp-web.onrender.com</a> contra el backend de Render, con cuentas reales. Es la prueba de punta a punta: el login real desde el sitio publicado nunca se probó.</p></div>
+        </div>
+      </div>
+      <div>
+        <h3>Cuentas de demo · contraseña <button type="button" class="tok" data-copy="demo123">demo123</button></h3>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>Email</th><th>Rol</th><th>Para qué sirve</th></tr></thead>
+            <tbody>
+              <tr><td><button type="button" class="tok" data-copy="lucia@email.com">lucia@email.com</button></td><td>Alumno</td><td>Entra con contraseña temporal: abre el modal y el cambio obligatorio.</td></tr>
+              <tr><td><button type="button" class="tok" data-copy="martin@email.com">martin@email.com</button></td><td>Alumno</td><td>Cuenta cerrada: el login responde 403.</td></tr>
+              <tr><td><button type="button" class="tok" data-copy="franco@email.com">franco@email.com</button></td><td>Alumno</td><td>Recorrer pantallas con datos de ejemplo.</td></tr>
+              <tr><td><button type="button" class="tok" data-copy="diego@gym.com">diego@gym.com</button></td><td>Entrenador</td><td>Recorrer pantallas con datos de ejemplo.</td></tr>
+              <tr><td><button type="button" class="tok" data-copy="admin@powerapp.com">admin@powerapp.com</button></td><td>Admin</td><td>No sirve para probar el ingreso: su panel pide circuitos reales y el backend rechaza el token de demo, así que la sesión se cierra. Usá una cuenta admin real.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <h3>Qué tenés que tener a mano</h3>
+        <ul class="tips">
+          <li><b>Una cuenta real de cada rol</b>, de las del seed. Admin y entrenador no se pueden crear desde el registro.</li>
+          <li><b>La contraseña temporal:</b> el backend todavía no manda mails (C4). En local aparece en su consola como <code>[EMAIL STUB] Contraseña temporal para …</code>. En Render, en los Logs del servicio del backend.</li>
+          <li><b>DevTools:</b> en Network, filtrá por <code>users</code> para ver qué requests salen. En Application › Local Storage, la clave <code>powerapp.session</code> es la sesión. Para simular que no hay conexión, Network › Offline.</li>
+          <li><b>Orden sugerido:</b> Registro, Login, Recuperar, Cambio obligatorio, Cambio voluntario, Cerrar sesión y Navegación. REC-01 te da la temporal que usan LOG-10, REC-06, REC-07, REC-08 y CPO-08.</li>
+          <li><b>Lo que se sabe que hoy falla</b> está marcado en cada caso con un aviso amarillo (LOG-10 y REC-09 por el backend, NAV-07 por el front). Marcalos igual: así queda registrado cuándo se arreglan.</li>
+        </ul>
+      </div>
+    </div>
+  </details>
+
+  <div class="filters" id="filters">
+    <div class="chips" id="f-status" role="group" aria-label="Filtrar por resultado">
+      <span class="lbl">Resultado</span>
+    </div>
+    <div class="chips" id="f-env" role="group" aria-label="Filtrar por entorno">
+      <span class="lbl">Entorno</span>
+    </div>
+    <nav class="jump" id="jump" aria-label="Ir a un grupo"></nav>
+  </div>
+
+  <main id="groups"></main>
+  <p class="empty" id="empty" hidden>Ningún caso coincide con estos filtros.</p>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const DOCS = 'https://github.com/FranCarames/PowerApp-Docs/blob/main/Use%20Cases/usuario/';
+  const tok = (t) => `<button type="button" class="tok" data-copy="${t.replace(/"/g, '&quot;')}">${t}</button>`;
+  const ui = (t) => `<span class="ui">«${t}»</span>`;
+
+  const ENVS = { LOCAL: 'Local', DEMO: 'Demo', RENDER: 'Render', TODOS: 'Cualquiera' };
+  const STATUSES = [
+    { v: 'ok', label: 'Funciona', ic: '✓' },
+    { v: 'fail', label: 'Falla', ic: '✕' },
+    { v: 'retest', label: 'Re-testear', ic: '↻' },
+  ];
+  const STATUS_LABEL = { ok: 'Funciona', fail: 'Falla', retest: 'Re-testear', none: 'Sin probar' };
+
+  const GROUPS = [
+    { id: 'reg', name: 'Registro', cu: 'CU-U-01', file: 'CU-U-01-registrar-usuario.md' },
+    { id: 'log', name: 'Login', cu: 'CU-U-02', file: 'CU-U-02-login.md' },
+    { id: 'rec', name: 'Recuperar contraseña', cu: 'CU-U-04', file: 'CU-U-04-recuperar-contrasena.md' },
+    { id: 'cpo', name: 'Cambio obligatorio', cu: 'CU-U-05', file: 'CU-U-05-cambiar-contrasena.md', sub: 'Después de entrar con una contraseña temporal' },
+    { id: 'cpv', name: 'Cambio voluntario', cu: 'CU-U-05', file: 'CU-U-05-cambiar-contrasena.md', sub: 'Desde Mi cuenta' },
+    { id: 'out', name: 'Cerrar sesión', cu: 'CU-U-03', file: 'CU-U-03-cerrar-sesion.md' },
+    { id: 'nav', name: 'Navegación y sesión', cu: null, sub: 'Guards y comportamiento sin sesión, comunes a todos los CU de acceso' },
+  ];
+
+  const CASES = [
+    // ── Registro ─────────────────────────────────────────────
+    { id: 'REG-01', g: 'reg', t: 'Alta correcta', env: ['LOCAL', 'RENDER'],
+      data: `Un email que no exista, por ejemplo tu Gmail con un sufijo: ${tok('tuemail+reg01@gmail.com')}`,
+      steps: [`En ${'<code>/login</code>'} tocá ${ui('Crear cuenta nueva')}.`, 'Completá nombre, apellido, email, teléfono (dejá el +54) y una contraseña de 6 caracteres o más.', `Tocá ${ui('Registrarme')}.`, 'Iniciá sesión con esos datos.'],
+      exp: `<ul><li>Aparece ${ui('Cuenta creada. Iniciá sesión para empezar.')} y vuelve a <code>/login</code>.</li><li>No queda sesión abierta: en Local Storage no está <code>powerapp.session</code>.</li><li>El login entra a <code>/u/plan</code>.</li></ul>` },
+    { id: 'REG-02', g: 'reg', t: 'Siempre crea un alumno', env: ['LOCAL'],
+      steps: ['Con DevTools › Network abierto, hacé un alta.', 'Abrí el request <code>POST /users/register</code> y mirá el body.'],
+      exp: '<p>El body lleva <code>role: "user"</code> y la pantalla no ofrece elegir rol. La cuenta nueva entra a la zona del alumno.</p>' },
+    { id: 'REG-03', g: 'reg', t: 'Email ya registrado', env: ['LOCAL', 'RENDER'],
+      data: 'El email de REG-01 o el de cualquier cuenta existente.',
+      steps: ['Completá el formulario con ese email.', `Tocá ${ui('Registrarme')}.`, 'Probá los dos links del aviso.'],
+      exp: `<ul><li>Aviso rojo: ${ui('Ya existe una cuenta con ese email. Iniciá sesión o recuperá tu contraseña.')}</li><li>Los links llevan a <code>/login</code> y a <code>/recuperar</code>.</li><li>El foco queda en el email y lo escrito se conserva. No se crea otra cuenta.</li></ul>` },
+    { id: 'REG-04', g: 'reg', t: 'Campos obligatorios vacíos', env: ['TODOS'],
+      steps: [`Tocá ${ui('Registrarme')} sin completar nada.`, 'Escribí solo espacios en el nombre y volvé a tocarlo.'],
+      exp: `<ul><li>Un error por campo: ${ui('Ingresá tu nombre')}, ${ui('Ingresá tu apellido')}, ${ui('Ingresá tu email')}, ${ui('Ingresá tu teléfono')} y ${ui('Ingresá una contraseña')}.</li><li>Un nombre de solo espacios cuenta como vacío.</li><li>En Network no sale ningún request.</li></ul>` },
+    { id: 'REG-05', g: 'reg', t: 'Formato inválido', env: ['TODOS'],
+      data: `Email ${tok('juan@')} y una contraseña de 5 caracteres, por ejemplo ${tok('abc12')}.`,
+      steps: ['Cargá esos datos y tocá Registrarme.', 'Cambiá la contraseña por una de exactamente 6 caracteres.'],
+      exp: `<p>${ui('Ingresá un email válido')} y ${ui('La contraseña tiene al menos 6 caracteres')}. Con 6 caracteres el error de la contraseña desaparece. Mientras haya errores, no sale ningún request.</p>` },
+    { id: 'REG-06', g: 'reg', t: 'Largos máximos', env: ['TODOS'],
+      data: `51 caracteres: ${tok('abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijk')} · email de 51: ${tok('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@gmail.com')} · código de 11: ${tok('+5412345678')} · teléfono de 21: ${tok('123456789012345678901')}`,
+      steps: ['Pegá el texto de 51 en nombre, apellido y contraseña, y el email de 51 en email.', 'Pegá el código de 11 en el código de país y el teléfono de 21 en el número.', 'Tocá Registrarme.'],
+      exp: `<ul><li>${ui('El nombre no puede tener más de 50 caracteres')}, lo mismo para apellido, email y contraseña.</li><li>Bajo Teléfono se ve un solo error, el del primero que falle: ${ui('El código de país no puede tener más de 10 caracteres')} o ${ui('El teléfono no puede tener más de 20 caracteres')}.</li></ul>` },
+    { id: 'REG-07', g: 'reg', t: 'Error del servidor al guardar', env: ['LOCAL'],
+      steps: ['Apagá el backend local.', 'Completá un alta válida y tocá Registrarme.', 'Prendé el backend y volvé a tocar Registrarme.'],
+      exp: `<p>Aviso rojo con ${ui('No pudimos conectarnos con el servidor…')} o ${ui('El servidor tuvo un problema…')}, según responda el proxy de Vite. No navega y los datos quedan escritos. Con el backend prendido, el alta funciona.</p>` },
+    { id: 'REG-08', g: 'reg', t: 'Doble envío y Volver', env: ['LOCAL'],
+      steps: ['Completá un alta válida y hacé doble clic rápido en Registrarme.', 'En otra pasada, tocá la flecha de volver del encabezado.'],
+      exp: '<p>El botón muestra que está cargando y sale un solo <code>POST /users/register</code>: no aparece el error de email repetido. La flecha lleva a <code>/login</code>.</p>' },
+    { id: 'REG-09', g: 'reg', t: 'Email con mayúsculas y espacios', env: ['LOCAL'],
+      data: `Registrá ${tok('  Prueba.Mayus@Gmail.com  ')} con los espacios.`,
+      steps: ['Hacé el alta con ese email.', `Iniciá sesión con ${tok('prueba.mayus@gmail.com')}.`],
+      exp: '<p>El alta pasa, porque los espacios se recortan, y el login en minúsculas entra, porque el backend guarda el email en minúsculas.</p>' },
+
+    // ── Login ────────────────────────────────────────────────
+    { id: 'LOG-01', g: 'log', t: 'Ingreso de un alumno', env: ['LOCAL', 'RENDER'],
+      data: 'Una cuenta real de alumno.',
+      steps: ['Ingresá email y contraseña.', `Tocá ${ui('Iniciar sesión')}.`],
+      exp: '<p>Entra a <code>/u/plan</code>. En Local Storage aparece <code>powerapp.session</code> con el token y el usuario.</p>' },
+    { id: 'LOG-02', g: 'log', t: 'Ingreso de un entrenador', env: ['LOCAL', 'RENDER'],
+      data: 'Una cuenta real de entrenador.',
+      steps: ['Iniciá sesión con esa cuenta.'],
+      exp: '<p>Entra a <code>/c/alumnos</code>, con la navegación del entrenador.</p>' },
+    { id: 'LOG-03', g: 'log', t: 'Ingreso de un admin', env: ['LOCAL', 'RENDER'],
+      data: 'Una cuenta real de admin. La de demo no sirve (ver Antes de empezar).',
+      steps: ['Iniciá sesión con esa cuenta.'],
+      exp: '<p>Entra a <code>/a/inicio</code>, con la navegación del admin.</p>' },
+    { id: 'LOG-04', g: 'log', t: 'Contraseña incorrecta', env: ['LOCAL', 'RENDER'],
+      steps: ['Ingresá un email real con una contraseña equivocada.', 'Tocá Iniciar sesión.'],
+      exp: `<p>${ui('El email o la contraseña no son correctos.')} La contraseña se vacía y el foco vuelve a ella; el email queda escrito. No se abre sesión.</p>` },
+    { id: 'LOG-05', g: 'log', t: 'Email que no existe', env: ['LOCAL', 'RENDER'],
+      data: `Por ejemplo ${tok('noexiste@powerapp.com')} con cualquier contraseña de 6 caracteres.`,
+      steps: ['Intentá iniciar sesión.'],
+      exp: '<p>Exactamente el mismo mensaje que en LOG-04: no dice cuál de los dos datos está mal.</p>' },
+    { id: 'LOG-06', g: 'log', t: 'Cuenta cerrada', env: ['LOCAL', 'DEMO'],
+      data: `Local: cerrá la cuenta de un alumno desde su detalle (Entrenador) o desde Usuarios (Admin). Demo: ${tok('martin@email.com')}.`,
+      steps: ['Iniciá sesión con esa cuenta y su contraseña correcta.', 'Si usaste una cuenta real, reactivala al terminar.'],
+      exp: `<p>${ui('Tu cuenta está cerrada. Consultá en el gimnasio para volver a activarla.')} No entra.</p>` },
+    { id: 'LOG-07', g: 'log', t: 'Validaciones del formulario', env: ['TODOS'],
+      steps: ['Tocá Iniciar sesión con todo vacío.', `Escribí ${tok('juan@')} como email.`, 'Escribí una contraseña de 5 caracteres.'],
+      exp: `<p>${ui('Ingresá tu email')} y ${ui('Ingresá tu contraseña')}; después ${ui('Ingresá un email válido')} y ${ui('La contraseña tiene al menos 6 caracteres')}. No sale ningún request.</p>` },
+    { id: 'LOG-08', g: 'log', t: 'Enter y doble envío', env: ['LOCAL'],
+      steps: ['Completá el formulario y apretá Enter en el campo de contraseña.', 'En otra pasada, hacé doble clic rápido en Iniciar sesión.'],
+      exp: '<p>Enter envía el formulario. Con doble clic sale un solo <code>POST /users/login</code> y el botón muestra que está cargando.</p>' },
+    { id: 'LOG-09', g: 'log', t: 'Contraseña temporal: modal de aviso', env: ['DEMO'],
+      data: `${tok('lucia@email.com')} con ${tok('demo123')}.`,
+      steps: ['Iniciá sesión con esa cuenta.', 'Probá cerrar el modal con Escape y tocando fuera.', 'Mirá Local Storage con el modal abierto.', `Tocá ${ui('Crear nueva contraseña')}.`],
+      exp: `<ul><li>Aparece ${ui('Actualizá tu contraseña')}: ${ui('Estás usando una contraseña temporal…')}</li><li>Escape y tocar fuera no lo cierran.</li><li>Con el modal abierto todavía no existe <code>powerapp.session</code>.</li><li>El botón lleva a <code>/cambiar-contrasena</code>.</li></ul>` },
+    { id: 'LOG-10', g: 'log', t: 'Contraseña temporal real: fuerza el cambio', env: ['LOCAL'],
+      data: 'El email de REC-01 y la temporal que imprimió la consola del backend.',
+      steps: ['Iniciá sesión con esa temporal.'],
+      exp: '<p>Como en LOG-09: aparece el modal y después solo se puede usar <code>/cambiar-contrasena</code> (CU-U-02, camino alternativo).</p>',
+      known: 'El backend no avisa que se usó la temporal (B9), así que entra directo a su inicio. Marcalo Falla con la nota «B9» y volvé a probarlo cuando B9 esté.' },
+    { id: 'LOG-11', g: 'log', t: 'Links de la pantalla', env: ['TODOS'],
+      steps: [`Tocá ${ui('¿Olvidaste tu contraseña?')}.`, `Volvé y tocá ${ui('Crear cuenta nueva')}.`],
+      exp: '<p>Llevan a <code>/recuperar</code> y a <code>/registro</code>.</p>' },
+    { id: 'LOG-12', g: 'log', t: 'Login real en el sitio publicado', env: ['RENDER'],
+      data: 'Una cuenta real de cualquier rol, en powerapp-web.onrender.com.',
+      steps: ['Con DevTools › Network abierto, iniciá sesión.', 'Abrí la respuesta de <code>POST /users/login</code>.'],
+      exp: `<p>Entra al inicio de su rol y la respuesta muestra el header <code>Authorization</code>. Si aparece ${ui('No pudimos completar el ingreso. Intentá de nuevo en unos minutos.')}, el navegador no pudo leer el token: revisá CORS (C1).</p>` },
+    { id: 'LOG-13', g: 'log', t: 'Servidor dormido', env: ['RENDER'],
+      data: 'El backend de Render sin uso por 15 minutos o más, para que se duerma.',
+      steps: ['Iniciá sesión con una cuenta real y esperá sin tocar nada.'],
+      exp: `<p>A los 4 segundos aparece arriba ${ui('Despertando el servidor, puede tardar un poco…')}. El ingreso no se corta: entra cuando el backend responde y el aviso desaparece.</p>` },
+    { id: 'LOG-14', g: 'log', t: 'Sin conexión', env: ['TODOS'],
+      steps: ['En DevTools › Network, elegí Offline.', 'Intentá iniciar sesión.', 'Volvé a Online y reintentá.'],
+      exp: `<p>${ui('No pudimos conectarnos con el servidor. Revisá tu conexión e intentá de nuevo.')} Con conexión, el login funciona.</p>` },
+    { id: 'LOG-15', g: 'log', t: 'Email con mayúsculas y espacios', env: ['LOCAL', 'RENDER'],
+      steps: ['Escribí el email de una cuenta real con mayúsculas y espacios adelante y atrás.', 'Iniciá sesión con su contraseña.'],
+      exp: '<p>Entra igual que con el email escrito en minúsculas.</p>' },
+
+    // ── Recuperar contraseña ────────────────────────────────
+    { id: 'REC-01', g: 'rec', t: 'Email registrado', env: ['LOCAL'],
+      data: 'El email de una cuenta real de alumno.',
+      steps: [`En <code>/recuperar</code> ingresá el email y tocá ${ui('Enviar contraseña temporal')}.`, 'Mirá la consola del backend.'],
+      exp: `<ul><li>Modal ${ui('Revisá tu correo')}: ${ui('Si &lt;tu email&gt; está registrado, te enviamos una contraseña temporal…')}</li><li>En la consola aparece <code>[EMAIL STUB] Contraseña temporal para …</code> con 10 letras y números. Guardala: la usan LOG-10, REC-06 a REC-08 y CPO-08.</li></ul>` },
+    { id: 'REC-02', g: 'rec', t: 'Email no registrado', env: ['LOCAL', 'RENDER'],
+      data: `Por ejemplo ${tok('noexiste@powerapp.com')}.`,
+      steps: ['Pedí la temporal para ese email.', 'Compará con REC-01 la respuesta en Network y el texto del modal.'],
+      exp: '<p>Mismo modal y mismo texto, solo cambia el email. La respuesta es 200, igual que en REC-01. No hay forma de saber si el email existe.</p>' },
+    { id: 'REC-03', g: 'rec', t: 'Validaciones', env: ['TODOS'],
+      steps: ['Tocá el botón con el email vacío.', `Escribí ${tok('juan@')} y volvé a tocarlo.`],
+      exp: `<p>${ui('Ingresá tu email')} y después ${ui('Ingresá un email válido')}. No sale ningún request.</p>` },
+    { id: 'REC-04', g: 'rec', t: 'Falla el envío', env: ['LOCAL'],
+      steps: ['Apagá el backend local y pedí la temporal.', 'Prendé el backend y tocá el botón otra vez.'],
+      exp: `<p>Aviso rojo de error, el botón pasa a decir ${ui('Reintentar')} y el email queda escrito. Al reintentar con el backend prendido aparece el modal.</p>` },
+    { id: 'REC-05', g: 'rec', t: 'Cerrar el modal', env: ['TODOS'],
+      steps: ['Con el modal de REC-01 o REC-02 abierto, apretá Escape.', 'Volvé a pedirla y tocá fuera del modal.', `La tercera vez, tocá ${ui('Ir a iniciar sesión')}.`],
+      exp: `<p>Escape y tocar fuera vuelven al formulario con el email escrito. El botón lleva a <code>/login</code>. Abajo del modal se lee ${ui('¿No te llegó? Revisá spam o volvé a solicitarla.')}</p>` },
+    { id: 'REC-06', g: 'rec', t: 'Entrar con la temporal', env: ['LOCAL'],
+      data: 'La temporal de REC-01.',
+      steps: ['Iniciá sesión con el email y la temporal.'],
+      exp: '<p>La temporal sirve para entrar. Si además fuerza el cambio, eso se evalúa en LOG-10.</p>' },
+    { id: 'REC-07', g: 'rec', t: 'La contraseña de siempre sigue andando', env: ['LOCAL'],
+      steps: ['Después de REC-01, iniciá sesión con la contraseña anterior de esa cuenta.'],
+      exp: '<p>Entra: pedir una temporal no bloquea la contraseña de siempre, porque el backend prueba las dos. Si no entra, anotalo como hallazgo del backend.</p>' },
+    { id: 'REC-08', g: 'rec', t: 'Pedirla dos veces', env: ['LOCAL'],
+      steps: ['Pedí la temporal dos veces seguidas para el mismo email.', 'Intentá entrar con la primera.', 'Intentá entrar con la segunda.'],
+      exp: '<p>Solo vale la última. Si la primera también entra, marcalo Falla y anotalo como hallazgo del backend.</p>' },
+    { id: 'REC-09', g: 'rec', t: 'El correo llega de verdad', env: ['RENDER'],
+      data: 'Tu email real, registrado en Render.',
+      steps: ['Pedí la temporal en el sitio publicado.', 'Revisá la bandeja de entrada y spam.'],
+      exp: '<p>Llega un correo con la contraseña temporal (CU-U-04, paso 3).</p>',
+      known: 'El backend todavía no manda mails (C4): la temporal solo aparece en los Logs del backend en Render. Marcalo Falla con la nota «C4».' },
+    { id: 'REC-10', g: 'rec', t: 'Volver al login', env: ['TODOS'],
+      steps: ['En <code>/recuperar</code>, tocá la flecha del encabezado.', `Volvé y tocá ${ui('Volver al inicio de sesión')}.`],
+      exp: '<p>Los dos llevan a <code>/login</code>. El encabezado dice «Paso 1 de 3».</p>' },
+
+    // ── Cambio obligatorio ──────────────────────────────────
+    { id: 'CPO-01', g: 'cpo', t: 'Pantalla del cambio obligatorio', env: ['DEMO'],
+      data: `Seguí desde LOG-09 (${tok('lucia@email.com')}).`,
+      steps: ['Mirá la pantalla de <code>/cambiar-contrasena</code>.'],
+      exp: `<ul><li>«Paso 3 de 3» y el título ${ui('Nueva contraseña')}, sin flecha de volver.</li><li>Aviso ${ui('Ingresaste con una contraseña temporal…')}</li><li>Bajo Contraseña actual: ${ui('Es la contraseña temporal con la que ingresaste.')}</li><li>Botón ${ui('Guardar y continuar')} y link ${ui('Cerrar sesión')}.</li></ul>` },
+    { id: 'CPO-02', g: 'cpo', t: 'No se puede salir de la pantalla', env: ['DEMO'],
+      steps: ['Con el cambio pendiente, escribí en la barra <code>/u/plan</code>, <code>/cuenta</code>, <code>/login</code>, <code>/registro</code> y <code>/</code>.'],
+      exp: '<p>Todas vuelven a <code>/cambiar-contrasena</code>.</p>' },
+    { id: 'CPO-03', g: 'cpo', t: 'Recargar mantiene el cambio pendiente', env: ['DEMO'],
+      steps: ['Recargá la página con F5.', 'Cerrá la pestaña y volvé a abrir el sitio.'],
+      exp: '<p>Las dos veces sigue en <code>/cambiar-contrasena</code>.</p>' },
+    { id: 'CPO-04', g: 'cpo', t: 'Contraseña actual incorrecta', env: ['DEMO'],
+      steps: ['Poné una contraseña actual equivocada y una nueva válida dos veces.', 'Tocá Guardar y continuar.'],
+      exp: `<p>${ui('La contraseña actual es incorrecta')} en el campo, con el foco ahí. La sesión no se cierra: seguís en la pantalla.</p>` },
+    { id: 'CPO-05', g: 'cpo', t: 'Validaciones de la contraseña nueva', env: ['TODOS'],
+      steps: ['Escribí una nueva de 5 caracteres.', 'Escribí una de 6 y repetila distinta.', 'Repetila igual.'],
+      exp: `<p>${ui('La contraseña tiene al menos 6 caracteres')} y después ${ui('Las contraseñas no coinciden')}. La tarjeta de requisitos tilda ${ui('Entre 6 y 50 caracteres')} y ${ui('Las dos contraseñas coinciden')} a medida que se cumplen.</p>` },
+    { id: 'CPO-06', g: 'cpo', t: 'Cambio correcto', env: ['DEMO'],
+      data: `Actual ${tok('demo123')}, nueva ${tok('nueva123')}.`,
+      steps: ['Completá los tres campos y tocá Guardar y continuar.', 'Recargá la página.'],
+      exp: `<p>${ui('Contraseña actualizada')} y va a <code>/u/plan</code>, con la navegación habilitada. Al recargar no vuelve a pedir el cambio.</p>` },
+    { id: 'CPO-07', g: 'cpo', t: 'Cerrar sesión con el cambio pendiente', env: ['DEMO'],
+      steps: ['Entrá otra vez con la cuenta temporal hasta <code>/cambiar-contrasena</code>.', 'Tocá Cerrar sesión.', 'Escribí <code>/u/plan</code> en la barra.'],
+      exp: '<p>Vuelve a <code>/login</code> sin <code>powerapp.session</code>, y <code>/u/plan</code> también lleva a <code>/login</code>.</p>' },
+    { id: 'CPO-08', g: 'cpo', t: 'Recuperación completa con una cuenta real', env: ['LOCAL'],
+      data: 'La temporal de REC-01.',
+      steps: ['Iniciá sesión con la temporal. Hoy entra directo a su inicio (B9).', 'Andá a Mi cuenta › Cambiar contraseña y poné la temporal como actual y una nueva.', 'Cerrá sesión y entrá con la nueva.', 'Cerrá sesión e intentá entrar con la temporal.'],
+      exp: '<p>El cambio se acepta con la temporal como actual y la nueva entra. La temporal ya no entra: queda anulada (CU-U-05, postcondición).</p>' },
+
+    // ── Cambio voluntario ───────────────────────────────────
+    { id: 'CPV-01', g: 'cpv', t: 'Cambio desde Mi cuenta', env: ['LOCAL'],
+      steps: ['Con una cuenta real, andá a Mi cuenta › Cambiar contraseña.', 'Poné la actual correcta y una nueva dos veces, y guardá.', 'Cerrá sesión y entrá con la nueva; después probá la anterior.'],
+      exp: `<ul><li>La pantalla dice «Seguridad» y ${ui('Cambiar contraseña')}, con flecha a <code>/cuenta</code>.</li><li>Al guardar: ${ui('Contraseña actualizada')} y vuelve a <code>/cuenta</code>.</li><li>La nueva entra y la anterior ya no.</li></ul>` },
+    { id: 'CPV-02', g: 'cpv', t: 'Contraseña actual incorrecta no cierra la sesión', env: ['LOCAL'],
+      steps: ['En Cambiar contraseña, poné una actual equivocada y guardá.', 'Navegá a otra pantalla.'],
+      exp: `<p>${ui('La contraseña actual es incorrecta')} en el campo. La sesión sigue abierta y podés seguir navegando. Antes de la corrección de T12, este caso te deslogueaba.</p>` },
+
+    // ── Cerrar sesión ───────────────────────────────────────
+    { id: 'OUT-01', g: 'out', t: 'Cerrar sesión', env: ['LOCAL', 'RENDER'],
+      steps: [`Con cada rol, andá a Mi cuenta y tocá ${ui('Cerrar sesión')}.`, 'Tocá el botón Atrás del navegador.'],
+      exp: '<p>Va a <code>/login</code> y desaparece <code>powerapp.session</code>. Atrás no vuelve a la app: termina otra vez en <code>/login</code>.</p>' },
+    { id: 'OUT-02', g: 'out', t: 'Cerrar sesión con el servidor caído', env: ['LOCAL'],
+      steps: ['Con la sesión abierta, apagá el backend.', 'Cerrá sesión.'],
+      exp: '<p>Sale igual, al instante y sin mostrar error (CU-U-03, camino alternativo).</p>' },
+    { id: 'OUT-03', g: 'out', t: 'Sesión vencida', env: ['LOCAL'],
+      steps: [`En Local Storage, editá <code>powerapp.session</code> y cambiá el valor de <code>token</code> por ${tok('x')}.`, 'Recargá y abrí Mi cuenta › Datos personales.'],
+      exp: `<p>${ui('Tu sesión expiró. Volvé a iniciar sesión.')} y va a <code>/login</code>.</p>` },
+    { id: 'OUT-04', g: 'out', t: 'Cuenta cerrada con la sesión abierta', env: ['LOCAL'],
+      steps: ['En una ventana, iniciá sesión como un alumno.', 'En una ventana de incógnito, entrá como entrenador y cerrá la cuenta de ese alumno.', 'En la primera ventana, abrí Mi cuenta › Datos personales.', 'Reactivá la cuenta al terminar.'],
+      exp: `<p>${ui('Tu cuenta está deshabilitada. Consultá con tu gimnasio.')} y va a <code>/login</code>.</p>` },
+    { id: 'OUT-05', g: 'out', t: 'No quedan datos de la sesión anterior', env: ['LOCAL'],
+      data: 'Dos cuentas reales de alumno.',
+      steps: ['Entrá con el alumno A y abrí Datos personales.', 'Cerrá sesión, entrá con el alumno B y abrí Datos personales.'],
+      exp: '<p>Se ven los datos de B. Los de A no aparecen en ningún momento, ni por un instante mientras carga.</p>' },
+
+    // ── Navegación y sesión ─────────────────────────────────
+    { id: 'NAV-01', g: 'nav', t: 'Rutas protegidas sin sesión', env: ['TODOS'],
+      steps: ['Sin sesión, abrí <code>/u/plan</code>, <code>/c/alumnos</code>, <code>/a/inicio</code>, <code>/cuenta</code> y <code>/cambiar-contrasena</code>.'],
+      exp: '<p>Todas llevan a <code>/login</code>.</p>' },
+    { id: 'NAV-02', g: 'nav', t: 'La dirección raíz', env: ['TODOS'],
+      steps: ['Sin sesión, abrí <code>/</code>.', 'Con sesión de cada rol, abrí <code>/</code>.'],
+      exp: '<p>Sin sesión va a <code>/login</code>. Con sesión, al inicio de su rol.</p>' },
+    { id: 'NAV-03', g: 'nav', t: 'Rol equivocado', env: ['LOCAL', 'RENDER'],
+      steps: ['Como alumno, abrí <code>/a/inicio</code> y <code>/c/alumnos</code>.', 'Como entrenador, abrí <code>/a/inicio</code>.', 'Como admin, abrí <code>/u/plan</code>.'],
+      exp: '<p>Cada uno vuelve a su inicio: <code>/u/plan</code>, <code>/c/alumnos</code> y <code>/a/inicio</code>.</p>' },
+    { id: 'NAV-04', g: 'nav', t: 'La sesión sobrevive al cerrar el navegador', env: ['LOCAL', 'RENDER'],
+      steps: ['Iniciá sesión.', 'Cerrá el navegador entero y volvé a abrir el sitio.'],
+      exp: '<p>Sigue logueado y entra a su inicio sin pedir login.</p>' },
+    { id: 'NAV-05', g: 'nav', t: 'Dirección inexistente', env: ['TODOS'],
+      steps: ['Abrí <code>/cualquier-cosa</code>, con y sin sesión.', `Tocá ${ui('Ir al inicio')}.`],
+      exp: `<p>${ui('Página no encontrada')}. El botón lleva a <code>/login</code> sin sesión y al inicio del rol con sesión.</p>` },
+    { id: 'NAV-06', g: 'nav', t: 'Recargar en el sitio publicado', env: ['RENDER'],
+      steps: ['Abrí directo <code>/registro</code> y <code>/recuperar</code> y recargá con F5.'],
+      exp: '<p>Cargan la pantalla. Nunca aparece un 404 de Render.</p>' },
+    { id: 'NAV-07', g: 'nav', t: 'Pantallas de acceso con la sesión abierta', env: ['TODOS'],
+      steps: ['Con la sesión abierta, escribí <code>/login</code>, <code>/registro</code> y <code>/recuperar</code>.'],
+      exp: '<p>Te lleva al inicio de tu rol, porque esos CU piden que no haya sesión activa (precondición de CU-U-01, CU-U-02 y CU-U-04).</p>',
+      known: 'Probablemente falle: el guard de esas pantallas solo redirige con un cambio de contraseña pendiente, y con sesión abierta muestra el formulario igual. Es un ajuste del front.' },
+    { id: 'NAV-08', g: 'nav', t: 'Celular y escritorio', env: ['TODOS'],
+      steps: ['Abrí login, registro, recuperar y cambiar contraseña en el celular, o en DevTools a 390 px.', 'Abrilas también en escritorio.'],
+      exp: '<ul><li>Sin scroll horizontal ni textos cortados.</li><li>Los modales salen como hoja desde abajo en el celular y como diálogo centrado en escritorio.</li><li>En el celular, los campos de email abren el teclado con @.</li></ul>' },
+    { id: 'NAV-09', g: 'nav', t: 'Teclado y lector de pantalla', env: ['TODOS'],
+      steps: ['Recorré cada formulario solo con Tab y Enter.', 'Probá el botón del ojo en los campos de contraseña.'],
+      exp: `<ul><li>El orden de Tab sigue el de la pantalla y el foco siempre se ve.</li><li>El ojo muestra y oculta el texto, y el lector lo anuncia como ${ui('Mostrar contraseña')}.</li><li>Los errores aparecen junto a su campo.</li></ul>` },
+  ];
+
+  // ── Estado ────────────────────────────────────────────────
+  const LOCAL_KEY = 'powerapp.pruebas-acceso.v1';
+  const blank = () => ({ status: null, note: '', at: null });
+  const state = Object.fromEntries(CASES.map((c) => [c.id, blank()]));
+  let db = null;
+  let mode = 'connecting'; // connecting | db | local | error
+  let fStatus = 'all';
+  let fEnv = 'all';
+  const writing = new Set();
+  const dirty = new Set();
+  const pending = new Set();
+  const noteTimers = {};
+
+  const $ = (s, el = document) => el.querySelector(s);
+  const statusOf = (id) => state[id].status || 'none';
+
+  function fmtWhen(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+
+  // ── Render estático ──────────────────────────────────────
+  function caseHtml(c) {
+    const envs = c.env.map((e) => `<span class="tag t-${e}">${ENVS[e]}</span>`).join('');
+    const steps = c.steps.map((s) => `<li>${s}</li>`).join('');
+    const seg = STATUSES.map((s) => `<button type="button" class="sb v-${s.v}" data-v="${s.v}" aria-pressed="false"><span class="ic" aria-hidden="true">${s.ic}</span>${s.label}</button>`).join('');
+    return `<article class="case" id="case-${c.id}" data-id="${c.id}" data-status="none">
+      <div class="chead"><span class="cid">${c.id}</span><h3>${c.t}</h3><div class="ctags">${envs}<span class="pill" data-pill>Sin probar</span></div></div>
+      ${c.data ? `<p class="cdata"><b>Datos:</b> ${c.data}</p>` : ''}
+      <div class="cbody"><div><h4>Cómo probarlo</h4><ol class="steps">${steps}</ol></div><div class="expect"><h4>Qué tenés que ver</h4>${c.exp}</div></div>
+      ${c.known ? `<div class="known" role="note"><span><b>Hoy falla.</b> ${c.known}</span></div>` : ''}
+      <div class="cfoot">
+        <div class="seg" role="group" aria-label="Resultado de ${c.id}">${seg}</div>
+        <div class="notewrap">
+          <label class="when" for="note-${c.id}"><span data-when>Sin marcar</span></label>
+          <textarea class="note" id="note-${c.id}" rows="1" placeholder="Qué viste, si algo no coincide (opcional)"></textarea>
+        </div>
+      </div>
+    </article>`;
+  }
+
+  function renderStatic() {
+    const root = $('#groups');
+    root.innerHTML = GROUPS.map((g) => {
+      const cases = CASES.filter((c) => c.g === g.id);
+      const cu = g.cu ? `<a class="cu" href="${DOCS}${g.file}" target="_blank" rel="noopener">${g.cu}</a>` : '';
+      return `<section class="group" id="${g.id}" data-g="${g.id}">
+        <div class="ghead"><h2>${g.name}</h2>${cu}${g.sub ? `<span class="gsub">${g.sub}</span>` : ''}<span class="gprog" data-gprog></span></div>
+        <div class="cases">${cases.map(caseHtml).join('')}</div>
+      </section>`;
+    }).join('');
+
+    $('#jump').innerHTML = GROUPS.map((g) => `<a href="#${g.id}" data-jump="${g.id}">${g.name}<span class="p" data-jp></span></a>`).join('');
+
+    const st = $('#f-status');
+    [['all', 'Todos'], ['none', 'Sin probar'], ['fail', 'Falla'], ['retest', 'Re-testear'], ['ok', 'Funciona']].forEach(([v, l]) => {
+      st.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-fs="${v}" aria-pressed="${v === 'all'}">${l}<span class="k" data-k="${v}"></span></button>`);
+    });
+    const en = $('#f-env');
+    [['all', 'Todos'], ['LOCAL', 'Local'], ['DEMO', 'Demo'], ['RENDER', 'Render']].forEach(([v, l]) => {
+      en.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-fe="${v}" aria-pressed="${v === 'all'}">${l}</button>`);
+    });
+  }
+
+  // ── Render dinámico ──────────────────────────────────────
+  function updateCard(id) {
+    const card = document.getElementById('case-' + id);
+    if (!card) return;
+    const s = state[id];
+    const st = statusOf(id);
+    card.dataset.status = st;
+    card.querySelectorAll('.sb').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === s.status)));
+    const pill = card.querySelector('[data-pill]');
+    pill.textContent = STATUS_LABEL[st];
+    pill.className = 'pill' + (st === 'none' ? '' : ' s-' + st);
+    const ta = card.querySelector('.note');
+    if (document.activeElement !== ta && ta.value !== s.note) ta.value = s.note;
+    card.querySelector('[data-when]').textContent = s.at ? 'Actualizado ' + fmtWhen(s.at) : 'Sin marcar';
+  }
+
+  function visible(c) {
+    const st = statusOf(c.id);
+    if (fStatus !== 'all' && st !== fStatus) return false;
+    if (fEnv !== 'all' && !c.env.includes(fEnv) && !c.env.includes('TODOS')) return false;
+    return true;
+  }
+
+  function applyFilters() {
+    let any = false;
+    GROUPS.forEach((g) => {
+      let shown = 0;
+      CASES.filter((c) => c.g === g.id).forEach((c) => {
+        const v = visible(c);
+        document.getElementById('case-' + c.id).hidden = !v;
+        if (v) shown++;
+      });
+      document.getElementById(g.id).hidden = shown === 0;
+      if (shown) any = true;
+    });
+    $('#empty').hidden = any;
+  }
+
+  function updateSummary() {
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const total = CASES.length;
+    ['ok', 'fail', 'retest', 'none'].forEach((k) => { $('#n-' + k).textContent = n[k]; });
+    ['ok', 'fail', 'retest'].forEach((k) => { $('#b-' + k).style.width = (n[k] / total * 100) + '%'; });
+    $('#bar').setAttribute('aria-label', `${total - n.none} de ${total} casos probados: ${n.ok} funcionan, ${n.fail} fallan, ${n.retest} para re-testear`);
+    document.querySelectorAll('[data-k]').forEach((el) => {
+      const k = el.dataset.k;
+      el.textContent = k === 'all' ? total : n[k];
+    });
+    GROUPS.forEach((g) => {
+      const cs = CASES.filter((c) => c.g === g.id);
+      const done = cs.filter((c) => statusOf(c.id) !== 'none').length;
+      const fails = cs.filter((c) => statusOf(c.id) === 'fail').length;
+      const txt = `${done}/${cs.length} probados${fails ? ` · ${fails} con falla` : ''}`;
+      document.getElementById(g.id).querySelector('[data-gprog]').textContent = txt;
+      document.querySelector(`[data-jump="${g.id}"] [data-jp]`).textContent = `${done}/${cs.length}`;
+    });
+  }
+
+  function refreshAll() {
+    CASES.forEach((c) => updateCard(c.id));
+    updateSummary();
+    applyFilters();
+  }
+
+  function setSave(kind, text) {
+    const el = $('#save');
+    el.className = 'save' + (kind ? ' is-' + kind : '');
+    $('#save-t').textContent = text;
+  }
+
+  // ── Guardado ─────────────────────────────────────────────
+  function saveLocal() {
+    try { localStorage.setItem(LOCAL_KEY, JSON.stringify(state)); } catch { /* sin storage: queda en memoria */ }
+  }
+  function loadLocal() {
+    try {
+      const raw = localStorage.getItem(LOCAL_KEY);
+      if (!raw) return;
+      const v = JSON.parse(raw);
+      Object.keys(state).forEach((id) => { if (v && v[id]) state[id] = normalize(v[id]); });
+    } catch { /* ignorar */ }
+  }
+  function normalize(v) {
+    const okStatus = ['ok', 'fail', 'retest'].includes(v.status) ? v.status : null;
+    return { status: okStatus, note: typeof v.note === 'string' ? v.note : '', at: typeof v.at === 'string' ? v.at : null };
+  }
+
+  async function persist(id) {
+    if (mode !== 'db') { saveLocal(); return; }
+    pending.add(id);
+    if (writing.has(id)) { dirty.add(id); return; }
+    writing.add(id);
+    setSave('db', 'Guardando…');
+    try {
+      do {
+        dirty.delete(id);
+        const s = state[id];
+        await db.doc('results/' + id).set({ status: s.status, note: s.note, at: s.at });
+      } while (dirty.has(id));
+      setSave('db', 'Guardado');
+    } catch (e) {
+      setSave('err', 'No se pudo guardar el último cambio. Probá de nuevo en un momento.');
+      saveLocal();
+    } finally {
+      writing.delete(id);
+      pending.delete(id);
+    }
+  }
+
+  async function initStore() {
+    let ns = null;
+    try {
+      ns = window.claude && typeof window.claude.use === 'function' ? await window.claude.use('db') : null;
+    } catch { ns = null; }
+    if (!ns) {
+      mode = 'local';
+      loadLocal();
+      refreshAll();
+      setSave('local', 'Se guarda solo en este navegador.');
+      return;
+    }
+    db = ns;
+    mode = 'db';
+    setSave('db', 'Sincronizando…');
+    db.collection('results').onSnapshot((snap) => {
+      snap.docs.forEach((d) => {
+        if (!state[d.id] || pending.has(d.id)) return;
+        const v = d.data();
+        if (v) state[d.id] = normalize(v);
+      });
+      snap.docChanges().forEach((ch) => {
+        if (ch.type === 'removed' && state[ch.doc.id] && !pending.has(ch.doc.id)) state[ch.doc.id] = blank();
+      });
+      refreshAll();
+      if (!writing.size) setSave('db', 'Guardado en el artefacto');
+    }, () => {
+      mode = 'local';
+      setSave('err', 'Se perdió la conexión con el guardado. Lo que marques ahora queda en este navegador.');
+    });
+  }
+
+  // ── Eventos ──────────────────────────────────────────────
+  function copyText(text, onDone) {
+    const fallback = () => {
+      const box = $('#copy-fall');
+      const ta = $('#copy-fall-t');
+      ta.value = text;
+      box.hidden = false;
+      ta.focus();
+      ta.select();
+    };
+    try {
+      navigator.clipboard.writeText(text).then(onDone, fallback);
+    } catch { fallback(); }
+  }
+
+  function buildSummary() {
+    const today = new Date().toLocaleDateString('es-AR');
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const lines = [`Pruebas de acceso PowerApp · ${today}`, `Funciona ${n.ok} · Falla ${n.fail} · Re-testear ${n.retest} · Sin probar ${n.none}`];
+    [['fail', 'Falla'], ['retest', 'Re-testear']].forEach(([k, label]) => {
+      const cs = CASES.filter((c) => statusOf(c.id) === k);
+      if (!cs.length) return;
+      lines.push('', label);
+      cs.forEach((c) => {
+        const note = state[c.id].note.trim();
+        lines.push(`- ${c.id} ${c.t}${note ? ': ' + note.replace(/\s+/g, ' ') : ''}`);
+      });
+    });
+    if (!n.fail && !n.retest) lines.push('', 'Sin fallas ni casos para re-testear.');
+    return lines.join('\n');
+  }
+
+  document.addEventListener('click', (e) => {
+    const sb = e.target.closest('.sb');
+    if (sb) {
+      const id = sb.closest('.case').dataset.id;
+      const s = state[id];
+      s.status = s.status === sb.dataset.v ? null : sb.dataset.v;
+      s.at = new Date().toISOString();
+      updateCard(id);
+      updateSummary();
+      persist(id);
+      return;
+    }
+    const fs = e.target.closest('[data-fs]');
+    if (fs) {
+      fStatus = fs.dataset.fs;
+      document.querySelectorAll('[data-fs]').forEach((b) => b.setAttribute('aria-pressed', String(b === fs)));
+      applyFilters();
+      return;
+    }
+    const fe = e.target.closest('[data-fe]');
+    if (fe) {
+      fEnv = fe.dataset.fe;
+      document.querySelectorAll('[data-fe]').forEach((b) => b.setAttribute('aria-pressed', String(b === fe)));
+      applyFilters();
+      return;
+    }
+    const t = e.target.closest('.tok');
+    if (t) {
+      copyText(t.dataset.copy, () => {
+        t.classList.add('copied');
+        setTimeout(() => t.classList.remove('copied'), 1200);
+      });
+      return;
+    }
+    if (e.target.closest('#copy-sum')) {
+      const btn = $('#copy-sum');
+      copyText(buildSummary(), () => {
+        btn.textContent = 'Resumen copiado';
+        setTimeout(() => { btn.textContent = 'Copiar resumen de fallas'; }, 1600);
+      });
+    }
+  });
+
+  document.addEventListener('input', (e) => {
+    const ta = e.target.closest('.note');
+    if (!ta) return;
+    const id = ta.closest('.case').dataset.id;
+    state[id].note = ta.value;
+    clearTimeout(noteTimers[id]);
+    noteTimers[id] = setTimeout(() => {
+      state[id].at = new Date().toISOString();
+      updateCard(id);
+      persist(id);
+    }, 700);
+  });
+  document.addEventListener('focusout', (e) => {
+    const ta = e.target.closest && e.target.closest('.note');
+    if (!ta) return;
+    const id = ta.closest('.case').dataset.id;
+    if (noteTimers[id]) {
+      clearTimeout(noteTimers[id]);
+      noteTimers[id] = null;
+      state[id].at = new Date().toISOString();
+      updateCard(id);
+      persist(id);
+    }
+  });
+
+  const prep = $('#prep');
+  try { if (localStorage.getItem(LOCAL_KEY + '.prep') === 'closed') prep.open = false; } catch { /* ignorar */ }
+  prep.addEventListener('toggle', () => {
+    try { localStorage.setItem(LOCAL_KEY + '.prep', prep.open ? 'open' : 'closed'); } catch { /* ignorar */ }
+  });
+
+  renderStatic();
+  refreshAll();
+  initStore();
+})();
+</script>
+
+</body></html>
