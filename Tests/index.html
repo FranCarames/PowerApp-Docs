@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PowerApp — Planes de prueba</title>
+<meta name="description" content="Planes de prueba manuales de PowerApp: casos paso a paso con resultado esperado, para marcar y anotar lo observado.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800&family=Saira:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --base:#06070D; --card:#13161F; --card2:#0F1219; --el:#1B1F2E;
+    --border:#232739; --border2:#2E3347;
+    --pri:#E8450A; --priL:#FF6B3D; --acc:#8B5CF6; --green:#3DD47A;
+    --tp:#F5F1EB; --ts:#8892A8; --tm:#4A5068;
+    --fDisplay:"Saira Condensed",-apple-system,sans-serif;
+    --fBody:"Saira",-apple-system,BlinkMacSystemFont,sans-serif;
+    --fMono:"JetBrains Mono","SF Mono",monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+  body{
+    background:var(--base);font-family:var(--fBody);color:var(--tp);min-height:100vh;
+    padding:clamp(24px,5vw,56px) clamp(20px,5vw,64px) 64px;position:relative;overflow-x:hidden;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+    background:
+      radial-gradient(680px 480px at 8% -6%, rgba(232,69,10,.16), transparent 60%),
+      radial-gradient(760px 560px at 108% 112%, rgba(61,212,122,.10), transparent 62%),
+      radial-gradient(520px 420px at 92% 4%, rgba(139,92,246,.09), transparent 60%);
+  }
+  .wrap{max-width:1080px;margin:0 auto;}
+
+  .back{
+    display:inline-flex;align-items:center;gap:8px;text-decoration:none;
+    font-family:var(--fMono);font-size:12px;color:var(--ts);letter-spacing:.3px;
+    border:1px solid var(--border);border-radius:10px;padding:8px 13px;margin-bottom:34px;
+    transition:color .2s,border-color .2s,background .2s;
+  }
+  .back:hover{color:var(--tp);border-color:var(--border2);background:var(--el);}
+  .back:focus-visible{outline:2px solid var(--pri);outline-offset:2px;}
+
+  .eyebrow{font-family:var(--fMono);font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--c,var(--green));margin-bottom:8px;}
+  header h1{font-family:var(--fDisplay);font-size:clamp(32px,5vw,46px);font-weight:800;letter-spacing:-.5px;line-height:1;}
+  header h1 span{color:var(--green);}
+  header p{font-size:15px;line-height:1.6;color:var(--ts);max-width:64ch;margin-top:14px;}
+
+  .sec-label{
+    font-family:var(--fMono);font-size:11px;letter-spacing:1.4px;text-transform:uppercase;
+    color:var(--tm);margin:44px 0 18px;display:flex;align-items:center;gap:12px;
+  }
+  .sec-label::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
+  .sec-label .n{color:var(--ts);}
+
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
+  .card{
+    --c:var(--green);
+    position:relative;display:flex;flex-direction:column;overflow:hidden;
+    background:linear-gradient(180deg,var(--card),var(--card2));
+    border:1px solid var(--border);border-radius:20px;padding:26px 26px 24px;
+    text-decoration:none;color:inherit;
+    transition:transform .3s cubic-bezier(.2,.7,.2,1),border-color .3s,box-shadow .3s;
+  }
+  .card::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:3px;
+    background:linear-gradient(90deg,var(--c),transparent 70%);opacity:.6;transition:opacity .3s;
+  }
+  .card::after{
+    content:"";position:absolute;top:-40%;right:-30%;width:70%;height:80%;
+    background:radial-gradient(circle,color-mix(in srgb,var(--c) 26%,transparent),transparent 70%);
+    opacity:0;transition:opacity .4s;pointer-events:none;
+  }
+  .card:hover{transform:translateY(-5px);border-color:var(--border2);box-shadow:0 24px 50px -18px rgba(0,0,0,.7);}
+  .card:hover::before,.card:hover::after{opacity:1;}
+  .card:focus-visible{outline:2px solid var(--c);outline-offset:3px;}
+
+  .card-ico{
+    width:46px;height:46px;border-radius:13px;margin-bottom:22px;
+    display:flex;align-items:center;justify-content:center;
+    background:color-mix(in srgb,var(--c) 13%,transparent);
+    border:1px solid color-mix(in srgb,var(--c) 34%,transparent);color:var(--c);
+  }
+  .card-ico svg{width:23px;height:23px;}
+  .card h2{font-family:var(--fDisplay);font-size:27px;font-weight:700;letter-spacing:-.3px;line-height:1.02;margin-bottom:10px;}
+  .card p{font-size:14.5px;line-height:1.55;color:var(--ts);max-width:46ch;}
+  .card code{
+    font-family:var(--fMono);font-size:.86em;background:var(--el);border:1px solid var(--border);
+    border-radius:5px;padding:1px 6px;color:var(--priL);
+  }
+  .card-go{
+    display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:18px;
+    font-family:var(--fMono);font-size:12px;font-weight:500;color:var(--tp);letter-spacing:.3px;
+  }
+  .card p + .card-go{margin-top:22px;border-top:1px solid var(--border);}
+  .card-go .arw{margin-left:auto;transition:transform .3s;color:var(--c);font-size:16px;}
+  .card:hover .card-go .arw{transform:translateX(5px);}
+
+  .msg{
+    font-family:var(--fMono);font-size:12.5px;line-height:1.6;color:var(--ts);
+    border:1px dashed var(--border2);border-radius:14px;padding:18px 20px;margin-top:34px;
+  }
+  .msg code{color:var(--priL);}
+
+  .foot{
+    margin-top:46px;padding-top:22px;border-top:1px solid var(--border);
+    font-family:var(--fMono);font-size:11.5px;color:var(--tm);
+  }
+
+  @media (max-width:620px){
+    .grid{grid-template-columns:1fr;}
+    .card h2{font-size:24px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="../index.html">&larr; Portada</a>
+
+  <header>
+    <div class="eyebrow">Calidad · Pruebas manuales</div>
+    <h1>Planes de <span>prueba</span></h1>
+    <p>Casos paso a paso con el resultado esperado. Cada plan deja marcar si funciona, falla o hay que re-testear, y anotar lo que observes: queda guardado en tu navegador.</p>
+  </header>
+
+  <main id="plans" aria-live="polite">
+    <p class="msg" id="loading">Cargando planes…</p>
+  </main>
+
+  <footer class="foot">Los planes salen de <code>Tests/README.md</code>: para sumar uno, agregá una línea ahí.</footer>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var root = document.getElementById('plans');
+  var SVG_NS = 'http://www.w3.org/2000/svg';
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  // Texto plano con `código` inline; nunca innerHTML, aunque el contenido sea del propio repo.
+  function inline(parent, text) {
+    text.split('`').forEach(function (part, i) {
+      if (!part) return;
+      if (i % 2) parent.appendChild(el('code', null, part));
+      else parent.appendChild(document.createTextNode(part));
+    });
+  }
+
+  function icon() {
+    var span = el('span', 'card-ico');
+    span.setAttribute('aria-hidden', 'true');
+    var svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '1.8');
+    svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('stroke-linejoin', 'round');
+    [
+      ['path', { d: 'M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2' }],
+      ['rect', { x: 9, y: 3, width: 6, height: 4, rx: 1 }],
+      ['path', { d: 'M9 14l2 2 4-4' }]
+    ].forEach(function (s) {
+      var n = document.createElementNS(SVG_NS, s[0]);
+      Object.keys(s[1]).forEach(function (k) { n.setAttribute(k, s[1][k]); });
+      svg.appendChild(n);
+    });
+    span.appendChild(svg);
+    return span;
+  }
+
+  // README.md -> [{ name, plans: [{ title, href, desc }] }]. Ignora los bloques de código (ahí va el ejemplo de formato).
+  function parse(md) {
+    var groups = [];
+    var current = null;
+    var inFence = false;
+    md.split(/\r?\n/).forEach(function (line) {
+      if (/^\s*```/.test(line)) { inFence = !inFence; return; }
+      if (inFence) return;
+      var g = /^##\s+(.+?)\s*$/.exec(line);
+      if (g) { current = { name: g[1], plans: [] }; groups.push(current); return; }
+      var p = /^-\s+\[([^\]]+)\]\(([^)]+)\)\s*(?:[—–-]\s*(.*))?$/.exec(line);
+      if (p && current) current.plans.push({ title: p[1], href: p[2], desc: p[3] || '' });
+    });
+    return groups.filter(function (g) { return g.plans.length; });
+  }
+
+  function render(groups) {
+    root.textContent = '';
+    if (!groups.length) {
+      root.appendChild(el('p', 'msg', 'Todavía no hay planes de prueba cargados.'));
+      return;
+    }
+    groups.forEach(function (g) {
+      var label = el('div', 'sec-label', g.name);
+      label.appendChild(el('span', 'n', '· ' + g.plans.length + (g.plans.length === 1 ? ' plan' : ' planes')));
+      root.appendChild(label);
+
+      var grid = el('div', 'grid');
+      g.plans.forEach(function (plan) {
+        var a = el('a', 'card');
+        a.href = plan.href;
+        a.appendChild(icon());
+        a.appendChild(el('div', 'eyebrow', g.name));
+        a.appendChild(el('h2', null, plan.title));
+        if (plan.desc) {
+          var p = el('p');
+          inline(p, plan.desc);
+          a.appendChild(p);
+        }
+        var go = el('div', 'card-go', 'Abrir plan ');
+        go.appendChild(el('span', 'arw', '→'));
+        a.appendChild(go);
+        grid.appendChild(a);
+      });
+      root.appendChild(grid);
+    });
+  }
+
+  function fail() {
+    root.textContent = '';
+    var m = el('p', 'msg');
+    inline(m, 'No se pudo cargar el índice `Tests/README.md`. Si abriste el archivo con `file://`, servilo por HTTP: `python -m http.server`.');
+    root.appendChild(m);
+  }
+
+  fetch('README.md')
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+    .then(function (md) { render(parse(md)); })
+    .catch(fail);
+})();
+</script>
+</body>
+</html>

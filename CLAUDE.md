@@ -12,6 +12,7 @@ Sitio publicado: https://francarames.github.io/PowerApp-Docs/ (Pages → "Deploy
 Doc/         → Documentación vigente (fuente de verdad del modelo de datos), specs/ y plans/ de cada cambio, app-ios/, um/.
 Use Cases/   → Especificaciones de CU (fuente de verdad) por rol: admin/, entrenador/, usuario/ + README.md (índice) + index.html (visor).
 UI Front/    → Prototipos HTML (app mobile y web).
+Tests/       → Planes de prueba manuales (1 .html autocontenido por plan) + README.md (índice) + index.html (visor).
 Status/      → COPIA de los informes y dashboards de avance por CU, del backend y de la web (ver más abajo).
 index.html   → Portada de Pages.
 ```
@@ -39,7 +40,8 @@ Los nombres de archivo están enlazados desde la portada (`index.html`, card "Es
 - **Nombres con espacios** (`Doc/PowerApp - Modelo DB.*`, `UI Front/`, `Use Cases/`): en todo link hay que URL-encodear (`%20`).
 - **Cambia el nombre del archivo del modelo en `Doc/`:** tocar a mano la constante `SRC` de `Doc/modelo-db.html` y los links al PDF (no hay glob).
 - **CU nuevo:** agregarlo a `Use Cases/README.md` con su link relativo (formato `- [`CU-..` Título](path)` bajo `## Rol X` / `### Paquete`). El visor `Use Cases/index.html` se auto-sincroniza desde ese índice; no hay que tocarlo.
-- Los visores (`Use Cases/index.html`, `Doc/modelo-db.html`) usan `fetch`: **no andan por `file://`**, hay que servirlos por HTTP (`python -m http.server`).
+- **Plan de prueba nuevo:** copiar el HTML a `Tests/` y agregarlo a `Tests/README.md` (formato `- [Título](archivo%20con%20espacios.html) — descripción` bajo un `## Web` / `## Backend` / `## App iOS`). El visor `Tests/index.html` se auto-sincroniza desde ese índice; no hay que tocarlo. Los planes son archivos del usuario: no editarlos desde acá salvo que lo pida.
+- Los visores (`Use Cases/index.html`, `Doc/modelo-db.html`, `Tests/index.html`) usan `fetch`: **no andan por `file://`**, hay que servirlos por HTTP (`python -m http.server`).
 - `Doc/modelo-db.html` inyecta el SVG inline (no `<img>`) para que carguen las `@font-face` que el SVG trae adentro.
 
 ## Flujo de trabajo
