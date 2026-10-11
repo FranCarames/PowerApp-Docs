@@ -72,6 +72,9 @@ h1{font-family:var(--fD);font-weight:800;font-size:clamp(34px,6vw,52px);line-hei
 .btn{font:600 13.5px/1 var(--fB);color:var(--tx);background:var(--el);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
 .btn:hover{border-color:var(--tx3)}
 .btn.pri{background:var(--priS);border-color:var(--pri);color:var(--pri)}
+.acts{display:flex;flex-wrap:wrap;gap:8px}
+.iomsg{margin:0;font-size:12.5px;color:var(--tx2)}
+.iomsg.is-ok{color:var(--ok)} .iomsg.is-err{color:var(--err)}
 .copyfall{display:grid;gap:8px}
 .copyfall textarea{width:100%;min-height:140px;font:13px/1.5 var(--fM);background:var(--el);color:var(--tx);border:1px solid var(--line2);border-radius:10px;padding:10px}
 
@@ -184,8 +187,14 @@ tr:last-child td{border-bottom:0}
     <div class="bar" role="img" id="bar" aria-label="Progreso"><span class="b-ok" id="b-ok"></span><span class="b-fail" id="b-fail"></span><span class="b-retest" id="b-retest"></span></div>
     <div class="sumfoot">
       <span class="save" id="save"><span class="dot"></span><span id="save-t">Conectando el guardado…</span></span>
-      <button type="button" class="btn pri" id="copy-sum">Copiar resumen de fallas</button>
+      <div class="acts">
+        <button type="button" class="btn" id="exp-res">Exportar resultados</button>
+        <button type="button" class="btn" id="imp-res">Importar resultados</button>
+        <button type="button" class="btn pri" id="copy-sum">Copiar resumen de fallas</button>
+        <input type="file" id="imp-file" accept=".json,application/json" hidden>
+      </div>
     </div>
+    <p class="iomsg" id="io-msg" role="status" hidden></p>
     <div class="copyfall" id="copy-fall" hidden>
       <label for="copy-fall-t" class="when">Tu navegador no dejó copiar automáticamente. El texto ya está seleccionado: copialo con Ctrl+C.</label>
       <textarea id="copy-fall-t" readonly></textarea>
@@ -671,7 +680,7 @@ tr:last-child td{border-bottom:0}
       mode = 'local';
       loadLocal();
       refreshAll();
-      setSave('local', 'Se guarda solo en este navegador.');
+      setSave('local', 'Se guarda solo en este navegador. Exportá los resultados para no perderlos.');
       return;
     }
     db = ns;
@@ -727,6 +736,90 @@ tr:last-child td{border-bottom:0}
     return lines.join('\n');
   }
 
+  // ── Exportar / importar resultados (JSON para versionar en el repo) ──
+  const PLAN_ID = 'pruebas-acceso';
+  const EXPORT_VERSION = 1;
+  const EXPORT_FILE = 'pruebas-acceso.resultados.json';
+
+  function buildExport() {
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const results = {};
+    CASES.forEach((c) => {
+      const s = state[c.id];
+      results[c.id] = { title: c.t, status: s.status, note: s.note, at: s.at };
+    });
+    return { plan: PLAN_ID, version: EXPORT_VERSION, exportedAt: new Date().toISOString(), summary: { total: CASES.length, ...n }, results };
+  }
+
+  function showIo(kind, text) {
+    const el = $('#io-msg');
+    el.className = 'iomsg' + (kind ? ' is-' + kind : '');
+    el.textContent = text;
+    el.hidden = false;
+  }
+
+  function exportResults() {
+    const blob = new Blob([JSON.stringify(buildExport(), null, 2) + '\n'], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = EXPORT_FILE;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showIo('ok', `Descargué ${EXPORT_FILE}. Para versionarlo, guardalo en Tests/resultados/ del repo.`);
+  }
+
+  // Combina por caso: gana el resultado con la fecha (at) más reciente, así no se pierde nada de lo marcado acá.
+  const stamp = (iso) => { const t = iso ? Date.parse(iso) : NaN; return Number.isNaN(t) ? -Infinity : t; };
+
+  async function importResults(file) {
+    let data;
+    try {
+      data = JSON.parse(await file.text());
+    } catch {
+      showIo('err', 'No pude leer el archivo: no es un JSON válido.');
+      return;
+    }
+    if (!data || typeof data !== 'object' || data.plan !== PLAN_ID || !data.results || typeof data.results !== 'object') {
+      showIo('err', `Ese archivo no corresponde a este plan (esperaba plan «${PLAN_ID}»).`);
+      return;
+    }
+    if (typeof data.version !== 'number' || data.version > EXPORT_VERSION) {
+      showIo('err', 'El archivo es de una versión más nueva del plan y no sé leerlo.');
+      return;
+    }
+    const changed = [];
+    let newer = 0;
+    CASES.forEach((c) => {
+      const src = data.results[c.id];
+      if (!src || typeof src !== 'object') return;
+      const inc = normalize(src);
+      if (!inc.status && !inc.note) return;
+      const cur = state[c.id];
+      if (inc.status === cur.status && inc.note === cur.note && inc.at === cur.at) return;
+      if (stamp(inc.at) > stamp(cur.at)) { state[c.id] = inc; changed.push(c.id); } else newer++;
+    });
+    const unknown = Object.keys(data.results).filter((id) => !state[id]).length;
+    changed.forEach((id) => persist(id));
+    refreshAll();
+
+    const parts = [];
+    if (changed.length) {
+      const when = data.exportedAt ? fmtWhen(data.exportedAt) : '';
+      parts.push(`Importé ${changed.length} ${changed.length === 1 ? 'caso' : 'casos'}${when ? ' (exportado el ' + when + ')' : ''}.`);
+    } else if (newer) {
+      parts.push('No cambié nada: lo que tenés acá es más reciente que el archivo.');
+    } else {
+      parts.push('El archivo no trae nada nuevo: ya tenés esos resultados.');
+    }
+    if (changed.length && newer) parts.push(newer === 1 ? 'Dejé 1 caso que acá ya tenía un resultado más reciente.' : `Dejé ${newer} casos que acá ya tenían un resultado más reciente.`);
+    if (unknown) parts.push(unknown === 1 ? 'Ignoré 1 caso que ya no está en el plan.' : `Ignoré ${unknown} casos que ya no están en el plan.`);
+    showIo(changed.length ? 'ok' : '', parts.join(' '));
+  }
+
   document.addEventListener('click', (e) => {
     const sb = e.target.closest('.sb');
     if (sb) {
@@ -761,6 +854,8 @@ tr:last-child td{border-bottom:0}
       });
       return;
     }
+    if (e.target.closest('#exp-res')) { exportResults(); return; }
+    if (e.target.closest('#imp-res')) { $('#imp-file').click(); return; }
     if (e.target.closest('#copy-sum')) {
       const btn = $('#copy-sum');
       copyText(buildSummary(), () => {
@@ -768,6 +863,14 @@ tr:last-child td{border-bottom:0}
         setTimeout(() => { btn.textContent = 'Copiar resumen de fallas'; }, 1600);
       });
     }
+  });
+
+  document.addEventListener('change', (e) => {
+    const inp = e.target.closest && e.target.closest('#imp-file');
+    if (!inp) return;
+    const file = inp.files && inp.files[0];
+    inp.value = '';
+    if (file) importResults(file);
   });
 
   document.addEventListener('input', (e) => {
