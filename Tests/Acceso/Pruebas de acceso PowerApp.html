@@ -739,8 +739,11 @@ tr:last-child td{border-bottom:0}
   // ── Exportar / importar resultados (JSON para versionar en el repo) ──
   const PLAN_ID = 'pruebas-acceso';
   const EXPORT_VERSION = 1;
-  // Nombre con fecha y hora para que cada tanda sea un archivo distinto y ordene solo: 2026-10-11-1711-pruebas-acceso.resultados.json
+  // Nombre listo para el repo: <N>-<plan>.resultados.json, con N = la tanda que sigue a las que lista Tests/README.md
+  // (ver loadFromRepo). Si no se pudo leer ese índice (file://, sin red) no se sabe N: se usa la fecha, que no pisa nada.
+  let nextRun = null;
   const exportFileName = () => {
+    if (nextRun) return `${nextRun}-${PLAN_ID}.resultados.json`;
     const d = new Date();
     const p = (n) => String(n).padStart(2, '0');
     return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}-${PLAN_ID}.resultados.json`;
@@ -775,7 +778,14 @@ tr:last-child td{border-bottom:0}
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    showIo('ok', `Descargué ${file}. Para que quede en el sitio, guardalo en Tests/Acceso/ y sumalo bajo este plan en Tests/README.md.`);
+    const folder = decodeURIComponent(location.pathname.split('/').slice(-2, -1)[0] || '');
+    const where = folder ? `Tests/${folder}/` : 'la carpeta de este plan en Tests/';
+    if (nextRun) {
+      const line = `  - [Tanda ${nextRun}](${encodeURIComponent(folder)}/${file})`;
+      showIo('ok', `Descargué ${file}. Guardalo en ${where} y, si querés que quede en el sitio, sumá esta línea bajo este plan en Tests/README.md: ${line.trim()}`);
+    } else {
+      showIo('ok', `Descargué ${file}. Guardalo en ${where} y, si querés que quede en el sitio, sumalo como sub-bullet bajo este plan en Tests/README.md.`);
+    }
   }
 
   // Combina por caso: gana el resultado con la fecha (at) más reciente, así no se pierde nada de lo marcado acá.
@@ -839,10 +849,10 @@ tr:last-child td{border-bottom:0}
   // ── Resultados guardados en el repo ──────────────────────
   // Tests/README.md lista las tandas de cada plan (sub-bullets bajo el plan; la última es la más reciente).
   // Al abrir el plan se busca su entrada, se baja ese JSON y se combina con lo local (gana la fecha más nueva).
-  function lastRunOf(md, readmeUrl, pageKey) {
+  function runsOf(md, readmeUrl, pageKey) {
     let inFence = false;
     let mine = false;
-    let last = null;
+    const runs = [];
     md.split(/\r?\n/).forEach((line) => {
       if (/^\s*```/.test(line)) { inFence = !inFence; return; }
       if (inFence) return;
@@ -853,9 +863,20 @@ tr:last-child td{border-bottom:0}
         return;
       }
       const run = /^\s+-\s+\[([^\]]+)\]\(([^)]+)\)/.exec(line);
-      if (run && mine) last = { label: run[1], url: new URL(run[2], readmeUrl).href };
+      if (run && mine) runs.push({ label: run[1], url: new URL(run[2], readmeUrl).href });
     });
-    return last;
+    return runs;
+  }
+
+  // Número de la próxima tanda: el mayor entre la cantidad de tandas listadas y el prefijo numérico más alto
+  // de sus archivos (1-…, 2-…); los nombres con fecha (2026-…) no cuentan como número.
+  function nextRunNumber(runs) {
+    let max = runs.length;
+    runs.forEach((r) => {
+      const m = /^(\d{1,3})-/.exec(decodeURIComponent(r.url.split('/').pop() || ''));
+      if (m) max = Math.max(max, Number(m[1]));
+    });
+    return max + 1;
   }
 
   async function loadFromRepo() {
@@ -863,7 +884,9 @@ tr:last-child td{border-bottom:0}
       const readmeUrl = new URL('../README.md', location.href).href;
       const res = await fetch(readmeUrl, { cache: 'no-cache' });
       if (!res.ok) return;
-      const last = lastRunOf(await res.text(), readmeUrl, location.origin + location.pathname);
+      const runs = runsOf(await res.text(), readmeUrl, location.origin + location.pathname);
+      nextRun = nextRunNumber(runs);
+      const last = runs[runs.length - 1];
       if (!last) return;
       const r = await fetch(last.url, { cache: 'no-cache' });
       if (!r.ok) return;

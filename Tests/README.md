@@ -19,15 +19,17 @@ Los espacios del nombre de archivo van como `%20`. No hay que tocar `index.html`
 
 Lo que se marca en un plan queda en el `localStorage` del navegador. Para que quede en el repo y se vea desde cualquier dispositivo, cada tanda de pruebas se exporta a un JSON y se lista debajo de su plan:
 
-1. **Exportar resultados** (botón del plan) descarga un JSON con el estado de todos los casos (resultado, nota y fecha). El nombre lleva fecha y hora: `2026-10-11-1711-pruebas-acceso.resultados.json`.
+1. **Exportar resultados** (botón del plan) descarga un JSON con el estado de todos los casos (resultado, nota y fecha). El plan le pone el nombre que va en el repo, con el número de la próxima tanda según este índice: `2-pruebas-acceso.resultados.json`. Si no puede leer el índice (por ejemplo, con el HTML abierto desde `file://`), usa la fecha y hora: `2026-10-11-1711-pruebas-acceso.resultados.json`.
 2. Se guarda en la carpeta del plan (por ejemplo `Acceso/`).
 3. Se suma como sub-bullet bajo el plan en este índice. **La última línea es la tanda más reciente:**
 
 ```
 - [Pruebas de acceso](Acceso/Pruebas%20de%20acceso%20PowerApp.html) — Descripción.
   - [Tanda 1](Acceso/1-pruebas-acceso.resultados.json)
-  - [Tanda 2](Acceso/2026-10-12-1030-pruebas-acceso.resultados.json)
+  - [Tanda 2](Acceso/2-pruebas-acceso.resultados.json)
 ```
+
+Exportar solo descarga el archivo y dice qué línea sumar al índice: guardarlo en el repo y commitearlo queda a decisión de quien exporta.
 
 Con eso, **no hace falta importar a mano**:
 
