@@ -1,0 +1,834 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Pruebas de circuitos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: una columna de trabajo (máx. 980px). Resumen arriba, barra de filtros fija, casos agrupados por CU. Paleta de PowerApp, dark-first. */
+:root{
+  --bg:#0B0D16; --card:#13161F; --el:#1B1F2E; --line:#232739; --line2:#2E3347;
+  --tx:#F5F1EB; --tx2:#A3ACC2; --tx3:#6B7390;
+  --pri:#FF6B3D; --priS:rgba(232,69,10,.14); --acc:#A78BFA; --accS:rgba(139,92,246,.16);
+  --ok:#3DD47A; --okS:rgba(34,197,94,.14); --warn:#F5B23D; --warnS:rgba(245,158,11,.14); --err:#F26464; --errS:rgba(239,68,68,.14);
+  --none:#6B7390;
+  --fD:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --fB:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --fM:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#F2F3F7; --card:#FFFFFF; --el:#E8EAF1; --line:#D9DCE6; --line2:#C8CCDA;
+    --tx:#141826; --tx2:#47506A; --tx3:#687089;
+    --pri:#C23A07; --priS:rgba(232,69,10,.10); --acc:#6A3FDB; --accS:rgba(139,92,246,.12);
+    --ok:#157A3C; --okS:rgba(34,197,94,.13); --warn:#A25A06; --warnS:rgba(245,158,11,.16); --err:#C42525; --errS:rgba(239,68,68,.11);
+    --none:#8A91A8;
+    color-scheme:light;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#F2F3F7; --card:#FFFFFF; --el:#E8EAF1; --line:#D9DCE6; --line2:#C8CCDA;
+  --tx:#141826; --tx2:#47506A; --tx3:#687089;
+  --pri:#C23A07; --priS:rgba(232,69,10,.10); --acc:#6A3FDB; --accS:rgba(139,92,246,.12);
+  --ok:#157A3C; --okS:rgba(34,197,94,.13); --warn:#A25A06; --warnS:rgba(245,158,11,.16); --err:#C42525; --errS:rgba(239,68,68,.11);
+  --none:#8A91A8;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--tx);font-family:var(--fB);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding-inline:20px;padding-block:28px 72px}
+code,.mono{font-family:var(--fM);font-size:.86em}
+code{background:var(--el);border:1px solid var(--line);border-radius:5px;padding:1px 5px;overflow-wrap:anywhere}
+.ui{color:var(--tx);font-weight:600}
+a{color:var(--acc)}
+a:focus-visible,button:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+h1,h2,h3{text-wrap:balance}
+
+/* Encabezado */
+.mast{display:grid;gap:6px;margin-bottom:22px}
+.eyebrow{font-family:var(--fM);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--pri);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.eyebrow .sep{color:var(--tx3)}
+h1{font-family:var(--fD);font-weight:800;font-size:clamp(34px,6vw,52px);line-height:1;letter-spacing:-.01em;margin:4px 0 0}
+.lede{color:var(--tx2);max-width:66ch;margin:6px 0 0}
+
+/* Resumen */
+.summary{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:14px;margin-bottom:18px}
+.counts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.count{display:grid;gap:2px}
+.count .n{font-family:var(--fD);font-size:34px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.count .l{font-size:12.5px;color:var(--tx2);display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;flex:none}
+.c-ok .n{color:var(--ok)} .c-ok .dot{background:var(--ok)}
+.c-fail .n{color:var(--err)} .c-fail .dot{background:var(--err)}
+.c-retest .n{color:var(--warn)} .c-retest .dot{background:var(--warn)}
+.c-none .n{color:var(--tx2)} .c-none .dot{background:var(--none)}
+.bar{display:flex;height:10px;border-radius:6px;overflow:hidden;background:var(--el)}
+.bar span{height:100%;transition:width .3s ease}
+.bar .b-ok{background:var(--ok)} .bar .b-fail{background:var(--err)} .bar .b-retest{background:var(--warn)}
+.sumfoot{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.save{font-size:12.5px;color:var(--tx3);display:flex;align-items:center;gap:7px}
+.save .dot{background:var(--tx3)}
+.save.is-db .dot{background:var(--ok)} .save.is-err .dot{background:var(--err)} .save.is-local .dot{background:var(--warn)}
+.btn{font:600 13.5px/1 var(--fB);color:var(--tx);background:var(--el);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{border-color:var(--tx3)}
+.btn.pri{background:var(--priS);border-color:var(--pri);color:var(--pri)}
+.copyfall{display:grid;gap:8px}
+.copyfall textarea{width:100%;min-height:140px;font:13px/1.5 var(--fM);background:var(--el);color:var(--tx);border:1px solid var(--line2);border-radius:10px;padding:10px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.save{flex:1 1 260px;min-width:0;align-items:flex-start}
+.save .dot{margin-top:.45em}
+.save.is-local{color:var(--warn)}
+.save.is-err{color:var(--err)}
+
+/* Antes de empezar */
+details.prep{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:18px}
+details.prep>summary{cursor:pointer;list-style:none;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+details.prep>summary::-webkit-details-marker{display:none}
+details.prep>summary h2{font-family:var(--fD);font-weight:700;font-size:24px;margin:0}
+.chev{color:var(--tx3);font-family:var(--fM);font-size:13px}
+details[open] .chev .c-open{display:none} details:not([open]) .chev .c-close{display:none}
+.prep-body{padding:0 18px 18px;display:grid;gap:18px}
+.prep h3{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin:0 0 8px;font-weight:700}
+.envs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.env{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg);display:grid;gap:6px;align-content:start;min-width:0}
+.env p{margin:0;font-size:13.5px;color:var(--tx2)}
+.tag{display:inline-flex;align-items:center;font:700 11px/1 var(--fM);letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border-radius:6px;border:1px solid currentColor;white-space:nowrap}
+.t-LOCAL{color:var(--acc)} .t-DEMO{color:var(--warn)} .t-RENDER{color:var(--pri)} .t-TODOS{color:var(--tx2)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);font-weight:700;background:var(--bg)}
+tr:last-child td{border-bottom:0}
+.tips{margin:0;padding-left:18px;display:grid;gap:6px;color:var(--tx2);font-size:14px}
+.tips b{color:var(--tx)}
+.tok{font:500 12.5px/1.3 var(--fM);color:var(--tx);background:var(--el);border:1px dashed var(--line2);border-radius:6px;padding:2px 6px;cursor:copy;overflow-wrap:anywhere;text-align:left}
+.tok:hover{border-color:var(--acc)}
+.tok.copied{border-style:solid;border-color:var(--ok);color:var(--ok)}
+
+/* Filtros */
+.filters{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;margin-bottom:8px;display:grid;gap:8px;border-bottom:1px solid var(--line)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chips .lbl{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);font-weight:700;margin-right:4px}
+.chip{font:600 12.5px/1 var(--fB);color:var(--tx2);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 11px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.chip .k{font-family:var(--fM);font-size:11px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.chip[aria-pressed="true"]{color:var(--tx);border-color:var(--tx2);background:var(--el)}
+.jump{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.jump a{font:600 12px/1 var(--fB);color:var(--tx2);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:6px 9px;white-space:nowrap;background:var(--card)}
+.jump a:hover{color:var(--tx);border-color:var(--line2)}
+.jump .p{font-family:var(--fM);font-size:11px;color:var(--tx3);margin-left:4px}
+
+/* Grupos y casos */
+.group{margin-top:28px;scroll-margin-top:120px}
+.ghead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:12px}
+.ghead h2{font-family:var(--fD);font-weight:700;font-size:28px;margin:0;line-height:1.1}
+.ghead .cu{font-family:var(--fM);font-size:12.5px;color:var(--pri)}
+.ghead .gsub{color:var(--tx3);font-size:13.5px}
+.ghead .gprog{margin-left:auto;font-family:var(--fM);font-size:12px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.cases{display:grid;gap:12px}
+.case{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:grid;gap:12px;min-width:0}
+.case[data-status="fail"]{border-color:color-mix(in srgb,var(--err) 55%,var(--line))}
+.case[data-status="ok"]{border-color:color-mix(in srgb,var(--ok) 40%,var(--line))}
+.case[data-status="retest"]{border-color:color-mix(in srgb,var(--warn) 50%,var(--line))}
+.chead{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+.cid{font:700 13px/1 var(--fM);color:var(--pri);letter-spacing:.02em}
+.chead h3{font-size:16.5px;font-weight:700;margin:0;flex:1 1 220px;min-width:0}
+.ctags{display:flex;gap:6px;flex-wrap:wrap}
+.pill{font:700 11px/1 var(--fB);letter-spacing:.04em;text-transform:uppercase;padding:5px 8px;border-radius:999px;background:var(--el);color:var(--tx3);white-space:nowrap}
+.pill.s-ok{background:var(--okS);color:var(--ok)} .pill.s-fail{background:var(--errS);color:var(--err)} .pill.s-retest{background:var(--warnS);color:var(--warn)}
+.cdata{margin:0;font-size:14px;color:var(--tx2)}
+.cdata b{color:var(--tx);font-weight:600}
+.cbody{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:14px}
+.cbody h4{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin:0 0 6px;font-weight:700}
+.steps{margin:0;padding-left:20px;display:grid;gap:5px;font-size:14px}
+.steps li::marker{font-family:var(--fM);color:var(--tx3);font-size:12px}
+.expect{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;min-width:0}
+.expect p{margin:0}
+.expect ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.known{display:flex;gap:10px;align-items:flex-start;background:var(--warnS);color:var(--tx);border-radius:10px;padding:10px 12px;font-size:13.5px}
+.known b{color:var(--warn)}
+.cfoot{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px 14px;align-items:start;border-top:1px solid var(--line);padding-top:12px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.sb{font:600 13px/1 var(--fB);color:var(--tx2);background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:9px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;min-height:38px}
+.sb .ic{font-family:var(--fM);font-weight:700}
+.sb:hover{color:var(--tx)}
+.sb.v-ok[aria-pressed="true"]{background:var(--okS);border-color:var(--ok);color:var(--ok)}
+.sb.v-fail[aria-pressed="true"]{background:var(--errS);border-color:var(--err);color:var(--err)}
+.sb.v-retest[aria-pressed="true"]{background:var(--warnS);border-color:var(--warn);color:var(--warn)}
+.notewrap{display:grid;gap:4px;min-width:0}
+.note{width:100%;min-height:38px;resize:vertical;font:14px/1.45 var(--fB);color:var(--tx);background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:8px 10px}
+.note::placeholder{color:var(--tx3)}
+.when{font-size:12px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.empty{color:var(--tx2);text-align:center;padding:40px 16px;border:1px dashed var(--line2);border-radius:14px;margin-top:24px}
+
+.summary>*,.prep-body>*,.filters>*,.group,.cases>*{min-width:0}
+@media (max-width:760px){
+  .filters{position:static}
+  .group{scroll-margin-top:16px}
+  .envs{grid-template-columns:minmax(0,1fr)}
+  .cbody{grid-template-columns:minmax(0,1fr)}
+  .cfoot{grid-template-columns:minmax(0,1fr)}
+  .counts{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="eyebrow"><span>PowerApp Web</span><span class="sep">/</span><span>Admin · CU-E-21 a CU-E-24</span><span class="sep">/</span><span>Pruebas manuales</span></div>
+    <h1>Pruebas de circuitos</h1>
+    <p class="lede">Los circuitos desde el Admin: listado y filtros, alta y edición con sus ejercicios y bloques de series, duplicar, desactivar y reactivar, y la misma pantalla del lado del Entrenador. Cada caso dice cómo probarlo y qué tenés que ver. Marcá el resultado y anotá lo que observes.</p>
+  </header>
+
+  <section class="summary" aria-label="Resumen">
+    <div class="counts">
+      <div class="count c-ok"><span class="n" id="n-ok">0</span><span class="l"><span class="dot"></span>Funciona</span></div>
+      <div class="count c-fail"><span class="n" id="n-fail">0</span><span class="l"><span class="dot"></span>Falla</span></div>
+      <div class="count c-retest"><span class="n" id="n-retest">0</span><span class="l"><span class="dot"></span>Re-testear</span></div>
+      <div class="count c-none"><span class="n" id="n-none">0</span><span class="l"><span class="dot"></span>Sin probar</span></div>
+    </div>
+    <div class="bar" role="img" id="bar" aria-label="Progreso"><span class="b-ok" id="b-ok"></span><span class="b-fail" id="b-fail"></span><span class="b-retest" id="b-retest"></span></div>
+    <div class="sumfoot">
+      <span class="save" id="save"><span class="dot"></span><span id="save-t">Conectando el guardado…</span></span>
+      <div class="actions">
+        <button type="button" class="btn" id="copy-backup">Copiar respaldo</button>
+        <button type="button" class="btn" id="open-restore">Restaurar respaldo</button>
+        <button type="button" class="btn pri" id="copy-sum">Copiar resumen de fallas</button>
+      </div>
+    </div>
+    <div class="copyfall" id="copy-fall" hidden>
+      <label for="copy-fall-t" class="when">Tu navegador no dejó copiar automáticamente. El texto ya está seleccionado: copialo con Ctrl+C.</label>
+      <textarea id="copy-fall-t" readonly></textarea>
+    </div>
+    <div class="copyfall" id="restore" hidden>
+      <label for="restore-t" class="when">Pegá el respaldo que copiaste en otro navegador o dispositivo. Por cada caso queda el resultado más reciente.</label>
+      <textarea id="restore-t" spellcheck="false"></textarea>
+      <div class="actions"><button type="button" class="btn pri" id="restore-ok">Restaurar</button><button type="button" class="btn" id="restore-cancel">Cancelar</button><span class="when" id="restore-msg" role="status"></span></div>
+    </div>
+  </section>
+
+  <details class="prep" id="prep" open>
+    <summary><h2>Antes de empezar</h2><span class="chev"><span class="c-close">Ocultar</span><span class="c-open">Mostrar</span></span></summary>
+    <div class="prep-body">
+      <div>
+        <h3>Entornos</h3>
+        <div class="envs">
+          <div class="env"><span class="tag t-LOCAL">Local</span><p>Backend local en <code>localhost:3000</code> y el front con <code>npm run dev</code>. Hace falta para los casos con el servidor apagado.</p></div>
+          <div class="env"><span class="tag t-RENDER">Render</span><p><a href="https://powerapp-web.onrender.com" target="_blank" rel="noopener">powerapp-web.onrender.com</a> contra el backend de Render. Todo lo que crees queda en esa base.</p></div>
+          <div class="env"><span class="tag t-TODOS">Cualquiera</span><p>El caso da lo mismo en los dos. Los circuitos ya no usan mocks: siempre van al backend real.</p></div>
+        </div>
+      </div>
+      <div>
+        <h3>Cuentas y datos</h3>
+        <ul class="tips">
+          <li><b>Una cuenta admin real y una de entrenador.</b> Las de demo no sirven: el backend rechaza su token.</li>
+          <li><b>Todo lo que crees, con el prefijo «QA»:</b> <button type="button" class="tok" data-copy="QA Circuito 1">QA Circuito 1</button> y <button type="button" class="tok" data-copy="QA Circuito series">QA Circuito series</button>.</li>
+          <li><b>Los circuitos no se pueden borrar,</b> solo desactivar. Al final, FIN-01 deja los de prueba desactivados.</li>
+          <li><b>No guardes cambios en circuitos del seed.</b> Editar un circuito cambia todas las rutinas que lo usan. Con los del seed, solo abrilos para mirar.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Cómo encararlo</h3>
+        <ul class="tips">
+          <li><b>Seguí el orden de la página.</b> QA Circuito 1 se crea al principio y lo usan los casos siguientes.</li>
+          <li><b>DevTools › Network</b>, filtrado por <code>circuit</code>, para ver qué requests salen, con qué body y qué código responden.</li>
+          <li><b>«N rutinas»</b> se calcula con las rutinas vigentes. Mientras el bloque C2 no esté, solo las del seed usan circuitos.</li>
+          <li><b>Lo que hoy no cumple el caso de uso</b> está marcado con un aviso amarillo (LST-05: no se puede filtrar por tipo). Es un ajuste del front.</li>
+        </ul>
+      </div>
+    </div>
+  </details>
+
+  <div class="filters" id="filters">
+    <div class="chips" id="f-status" role="group" aria-label="Filtrar por resultado">
+      <span class="lbl">Resultado</span>
+    </div>
+    <div class="chips" id="f-env" role="group" aria-label="Filtrar por entorno">
+      <span class="lbl">Entorno</span>
+    </div>
+    <nav class="jump" id="jump" aria-label="Ir a un grupo"></nav>
+  </div>
+
+  <main id="groups"></main>
+  <p class="empty" id="empty" hidden>Ningún caso coincide con estos filtros.</p>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const PLAN_NAME = 'Pruebas de circuitos PowerApp';
+  const PAGE_ID = 'pruebas-circuitos-powerapp';
+  const DOCS = 'https://github.com/FranCarames/PowerApp-Docs/blob/main/Use%20Cases/';
+  const tok = (t) => `<button type="button" class="tok" data-copy="${t.replace(/"/g, '&quot;')}">${t}</button>`;
+  const ui = (t) => `<span class="ui">«${t}»</span>`;
+
+  const ENVS = { LOCAL: 'Local', RENDER: 'Render', TODOS: 'Cualquiera' };
+  const ENV_FILTERS = [['all', 'Todos'], ['LOCAL', 'Local'], ['RENDER', 'Render']];
+  const STATUSES = [
+    { v: 'ok', label: 'Funciona', ic: '✓' },
+    { v: 'fail', label: 'Falla', ic: '✕' },
+    { v: 'retest', label: 'Re-testear', ic: '↻' },
+  ];
+  const STATUS_LABEL = { ok: 'Funciona', fail: 'Falla', retest: 'Re-testear', none: 'Sin probar' };
+
+  const GROUPS = [
+    { id: 'lst', name: 'Listado', cu: 'CU-E-21', file: 'entrenador/CU-E-21-obtener-circuitos.md' },
+    { id: 'cre', name: 'Crear', cu: 'CU-E-22', file: 'entrenador/CU-E-22-crear-circuito.md' },
+    { id: 'set', name: 'Bloques de series', cu: 'CU-E-22', file: 'entrenador/CU-E-22-crear-circuito.md', sub: 'Las reglas de cada bloque' },
+    { id: 'edt', name: 'Editar', cu: 'CU-E-23', file: 'entrenador/CU-E-23-editar-circuito.md' },
+    { id: 'dup', name: 'Duplicar', cu: null, sub: 'Una copia para cambiar sin tocar el original' },
+    { id: 'baj', name: 'Desactivar y reactivar', cu: 'CU-E-24', file: 'entrenador/CU-E-24-eliminar-circuito-logico.md' },
+    { id: 'coa', name: 'Desde el Entrenador', cu: null, sub: 'La misma pantalla en /c/circuitos' },
+    { id: 'err', name: 'Errores y pantallas', cu: null, sub: 'Servidor caído, celular, escritorio y teclado' },
+    { id: 'fin', name: 'Limpieza', cu: null, sub: 'Dejar los circuitos de prueba fuera de uso' },
+  ];
+
+  const CASES = [
+    // ── Listado ─────────────────────────────────────────────
+    { id: 'LST-01', g: 'lst', t: 'Llegar a Circuitos', env: ['TODOS'],
+      steps: ['En el Panel, anotá el número de la tarjeta Circuitos activos y tocala.', 'En escritorio, entrá desde la barra lateral › Entrenamiento › Circuitos. En el celular, desde Más › Circuitos.'],
+      exp: `<p>Todos llevan a <code>/a/circuitos</code>, con «Entrenamiento», el título «Circuitos» y ${ui('Un circuito se puede usar en varias rutinas. Si lo editás, el cambio se aplica en todas las que lo usan.')} El número del panel coincide con las tarjetas del chip Activos.</p>` },
+    { id: 'LST-02', g: 'lst', t: 'Tarjetas', env: ['TODOS'],
+      steps: ['Recorré las tarjetas.'],
+      exp: `<p>Cada una muestra el nombre, ${ui('Tipo · N ejercicios')}, la píldora ${ui('N rutinas')} si alguna rutina vigente lo usa, y los nombres de sus ejercicios en orden (${ui('Sin ejercicios')} si no tiene). (CU-E-21)</p>` },
+    { id: 'LST-03', g: 'lst', t: 'Activos, inactivos y todos', env: ['TODOS'],
+      steps: ['Tocá los chips Activos, Inactivos y Todos.', 'Con Inactivos elegido, recargá la página.'],
+      exp: `<p>Activos es el de entrada. Los inactivos se ven apagados, con ${ui('Inactivo')}. En Todos van primero los activos. El chip se mantiene al recargar (<code>?filtro=…</code>).</p>` },
+    { id: 'LST-04', g: 'lst', t: 'Buscar circuitos', env: ['TODOS'],
+      steps: ['Buscá un circuito sin tildes y en mayúsculas.', `Buscá ${tok('zzz')}.`],
+      exp: `<p>Lo encuentra igual. Con zzz: ${ui('Sin coincidencias')} y ${ui('No hay circuitos con ese filtro.')}</p>` },
+    { id: 'LST-05', g: 'lst', t: 'Filtrar por tipo', env: ['TODOS'],
+      steps: ['Buscá la forma de ver solo los circuitos de un tipo, por ejemplo «principal».'],
+      exp: '<p>Se puede filtrar el listado por tipo (CU-E-21, paso 3).</p>',
+      kt: 'Hoy no cumple el CU.', known: 'La pantalla muestra el tipo en cada tarjeta, pero no tiene filtro por tipo: el buscador mira solo el nombre. Marcalo Falla; es un ajuste del front.' },
+    { id: 'LST-06', g: 'lst', t: 'Quién puede entrar', env: ['TODOS'],
+      steps: ['Como alumno, abrí <code>/a/circuitos</code> y <code>/c/circuitos</code>.'],
+      exp: '<p>En los dos casos vuelve a <code>/u/plan</code>. El entrenador tiene su propia pantalla, que se prueba en COA-01.</p>' },
+
+    // ── Crear ───────────────────────────────────────────────
+    { id: 'CRE-01', g: 'cre', t: 'Crear un circuito', env: ['TODOS'],
+      data: `${tok('QA Circuito 1')}, tipo ${tok('principal')}, dos ejercicios.`,
+      steps: [`Tocá el botón flotante ${ui('Crear circuito')}.`, 'Completá nombre y tipo.', `Tocá ${ui('Agregar ejercicio')}, buscá uno y elegilo; repetí con otro.`, `Tocá ${ui('Guardar circuito')}.`],
+      exp: `<ul><li>Abre <code>/a/circuitos/nuevo</code> con «Nuevo» arriba.</li><li>${ui('Agregar ejercicio')} tiene buscador y muestra los músculos de cada ejercicio. Cada ejercicio entra con un bloque de 3×8.</li><li>Al guardar: ${ui('Circuito creado')}, vuelve a la lista y la tarjeta dice ${ui('Principal · 2 ejercicios')} con sus nombres en orden. (CU-E-22)</li></ul>` },
+    { id: 'CRE-02', g: 'cre', t: 'Validaciones del circuito', env: ['TODOS'],
+      steps: ['En un circuito nuevo, tocá Guardar circuito con todo vacío.', 'Escribí solo espacios en nombre y tipo, y guardá.', 'Pegá textos largos en nombre, tipo y descripción.'],
+      exp: `<ul><li>${ui('Poné un nombre al circuito')}, ${ui('Poné el tipo del circuito')} y ${ui('Agregá al menos un ejercicio')}, también con solo espacios (CU-E-22, caminos alternativos).</li><li>Los campos se cortan en 100 caracteres el nombre, 30 el tipo y 100 la descripción.</li><li>No sale ningún request.</li></ul>` },
+    { id: 'CRE-03', g: 'cre', t: 'Un ejercicio no se repite', env: ['TODOS'],
+      steps: ['Agregá un ejercicio y abrí Agregar ejercicio otra vez.'],
+      exp: '<p>El ejercicio ya agregado no aparece en el selector: un circuito no repite ejercicios.</p>' },
+    { id: 'CRE-04', g: 'cre', t: 'Ordenar y quitar ejercicios', env: ['TODOS'],
+      steps: ['Con tres ejercicios, usá Subir, Bajar y Quitar en cada uno.', 'Guardá y abrí el circuito.'],
+      exp: `<p>Los botones se anuncian como ${ui('Subir …')}, ${ui('Bajar …')} y ${ui('Quitar …')}. El orden guardado es el que dejaste, igual en la tarjeta y en el editor.</p>` },
+    { id: 'CRE-05', g: 'cre', t: 'Nota del entrenador', env: ['TODOS'],
+      data: `Nota ${tok('Bajar lento en 3 segundos')}.`,
+      steps: ['Escribí la nota en un ejercicio, guardá y abrí el circuito.'],
+      exp: `<p>El campo dice ${ui('Opcional. La ve quien hace la rutina.')}, corta en 100 caracteres y la nota queda guardada.</p>` },
+    { id: 'CRE-06', g: 'cre', t: 'Doble envío', env: ['TODOS'],
+      steps: ['Completá un circuito válido y hacé doble clic rápido en Guardar circuito.'],
+      exp: '<p>Sale un solo POST y el botón muestra que está cargando. Si se creó, desactivalo en la limpieza.</p>' },
+
+    // ── Bloques de series ───────────────────────────────────
+    { id: 'SET-01', g: 'set', t: 'Bloque básico y su resumen', env: ['TODOS'],
+      data: `Nuevo circuito ${tok('QA Circuito series')}, tipo ${tok('principal')}, un ejercicio.`,
+      steps: ['En el bloque 1, poné 4 series, 10 repeticiones y 80 kg.', 'Elegí Intensidad RPE con valor 7.'],
+      exp: `<p>El encabezado del bloque se actualiza: ${ui('Bloque 1')} ${ui('4×10 · 80 kg · RPE 7')}.</p>` },
+    { id: 'SET-02', g: 'set', t: 'Rangos de series, repeticiones, peso y % del RM', env: ['TODOS'],
+      steps: ['Series 0 y 21.', 'Repeticiones 0 y 1001.', 'Peso 0, 1000,5 y 10,555.', '% del RM 0 y 126.', 'Tocá Guardar circuito para ver los errores.'],
+      exp: `<p>${ui('De 1 a 20 series')}, ${ui('De 1 a 1000 repeticiones')}, ${ui('De 0,01 a 1000 kg, con hasta dos decimales')} y ${ui('El % del RM va de 1 a 125')}. No sale ningún request.</p>` },
+    { id: 'SET-03', g: 'set', t: 'RPE o RIR', env: ['TODOS'],
+      steps: ['Con Intensidad en Ninguna, mirá el campo Valor.', 'Elegí RPE, dejá el valor vacío y guardá; después probá 11.', 'Cambiá a RIR: probá 0 y 11.'],
+      exp: `<ul><li>Con Ninguna, Valor está deshabilitado. Al cambiar de escala, el valor se borra: nunca van RPE y RIR juntos.</li><li>${ui('Ingresá el RPE')} y ${ui('El RPE va de 1 a 10')}.</li><li>RIR 0 se acepta y el resumen dice ${ui('RIR 0')}; 11 da ${ui('El RIR va de 0 a 10')}.</li></ul>` },
+    { id: 'SET-04', g: 'set', t: 'AMRAP', env: ['TODOS'],
+      steps: ['Tocá el chip AMRAP.', 'Poné 1 repetición; después 10.', 'Poné 60 en el tiempo; después 0.', 'Apagá AMRAP y volvé a prenderlo.'],
+      exp: `<ul><li>Repeticiones pasa a decir ${ui('Objetivo. 1 = sin objetivo')} y aparece ${ui('Tiempo del AMRAP (segundos)')}, ${ui('Opcional. Vacío: hasta el fallo.')}</li><li>El resumen dice ${ui('3×AMRAP')} con 1 y ${ui('3×10+')} con 10; con 60 suma ${ui('60 s')}. Con 0: ${ui('Segundos, de 1 en adelante')}.</li><li>Al apagar AMRAP, el tiempo se borra.</li></ul>` },
+    { id: 'SET-05', g: 'set', t: 'RM', env: ['TODOS'],
+      steps: ['Con 3 series, tocá el chip RM.', 'Cambiá Series a 1.'],
+      exp: `<p>Con 3 series: ${ui('Un intento de RM es de una sola serie: poné Series en 1')}. Con 1, el error se va y el resumen termina en ${ui('RM')}.</p>` },
+    { id: 'SET-06', g: 'set', t: 'Varios bloques', env: ['TODOS'],
+      steps: [`Tocá ${ui('Agregar bloque de series')} dos veces y completá cada bloque distinto.`, `Quitá el bloque 2 (${ui('Quitar el bloque 2 de …')}).`, 'Con un solo bloque, buscá el botón de quitarlo.'],
+      exp: '<p>Los bloques se numeran en orden y se renumeran al quitar uno. Con un solo bloque no aparece el botón de quitar: cada ejercicio necesita al menos uno.</p>' },
+    { id: 'SET-07', g: 'set', t: 'Lo guardado vuelve igual', env: ['TODOS'],
+      steps: ['Guardá QA Circuito series con varios bloques que usen peso, RPE, RIR, AMRAP con tiempo y RM.', 'Abrilo de nuevo.', 'En Network, mirá la respuesta de GET /routine/circuit/{id}.'],
+      exp: '<p>Cada bloque vuelve con los mismos valores y en el mismo orden, y cada ejercicio con su nombre. La respuesta trae los datos del ejercicio, no un objeto vacío.</p>' },
+
+    // ── Editar ──────────────────────────────────────────────
+    { id: 'EDT-01', g: 'edt', t: 'Editar un circuito', env: ['TODOS'],
+      steps: ['Tocá la tarjeta de QA Circuito 1.', 'Cambiá el nombre a QA Circuito 1b, el orden de los ejercicios y un bloque, y guardá.'],
+      exp: `<p>Abre <code>/a/circuitos/…</code> con «Editar» arriba y los datos cargados. Al guardar: ${ui('Circuito guardado')}, vuelve a la lista y la tarjeta refleja los cambios. (CU-E-23)</p>` },
+    { id: 'EDT-02', g: 'edt', t: 'Cambiar los ejercicios', env: ['TODOS'],
+      steps: ['En QA Circuito 1b, quitá un ejercicio, agregá otro y guardá.', 'Abrilo de nuevo.'],
+      exp: '<p>Quedan exactamente los ejercicios que dejaste, con sus bloques; el quitado no vuelve. (CU-E-23, paso 4)</p>' },
+    { id: 'EDT-03', g: 'edt', t: 'Vaciar la descripción y una nota', env: ['TODOS'],
+      steps: ['Poné una descripción y una nota, y guardá.', 'Borralas, guardá y abrí el circuito.'],
+      exp: '<p>Los dos campos quedan vacíos.</p>' },
+    { id: 'EDT-04', g: 'edt', t: 'Dejarlo sin ejercicios', env: ['TODOS'],
+      steps: ['Quitá todos los ejercicios de QA Circuito 1b y guardá.'],
+      exp: `<p>${ui('Agregá al menos un ejercicio')} y no se guarda. (CU-E-23, camino alternativo)</p>` },
+    { id: 'EDT-05', g: 'edt', t: 'Aviso de varias rutinas', env: ['TODOS'],
+      data: 'Un circuito del seed con la píldora «2 rutinas» o más. Solo abrilo, no guardes.',
+      steps: ['Abrí ese circuito.'],
+      exp: `<p>${ui('Este circuito se usa en N rutinas (…). Los cambios se aplican en todas. Si querés cambiarlo solo para una, duplicalo.')}, con los nombres de las rutinas. (CU-E-23, paso 5) Si ningún circuito tiene dos rutinas, marcá Re-testear hasta que exista el bloque C2.</p>` },
+    { id: 'EDT-06', g: 'edt', t: 'Link a un circuito que no existe', env: ['TODOS'],
+      steps: ['Abrí <code>/a/circuitos/abc</code>.'],
+      exp: `<p>${ui('No encontramos el circuito')} y ${ui('No hay ningún circuito con ese enlace. Volvé a la lista.')} (CU-E-23, camino alternativo)</p>` },
+    { id: 'EDT-07', g: 'edt', t: 'Guardar uno que desactivaron en otra pestaña', env: ['TODOS'],
+      steps: ['En la pestaña A, abrí QA Circuito 1b y cambiá algo, sin guardar.', 'En la pestaña B, desactivalo.', 'En la pestaña A, guardá.', 'Reactivalo al terminar.'],
+      exp: `<p>${ui('El circuito está dado de baja y no se puede editar. Reactivalo primero.')} (CU-E-23, camino alternativo)</p>` },
+    { id: 'EDT-08', g: 'edt', t: 'Volver sin guardar', env: ['TODOS'],
+      steps: ['Cambiá el nombre de QA Circuito 1b y tocá la flecha de volver.', 'Abrilo de nuevo.'],
+      exp: '<p>Vuelve a la lista sin guardar; el nombre sigue igual.</p>' },
+
+    // ── Duplicar ────────────────────────────────────────────
+    { id: 'DUP-01', g: 'dup', t: 'Duplicar', env: ['TODOS'],
+      steps: ['En el editor de QA Circuito 1b, sin cambios, tocá Duplicar.'],
+      exp: `<p>${ui('Circuito duplicado: estás editando la copia')}. La dirección cambia al id nuevo y el nombre es ${ui('QA Circuito 1b (copia)')}, con los mismos ejercicios y bloques.</p>` },
+    { id: 'DUP-02', g: 'dup', t: 'Duplicar con cambios sin guardar', env: ['TODOS'],
+      steps: ['En QA Circuito 1b, cambiá el nombre y tocá Duplicar.', 'Confirmá.', 'Abrí el original.'],
+      exp: `<p>${ui('Duplicar circuito')}: ${ui('Hay cambios sin guardar. La copia se hace con la versión guardada de QA Circuito 1b, sin ellos, y vas a pasar a editarla.')} La copia no tiene el cambio y el original tampoco: el cambio se descartó.</p>` },
+    { id: 'DUP-03', g: 'dup', t: 'La copia es independiente', env: ['TODOS'],
+      steps: ['Editá una copia: cambiá un bloque y guardá.', 'Abrí el original.'],
+      exp: '<p>El original no cambió.</p>' },
+
+    // ── Desactivar y reactivar ──────────────────────────────
+    { id: 'BAJ-01', g: 'baj', t: 'Desactivar', env: ['TODOS'],
+      steps: ['En el editor de una copia de QA Circuito 1b, tocá Desactivar.', 'Leé el mensaje y confirmá.'],
+      exp: `<p>${ui('Desactivar circuito')}: ${ui('… deja de estar disponible para rutinas nuevas. Es una baja lógica: lo podés reactivar cuando quieras.')} (si alguna rutina lo usa, agrega cuántas lo conservan). Al confirmar: ${ui('Circuito desactivado')}, vuelve a la lista y aparece en Inactivos. (CU-E-24)</p>` },
+    { id: 'BAJ-02', g: 'baj', t: 'Cancelar la desactivación', env: ['TODOS'],
+      steps: ['Tocá Desactivar en otro circuito QA y tocá Cancelar.'],
+      exp: '<p>No cambia nada y no sale ningún request. (CU-E-24, camino alternativo)</p>' },
+    { id: 'BAJ-03', g: 'baj', t: 'Un circuito inactivo no se edita', env: ['TODOS'],
+      steps: ['Abrí el circuito desactivado.'],
+      exp: `<p>${ui('Circuito inactivo: no se puede agregar a rutinas nuevas ni editar. Reactivalo para poder cambiarlo.')} Los campos están apagados y el botón dice Reactivar.</p>` },
+    { id: 'BAJ-04', g: 'baj', t: 'Reactivar', env: ['TODOS'],
+      steps: ['Tocá Reactivar.'],
+      exp: `<p>No pide confirmación: ${ui('Circuito reactivado')}, los campos se habilitan y vuelve a Activos.</p>` },
+    { id: 'BAJ-05', g: 'baj', t: 'El panel cuenta solo los activos', env: ['TODOS'],
+      steps: ['Desactivá un circuito QA y mirá la tarjeta Circuitos activos del Panel.', 'Reactivalo y volvé a mirar.'],
+      exp: '<p>El número baja uno y vuelve a subir.</p>' },
+
+    // ── Desde el Entrenador ─────────────────────────────────
+    { id: 'COA-01', g: 'coa', t: 'La pantalla del entrenador', env: ['TODOS'],
+      data: 'Una cuenta real de entrenador.',
+      steps: ['Como entrenador, abrí la tab Rutinas y el segmento Circuitos.', 'Abrí QA Circuito 1b.'],
+      exp: '<p>Es el mismo listado y el mismo editor, en <code>/c/circuitos</code> y <code>/c/circuitos/…</code>. El segmento Rutinas todavía muestra el aviso de pantalla en construcción.</p>' },
+    { id: 'COA-02', g: 'coa', t: 'Cambios entre roles', env: ['TODOS'],
+      steps: ['Como entrenador, cambiá un bloque de QA Circuito 1b y guardá.', 'Como admin, recargá ese circuito.'],
+      exp: '<p>El admin ve el cambio: los dos roles editan los mismos circuitos.</p>' },
+
+    // ── Errores y pantallas ─────────────────────────────────
+    { id: 'ERR-01', g: 'err', t: 'Servidor caído al cargar', env: ['LOCAL'],
+      steps: ['Apagá el backend local y recargá Circuitos y un editor.', 'Prendelo y tocá Reintentar.'],
+      exp: '<p>Cada pantalla muestra un error con Reintentar, y con el backend prendido cargan.</p>' },
+    { id: 'ERR-02', g: 'err', t: 'Servidor caído al guardar', env: ['LOCAL'],
+      steps: ['Hacé un cambio en QA Circuito 1b.', 'Apagá el backend y guardá.', 'Prendelo y guardá otra vez.'],
+      exp: '<p>Aviso rojo arriba del formulario, y los cambios quedan escritos. Con el backend prendido se guarda.</p>' },
+    { id: 'ERR-03', g: 'err', t: 'Celular y escritorio', env: ['TODOS'],
+      steps: ['Recorré el listado, el editor con varios bloques y el selector de ejercicios en el celular, o en DevTools a 390 px.', 'Repetí en escritorio.'],
+      exp: '<ul><li>Sin scroll horizontal ni textos cortados; los campos de cada bloque se acomodan sin superponerse.</li><li>En el celular, los campos numéricos abren el teclado numérico.</li><li>En escritorio, las tarjetas van en dos columnas.</li></ul>' },
+    { id: 'ERR-04', g: 'err', t: 'Teclado y lector de pantalla', env: ['TODOS'],
+      steps: ['Recorré el editor solo con Tab y Enter, incluidos los chips AMRAP y RM.'],
+      exp: '<p>El foco siempre se ve, los chips se prenden y apagan con Enter, y los errores aparecen junto a su campo.</p>' },
+
+    // ── Limpieza ────────────────────────────────────────────
+    { id: 'FIN-01', g: 'fin', t: 'Dejar los circuitos de prueba fuera de uso', env: ['TODOS'],
+      steps: ['Renombrá cada circuito QA activo con «QA (no usar)» adelante y guardá.', 'Desactivalos.', `Con el chip Activos, buscá ${tok('QA')}.`],
+      exp: '<p>La búsqueda vuelve vacía: los circuitos de prueba quedan solo en Inactivos.</p>' },
+  ];
+
+  // ── Estado ────────────────────────────────────────────────
+  const LOCAL_KEY = 'powerapp.pruebas-circuitos.v1';
+  const blank = () => ({ status: null, note: '', at: null });
+  const state = Object.fromEntries(CASES.map((c) => [c.id, blank()]));
+  let db = null;
+  let mode = 'connecting'; // connecting | db | local | error
+  let fStatus = 'all';
+  let fEnv = 'all';
+  const writing = new Set();
+  const dirty = new Set();
+  const pending = new Set();
+  const noteTimers = {};
+
+  const $ = (s, el = document) => el.querySelector(s);
+  const statusOf = (id) => state[id].status || 'none';
+
+  function fmtWhen(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+
+  // ── Render estático ──────────────────────────────────────
+  function caseHtml(c) {
+    const envs = c.env.map((e) => `<span class="tag t-${e}">${ENVS[e]}</span>`).join('');
+    const steps = c.steps.map((s) => `<li>${s}</li>`).join('');
+    const seg = STATUSES.map((s) => `<button type="button" class="sb v-${s.v}" data-v="${s.v}" aria-pressed="false"><span class="ic" aria-hidden="true">${s.ic}</span>${s.label}</button>`).join('');
+    return `<article class="case" id="case-${c.id}" data-id="${c.id}" data-status="none">
+      <div class="chead"><span class="cid">${c.id}</span><h3>${c.t}</h3><div class="ctags">${envs}<span class="pill" data-pill>Sin probar</span></div></div>
+      ${c.data ? `<p class="cdata"><b>Datos:</b> ${c.data}</p>` : ''}
+      <div class="cbody"><div><h4>Cómo probarlo</h4><ol class="steps">${steps}</ol></div><div class="expect"><h4>Qué tenés que ver</h4>${c.exp}</div></div>
+      ${c.known ? `<div class="known" role="note"><span><b>${c.kt || 'Hoy falla.'}</b> ${c.known}</span></div>` : ''}
+      <div class="cfoot">
+        <div class="seg" role="group" aria-label="Resultado de ${c.id}">${seg}</div>
+        <div class="notewrap">
+          <label class="when" for="note-${c.id}"><span data-when>Sin marcar</span></label>
+          <textarea class="note" id="note-${c.id}" rows="1" placeholder="Qué viste, si algo no coincide (opcional)"></textarea>
+        </div>
+      </div>
+    </article>`;
+  }
+
+  function renderStatic() {
+    const root = $('#groups');
+    root.innerHTML = GROUPS.map((g) => {
+      const cases = CASES.filter((c) => c.g === g.id);
+      const cu = g.cu ? `<a class="cu" href="${DOCS}${g.file}" target="_blank" rel="noopener">${g.cu}</a>` : '';
+      return `<section class="group" id="${g.id}" data-g="${g.id}">
+        <div class="ghead"><h2>${g.name}</h2>${cu}${g.sub ? `<span class="gsub">${g.sub}</span>` : ''}<span class="gprog" data-gprog></span></div>
+        <div class="cases">${cases.map(caseHtml).join('')}</div>
+      </section>`;
+    }).join('');
+
+    $('#jump').innerHTML = GROUPS.map((g) => `<a href="#${g.id}" data-jump="${g.id}">${g.name}<span class="p" data-jp></span></a>`).join('');
+
+    const st = $('#f-status');
+    [['all', 'Todos'], ['none', 'Sin probar'], ['fail', 'Falla'], ['retest', 'Re-testear'], ['ok', 'Funciona']].forEach(([v, l]) => {
+      st.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-fs="${v}" aria-pressed="${v === 'all'}">${l}<span class="k" data-k="${v}"></span></button>`);
+    });
+    const en = $('#f-env');
+    ENV_FILTERS.forEach(([v, l]) => {
+      en.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-fe="${v}" aria-pressed="${v === 'all'}">${l}</button>`);
+    });
+  }
+
+  // ── Render dinámico ──────────────────────────────────────
+  function updateCard(id) {
+    const card = document.getElementById('case-' + id);
+    if (!card) return;
+    const s = state[id];
+    const st = statusOf(id);
+    card.dataset.status = st;
+    card.querySelectorAll('.sb').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === s.status)));
+    const pill = card.querySelector('[data-pill]');
+    pill.textContent = STATUS_LABEL[st];
+    pill.className = 'pill' + (st === 'none' ? '' : ' s-' + st);
+    const ta = card.querySelector('.note');
+    if (document.activeElement !== ta && ta.value !== s.note) ta.value = s.note;
+    card.querySelector('[data-when]').textContent = s.at ? 'Actualizado ' + fmtWhen(s.at) : 'Sin marcar';
+  }
+
+  function visible(c) {
+    const st = statusOf(c.id);
+    if (fStatus !== 'all' && st !== fStatus) return false;
+    if (fEnv !== 'all' && !c.env.includes(fEnv) && !c.env.includes('TODOS')) return false;
+    return true;
+  }
+
+  function applyFilters() {
+    let any = false;
+    GROUPS.forEach((g) => {
+      let shown = 0;
+      CASES.filter((c) => c.g === g.id).forEach((c) => {
+        const v = visible(c);
+        document.getElementById('case-' + c.id).hidden = !v;
+        if (v) shown++;
+      });
+      document.getElementById(g.id).hidden = shown === 0;
+      if (shown) any = true;
+    });
+    $('#empty').hidden = any;
+  }
+
+  function updateSummary() {
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const total = CASES.length;
+    ['ok', 'fail', 'retest', 'none'].forEach((k) => { $('#n-' + k).textContent = n[k]; });
+    ['ok', 'fail', 'retest'].forEach((k) => { $('#b-' + k).style.width = (n[k] / total * 100) + '%'; });
+    $('#bar').setAttribute('aria-label', `${total - n.none} de ${total} casos probados: ${n.ok} funcionan, ${n.fail} fallan, ${n.retest} para re-testear`);
+    document.querySelectorAll('[data-k]').forEach((el) => {
+      const k = el.dataset.k;
+      el.textContent = k === 'all' ? total : n[k];
+    });
+    GROUPS.forEach((g) => {
+      const cs = CASES.filter((c) => c.g === g.id);
+      const done = cs.filter((c) => statusOf(c.id) !== 'none').length;
+      const fails = cs.filter((c) => statusOf(c.id) === 'fail').length;
+      const txt = `${done}/${cs.length} probados${fails ? ` · ${fails} con falla` : ''}`;
+      document.getElementById(g.id).querySelector('[data-gprog]').textContent = txt;
+      document.querySelector(`[data-jump="${g.id}"] [data-jp]`).textContent = `${done}/${cs.length}`;
+    });
+  }
+
+  function refreshAll() {
+    CASES.forEach((c) => updateCard(c.id));
+    updateSummary();
+    applyFilters();
+  }
+
+  function setSave(kind, text) {
+    const el = $('#save');
+    el.className = 'save' + (kind ? ' is-' + kind : '');
+    $('#save-t').textContent = text;
+  }
+
+  // ── Guardado ─────────────────────────────────────────────
+  function saveLocal() {
+    try { localStorage.setItem(LOCAL_KEY, JSON.stringify(state)); } catch { /* sin storage: queda en memoria */ }
+  }
+  function loadLocal() {
+    try {
+      const raw = localStorage.getItem(LOCAL_KEY);
+      if (!raw) return;
+      const v = JSON.parse(raw);
+      Object.keys(state).forEach((id) => { if (v && v[id]) state[id] = normalize(v[id]); });
+    } catch { /* ignorar */ }
+  }
+  function normalize(v) {
+    const okStatus = ['ok', 'fail', 'retest'].includes(v.status) ? v.status : null;
+    return { status: okStatus, note: typeof v.note === 'string' ? v.note : '', at: typeof v.at === 'string' ? v.at : null };
+  }
+
+  const DB_OK = 'Guardado en el artefacto: lo ves desde cualquier dispositivo.';
+  const LOCAL_ONLY = 'Solo en este navegador: no se ve desde otro dispositivo y se pierde si borrás los datos de navegación. Copiá un respaldo de vez en cuando.';
+
+  // Siempre queda una copia en el navegador; en el artefacto, además, se sube.
+  async function persist(id) {
+    saveLocal();
+    if (mode !== 'db') return;
+    pending.add(id);
+    if (writing.has(id)) { dirty.add(id); return; }
+    writing.add(id);
+    setSave('db', 'Guardando…');
+    try {
+      do {
+        dirty.delete(id);
+        const s = state[id];
+        await db.doc('results/' + id).set({ status: s.status, note: s.note, at: s.at });
+      } while (dirty.has(id));
+      setSave('db', DB_OK);
+    } catch (e) {
+      setSave('err', 'No se pudo guardar el último cambio en el artefacto. Quedó en este navegador: volvé a marcarlo en un momento.');
+    } finally {
+      writing.delete(id);
+      pending.delete(id);
+    }
+  }
+
+  // Por cada caso gana el resultado más reciente, venga del navegador o del artefacto.
+  const isNewer = (a, b) => Boolean(a.at) && (!b.at || a.at > b.at);
+
+  async function uploadNewer() {
+    const remote = {};
+    try {
+      const snap = await db.collection('results').get();
+      snap.docs.forEach((d) => { const v = d.data(); if (v) remote[d.id] = normalize(v); });
+    } catch {
+      setSave('err', 'No se pudo comparar con el artefacto. Lo que marques queda en este navegador.');
+      return;
+    }
+    const ids = CASES.map((c) => c.id).filter((id) => {
+      const s = state[id];
+      if (!s.status && !s.note) return false;
+      return !remote[id] || isNewer(s, remote[id]);
+    });
+    if (!ids.length) { setSave('db', DB_OK); return; }
+    setSave('db', `Subiendo ${ids.length} resultados de este navegador al artefacto…`);
+    for (const id of ids) await persist(id);
+  }
+
+  async function initStore() {
+    let ns = null;
+    try {
+      ns = window.claude && typeof window.claude.use === 'function' ? await window.claude.use('db') : null;
+    } catch { ns = null; }
+    if (!ns) {
+      mode = 'local';
+      setSave('local', LOCAL_ONLY);
+      return;
+    }
+    db = ns;
+    mode = 'db';
+    setSave('db', 'Sincronizando…');
+    let synced = false;
+    db.collection('results').onSnapshot((snap) => {
+      snap.docs.forEach((d) => {
+        if (!state[d.id] || pending.has(d.id)) return;
+        const v = d.data();
+        if (!v) return;
+        const r = normalize(v);
+        if (!state[d.id].at || !isNewer(state[d.id], r)) state[d.id] = r;
+      });
+      refreshAll();
+      if (!synced) { synced = true; uploadNewer(); }
+      else if (!writing.size) setSave('db', DB_OK);
+    }, () => {
+      mode = 'local';
+      setSave('err', 'Se perdió la conexión con el artefacto. Lo que marques ahora queda solo en este navegador.');
+    });
+  }
+
+  function buildBackup() {
+    const results = {};
+    CASES.forEach((c) => { const s = state[c.id]; if (s.status || s.note) results[c.id] = s; });
+    return JSON.stringify({ pagina: PAGE_ID, v: 1, results });
+  }
+
+  async function restore(text) {
+    const msg = $('#restore-msg');
+    let parsed = null;
+    try { parsed = JSON.parse(text); } catch { parsed = null; }
+    if (parsed && parsed.pagina && parsed.pagina !== PAGE_ID) { msg.textContent = 'Ese respaldo es de otro plan de pruebas. Copiá el respaldo desde esta misma página.'; return; }
+    const res = parsed && typeof parsed.results === 'object' && parsed.results ? parsed.results : null;
+    if (!res) { msg.textContent = 'Ese texto no es un respaldo de esta página. Copialo de nuevo con «Copiar respaldo».'; return; }
+    const ids = [];
+    Object.keys(res).forEach((id) => {
+      if (!state[id]) return;
+      const r = normalize(res[id]);
+      if (!r.status && !r.note) return;
+      if (!state[id].at || isNewer(r, state[id])) { state[id] = r; ids.push(id); }
+    });
+    refreshAll();
+    for (const id of ids) await persist(id);
+    msg.textContent = ids.length ? `Listo: se restauraron ${ids.length} casos.` : 'No había nada más nuevo que lo que ya tenés marcado.';
+  }
+
+  // ── Eventos ──────────────────────────────────────────────
+  function copyText(text, onDone) {
+    const fallback = () => {
+      const box = $('#copy-fall');
+      const ta = $('#copy-fall-t');
+      ta.value = text;
+      box.hidden = false;
+      ta.focus();
+      ta.select();
+    };
+    try {
+      navigator.clipboard.writeText(text).then(onDone, fallback);
+    } catch { fallback(); }
+  }
+
+  function buildSummary() {
+    const today = new Date().toLocaleDateString('es-AR');
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const lines = [`${PLAN_NAME} · ${today}`, `Funciona ${n.ok} · Falla ${n.fail} · Re-testear ${n.retest} · Sin probar ${n.none}`];
+    [['fail', 'Falla'], ['retest', 'Re-testear']].forEach(([k, label]) => {
+      const cs = CASES.filter((c) => statusOf(c.id) === k);
+      if (!cs.length) return;
+      lines.push('', label);
+      cs.forEach((c) => {
+        const note = state[c.id].note.trim();
+        lines.push(`- ${c.id} ${c.t}${note ? ': ' + note.replace(/\s+/g, ' ') : ''}`);
+      });
+    });
+    if (!n.fail && !n.retest) lines.push('', 'Sin fallas ni casos para re-testear.');
+    return lines.join('\n');
+  }
+
+  document.addEventListener('click', (e) => {
+    const sb = e.target.closest('.sb');
+    if (sb) {
+      const id = sb.closest('.case').dataset.id;
+      const s = state[id];
+      s.status = s.status === sb.dataset.v ? null : sb.dataset.v;
+      s.at = new Date().toISOString();
+      updateCard(id);
+      updateSummary();
+      persist(id);
+      return;
+    }
+    const fs = e.target.closest('[data-fs]');
+    if (fs) {
+      fStatus = fs.dataset.fs;
+      document.querySelectorAll('[data-fs]').forEach((b) => b.setAttribute('aria-pressed', String(b === fs)));
+      applyFilters();
+      return;
+    }
+    const fe = e.target.closest('[data-fe]');
+    if (fe) {
+      fEnv = fe.dataset.fe;
+      document.querySelectorAll('[data-fe]').forEach((b) => b.setAttribute('aria-pressed', String(b === fe)));
+      applyFilters();
+      return;
+    }
+    const t = e.target.closest('.tok');
+    if (t) {
+      copyText(t.dataset.copy, () => {
+        t.classList.add('copied');
+        setTimeout(() => t.classList.remove('copied'), 1200);
+      });
+      return;
+    }
+    if (e.target.closest('#copy-backup')) {
+      const btn = $('#copy-backup');
+      copyText(buildBackup(), () => {
+        btn.textContent = 'Respaldo copiado';
+        setTimeout(() => { btn.textContent = 'Copiar respaldo'; }, 1600);
+      });
+      return;
+    }
+    if (e.target.closest('#open-restore')) {
+      const panel = $('#restore');
+      panel.hidden = !panel.hidden;
+      if (!panel.hidden) $('#restore-t').focus();
+      return;
+    }
+    if (e.target.closest('#restore-cancel')) {
+      $('#restore').hidden = true;
+      $('#restore-t').value = '';
+      $('#restore-msg').textContent = '';
+      return;
+    }
+    if (e.target.closest('#restore-ok')) {
+      restore($('#restore-t').value);
+      return;
+    }
+    if (e.target.closest('#copy-sum')) {
+      const btn = $('#copy-sum');
+      copyText(buildSummary(), () => {
+        btn.textContent = 'Resumen copiado';
+        setTimeout(() => { btn.textContent = 'Copiar resumen de fallas'; }, 1600);
+      });
+    }
+  });
+
+  document.addEventListener('input', (e) => {
+    const ta = e.target.closest('.note');
+    if (!ta) return;
+    const id = ta.closest('.case').dataset.id;
+    state[id].note = ta.value;
+    clearTimeout(noteTimers[id]);
+    noteTimers[id] = setTimeout(() => {
+      state[id].at = new Date().toISOString();
+      updateCard(id);
+      persist(id);
+    }, 700);
+  });
+  document.addEventListener('focusout', (e) => {
+    const ta = e.target.closest && e.target.closest('.note');
+    if (!ta) return;
+    const id = ta.closest('.case').dataset.id;
+    if (noteTimers[id]) {
+      clearTimeout(noteTimers[id]);
+      noteTimers[id] = null;
+      state[id].at = new Date().toISOString();
+      updateCard(id);
+      persist(id);
+    }
+  });
+
+  const prep = $('#prep');
+  try { if (localStorage.getItem(LOCAL_KEY + '.prep') === 'closed') prep.open = false; } catch { /* ignorar */ }
+  prep.addEventListener('toggle', () => {
+    try { localStorage.setItem(LOCAL_KEY + '.prep', prep.open ? 'open' : 'closed'); } catch { /* ignorar */ }
+  });
+
+  renderStatic();
+  loadLocal();
+  refreshAll();
+  initStore();
+})();
+</script>
+
+</body></html>

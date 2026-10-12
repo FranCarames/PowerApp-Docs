@@ -1,0 +1,808 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Pruebas de ejercicios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: una columna de trabajo (máx. 980px). Resumen arriba, barra de filtros fija, casos agrupados por CU. Paleta de PowerApp, dark-first. */
+:root{
+  --bg:#0B0D16; --card:#13161F; --el:#1B1F2E; --line:#232739; --line2:#2E3347;
+  --tx:#F5F1EB; --tx2:#A3ACC2; --tx3:#6B7390;
+  --pri:#FF6B3D; --priS:rgba(232,69,10,.14); --acc:#A78BFA; --accS:rgba(139,92,246,.16);
+  --ok:#3DD47A; --okS:rgba(34,197,94,.14); --warn:#F5B23D; --warnS:rgba(245,158,11,.14); --err:#F26464; --errS:rgba(239,68,68,.14);
+  --none:#6B7390;
+  --fD:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --fB:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --fM:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#F2F3F7; --card:#FFFFFF; --el:#E8EAF1; --line:#D9DCE6; --line2:#C8CCDA;
+    --tx:#141826; --tx2:#47506A; --tx3:#687089;
+    --pri:#C23A07; --priS:rgba(232,69,10,.10); --acc:#6A3FDB; --accS:rgba(139,92,246,.12);
+    --ok:#157A3C; --okS:rgba(34,197,94,.13); --warn:#A25A06; --warnS:rgba(245,158,11,.16); --err:#C42525; --errS:rgba(239,68,68,.11);
+    --none:#8A91A8;
+    color-scheme:light;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#F2F3F7; --card:#FFFFFF; --el:#E8EAF1; --line:#D9DCE6; --line2:#C8CCDA;
+  --tx:#141826; --tx2:#47506A; --tx3:#687089;
+  --pri:#C23A07; --priS:rgba(232,69,10,.10); --acc:#6A3FDB; --accS:rgba(139,92,246,.12);
+  --ok:#157A3C; --okS:rgba(34,197,94,.13); --warn:#A25A06; --warnS:rgba(245,158,11,.16); --err:#C42525; --errS:rgba(239,68,68,.11);
+  --none:#8A91A8;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--tx);font-family:var(--fB);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding-inline:20px;padding-block:28px 72px}
+code,.mono{font-family:var(--fM);font-size:.86em}
+code{background:var(--el);border:1px solid var(--line);border-radius:5px;padding:1px 5px;overflow-wrap:anywhere}
+.ui{color:var(--tx);font-weight:600}
+a{color:var(--acc)}
+a:focus-visible,button:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+h1,h2,h3{text-wrap:balance}
+
+/* Encabezado */
+.mast{display:grid;gap:6px;margin-bottom:22px}
+.eyebrow{font-family:var(--fM);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--pri);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.eyebrow .sep{color:var(--tx3)}
+h1{font-family:var(--fD);font-weight:800;font-size:clamp(34px,6vw,52px);line-height:1;letter-spacing:-.01em;margin:4px 0 0}
+.lede{color:var(--tx2);max-width:66ch;margin:6px 0 0}
+
+/* Resumen */
+.summary{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:14px;margin-bottom:18px}
+.counts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.count{display:grid;gap:2px}
+.count .n{font-family:var(--fD);font-size:34px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.count .l{font-size:12.5px;color:var(--tx2);display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;flex:none}
+.c-ok .n{color:var(--ok)} .c-ok .dot{background:var(--ok)}
+.c-fail .n{color:var(--err)} .c-fail .dot{background:var(--err)}
+.c-retest .n{color:var(--warn)} .c-retest .dot{background:var(--warn)}
+.c-none .n{color:var(--tx2)} .c-none .dot{background:var(--none)}
+.bar{display:flex;height:10px;border-radius:6px;overflow:hidden;background:var(--el)}
+.bar span{height:100%;transition:width .3s ease}
+.bar .b-ok{background:var(--ok)} .bar .b-fail{background:var(--err)} .bar .b-retest{background:var(--warn)}
+.sumfoot{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.save{font-size:12.5px;color:var(--tx3);display:flex;align-items:center;gap:7px}
+.save .dot{background:var(--tx3)}
+.save.is-db .dot{background:var(--ok)} .save.is-err .dot{background:var(--err)} .save.is-local .dot{background:var(--warn)}
+.btn{font:600 13.5px/1 var(--fB);color:var(--tx);background:var(--el);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{border-color:var(--tx3)}
+.btn.pri{background:var(--priS);border-color:var(--pri);color:var(--pri)}
+.copyfall{display:grid;gap:8px}
+.copyfall textarea{width:100%;min-height:140px;font:13px/1.5 var(--fM);background:var(--el);color:var(--tx);border:1px solid var(--line2);border-radius:10px;padding:10px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.save{flex:1 1 260px;min-width:0;align-items:flex-start}
+.save .dot{margin-top:.45em}
+.save.is-local{color:var(--warn)}
+.save.is-err{color:var(--err)}
+
+/* Antes de empezar */
+details.prep{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:18px}
+details.prep>summary{cursor:pointer;list-style:none;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+details.prep>summary::-webkit-details-marker{display:none}
+details.prep>summary h2{font-family:var(--fD);font-weight:700;font-size:24px;margin:0}
+.chev{color:var(--tx3);font-family:var(--fM);font-size:13px}
+details[open] .chev .c-open{display:none} details:not([open]) .chev .c-close{display:none}
+.prep-body{padding:0 18px 18px;display:grid;gap:18px}
+.prep h3{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin:0 0 8px;font-weight:700}
+.envs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.env{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg);display:grid;gap:6px;align-content:start;min-width:0}
+.env p{margin:0;font-size:13.5px;color:var(--tx2)}
+.tag{display:inline-flex;align-items:center;font:700 11px/1 var(--fM);letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border-radius:6px;border:1px solid currentColor;white-space:nowrap}
+.t-LOCAL{color:var(--acc)} .t-DEMO{color:var(--warn)} .t-RENDER{color:var(--pri)} .t-TODOS{color:var(--tx2)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);font-weight:700;background:var(--bg)}
+tr:last-child td{border-bottom:0}
+.tips{margin:0;padding-left:18px;display:grid;gap:6px;color:var(--tx2);font-size:14px}
+.tips b{color:var(--tx)}
+.tok{font:500 12.5px/1.3 var(--fM);color:var(--tx);background:var(--el);border:1px dashed var(--line2);border-radius:6px;padding:2px 6px;cursor:copy;overflow-wrap:anywhere;text-align:left}
+.tok:hover{border-color:var(--acc)}
+.tok.copied{border-style:solid;border-color:var(--ok);color:var(--ok)}
+
+/* Filtros */
+.filters{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;margin-bottom:8px;display:grid;gap:8px;border-bottom:1px solid var(--line)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chips .lbl{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);font-weight:700;margin-right:4px}
+.chip{font:600 12.5px/1 var(--fB);color:var(--tx2);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 11px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.chip .k{font-family:var(--fM);font-size:11px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.chip[aria-pressed="true"]{color:var(--tx);border-color:var(--tx2);background:var(--el)}
+.jump{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.jump a{font:600 12px/1 var(--fB);color:var(--tx2);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:6px 9px;white-space:nowrap;background:var(--card)}
+.jump a:hover{color:var(--tx);border-color:var(--line2)}
+.jump .p{font-family:var(--fM);font-size:11px;color:var(--tx3);margin-left:4px}
+
+/* Grupos y casos */
+.group{margin-top:28px;scroll-margin-top:120px}
+.ghead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:12px}
+.ghead h2{font-family:var(--fD);font-weight:700;font-size:28px;margin:0;line-height:1.1}
+.ghead .cu{font-family:var(--fM);font-size:12.5px;color:var(--pri)}
+.ghead .gsub{color:var(--tx3);font-size:13.5px}
+.ghead .gprog{margin-left:auto;font-family:var(--fM);font-size:12px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.cases{display:grid;gap:12px}
+.case{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:grid;gap:12px;min-width:0}
+.case[data-status="fail"]{border-color:color-mix(in srgb,var(--err) 55%,var(--line))}
+.case[data-status="ok"]{border-color:color-mix(in srgb,var(--ok) 40%,var(--line))}
+.case[data-status="retest"]{border-color:color-mix(in srgb,var(--warn) 50%,var(--line))}
+.chead{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+.cid{font:700 13px/1 var(--fM);color:var(--pri);letter-spacing:.02em}
+.chead h3{font-size:16.5px;font-weight:700;margin:0;flex:1 1 220px;min-width:0}
+.ctags{display:flex;gap:6px;flex-wrap:wrap}
+.pill{font:700 11px/1 var(--fB);letter-spacing:.04em;text-transform:uppercase;padding:5px 8px;border-radius:999px;background:var(--el);color:var(--tx3);white-space:nowrap}
+.pill.s-ok{background:var(--okS);color:var(--ok)} .pill.s-fail{background:var(--errS);color:var(--err)} .pill.s-retest{background:var(--warnS);color:var(--warn)}
+.cdata{margin:0;font-size:14px;color:var(--tx2)}
+.cdata b{color:var(--tx);font-weight:600}
+.cbody{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:14px}
+.cbody h4{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin:0 0 6px;font-weight:700}
+.steps{margin:0;padding-left:20px;display:grid;gap:5px;font-size:14px}
+.steps li::marker{font-family:var(--fM);color:var(--tx3);font-size:12px}
+.expect{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;min-width:0}
+.expect p{margin:0}
+.expect ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.known{display:flex;gap:10px;align-items:flex-start;background:var(--warnS);color:var(--tx);border-radius:10px;padding:10px 12px;font-size:13.5px}
+.known b{color:var(--warn)}
+.cfoot{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px 14px;align-items:start;border-top:1px solid var(--line);padding-top:12px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.sb{font:600 13px/1 var(--fB);color:var(--tx2);background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:9px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;min-height:38px}
+.sb .ic{font-family:var(--fM);font-weight:700}
+.sb:hover{color:var(--tx)}
+.sb.v-ok[aria-pressed="true"]{background:var(--okS);border-color:var(--ok);color:var(--ok)}
+.sb.v-fail[aria-pressed="true"]{background:var(--errS);border-color:var(--err);color:var(--err)}
+.sb.v-retest[aria-pressed="true"]{background:var(--warnS);border-color:var(--warn);color:var(--warn)}
+.notewrap{display:grid;gap:4px;min-width:0}
+.note{width:100%;min-height:38px;resize:vertical;font:14px/1.45 var(--fB);color:var(--tx);background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:8px 10px}
+.note::placeholder{color:var(--tx3)}
+.when{font-size:12px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.empty{color:var(--tx2);text-align:center;padding:40px 16px;border:1px dashed var(--line2);border-radius:14px;margin-top:24px}
+
+.summary>*,.prep-body>*,.filters>*,.group,.cases>*{min-width:0}
+@media (max-width:760px){
+  .filters{position:static}
+  .group{scroll-margin-top:16px}
+  .envs{grid-template-columns:minmax(0,1fr)}
+  .cbody{grid-template-columns:minmax(0,1fr)}
+  .cfoot{grid-template-columns:minmax(0,1fr)}
+  .counts{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="eyebrow"><span>PowerApp Web</span><span class="sep">/</span><span>Admin · CU-A-01 a CU-A-06</span><span class="sep">/</span><span>Pruebas manuales</span></div>
+    <h1>Pruebas de ejercicios</h1>
+    <p class="lede">El catálogo de ejercicios del Admin: listado, búsqueda y filtro por grupo, alta y edición con sus músculos, borrado, y cómo esos cambios llegan a los circuitos, a la wiki y a los RMs del alumno. Cada caso dice cómo probarlo y qué tenés que ver. Marcá el resultado y anotá lo que observes.</p>
+  </header>
+
+  <section class="summary" aria-label="Resumen">
+    <div class="counts">
+      <div class="count c-ok"><span class="n" id="n-ok">0</span><span class="l"><span class="dot"></span>Funciona</span></div>
+      <div class="count c-fail"><span class="n" id="n-fail">0</span><span class="l"><span class="dot"></span>Falla</span></div>
+      <div class="count c-retest"><span class="n" id="n-retest">0</span><span class="l"><span class="dot"></span>Re-testear</span></div>
+      <div class="count c-none"><span class="n" id="n-none">0</span><span class="l"><span class="dot"></span>Sin probar</span></div>
+    </div>
+    <div class="bar" role="img" id="bar" aria-label="Progreso"><span class="b-ok" id="b-ok"></span><span class="b-fail" id="b-fail"></span><span class="b-retest" id="b-retest"></span></div>
+    <div class="sumfoot">
+      <span class="save" id="save"><span class="dot"></span><span id="save-t">Conectando el guardado…</span></span>
+      <div class="actions">
+        <button type="button" class="btn" id="copy-backup">Copiar respaldo</button>
+        <button type="button" class="btn" id="open-restore">Restaurar respaldo</button>
+        <button type="button" class="btn pri" id="copy-sum">Copiar resumen de fallas</button>
+      </div>
+    </div>
+    <div class="copyfall" id="copy-fall" hidden>
+      <label for="copy-fall-t" class="when">Tu navegador no dejó copiar automáticamente. El texto ya está seleccionado: copialo con Ctrl+C.</label>
+      <textarea id="copy-fall-t" readonly></textarea>
+    </div>
+    <div class="copyfall" id="restore" hidden>
+      <label for="restore-t" class="when">Pegá el respaldo que copiaste en otro navegador o dispositivo. Por cada caso queda el resultado más reciente.</label>
+      <textarea id="restore-t" spellcheck="false"></textarea>
+      <div class="actions"><button type="button" class="btn pri" id="restore-ok">Restaurar</button><button type="button" class="btn" id="restore-cancel">Cancelar</button><span class="when" id="restore-msg" role="status"></span></div>
+    </div>
+  </section>
+
+  <details class="prep" id="prep" open>
+    <summary><h2>Antes de empezar</h2><span class="chev"><span class="c-close">Ocultar</span><span class="c-open">Mostrar</span></span></summary>
+    <div class="prep-body">
+      <div>
+        <h3>Entornos</h3>
+        <div class="envs">
+          <div class="env"><span class="tag t-LOCAL">Local</span><p>Backend local en <code>localhost:3000</code> y el front con <code>npm run dev</code>. Hace falta para los casos con el servidor apagado.</p></div>
+          <div class="env"><span class="tag t-RENDER">Render</span><p><a href="https://powerapp-web.onrender.com" target="_blank" rel="noopener">powerapp-web.onrender.com</a> contra el backend de Render. Todo lo que crees queda en esa base.</p></div>
+          <div class="env"><span class="tag t-TODOS">Cualquiera</span><p>El caso da lo mismo en los dos. Con cuentas reales, los mocks no intervienen aunque estén prendidos.</p></div>
+        </div>
+      </div>
+      <div>
+        <h3>Cuentas y datos</h3>
+        <ul class="tips">
+          <li><b>Una cuenta admin real y una de alumno.</b> La de alumno se usa para la wiki y para registrar un RM en DEL-03.</li>
+          <li><b>Todo lo que crees, con el prefijo «QA»:</b> <button type="button" class="tok" data-copy="QA Ejercicio">QA Ejercicio</button>, <button type="button" class="tok" data-copy="QA Ejercicio 2">QA Ejercicio 2</button>, <button type="button" class="tok" data-copy="QA Ejercicio 3">QA Ejercicio 3</button> y <button type="button" class="tok" data-copy="QA Circuito ejercicios">QA Circuito ejercicios</button>.</li>
+          <li><b>No borres ejercicios del seed.</b> Si un ejercicio está en circuitos, el backend lo borra igual y lo saca de ellos. Probá los borrados solo con lo QA.</li>
+          <li><b>Los circuitos no se pueden borrar,</b> solo desactivar. El de DEL-04 queda desactivado en la limpieza.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Cómo encararlo</h3>
+        <ul class="tips">
+          <li><b>Seguí el orden de la página.</b> QA Ejercicio se crea al principio y lo usan los casos siguientes; los borrados van al final.</li>
+          <li><b>DevTools › Network</b>, filtrado por <code>exercise</code>, para ver qué requests salen y con qué código responden.</li>
+          <li><b>Lo que hoy no cumple el caso de uso</b> está marcado con un aviso amarillo (CRE-05 y DEL-04). Lo vi en el código del backend. Marcalo igual, así queda registrado cuándo se arregla o si decidís cambiar el CU.</li>
+        </ul>
+      </div>
+    </div>
+  </details>
+
+  <div class="filters" id="filters">
+    <div class="chips" id="f-status" role="group" aria-label="Filtrar por resultado">
+      <span class="lbl">Resultado</span>
+    </div>
+    <div class="chips" id="f-env" role="group" aria-label="Filtrar por entorno">
+      <span class="lbl">Entorno</span>
+    </div>
+    <nav class="jump" id="jump" aria-label="Ir a un grupo"></nav>
+  </div>
+
+  <main id="groups"></main>
+  <p class="empty" id="empty" hidden>Ningún caso coincide con estos filtros.</p>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const PLAN_NAME = 'Pruebas de ejercicios PowerApp';
+  const PAGE_ID = 'pruebas-ejercicios-powerapp';
+  const DOCS = 'https://github.com/FranCarames/PowerApp-Docs/blob/main/Use%20Cases/';
+  const tok = (t) => `<button type="button" class="tok" data-copy="${t.replace(/"/g, '&quot;')}">${t}</button>`;
+  const ui = (t) => `<span class="ui">«${t}»</span>`;
+  const LONG_NAME = 'abcdefghij'.repeat(5) + 'k';
+  const LONG_URL = 'https://example.com/' + 'a'.repeat(131);
+
+  const ENVS = { LOCAL: 'Local', RENDER: 'Render', TODOS: 'Cualquiera' };
+  const ENV_FILTERS = [['all', 'Todos'], ['LOCAL', 'Local'], ['RENDER', 'Render']];
+  const STATUSES = [
+    { v: 'ok', label: 'Funciona', ic: '✓' },
+    { v: 'fail', label: 'Falla', ic: '✕' },
+    { v: 'retest', label: 'Re-testear', ic: '↻' },
+  ];
+  const STATUS_LABEL = { ok: 'Funciona', fail: 'Falla', retest: 'Re-testear', none: 'Sin probar' };
+
+  const GROUPS = [
+    { id: 'lst', name: 'Acceso y listado', cu: 'CU-A-01', file: 'admin/CU-A-01-obtener-ejercicios.md' },
+    { id: 'cre', name: 'Crear', cu: 'CU-A-04 y CU-A-02', file: 'admin/CU-A-04-crear-ejercicio.md' },
+    { id: 'edt', name: 'Editar y cambiar músculos', cu: 'CU-A-05, CU-A-02 y CU-A-03', file: 'admin/CU-A-05-editar-ejercicio.md' },
+    { id: 'int', name: 'Efecto en otras pantallas', cu: null, sub: 'Wiki del alumno, circuitos y RMs' },
+    { id: 'del', name: 'Eliminar', cu: 'CU-A-06', file: 'admin/CU-A-06-eliminar-ejercicio.md' },
+    { id: 'err', name: 'Errores y pantallas', cu: null, sub: 'Servidor caído, doble envío, celular, escritorio y teclado' },
+    { id: 'fin', name: 'Limpieza', cu: null, sub: 'Dejar la base como estaba' },
+  ];
+
+  const CASES = [
+    // ── Acceso y listado ────────────────────────────────────
+    { id: 'LST-01', g: 'lst', t: 'Llegar a Ejercicios', env: ['TODOS'],
+      steps: ['En el Panel, tocá la tarjeta Ejercicios y anotá su número.', 'En escritorio, entrá desde la barra lateral › Entrenamiento › Ejercicios. En el celular, desde la tab Ejercicios.'],
+      exp: '<p>Todos llevan a <code>/a/ejercicios</code>, con «Entrenamiento» arriba y el título «Ejercicios». El número del panel coincide con la cantidad de ejercicios de la lista.</p>' },
+    { id: 'LST-02', g: 'lst', t: 'Filas del listado', env: ['TODOS'],
+      steps: ['Recorré la lista.'],
+      exp: '<p>Cada fila muestra la miniatura (o un ícono si no tiene imagen), el nombre, sus músculos en una línea y los botones Editar y Eliminar. (CU-A-01)</p>' },
+    { id: 'LST-03', g: 'lst', t: 'Buscar ejercicios', env: ['TODOS'],
+      steps: ['Buscá un ejercicio con tilde escribiéndolo sin tilde, y otro en mayúsculas.', `Buscá ${tok('zzz')}.`],
+      exp: `<p>Los dos primeros aparecen. Con zzz: ${ui('Sin coincidencias')} y ${ui('No hay ejercicios que coincidan con la búsqueda.')}</p>` },
+    { id: 'LST-04', g: 'lst', t: 'Filtrar por grupo muscular', env: ['TODOS'],
+      steps: ['Tocá el chip de un grupo, por ejemplo Pecho.', 'Buscá un ejercicio que trabaje músculos de dos grupos y tocá cada uno de esos chips.', 'Combiná un chip con una búsqueda y recargá la página.', `Tocá ${ui('Todos')}.`],
+      exp: '<ul><li>Cada chip deja solo los ejercicios que tienen algún músculo de ese grupo; uno de dos grupos aparece en los dos.</li><li>El chip y la búsqueda se mantienen al recargar, porque quedan en la dirección (<code>?q=…&amp;grupo=…</code>).</li><li>Todos vuelve a la lista completa.</li></ul>' },
+    { id: 'LST-05', g: 'lst', t: 'Solo para el Admin', env: ['TODOS'],
+      steps: ['Como entrenador, abrí <code>/a/ejercicios</code>.', 'Repetí como alumno.'],
+      exp: '<p>Cada uno vuelve a su inicio. El alumno ve los ejercicios desde la Biblioteca, en Mi cuenta.</p>' },
+
+    // ── Crear ───────────────────────────────────────────────
+    { id: 'CRE-01', g: 'cre', t: 'Crear con lo mínimo', env: ['TODOS'],
+      data: `${tok('QA Ejercicio')}, una descripción cualquiera y un músculo.`,
+      steps: [`Tocá el botón flotante ${ui('Crear ejercicio')}.`, `Completá nombre y descripción, tocá ${ui('+ Agregar')} y elegí un músculo.`, `Tocá ${ui('Guardar ejercicio')}.`],
+      exp: `<ul><li>Abre <code>/a/ejercicios/nuevo</code>.</li><li>${ui('Agregar músculo')} muestra los músculos agrupados por grupo; el elegido aparece como un chip con ✕.</li><li>Al guardar: ${ui('Ejercicio creado')}, vuelve a la lista y el ejercicio aparece con su músculo. (CU-A-04)</li></ul>` },
+    { id: 'CRE-02', g: 'cre', t: 'Crear con todos los datos', env: ['TODOS'],
+      data: `${tok('QA Ejercicio completo')} · video ${tok('https://www.youtube.com/results?search_query=press+de+banca')} · vista previa ${tok('https://picsum.photos/200')} · fondo ${tok('https://picsum.photos/800/400')}`,
+      steps: ['Creá el ejercicio con descripción, dos músculos de grupos distintos, tips de seguridad, tips de activación y los tres links.', 'Abrí su edición.'],
+      exp: '<p>Se guarda; en la lista aparece la miniatura y los dos músculos. Al editar están todos los datos.</p>' },
+    { id: 'CRE-03', g: 'cre', t: 'Validaciones del formulario', env: ['TODOS'],
+      data: `51 caracteres: ${tok(LONG_NAME)} · ${tok('www.google.com')} · link de 151: ${tok(LONG_URL)}`,
+      steps: ['Tocá Guardar ejercicio con todo vacío.', 'Escribí solo espacios en nombre y descripción, y guardá.', 'Pegá el texto de 51 caracteres en el nombre.', 'Poné el link sin protocolo en Video y el de 151 en Vista previa, y guardá.'],
+      exp: `<ul><li>${ui('Poné un nombre al ejercicio')}, ${ui('Contá cómo se ejecuta el ejercicio')} y ${ui('Elegí al menos un músculo')}, también con solo espacios.</li><li>El nombre se corta en 50.</li><li>${ui('Ingresá un link válido, que empiece con http:// o https://')} y ${ui('El link no puede tener más de 150 caracteres')}.</li><li>No sale ningún request. (CU-A-04, camino alternativo)</li></ul>` },
+    { id: 'CRE-04', g: 'cre', t: 'Un músculo no se repite', env: ['TODOS'],
+      steps: ['En el editor, agregá un músculo.', `Abrí ${ui('+ Agregar')} otra vez.`],
+      exp: '<p>El músculo que ya agregaste no aparece en la lista: no se puede asignar dos veces (CU-A-02, camino alternativo).</p>' },
+    { id: 'CRE-05', g: 'cre', t: 'Nombre repetido', env: ['TODOS'],
+      steps: ['Creá otro ejercicio llamado exactamente QA Ejercicio.'],
+      exp: '<p>Se rechaza y avisa que el nombre ya existe: CU-A-04 pide un nombre único.</p>',
+      kt: 'Hoy no cumple el CU.', known: 'El backend no controla que el nombre sea único, así que se crea un segundo «QA Ejercicio». Marcalo Falla, borrá el duplicado y decidí si se agrega la validación en el backend o se ajusta el CU.' },
+    { id: 'CRE-06', g: 'cre', t: 'Doble envío', env: ['TODOS'],
+      steps: ['Completá un alta válida y hacé doble clic rápido en Guardar ejercicio.'],
+      exp: '<p>Sale un solo POST y el botón muestra que está cargando. Si se creó, borralo en la limpieza.</p>' },
+
+    // ── Editar y cambiar músculos ───────────────────────────
+    { id: 'EDT-01', g: 'edt', t: 'Editar datos', env: ['TODOS'],
+      steps: ['Tocá el lápiz de QA Ejercicio.', 'Cambiá la descripción y guardá.'],
+      exp: `<p>El editor abre con los datos cargados. Al guardar: ${ui('Ejercicio guardado')} y vuelve a la lista. (CU-A-05)</p>` },
+    { id: 'EDT-02', g: 'edt', t: 'Agregar un músculo', env: ['TODOS'],
+      steps: ['Editá QA Ejercicio y agregale un músculo de otro grupo.', 'Guardá y filtrá la lista por cada uno de los dos grupos.'],
+      exp: '<p>La fila muestra los dos músculos, y el ejercicio aparece con los dos chips de grupo. (CU-A-02)</p>' },
+    { id: 'EDT-03', g: 'edt', t: 'Quitar un músculo', env: ['TODOS'],
+      steps: [`En QA Ejercicio, tocá el chip del músculo que agregaste (dice ${ui('Quitar …')}).`, 'Guardá y filtrá por el grupo de ese músculo.'],
+      exp: '<p>El músculo se quita y el ejercicio ya no aparece en ese grupo. (CU-A-03)</p>' },
+    { id: 'EDT-04', g: 'edt', t: 'Quedarse sin músculos', env: ['TODOS'],
+      steps: ['Quitale todos los músculos a QA Ejercicio y guardá.'],
+      exp: `<p>${ui('Elegí al menos un músculo')} y no se guarda.</p>` },
+    { id: 'EDT-05', g: 'edt', t: 'Vaciar un dato opcional ya cargado', env: ['TODOS'],
+      steps: ['Editá QA Ejercicio completo, borrá los tips de seguridad y guardá.'],
+      exp: `<p>No deja: ${ui('El servidor no permite dejar vacío un dato ya cargado: cambialo por otro.')} El backend rechaza el texto vacío y, si el campo no viaja, conserva el anterior.</p>` },
+    { id: 'EDT-06', g: 'edt', t: 'Editar un ejercicio que ya no existe', env: ['TODOS'],
+      data: `Creá ${tok('QA Ejercicio borrable')}.`,
+      steps: ['En la pestaña A, abrí su edición y dejala abierta.', 'En la pestaña B, eliminalo.', 'En la pestaña A, cambiá algo y guardá.', 'Recargá la pestaña A.'],
+      exp: `<p>Al guardar: ${ui('No encontramos el ejercicio o alguno de sus músculos. Recargá la pantalla e intentá de nuevo.')} Al recargar: ${ui('No encontramos el ejercicio')} y ${ui('Puede que ya se haya eliminado. Volvé a la lista.')} (CU-A-05, camino alternativo)</p>` },
+    { id: 'EDT-07', g: 'edt', t: 'Link a un ejercicio que no existe', env: ['TODOS'],
+      steps: ['Abrí <code>/a/ejercicios/abc</code>.'],
+      exp: `<p>${ui('No encontramos el ejercicio')}, con la flecha para volver a la lista.</p>` },
+    { id: 'EDT-08', g: 'edt', t: 'Volver sin guardar', env: ['TODOS'],
+      steps: ['Editá QA Ejercicio, cambiá el nombre y tocá la flecha de volver.', 'Abrilo de nuevo.'],
+      exp: '<p>Vuelve a la lista y el nombre sigue siendo el original.</p>' },
+
+    // ── Efecto en otras pantallas ───────────────────────────
+    { id: 'INT-01', g: 'int', t: 'La ficha en la wiki del alumno', env: ['TODOS'],
+      data: 'Una cuenta real de alumno.',
+      steps: ['Como alumno, abrí Mi cuenta › Biblioteca de ejercicios y buscá QA Ejercicio completo.', `Abrí la ficha y tocá ${ui('Ver video')}.`],
+      exp: '<p>La lista muestra la miniatura y los músculos. La ficha muestra la imagen de fondo, la miniatura, los músculos, la descripción y los dos tips, y Ver video abre el link en otra pestaña.</p>' },
+    { id: 'INT-02', g: 'int', t: 'El ejercicio en los circuitos', env: ['TODOS'],
+      steps: ['En Circuitos, tocá Crear circuito y después Agregar ejercicio.', 'Buscá QA Ejercicio.'],
+      exp: '<p>Aparece en el selector con sus músculos debajo. Cerralo sin guardar el circuito.</p>' },
+    { id: 'INT-03', g: 'int', t: 'Renombrar se ve en todos lados', env: ['TODOS'],
+      data: `Nombre nuevo ${tok('QA Ejercicio renombrado')}.`,
+      steps: ['Renombrá QA Ejercicio.', 'Mirá la wiki del alumno y el selector de ejercicios de un circuito.'],
+      exp: '<p>Los dos muestran el nombre nuevo.</p>' },
+
+    // ── Eliminar ────────────────────────────────────────────
+    { id: 'DEL-01', g: 'del', t: 'Eliminar un ejercicio sin uso', env: ['TODOS'],
+      data: `Creá ${tok('QA Ejercicio 2')}.`,
+      steps: ['Tocá su tacho, leé el mensaje y confirmá.'],
+      exp: `<p>${ui('Eliminar ejercicio')}: ${ui('¿Eliminar QA Ejercicio 2? No se puede deshacer. Si está en circuitos, se quita de ellos; si alguien registró un RM o ya entrenó con él, no se puede eliminar.')} Al confirmar: ${ui('Ejercicio eliminado')} y desaparece. (CU-A-06)</p>` },
+    { id: 'DEL-02', g: 'del', t: 'Cancelar la eliminación', env: ['TODOS'],
+      steps: ['Tocá el tacho de QA Ejercicio renombrado y tocá Cancelar.'],
+      exp: '<p>No se borra nada y no sale ningún DELETE.</p>' },
+    { id: 'DEL-03', g: 'del', t: 'Un ejercicio con un RM registrado', env: ['TODOS'],
+      data: 'La cuenta de alumno.',
+      steps: ['Como alumno, en Mis RMs, registrá un RM de QA Ejercicio renombrado.', 'Como admin, intentá eliminar ese ejercicio.'],
+      exp: `<p>No se elimina y aparece ${ui('No se pudo eliminar el ejercicio. Si alguien registró un RM o ya entrenó con él, no se puede borrar.')} (CU-A-06, camino alternativo)</p>` },
+    { id: 'DEL-04', g: 'del', t: 'Un ejercicio que está en un circuito', env: ['TODOS'],
+      data: `Creá ${tok('QA Ejercicio 3')} y un circuito ${tok('QA Circuito ejercicios')}, de tipo ${tok('principal')}, con QA Ejercicio 3 como único ejercicio.`,
+      steps: ['En Ejercicios, intentá eliminar QA Ejercicio 3.'],
+      exp: '<p>No deja eliminarlo e informa que está en uso en circuitos (CU-A-06, camino alternativo).</p>',
+      kt: 'Hoy no cumple el CU.', known: 'El backend lo borra igual y lo saca de los circuitos; el diálogo ya lo avisa («Si está en circuitos, se quita de ellos»). Si te sirve así, actualizá CU-A-06; si no, es un cambio del backend. Seguí con DEL-05.' },
+    { id: 'DEL-05', g: 'del', t: 'El circuito que se quedó sin ejercicios', env: ['TODOS'],
+      steps: ['En Circuitos, abrí QA Circuito ejercicios.', 'Tocá Guardar circuito.'],
+      exp: `<p>La tarjeta dice ${ui('Sin ejercicios')} y al guardar pide ${ui('Agregá al menos un ejercicio')}. Es la consecuencia de DEL-04 mientras el backend borre en cascada.</p>` },
+    { id: 'DEL-06', g: 'del', t: 'Eliminar un ejercicio que ya no existe', env: ['TODOS'],
+      data: `Creá ${tok('QA Ejercicio 4')}.`,
+      steps: ['En la pestaña A, tocá su tacho y dejá el diálogo abierto.', 'En la pestaña B, eliminalo.', 'En la pestaña A, confirmá.'],
+      exp: `<p>${ui('El ejercicio ya no existe.')} (CU-A-06, camino alternativo)</p>` },
+
+    // ── Errores y pantallas ─────────────────────────────────
+    { id: 'ERR-01', g: 'err', t: 'Servidor caído al cargar', env: ['LOCAL'],
+      steps: ['Apagá el backend local y recargá Ejercicios.', 'Prendelo y tocá Reintentar.'],
+      exp: '<p>En lugar de la lista aparece un error con el botón Reintentar. Con el backend prendido, la lista carga.</p>' },
+    { id: 'ERR-02', g: 'err', t: 'Servidor caído al guardar', env: ['LOCAL'],
+      steps: ['Completá un alta válida.', 'Apagá el backend y tocá Guardar ejercicio.', 'Prendelo y guardá otra vez.'],
+      exp: '<p>Aparece un aviso rojo arriba del formulario y los datos quedan escritos. Con el backend prendido se guarda.</p>' },
+    { id: 'ERR-03', g: 'err', t: 'Celular y escritorio', env: ['TODOS'],
+      steps: ['Recorré la lista, el editor y el selector de músculos en el celular, o en DevTools a 390 px.', 'Repetí en escritorio.'],
+      exp: '<ul><li>Sin scroll horizontal ni textos cortados; los chips de grupo se pueden recorrer y el botón flotante no tapa la última fila.</li><li>El selector de músculos sale como hoja desde abajo en el celular y centrado en escritorio.</li><li>En escritorio, la lista va en dos columnas.</li></ul>' },
+    { id: 'ERR-04', g: 'err', t: 'Teclado y lector de pantalla', env: ['TODOS'],
+      steps: ['Recorré una fila y el editor solo con Tab y Enter.'],
+      exp: `<p>El foco siempre se ve. Los botones se anuncian como ${ui('Editar QA Ejercicio renombrado')} y ${ui('Eliminar …')}, y los chips de músculo como ${ui('Quitar …')}. Los errores aparecen junto a su campo.</p>` },
+
+    // ── Limpieza ────────────────────────────────────────────
+    { id: 'FIN-01', g: 'fin', t: 'Borrar lo que quedó', env: ['TODOS'],
+      steps: ['Como alumno, borrá el RM de DEL-03.', 'Como admin, eliminá los ejercicios QA que queden, incluidos los duplicados.', 'Desactivá QA Circuito ejercicios desde su editor.', `Buscá ${tok('QA')} en Ejercicios.`],
+      exp: '<p>La búsqueda vuelve vacía y el circuito de prueba queda inactivo.</p>' },
+  ];
+
+  // ── Estado ────────────────────────────────────────────────
+  const LOCAL_KEY = 'powerapp.pruebas-ejercicios.v1';
+  const blank = () => ({ status: null, note: '', at: null });
+  const state = Object.fromEntries(CASES.map((c) => [c.id, blank()]));
+  let db = null;
+  let mode = 'connecting'; // connecting | db | local | error
+  let fStatus = 'all';
+  let fEnv = 'all';
+  const writing = new Set();
+  const dirty = new Set();
+  const pending = new Set();
+  const noteTimers = {};
+
+  const $ = (s, el = document) => el.querySelector(s);
+  const statusOf = (id) => state[id].status || 'none';
+
+  function fmtWhen(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+
+  // ── Render estático ──────────────────────────────────────
+  function caseHtml(c) {
+    const envs = c.env.map((e) => `<span class="tag t-${e}">${ENVS[e]}</span>`).join('');
+    const steps = c.steps.map((s) => `<li>${s}</li>`).join('');
+    const seg = STATUSES.map((s) => `<button type="button" class="sb v-${s.v}" data-v="${s.v}" aria-pressed="false"><span class="ic" aria-hidden="true">${s.ic}</span>${s.label}</button>`).join('');
+    return `<article class="case" id="case-${c.id}" data-id="${c.id}" data-status="none">
+      <div class="chead"><span class="cid">${c.id}</span><h3>${c.t}</h3><div class="ctags">${envs}<span class="pill" data-pill>Sin probar</span></div></div>
+      ${c.data ? `<p class="cdata"><b>Datos:</b> ${c.data}</p>` : ''}
+      <div class="cbody"><div><h4>Cómo probarlo</h4><ol class="steps">${steps}</ol></div><div class="expect"><h4>Qué tenés que ver</h4>${c.exp}</div></div>
+      ${c.known ? `<div class="known" role="note"><span><b>${c.kt || 'Hoy falla.'}</b> ${c.known}</span></div>` : ''}
+      <div class="cfoot">
+        <div class="seg" role="group" aria-label="Resultado de ${c.id}">${seg}</div>
+        <div class="notewrap">
+          <label class="when" for="note-${c.id}"><span data-when>Sin marcar</span></label>
+          <textarea class="note" id="note-${c.id}" rows="1" placeholder="Qué viste, si algo no coincide (opcional)"></textarea>
+        </div>
+      </div>
+    </article>`;
+  }
+
+  function renderStatic() {
+    const root = $('#groups');
+    root.innerHTML = GROUPS.map((g) => {
+      const cases = CASES.filter((c) => c.g === g.id);
+      const cu = g.cu ? `<a class="cu" href="${DOCS}${g.file}" target="_blank" rel="noopener">${g.cu}</a>` : '';
+      return `<section class="group" id="${g.id}" data-g="${g.id}">
+        <div class="ghead"><h2>${g.name}</h2>${cu}${g.sub ? `<span class="gsub">${g.sub}</span>` : ''}<span class="gprog" data-gprog></span></div>
+        <div class="cases">${cases.map(caseHtml).join('')}</div>
+      </section>`;
+    }).join('');
+
+    $('#jump').innerHTML = GROUPS.map((g) => `<a href="#${g.id}" data-jump="${g.id}">${g.name}<span class="p" data-jp></span></a>`).join('');
+
+    const st = $('#f-status');
+    [['all', 'Todos'], ['none', 'Sin probar'], ['fail', 'Falla'], ['retest', 'Re-testear'], ['ok', 'Funciona']].forEach(([v, l]) => {
+      st.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-fs="${v}" aria-pressed="${v === 'all'}">${l}<span class="k" data-k="${v}"></span></button>`);
+    });
+    const en = $('#f-env');
+    ENV_FILTERS.forEach(([v, l]) => {
+      en.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-fe="${v}" aria-pressed="${v === 'all'}">${l}</button>`);
+    });
+  }
+
+  // ── Render dinámico ──────────────────────────────────────
+  function updateCard(id) {
+    const card = document.getElementById('case-' + id);
+    if (!card) return;
+    const s = state[id];
+    const st = statusOf(id);
+    card.dataset.status = st;
+    card.querySelectorAll('.sb').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === s.status)));
+    const pill = card.querySelector('[data-pill]');
+    pill.textContent = STATUS_LABEL[st];
+    pill.className = 'pill' + (st === 'none' ? '' : ' s-' + st);
+    const ta = card.querySelector('.note');
+    if (document.activeElement !== ta && ta.value !== s.note) ta.value = s.note;
+    card.querySelector('[data-when]').textContent = s.at ? 'Actualizado ' + fmtWhen(s.at) : 'Sin marcar';
+  }
+
+  function visible(c) {
+    const st = statusOf(c.id);
+    if (fStatus !== 'all' && st !== fStatus) return false;
+    if (fEnv !== 'all' && !c.env.includes(fEnv) && !c.env.includes('TODOS')) return false;
+    return true;
+  }
+
+  function applyFilters() {
+    let any = false;
+    GROUPS.forEach((g) => {
+      let shown = 0;
+      CASES.filter((c) => c.g === g.id).forEach((c) => {
+        const v = visible(c);
+        document.getElementById('case-' + c.id).hidden = !v;
+        if (v) shown++;
+      });
+      document.getElementById(g.id).hidden = shown === 0;
+      if (shown) any = true;
+    });
+    $('#empty').hidden = any;
+  }
+
+  function updateSummary() {
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const total = CASES.length;
+    ['ok', 'fail', 'retest', 'none'].forEach((k) => { $('#n-' + k).textContent = n[k]; });
+    ['ok', 'fail', 'retest'].forEach((k) => { $('#b-' + k).style.width = (n[k] / total * 100) + '%'; });
+    $('#bar').setAttribute('aria-label', `${total - n.none} de ${total} casos probados: ${n.ok} funcionan, ${n.fail} fallan, ${n.retest} para re-testear`);
+    document.querySelectorAll('[data-k]').forEach((el) => {
+      const k = el.dataset.k;
+      el.textContent = k === 'all' ? total : n[k];
+    });
+    GROUPS.forEach((g) => {
+      const cs = CASES.filter((c) => c.g === g.id);
+      const done = cs.filter((c) => statusOf(c.id) !== 'none').length;
+      const fails = cs.filter((c) => statusOf(c.id) === 'fail').length;
+      const txt = `${done}/${cs.length} probados${fails ? ` · ${fails} con falla` : ''}`;
+      document.getElementById(g.id).querySelector('[data-gprog]').textContent = txt;
+      document.querySelector(`[data-jump="${g.id}"] [data-jp]`).textContent = `${done}/${cs.length}`;
+    });
+  }
+
+  function refreshAll() {
+    CASES.forEach((c) => updateCard(c.id));
+    updateSummary();
+    applyFilters();
+  }
+
+  function setSave(kind, text) {
+    const el = $('#save');
+    el.className = 'save' + (kind ? ' is-' + kind : '');
+    $('#save-t').textContent = text;
+  }
+
+  // ── Guardado ─────────────────────────────────────────────
+  function saveLocal() {
+    try { localStorage.setItem(LOCAL_KEY, JSON.stringify(state)); } catch { /* sin storage: queda en memoria */ }
+  }
+  function loadLocal() {
+    try {
+      const raw = localStorage.getItem(LOCAL_KEY);
+      if (!raw) return;
+      const v = JSON.parse(raw);
+      Object.keys(state).forEach((id) => { if (v && v[id]) state[id] = normalize(v[id]); });
+    } catch { /* ignorar */ }
+  }
+  function normalize(v) {
+    const okStatus = ['ok', 'fail', 'retest'].includes(v.status) ? v.status : null;
+    return { status: okStatus, note: typeof v.note === 'string' ? v.note : '', at: typeof v.at === 'string' ? v.at : null };
+  }
+
+  const DB_OK = 'Guardado en el artefacto: lo ves desde cualquier dispositivo.';
+  const LOCAL_ONLY = 'Solo en este navegador: no se ve desde otro dispositivo y se pierde si borrás los datos de navegación. Copiá un respaldo de vez en cuando.';
+
+  // Siempre queda una copia en el navegador; en el artefacto, además, se sube.
+  async function persist(id) {
+    saveLocal();
+    if (mode !== 'db') return;
+    pending.add(id);
+    if (writing.has(id)) { dirty.add(id); return; }
+    writing.add(id);
+    setSave('db', 'Guardando…');
+    try {
+      do {
+        dirty.delete(id);
+        const s = state[id];
+        await db.doc('results/' + id).set({ status: s.status, note: s.note, at: s.at });
+      } while (dirty.has(id));
+      setSave('db', DB_OK);
+    } catch (e) {
+      setSave('err', 'No se pudo guardar el último cambio en el artefacto. Quedó en este navegador: volvé a marcarlo en un momento.');
+    } finally {
+      writing.delete(id);
+      pending.delete(id);
+    }
+  }
+
+  // Por cada caso gana el resultado más reciente, venga del navegador o del artefacto.
+  const isNewer = (a, b) => Boolean(a.at) && (!b.at || a.at > b.at);
+
+  async function uploadNewer() {
+    const remote = {};
+    try {
+      const snap = await db.collection('results').get();
+      snap.docs.forEach((d) => { const v = d.data(); if (v) remote[d.id] = normalize(v); });
+    } catch {
+      setSave('err', 'No se pudo comparar con el artefacto. Lo que marques queda en este navegador.');
+      return;
+    }
+    const ids = CASES.map((c) => c.id).filter((id) => {
+      const s = state[id];
+      if (!s.status && !s.note) return false;
+      return !remote[id] || isNewer(s, remote[id]);
+    });
+    if (!ids.length) { setSave('db', DB_OK); return; }
+    setSave('db', `Subiendo ${ids.length} resultados de este navegador al artefacto…`);
+    for (const id of ids) await persist(id);
+  }
+
+  async function initStore() {
+    let ns = null;
+    try {
+      ns = window.claude && typeof window.claude.use === 'function' ? await window.claude.use('db') : null;
+    } catch { ns = null; }
+    if (!ns) {
+      mode = 'local';
+      setSave('local', LOCAL_ONLY);
+      return;
+    }
+    db = ns;
+    mode = 'db';
+    setSave('db', 'Sincronizando…');
+    let synced = false;
+    db.collection('results').onSnapshot((snap) => {
+      snap.docs.forEach((d) => {
+        if (!state[d.id] || pending.has(d.id)) return;
+        const v = d.data();
+        if (!v) return;
+        const r = normalize(v);
+        if (!state[d.id].at || !isNewer(state[d.id], r)) state[d.id] = r;
+      });
+      refreshAll();
+      if (!synced) { synced = true; uploadNewer(); }
+      else if (!writing.size) setSave('db', DB_OK);
+    }, () => {
+      mode = 'local';
+      setSave('err', 'Se perdió la conexión con el artefacto. Lo que marques ahora queda solo en este navegador.');
+    });
+  }
+
+  function buildBackup() {
+    const results = {};
+    CASES.forEach((c) => { const s = state[c.id]; if (s.status || s.note) results[c.id] = s; });
+    return JSON.stringify({ pagina: PAGE_ID, v: 1, results });
+  }
+
+  async function restore(text) {
+    const msg = $('#restore-msg');
+    let parsed = null;
+    try { parsed = JSON.parse(text); } catch { parsed = null; }
+    if (parsed && parsed.pagina && parsed.pagina !== PAGE_ID) { msg.textContent = 'Ese respaldo es de otro plan de pruebas. Copiá el respaldo desde esta misma página.'; return; }
+    const res = parsed && typeof parsed.results === 'object' && parsed.results ? parsed.results : null;
+    if (!res) { msg.textContent = 'Ese texto no es un respaldo de esta página. Copialo de nuevo con «Copiar respaldo».'; return; }
+    const ids = [];
+    Object.keys(res).forEach((id) => {
+      if (!state[id]) return;
+      const r = normalize(res[id]);
+      if (!r.status && !r.note) return;
+      if (!state[id].at || isNewer(r, state[id])) { state[id] = r; ids.push(id); }
+    });
+    refreshAll();
+    for (const id of ids) await persist(id);
+    msg.textContent = ids.length ? `Listo: se restauraron ${ids.length} casos.` : 'No había nada más nuevo que lo que ya tenés marcado.';
+  }
+
+  // ── Eventos ──────────────────────────────────────────────
+  function copyText(text, onDone) {
+    const fallback = () => {
+      const box = $('#copy-fall');
+      const ta = $('#copy-fall-t');
+      ta.value = text;
+      box.hidden = false;
+      ta.focus();
+      ta.select();
+    };
+    try {
+      navigator.clipboard.writeText(text).then(onDone, fallback);
+    } catch { fallback(); }
+  }
+
+  function buildSummary() {
+    const today = new Date().toLocaleDateString('es-AR');
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const lines = [`${PLAN_NAME} · ${today}`, `Funciona ${n.ok} · Falla ${n.fail} · Re-testear ${n.retest} · Sin probar ${n.none}`];
+    [['fail', 'Falla'], ['retest', 'Re-testear']].forEach(([k, label]) => {
+      const cs = CASES.filter((c) => statusOf(c.id) === k);
+      if (!cs.length) return;
+      lines.push('', label);
+      cs.forEach((c) => {
+        const note = state[c.id].note.trim();
+        lines.push(`- ${c.id} ${c.t}${note ? ': ' + note.replace(/\s+/g, ' ') : ''}`);
+      });
+    });
+    if (!n.fail && !n.retest) lines.push('', 'Sin fallas ni casos para re-testear.');
+    return lines.join('\n');
+  }
+
+  document.addEventListener('click', (e) => {
+    const sb = e.target.closest('.sb');
+    if (sb) {
+      const id = sb.closest('.case').dataset.id;
+      const s = state[id];
+      s.status = s.status === sb.dataset.v ? null : sb.dataset.v;
+      s.at = new Date().toISOString();
+      updateCard(id);
+      updateSummary();
+      persist(id);
+      return;
+    }
+    const fs = e.target.closest('[data-fs]');
+    if (fs) {
+      fStatus = fs.dataset.fs;
+      document.querySelectorAll('[data-fs]').forEach((b) => b.setAttribute('aria-pressed', String(b === fs)));
+      applyFilters();
+      return;
+    }
+    const fe = e.target.closest('[data-fe]');
+    if (fe) {
+      fEnv = fe.dataset.fe;
+      document.querySelectorAll('[data-fe]').forEach((b) => b.setAttribute('aria-pressed', String(b === fe)));
+      applyFilters();
+      return;
+    }
+    const t = e.target.closest('.tok');
+    if (t) {
+      copyText(t.dataset.copy, () => {
+        t.classList.add('copied');
+        setTimeout(() => t.classList.remove('copied'), 1200);
+      });
+      return;
+    }
+    if (e.target.closest('#copy-backup')) {
+      const btn = $('#copy-backup');
+      copyText(buildBackup(), () => {
+        btn.textContent = 'Respaldo copiado';
+        setTimeout(() => { btn.textContent = 'Copiar respaldo'; }, 1600);
+      });
+      return;
+    }
+    if (e.target.closest('#open-restore')) {
+      const panel = $('#restore');
+      panel.hidden = !panel.hidden;
+      if (!panel.hidden) $('#restore-t').focus();
+      return;
+    }
+    if (e.target.closest('#restore-cancel')) {
+      $('#restore').hidden = true;
+      $('#restore-t').value = '';
+      $('#restore-msg').textContent = '';
+      return;
+    }
+    if (e.target.closest('#restore-ok')) {
+      restore($('#restore-t').value);
+      return;
+    }
+    if (e.target.closest('#copy-sum')) {
+      const btn = $('#copy-sum');
+      copyText(buildSummary(), () => {
+        btn.textContent = 'Resumen copiado';
+        setTimeout(() => { btn.textContent = 'Copiar resumen de fallas'; }, 1600);
+      });
+    }
+  });
+
+  document.addEventListener('input', (e) => {
+    const ta = e.target.closest('.note');
+    if (!ta) return;
+    const id = ta.closest('.case').dataset.id;
+    state[id].note = ta.value;
+    clearTimeout(noteTimers[id]);
+    noteTimers[id] = setTimeout(() => {
+      state[id].at = new Date().toISOString();
+      updateCard(id);
+      persist(id);
+    }, 700);
+  });
+  document.addEventListener('focusout', (e) => {
+    const ta = e.target.closest && e.target.closest('.note');
+    if (!ta) return;
+    const id = ta.closest('.case').dataset.id;
+    if (noteTimers[id]) {
+      clearTimeout(noteTimers[id]);
+      noteTimers[id] = null;
+      state[id].at = new Date().toISOString();
+      updateCard(id);
+      persist(id);
+    }
+  });
+
+  const prep = $('#prep');
+  try { if (localStorage.getItem(LOCAL_KEY + '.prep') === 'closed') prep.open = false; } catch { /* ignorar */ }
+  prep.addEventListener('toggle', () => {
+    try { localStorage.setItem(LOCAL_KEY + '.prep', prep.open ? 'open' : 'closed'); } catch { /* ignorar */ }
+  });
+
+  renderStatic();
+  loadLocal();
+  refreshAll();
+  initStore();
+})();
+</script>
+
+</body></html>

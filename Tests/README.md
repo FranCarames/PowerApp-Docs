@@ -45,3 +45,4 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 2](Acceso/2026-10-11-1842-pruebas-acceso.resultados.json)
 - [Pruebas de membresías](Membresias/Pruebas%20de%20membres%C3%ADas.html) — Tipos de membresía del Admin: listado, alta, edición, baja y reactivación, y cómo llegan al registro de pagos del Entrenador y al historial del alumno (CU-A-20 a CU-A-23).
 - [Pruebas de músculos y grupos](Musculos/Pruebas%20de%20m%C3%BAsculos%20y%20grupos.html) — Catálogo del Admin: alta, edición, detalle y borrado de grupos musculares y músculos, y cómo llegan a Ejercicios y a la wiki del alumno (CU-A-07 a CU-A-15).
+  - [Tanda 1](Musculos/1-pruebas-musculos.resultados.json)

@@ -1,0 +1,822 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Pruebas de usuarios y entrenadores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: una columna de trabajo (máx. 980px). Resumen arriba, barra de filtros fija, casos agrupados por CU. Paleta de PowerApp, dark-first. */
+:root{
+  --bg:#0B0D16; --card:#13161F; --el:#1B1F2E; --line:#232739; --line2:#2E3347;
+  --tx:#F5F1EB; --tx2:#A3ACC2; --tx3:#6B7390;
+  --pri:#FF6B3D; --priS:rgba(232,69,10,.14); --acc:#A78BFA; --accS:rgba(139,92,246,.16);
+  --ok:#3DD47A; --okS:rgba(34,197,94,.14); --warn:#F5B23D; --warnS:rgba(245,158,11,.14); --err:#F26464; --errS:rgba(239,68,68,.14);
+  --none:#6B7390;
+  --fD:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --fB:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --fM:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#F2F3F7; --card:#FFFFFF; --el:#E8EAF1; --line:#D9DCE6; --line2:#C8CCDA;
+    --tx:#141826; --tx2:#47506A; --tx3:#687089;
+    --pri:#C23A07; --priS:rgba(232,69,10,.10); --acc:#6A3FDB; --accS:rgba(139,92,246,.12);
+    --ok:#157A3C; --okS:rgba(34,197,94,.13); --warn:#A25A06; --warnS:rgba(245,158,11,.16); --err:#C42525; --errS:rgba(239,68,68,.11);
+    --none:#8A91A8;
+    color-scheme:light;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#F2F3F7; --card:#FFFFFF; --el:#E8EAF1; --line:#D9DCE6; --line2:#C8CCDA;
+  --tx:#141826; --tx2:#47506A; --tx3:#687089;
+  --pri:#C23A07; --priS:rgba(232,69,10,.10); --acc:#6A3FDB; --accS:rgba(139,92,246,.12);
+  --ok:#157A3C; --okS:rgba(34,197,94,.13); --warn:#A25A06; --warnS:rgba(245,158,11,.16); --err:#C42525; --errS:rgba(239,68,68,.11);
+  --none:#8A91A8;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--tx);font-family:var(--fB);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding-inline:20px;padding-block:28px 72px}
+code,.mono{font-family:var(--fM);font-size:.86em}
+code{background:var(--el);border:1px solid var(--line);border-radius:5px;padding:1px 5px;overflow-wrap:anywhere}
+.ui{color:var(--tx);font-weight:600}
+a{color:var(--acc)}
+a:focus-visible,button:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+h1,h2,h3{text-wrap:balance}
+
+/* Encabezado */
+.mast{display:grid;gap:6px;margin-bottom:22px}
+.eyebrow{font-family:var(--fM);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--pri);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.eyebrow .sep{color:var(--tx3)}
+h1{font-family:var(--fD);font-weight:800;font-size:clamp(34px,6vw,52px);line-height:1;letter-spacing:-.01em;margin:4px 0 0}
+.lede{color:var(--tx2);max-width:66ch;margin:6px 0 0}
+
+/* Resumen */
+.summary{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:14px;margin-bottom:18px}
+.counts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.count{display:grid;gap:2px}
+.count .n{font-family:var(--fD);font-size:34px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.count .l{font-size:12.5px;color:var(--tx2);display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;flex:none}
+.c-ok .n{color:var(--ok)} .c-ok .dot{background:var(--ok)}
+.c-fail .n{color:var(--err)} .c-fail .dot{background:var(--err)}
+.c-retest .n{color:var(--warn)} .c-retest .dot{background:var(--warn)}
+.c-none .n{color:var(--tx2)} .c-none .dot{background:var(--none)}
+.bar{display:flex;height:10px;border-radius:6px;overflow:hidden;background:var(--el)}
+.bar span{height:100%;transition:width .3s ease}
+.bar .b-ok{background:var(--ok)} .bar .b-fail{background:var(--err)} .bar .b-retest{background:var(--warn)}
+.sumfoot{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.save{font-size:12.5px;color:var(--tx3);display:flex;align-items:center;gap:7px}
+.save .dot{background:var(--tx3)}
+.save.is-db .dot{background:var(--ok)} .save.is-err .dot{background:var(--err)} .save.is-local .dot{background:var(--warn)}
+.btn{font:600 13.5px/1 var(--fB);color:var(--tx);background:var(--el);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{border-color:var(--tx3)}
+.btn.pri{background:var(--priS);border-color:var(--pri);color:var(--pri)}
+.copyfall{display:grid;gap:8px}
+.copyfall textarea{width:100%;min-height:140px;font:13px/1.5 var(--fM);background:var(--el);color:var(--tx);border:1px solid var(--line2);border-radius:10px;padding:10px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.save{flex:1 1 260px;min-width:0;align-items:flex-start}
+.save .dot{margin-top:.45em}
+.save.is-local{color:var(--warn)}
+.save.is-err{color:var(--err)}
+
+/* Antes de empezar */
+details.prep{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:18px}
+details.prep>summary{cursor:pointer;list-style:none;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+details.prep>summary::-webkit-details-marker{display:none}
+details.prep>summary h2{font-family:var(--fD);font-weight:700;font-size:24px;margin:0}
+.chev{color:var(--tx3);font-family:var(--fM);font-size:13px}
+details[open] .chev .c-open{display:none} details:not([open]) .chev .c-close{display:none}
+.prep-body{padding:0 18px 18px;display:grid;gap:18px}
+.prep h3{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin:0 0 8px;font-weight:700}
+.envs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.env{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg);display:grid;gap:6px;align-content:start;min-width:0}
+.env p{margin:0;font-size:13.5px;color:var(--tx2)}
+.tag{display:inline-flex;align-items:center;font:700 11px/1 var(--fM);letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border-radius:6px;border:1px solid currentColor;white-space:nowrap}
+.t-LOCAL{color:var(--acc)} .t-DEMO{color:var(--warn)} .t-RENDER{color:var(--pri)} .t-TODOS{color:var(--tx2)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);font-weight:700;background:var(--bg)}
+tr:last-child td{border-bottom:0}
+.tips{margin:0;padding-left:18px;display:grid;gap:6px;color:var(--tx2);font-size:14px}
+.tips b{color:var(--tx)}
+.tok{font:500 12.5px/1.3 var(--fM);color:var(--tx);background:var(--el);border:1px dashed var(--line2);border-radius:6px;padding:2px 6px;cursor:copy;overflow-wrap:anywhere;text-align:left}
+.tok:hover{border-color:var(--acc)}
+.tok.copied{border-style:solid;border-color:var(--ok);color:var(--ok)}
+
+/* Filtros */
+.filters{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;margin-bottom:8px;display:grid;gap:8px;border-bottom:1px solid var(--line)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chips .lbl{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);font-weight:700;margin-right:4px}
+.chip{font:600 12.5px/1 var(--fB);color:var(--tx2);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 11px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.chip .k{font-family:var(--fM);font-size:11px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.chip[aria-pressed="true"]{color:var(--tx);border-color:var(--tx2);background:var(--el)}
+.jump{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.jump a{font:600 12px/1 var(--fB);color:var(--tx2);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:6px 9px;white-space:nowrap;background:var(--card)}
+.jump a:hover{color:var(--tx);border-color:var(--line2)}
+.jump .p{font-family:var(--fM);font-size:11px;color:var(--tx3);margin-left:4px}
+
+/* Grupos y casos */
+.group{margin-top:28px;scroll-margin-top:120px}
+.ghead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:12px}
+.ghead h2{font-family:var(--fD);font-weight:700;font-size:28px;margin:0;line-height:1.1}
+.ghead .cu{font-family:var(--fM);font-size:12.5px;color:var(--pri)}
+.ghead .gsub{color:var(--tx3);font-size:13.5px}
+.ghead .gprog{margin-left:auto;font-family:var(--fM);font-size:12px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.cases{display:grid;gap:12px}
+.case{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:grid;gap:12px;min-width:0}
+.case[data-status="fail"]{border-color:color-mix(in srgb,var(--err) 55%,var(--line))}
+.case[data-status="ok"]{border-color:color-mix(in srgb,var(--ok) 40%,var(--line))}
+.case[data-status="retest"]{border-color:color-mix(in srgb,var(--warn) 50%,var(--line))}
+.chead{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+.cid{font:700 13px/1 var(--fM);color:var(--pri);letter-spacing:.02em}
+.chead h3{font-size:16.5px;font-weight:700;margin:0;flex:1 1 220px;min-width:0}
+.ctags{display:flex;gap:6px;flex-wrap:wrap}
+.pill{font:700 11px/1 var(--fB);letter-spacing:.04em;text-transform:uppercase;padding:5px 8px;border-radius:999px;background:var(--el);color:var(--tx3);white-space:nowrap}
+.pill.s-ok{background:var(--okS);color:var(--ok)} .pill.s-fail{background:var(--errS);color:var(--err)} .pill.s-retest{background:var(--warnS);color:var(--warn)}
+.cdata{margin:0;font-size:14px;color:var(--tx2)}
+.cdata b{color:var(--tx);font-weight:600}
+.cbody{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:14px}
+.cbody h4{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin:0 0 6px;font-weight:700}
+.steps{margin:0;padding-left:20px;display:grid;gap:5px;font-size:14px}
+.steps li::marker{font-family:var(--fM);color:var(--tx3);font-size:12px}
+.expect{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;min-width:0}
+.expect p{margin:0}
+.expect ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.known{display:flex;gap:10px;align-items:flex-start;background:var(--warnS);color:var(--tx);border-radius:10px;padding:10px 12px;font-size:13.5px}
+.known b{color:var(--warn)}
+.cfoot{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px 14px;align-items:start;border-top:1px solid var(--line);padding-top:12px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.sb{font:600 13px/1 var(--fB);color:var(--tx2);background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:9px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;min-height:38px}
+.sb .ic{font-family:var(--fM);font-weight:700}
+.sb:hover{color:var(--tx)}
+.sb.v-ok[aria-pressed="true"]{background:var(--okS);border-color:var(--ok);color:var(--ok)}
+.sb.v-fail[aria-pressed="true"]{background:var(--errS);border-color:var(--err);color:var(--err)}
+.sb.v-retest[aria-pressed="true"]{background:var(--warnS);border-color:var(--warn);color:var(--warn)}
+.notewrap{display:grid;gap:4px;min-width:0}
+.note{width:100%;min-height:38px;resize:vertical;font:14px/1.45 var(--fB);color:var(--tx);background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:8px 10px}
+.note::placeholder{color:var(--tx3)}
+.when{font-size:12px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.empty{color:var(--tx2);text-align:center;padding:40px 16px;border:1px dashed var(--line2);border-radius:14px;margin-top:24px}
+
+.summary>*,.prep-body>*,.filters>*,.group,.cases>*{min-width:0}
+@media (max-width:760px){
+  .filters{position:static}
+  .group{scroll-margin-top:16px}
+  .envs{grid-template-columns:minmax(0,1fr)}
+  .cbody{grid-template-columns:minmax(0,1fr)}
+  .cfoot{grid-template-columns:minmax(0,1fr)}
+  .counts{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="eyebrow"><span>PowerApp Web</span><span class="sep">/</span><span>Admin · CU-A-16 a CU-A-19</span><span class="sep">/</span><span>Pruebas manuales</span></div>
+    <h1>Pruebas de usuarios y entrenadores</h1>
+    <p class="lede">La gestión de cuentas del Admin: el listado de usuarios, el detalle y la baja o reactivación de cuentas, y los entrenadores: convertir a un alumno, editar sus datos profesionales y darlo de baja. Cada caso dice cómo probarlo y qué tenés que ver. Marcá el resultado y anotá lo que observes.</p>
+  </header>
+
+  <section class="summary" aria-label="Resumen">
+    <div class="counts">
+      <div class="count c-ok"><span class="n" id="n-ok">0</span><span class="l"><span class="dot"></span>Funciona</span></div>
+      <div class="count c-fail"><span class="n" id="n-fail">0</span><span class="l"><span class="dot"></span>Falla</span></div>
+      <div class="count c-retest"><span class="n" id="n-retest">0</span><span class="l"><span class="dot"></span>Re-testear</span></div>
+      <div class="count c-none"><span class="n" id="n-none">0</span><span class="l"><span class="dot"></span>Sin probar</span></div>
+    </div>
+    <div class="bar" role="img" id="bar" aria-label="Progreso"><span class="b-ok" id="b-ok"></span><span class="b-fail" id="b-fail"></span><span class="b-retest" id="b-retest"></span></div>
+    <div class="sumfoot">
+      <span class="save" id="save"><span class="dot"></span><span id="save-t">Conectando el guardado…</span></span>
+      <div class="actions">
+        <button type="button" class="btn" id="copy-backup">Copiar respaldo</button>
+        <button type="button" class="btn" id="open-restore">Restaurar respaldo</button>
+        <button type="button" class="btn pri" id="copy-sum">Copiar resumen de fallas</button>
+      </div>
+    </div>
+    <div class="copyfall" id="copy-fall" hidden>
+      <label for="copy-fall-t" class="when">Tu navegador no dejó copiar automáticamente. El texto ya está seleccionado: copialo con Ctrl+C.</label>
+      <textarea id="copy-fall-t" readonly></textarea>
+    </div>
+    <div class="copyfall" id="restore" hidden>
+      <label for="restore-t" class="when">Pegá el respaldo que copiaste en otro navegador o dispositivo. Por cada caso queda el resultado más reciente.</label>
+      <textarea id="restore-t" spellcheck="false"></textarea>
+      <div class="actions"><button type="button" class="btn pri" id="restore-ok">Restaurar</button><button type="button" class="btn" id="restore-cancel">Cancelar</button><span class="when" id="restore-msg" role="status"></span></div>
+    </div>
+  </section>
+
+  <details class="prep" id="prep" open>
+    <summary><h2>Antes de empezar</h2><span class="chev"><span class="c-close">Ocultar</span><span class="c-open">Mostrar</span></span></summary>
+    <div class="prep-body">
+      <div>
+        <h3>Entornos</h3>
+        <div class="envs">
+          <div class="env"><span class="tag t-LOCAL">Local</span><p>Backend local en <code>localhost:3000</code> y el front con <code>npm run dev</code>. Hace falta para los casos con el servidor apagado.</p></div>
+          <div class="env"><span class="tag t-RENDER">Render</span><p><a href="https://powerapp-web.onrender.com" target="_blank" rel="noopener">powerapp-web.onrender.com</a> contra el backend de Render. Los cambios de cuentas quedan en esa base.</p></div>
+          <div class="env"><span class="tag t-TODOS">Cualquiera</span><p>El caso da lo mismo en los dos. Con cuentas reales, los mocks no intervienen aunque estén prendidos.</p></div>
+        </div>
+      </div>
+      <div>
+        <h3>Cuentas y datos</h3>
+        <ul class="tips">
+          <li><b>Una cuenta admin real</b> y una de entrenador.</li>
+          <li><b>Dos alumnos de prueba</b>, para no tocar cuentas reales: registralos desde <code>/registro</code>, por ejemplo <button type="button" class="tok" data-copy="tuemail+qa-coach@gmail.com">tuemail+qa-coach@gmail.com</button> (el que vas a convertir en entrenador) y <button type="button" class="tok" data-copy="tuemail+qa-cuenta@gmail.com">tuemail+qa-cuenta@gmail.com</button> (el que vas a desactivar). En la página los llamo «alumno QA coach» y «alumno QA cuenta».</li>
+          <li><b>Datos profesionales de prueba:</b> email <button type="button" class="tok" data-copy="qa.coach@powerapp.com">qa.coach@powerapp.com</button> y CUIL <button type="button" class="tok" data-copy="20123456786">20123456786</button>.</li>
+          <li><b>Dos roles a la vez:</b> usá una ventana normal para el admin y una de incógnito para entrar con las cuentas de prueba.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Cómo encararlo</h3>
+        <ul class="tips">
+          <li><b>Seguí el orden de la página.</b> Primero el listado y las cuentas, después convertir, editar y dar de baja al entrenador de prueba.</li>
+          <li><b>DevTools › Network</b>, filtrado por <code>users</code> o <code>coach</code>, para ver qué requests salen y con qué código responden.</li>
+          <li><b>Lo que hoy falla por el backend</b> está marcado con un aviso amarillo: DET-01, porque la planificación vigente no responde, y EDE-02, porque el endpoint para editar entrenadores no existe (B8). Marcalo igual, así queda registrado cuándo se arregla.</li>
+        </ul>
+      </div>
+    </div>
+  </details>
+
+  <div class="filters" id="filters">
+    <div class="chips" id="f-status" role="group" aria-label="Filtrar por resultado">
+      <span class="lbl">Resultado</span>
+    </div>
+    <div class="chips" id="f-env" role="group" aria-label="Filtrar por entorno">
+      <span class="lbl">Entorno</span>
+    </div>
+    <nav class="jump" id="jump" aria-label="Ir a un grupo"></nav>
+  </div>
+
+  <main id="groups"></main>
+  <p class="empty" id="empty" hidden>Ningún caso coincide con estos filtros.</p>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const PLAN_NAME = 'Pruebas de usuarios y entrenadores PowerApp';
+  const PAGE_ID = 'pruebas-usuarios-powerapp';
+  const DOCS = 'https://github.com/FranCarames/PowerApp-Docs/blob/main/Use%20Cases/';
+  const tok = (t) => `<button type="button" class="tok" data-copy="${t.replace(/"/g, '&quot;')}">${t}</button>`;
+  const ui = (t) => `<span class="ui">«${t}»</span>`;
+
+  const ENVS = { LOCAL: 'Local', RENDER: 'Render', TODOS: 'Cualquiera' };
+  const ENV_FILTERS = [['all', 'Todos'], ['LOCAL', 'Local'], ['RENDER', 'Render']];
+  const STATUSES = [
+    { v: 'ok', label: 'Funciona', ic: '✓' },
+    { v: 'fail', label: 'Falla', ic: '✕' },
+    { v: 'retest', label: 'Re-testear', ic: '↻' },
+  ];
+  const STATUS_LABEL = { ok: 'Funciona', fail: 'Falla', retest: 'Re-testear', none: 'Sin probar' };
+
+  const GROUPS = [
+    { id: 'usr', name: 'Usuarios', cu: 'CU-E-01 y CU-E-02', file: 'entrenador/CU-E-01-obtener-alumnos.md', sub: 'Los mismos casos de uso que Mis alumnos, vistos desde el Admin' },
+    { id: 'det', name: 'Detalle y cuentas', cu: 'CU-E-03', file: 'entrenador/CU-E-03-cerrar-cuenta-de-alumno.md' },
+    { id: 'cnv', name: 'Convertir alumno en entrenador', cu: 'CU-A-17', file: 'admin/CU-A-17-convertir-alumno-a-entrenador.md' },
+    { id: 'ede', name: 'Editar entrenador', cu: 'CU-A-18', file: 'admin/CU-A-18-editar-datos-de-entrenador.md' },
+    { id: 'coa', name: 'Entrenadores', cu: 'CU-A-16 y CU-A-19', file: 'admin/CU-A-16-obtener-entrenadores.md' },
+    { id: 'err', name: 'Errores y pantallas', cu: null, sub: 'Servidor caído, celular, escritorio y teclado' },
+    { id: 'cie', name: 'Cierre', cu: null, sub: 'Dejar las cuentas como estaban' },
+  ];
+
+  const CASES = [
+
+    // ── Usuarios ──────────────────────────────────────────
+    { id: 'USR-01', g: 'usr', t: 'Llegar a Usuarios', env: ['TODOS'],
+      steps: ['En el Panel, tocá la tarjeta Usuarios y anotá su número.', 'En escritorio, entrá desde la barra lateral. En el celular, desde la tab Usuarios.'],
+      exp: `<p>Todos llevan a <code>/a/usuarios</code>, con «Gestión» arriba y el título «Usuarios». El número del panel es el total de cuentas, el mismo que da el chip ${ui('Todos')}.</p>` },
+    { id: 'USR-02', g: 'usr', t: 'Contadores', env: ['TODOS'],
+      steps: ['Mirá los contadores Alumnos, Entrenadores e Inactivos.', 'Tocá cada chip y compará con la cantidad de filas (con Cargar más hasta el final).'],
+      exp: '<p>Alumnos y Entrenadores coinciden con sus chips. Inactivos cuenta las cuentas dadas de baja de todos los roles.</p>' },
+    { id: 'USR-03', g: 'usr', t: 'Chips de filtro', env: ['TODOS'],
+      steps: ['Tocá Todos, Alumnos, Entrenadores e Inactivos.', 'Con un chip elegido, recargá la página.'],
+      exp: '<p>Todos incluye también las cuentas de admin. Cada chip filtra lo suyo, y al recargar se mantiene, porque queda en la dirección (<code>?filtro=…</code>).</p>' },
+    { id: 'USR-04', g: 'usr', t: 'Buscar usuarios', env: ['TODOS'],
+      steps: ['Buscá un usuario por su nombre, otro por su apellido y otro por parte de su email.', 'Combiná una búsqueda con el chip Alumnos.', `Buscá ${tok('zzz')}.`],
+      exp: `<p>Encuentra por los tres datos y respeta el chip. Con zzz: ${ui('Sin coincidencias')} y ${ui('No hay usuarios que coincidan con la búsqueda.')} (CU-E-02)</p>` },
+    { id: 'USR-05', g: 'usr', t: 'Filas del listado', env: ['TODOS'],
+      steps: ['Recorré filas de alumnos, entrenadores y cuentas inactivas.'],
+      exp: `<ul><li>Cada fila muestra el avatar, el nombre, el email y el rol.</li><li>Los entrenadores llevan el avatar violeta; las cuentas inactivas, el avatar gris, la fila apagada y ${ui('Inactivo')}.</li><li>Los alumnos suman a su email ${ui('· membresía activa')}, ${ui('por vencer')} o ${ui('vencida')}, si tienen pagos. (CU-E-01)</li></ul>` },
+    { id: 'USR-06', g: 'usr', t: 'Cargar más', env: ['TODOS'],
+      steps: [`Con Todos, bajá hasta el final y tocá ${ui('Cargar más')} hasta que no aparezca más.`],
+      exp: '<p>Se suman los usuarios de 20 en 20, sin repetidos, y el total de filas coincide con el del panel. Si hay 20 o menos, el botón no aparece.</p>' },
+    { id: 'USR-07', g: 'usr', t: 'Solo para el Admin', env: ['TODOS'],
+      steps: ['Como entrenador, abrí <code>/a/usuarios</code>.', 'Repetí como alumno.'],
+      exp: '<p>Cada uno vuelve a su inicio.</p>' },
+
+    // ── Detalle y cuentas ─────────────────────────────────
+    { id: 'DET-01', g: 'det', t: 'Detalle de un alumno', env: ['TODOS'],
+      data: 'Un alumno que tenga pagos y una planificación asignada.',
+      steps: ['Tocá la fila del alumno.'],
+      exp: `<p>Modal con su nombre y ${ui('Alumno · cuenta activa')}, su email, su membresía según el último pago y su planificación vigente. Botones Convertir en entrenador, Desactivar cuenta y Cerrar.</p>`,
+      kt: 'Hoy falla.', known: 'El backend no responde la planificación vigente (GET /planification/user/{id}/active queda colgado), así que el front corta a los 3,5 s y esa fila no aparece. Marcá Falla si falta y anotalo; el resto del detalle tiene que verse igual.' },
+    { id: 'DET-02', g: 'det', t: 'Detalle de un entrenador', env: ['TODOS'],
+      steps: ['Tocá la fila de un entrenador.'],
+      exp: `<p>${ui('Entrenador · cuenta activa')}, con su email profesional y su CUIL. Tiene ${ui('Editar datos')} y Desactivar cuenta, pero no Convertir en entrenador.</p>` },
+    { id: 'DET-03', g: 'det', t: 'Detalle de un admin y de tu cuenta', env: ['TODOS'],
+      steps: ['Con el chip Todos, tocá la fila de una cuenta admin.', 'Buscá tu propia cuenta y abrila.'],
+      exp: '<p>Solo muestran el email y el botón Cerrar: no se ofrece desactivar a un admin ni a la propia cuenta.</p>' },
+    { id: 'DET-04', g: 'det', t: 'Desactivar una cuenta', env: ['TODOS'],
+      data: 'El alumno QA cuenta.',
+      steps: ['Abrí su detalle y tocá Desactivar cuenta.', 'Leé el mensaje y confirmá.', 'Mirá los contadores y Mis alumnos del entrenador.'],
+      exp: `<p>${ui('Desactivar cuenta')}: ${ui('¿Desactivar la cuenta de …? Es una baja lógica: no va a poder ingresar, pero sus datos se conservan y la podés reactivar cuando quieras.')} Al confirmar: ${ui('Cuenta desactivada')}; la fila queda apagada con Inactivo, el contador Inactivos sube y en Mis alumnos figura inactivo. (CU-E-03)</p>` },
+    { id: 'DET-05', g: 'det', t: 'La cuenta desactivada no entra', env: ['TODOS'],
+      steps: ['En incógnito, iniciá sesión con el alumno QA cuenta.'],
+      exp: `<p>${ui('Tu cuenta está cerrada. Consultá en el gimnasio para volver a activarla.')}</p>` },
+    { id: 'DET-06', g: 'det', t: 'Cancelar la desactivación', env: ['TODOS'],
+      steps: ['Abrí el detalle de un alumno activo, tocá Desactivar cuenta y después Cancelar.'],
+      exp: '<p>Vuelve al detalle y la cuenta sigue activa. No sale ningún request.</p>' },
+    { id: 'DET-07', g: 'det', t: 'Reactivar una cuenta', env: ['TODOS'],
+      steps: ['Abrí el detalle del alumno QA cuenta y tocá Reactivar cuenta.', 'En incógnito, iniciá sesión con esa cuenta.'],
+      exp: `<p>No pide confirmación: ${ui('Cuenta reactivada')}, la fila vuelve a la normalidad y el contador baja. La cuenta puede entrar.</p>` },
+
+    // ── Convertir ─────────────────────────────────────────
+    { id: 'CNV-01', g: 'cnv', t: 'La pantalla de convertir', env: ['TODOS'],
+      steps: [`En Entrenadores, tocá ${ui('Convertir alumno en entrenador')}.`],
+      exp: `<p>Abre <code>/a/convertir</code>: ${ui('Elegí un alumno para convertirlo en entrenador…')}, el buscador y la lista de alumnos activos. ${ui('Convertir en entrenador')} está apagado hasta elegir a alguien.</p>` },
+    { id: 'CNV-02', g: 'cnv', t: 'Convertir a un alumno', env: ['TODOS'],
+      data: `El alumno QA coach · email ${tok('qa.coach@powerapp.com')} · CUIL ${tok('20123456786')}`,
+      steps: ['Buscalo y elegilo.', 'Completá el email y el CUIL, y tocá Convertir en entrenador.', 'Abrí su detalle en Usuarios.'],
+      exp: `<p>Arriba del formulario dice ${ui('Se convierte a …')} con su email. Al convertir: ${ui('… ahora es entrenador')} y vuelve a Entrenadores, donde aparece Activo. En su detalle, el CUIL se ve como 20-12345678-6. (CU-A-17)</p>` },
+    { id: 'CNV-03', g: 'cnv', t: 'El nuevo entrenador entra a su panel', env: ['TODOS'],
+      steps: ['En incógnito, iniciá sesión con el alumno QA coach.'],
+      exp: '<p>Entra a <code>/c/alumnos</code>, con la navegación de entrenador.</p>' },
+    { id: 'CNV-04', g: 'cnv', t: 'Validaciones de los datos profesionales', env: ['TODOS'],
+      data: `CUIL de 10 dígitos ${tok('2012345678')} · con guiones ${tok('20-12345678-6')} · email en mayúsculas ${tok('QA.COACH2@POWERAPP.COM')}`,
+      steps: ['Elegí un alumno y tocá Convertir sin datos.', `Escribí ${tok('qa.coach@')} como email.`, 'Probá el CUIL de 10 dígitos y uno con letras.', 'Probá el CUIL con guiones y salí del campo.', 'Con el email en mayúsculas, convertí y mirá el body del request en Network. Si no querés convertir a nadie más, frená antes de confirmar.'],
+      exp: `<ul><li>${ui('Ingresá el email profesional')}, ${ui('Ingresá el CUIL')} e ${ui('Ingresá un email válido')}.</li><li>10 dígitos o letras: ${ui('El CUIL tiene 11 dígitos')}.</li><li>Con guiones se acepta, y al salir del campo se muestra con la máscara 20-12345678-6.</li><li>El request lleva el email en minúsculas y el CUIL de 11 dígitos sin guiones. (CU-A-17, camino alternativo)</li></ul>` },
+    { id: 'CNV-05', g: 'cnv', t: 'Email profesional repetido', env: ['TODOS'],
+      steps: ['Elegí un alumno y poné el email profesional de un entrenador existente.', 'Tocá Convertir en entrenador.'],
+      exp: `<p>${ui('Ya hay otro entrenador con ese email profesional')} junto al campo, y no sale ningún request. El front lo controla antes porque el backend, con un email repetido, deja la cuenta a medio convertir.</p>` },
+    { id: 'CNV-06', g: 'cnv', t: 'Convertir desde Usuarios', env: ['TODOS'],
+      steps: ['En Usuarios, abrí el detalle de un alumno activo y tocá Convertir en entrenador.'],
+      exp: `<p>Abre <code>/a/convertir?alumno=…</code> con ese alumno ya elegido (${ui('Se convierte a …')}). No hace falta confirmar la conversión.</p>` },
+    { id: 'CNV-07', g: 'cnv', t: 'Alguien que no se puede convertir', env: ['TODOS'],
+      data: 'Los ids salen de la respuesta de GET /users/all en Network.',
+      steps: ['Abrí <code>/a/convertir?alumno=</code> con el id de un entrenador.', 'Repetí con el id del alumno QA cuenta desactivado (desactivalo antes).', 'Repetí con el id de un admin.'],
+      exp: `<ul><li>Entrenador: ${ui('… ya es entrenador.')} (CU-A-17, camino alternativo)</li><li>Cuenta inactiva: ${ui('La cuenta de … está inactiva. Reactivala desde Usuarios para poder convertirla en entrenador.')}</li><li>Admin: ${ui('… es admin y no se puede convertir.')}</li><li>En ningún caso queda elegido.</li></ul>` },
+    { id: 'CNV-08', g: 'cnv', t: 'Los inactivos no se ofrecen', env: ['TODOS'],
+      steps: ['Con el alumno QA cuenta desactivado, buscalo en Convertir.'],
+      exp: `<p>No aparece; la lista solo tiene alumnos activos. Si no hay otro que coincida: ${ui('No hay alumnos activos que coincidan con la búsqueda.')}</p>` },
+
+    // ── Editar entrenador ─────────────────────────────────
+    { id: 'EDE-01', g: 'ede', t: 'Abrir la edición', env: ['TODOS'],
+      steps: ['En Entrenadores, tocá el lápiz del alumno QA coach.'],
+      exp: `<p>${ui('Editar entrenador')}: ${ui('Datos profesionales de …. Su nombre y su cuenta los gestiona la propia persona.')}, con el email y el CUIL precargados.</p>` },
+    { id: 'EDE-02', g: 'ede', t: 'Guardar cambios', env: ['TODOS'],
+      steps: ['Cambiá el CUIL y guardá.'],
+      exp: `<p>${ui('Entrenador actualizado')} y el dato nuevo se ve en su detalle (CU-A-18).</p>`,
+      kt: 'Hoy falla.', known: 'El endpoint para editar entrenadores no existe en el backend (B8). La pantalla avisa «Editar entrenadores todavía no está disponible en el servidor. No se guardó nada.» Marcá Falla con la nota «B8».' },
+    { id: 'EDE-03', g: 'ede', t: 'Validaciones al editar', env: ['TODOS'],
+      steps: ['Borrá el email y guardá.', 'Poné un CUIL de 10 dígitos.', 'Poné el email profesional de otro entrenador y guardá.'],
+      exp: `<p>${ui('Ingresá el email profesional')}, ${ui('El CUIL tiene 11 dígitos')} y ${ui('Ya hay otro entrenador con ese email profesional')}. No sale ningún request. (CU-A-18, camino alternativo)</p>` },
+    { id: 'EDE-04', g: 'ede', t: 'Guardar sin cambios', env: ['TODOS'],
+      steps: ['Abrí la edición y tocá Guardar sin cambiar nada.'],
+      exp: '<p>El modal se cierra sin mandar ningún request.</p>' },
+    { id: 'EDE-05', g: 'ede', t: 'Editar desde Usuarios', env: ['TODOS'],
+      steps: ['En Usuarios, abrí el detalle del alumno QA coach y tocá Editar datos.'],
+      exp: '<p>Se abre el mismo modal de edición, con los datos precargados.</p>' },
+
+    // ── Entrenadores ──────────────────────────────────────
+    { id: 'COA-01', g: 'coa', t: 'Llegar a Entrenadores', env: ['TODOS'],
+      steps: ['En escritorio, entrá desde la barra lateral › Entrenadores.', 'En el celular, desde Más › Entrenadores.', 'En el Panel, desde Gestión › Entrenadores.'],
+      exp: '<p>Los tres llevan a <code>/a/entrenadores</code>, con «Gestión» arriba y el título «Entrenadores».</p>' },
+    { id: 'COA-02', g: 'coa', t: 'Listado de entrenadores', env: ['TODOS'],
+      steps: ['Recorré la lista.'],
+      exp: `<p>Cada fila muestra el avatar, el nombre, el email profesional, ${ui('Activo')} o ${ui('Inactivo')}, y los botones Editar y Eliminar. Los inactivos van al final y el resto por nombre. El número coincide con el contador Entrenadores de Usuarios. (CU-A-16)</p>` },
+    { id: 'COA-03', g: 'coa', t: 'Desactivar la cuenta de un entrenador', env: ['TODOS'],
+      steps: ['Desactivá la cuenta del alumno QA coach, que ya es entrenador, desde su detalle en Usuarios.', 'Mirá Entrenadores.', 'Reactivala.'],
+      exp: '<p>En Entrenadores aparece como Inactivo y no puede entrar. Al reactivarla vuelve a Activo y puede entrar a su panel.</p>' },
+    { id: 'COA-04', g: 'coa', t: 'Dar de baja a un entrenador', env: ['TODOS'],
+      data: 'El alumno QA coach, convertido en CNV-02.',
+      steps: ['Tocá su tacho, leé el mensaje y confirmá.', 'Mirá Usuarios › Alumnos y el Panel.'],
+      exp: `<p>${ui('Eliminar entrenador')}: ${ui('¿Eliminar a … de los entrenadores? Es una baja lógica: pierde el acceso al panel de entrenador y su cuenta vuelve a ser la de un alumno, con sus datos intactos…')} Al confirmar: ${ui('… ya no es entrenador')}. Sale de la lista, aparece en Alumnos y los contadores se actualizan. (CU-A-19)</p>` },
+    { id: 'COA-05', g: 'coa', t: 'El ex entrenador entra como alumno', env: ['TODOS'],
+      steps: ['En incógnito, iniciá sesión con el alumno QA coach.'],
+      exp: '<p>Entra a <code>/u/plan</code>, con la navegación de alumno.</p>' },
+    { id: 'COA-06', g: 'coa', t: 'Cancelar la baja', env: ['TODOS'],
+      steps: ['Tocá el tacho de un entrenador y tocá Cancelar.'],
+      exp: '<p>No cambia nada y no sale ningún request.</p>' },
+    { id: 'COA-07', g: 'coa', t: 'Volver a convertir a un ex entrenador', env: ['TODOS'],
+      data: 'El alumno QA coach después de COA-04.',
+      steps: ['En Convertir, elegilo.', 'Cambiá el CUIL y convertí.'],
+      exp: `<p>Aparece ${ui('Esta cuenta ya fue de entrenador. Al convertirla se reactiva su registro y se reemplazan el email profesional y el CUIL por los de acá.')}, con sus datos anteriores precargados. Al convertir vuelve a Entrenadores como Activo, con el CUIL nuevo.</p>` },
+    { id: 'COA-08', g: 'coa', t: 'Dar de baja a uno que ya no es entrenador', env: ['TODOS'],
+      steps: ['Con el alumno QA coach convertido de nuevo en COA-07, abrí Entrenadores en dos pestañas.', 'En la pestaña A, tocá su tacho y dejá el diálogo abierto.', 'En la pestaña B, dalo de baja.', 'En la pestaña A, confirmá.'],
+      exp: `<p>Un aviso de error, por ejemplo ${ui('No encontramos al entrenador. Puede que ya lo hayan eliminado.')}, y al recargar ya no está en la lista. (CU-A-19, camino alternativo)</p>` },
+
+    // ── Errores y pantallas ───────────────────────────────
+    { id: 'ERR-01', g: 'err', t: 'Servidor caído', env: ['LOCAL'],
+      steps: ['Apagá el backend local y recargá Usuarios y después Entrenadores.', 'Prendelo y tocá Reintentar en cada una.'],
+      exp: '<p>Cada pantalla muestra un error con Reintentar, y con el backend prendido cargan. En Entrenadores, Reintentar repite solo lo que falló.</p>' },
+    { id: 'ERR-02', g: 'err', t: 'Celular y escritorio', env: ['TODOS'],
+      steps: ['Recorré Usuarios, el detalle, Entrenadores, Convertir y la edición en el celular, o en DevTools a 390 px.', 'Repetí en escritorio.'],
+      exp: '<ul><li>Sin scroll horizontal ni textos cortados; los emails largos no rompen las filas.</li><li>Los modales salen como hoja desde abajo en el celular y centrados en escritorio, con todos sus botones a la vista.</li><li>En el celular, el CUIL abre el teclado numérico.</li></ul>' },
+    { id: 'ERR-03', g: 'err', t: 'Teclado y lector de pantalla', env: ['TODOS'],
+      steps: ['Recorré Usuarios, Entrenadores y Convertir solo con Tab y Enter.'],
+      exp: `<p>El foco siempre se ve. Los botones de Entrenadores se anuncian como ${ui('Editar …')} y ${ui('Eliminar …')}, y los errores aparecen junto a su campo.</p>` },
+
+    // ── Cierre ────────────────────────────────────────────
+    { id: 'CIE-01', g: 'cie', t: 'Dejar las cuentas como estaban', env: ['TODOS'],
+      steps: ['Si el alumno QA coach sigue de entrenador, dalo de baja.', 'Desactivá las dos cuentas de prueba.', 'Reactivá cualquier cuenta real que hayas desactivado durante las pruebas.'],
+      exp: '<p>Las cuentas de prueba quedan inactivas y ninguna cuenta real queda cambiada.</p>' },
+  ];
+
+  // ── Estado ────────────────────────────────────────────────
+  const LOCAL_KEY = 'powerapp.pruebas-usuarios.v1';
+  const blank = () => ({ status: null, note: '', at: null });
+  const state = Object.fromEntries(CASES.map((c) => [c.id, blank()]));
+  let db = null;
+  let mode = 'connecting'; // connecting | db | local | error
+  let fStatus = 'all';
+  let fEnv = 'all';
+  const writing = new Set();
+  const dirty = new Set();
+  const pending = new Set();
+  const noteTimers = {};
+
+  const $ = (s, el = document) => el.querySelector(s);
+  const statusOf = (id) => state[id].status || 'none';
+
+  function fmtWhen(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+
+  // ── Render estático ──────────────────────────────────────
+  function caseHtml(c) {
+    const envs = c.env.map((e) => `<span class="tag t-${e}">${ENVS[e]}</span>`).join('');
+    const steps = c.steps.map((s) => `<li>${s}</li>`).join('');
+    const seg = STATUSES.map((s) => `<button type="button" class="sb v-${s.v}" data-v="${s.v}" aria-pressed="false"><span class="ic" aria-hidden="true">${s.ic}</span>${s.label}</button>`).join('');
+    return `<article class="case" id="case-${c.id}" data-id="${c.id}" data-status="none">
+      <div class="chead"><span class="cid">${c.id}</span><h3>${c.t}</h3><div class="ctags">${envs}<span class="pill" data-pill>Sin probar</span></div></div>
+      ${c.data ? `<p class="cdata"><b>Datos:</b> ${c.data}</p>` : ''}
+      <div class="cbody"><div><h4>Cómo probarlo</h4><ol class="steps">${steps}</ol></div><div class="expect"><h4>Qué tenés que ver</h4>${c.exp}</div></div>
+      ${c.known ? `<div class="known" role="note"><span><b>${c.kt || 'Hoy falla.'}</b> ${c.known}</span></div>` : ''}
+      <div class="cfoot">
+        <div class="seg" role="group" aria-label="Resultado de ${c.id}">${seg}</div>
+        <div class="notewrap">
+          <label class="when" for="note-${c.id}"><span data-when>Sin marcar</span></label>
+          <textarea class="note" id="note-${c.id}" rows="1" placeholder="Qué viste, si algo no coincide (opcional)"></textarea>
+        </div>
+      </div>
+    </article>`;
+  }
+
+  function renderStatic() {
+    const root = $('#groups');
+    root.innerHTML = GROUPS.map((g) => {
+      const cases = CASES.filter((c) => c.g === g.id);
+      const cu = g.cu ? `<a class="cu" href="${DOCS}${g.file}" target="_blank" rel="noopener">${g.cu}</a>` : '';
+      return `<section class="group" id="${g.id}" data-g="${g.id}">
+        <div class="ghead"><h2>${g.name}</h2>${cu}${g.sub ? `<span class="gsub">${g.sub}</span>` : ''}<span class="gprog" data-gprog></span></div>
+        <div class="cases">${cases.map(caseHtml).join('')}</div>
+      </section>`;
+    }).join('');
+
+    $('#jump').innerHTML = GROUPS.map((g) => `<a href="#${g.id}" data-jump="${g.id}">${g.name}<span class="p" data-jp></span></a>`).join('');
+
+    const st = $('#f-status');
+    [['all', 'Todos'], ['none', 'Sin probar'], ['fail', 'Falla'], ['retest', 'Re-testear'], ['ok', 'Funciona']].forEach(([v, l]) => {
+      st.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-fs="${v}" aria-pressed="${v === 'all'}">${l}<span class="k" data-k="${v}"></span></button>`);
+    });
+    const en = $('#f-env');
+    ENV_FILTERS.forEach(([v, l]) => {
+      en.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-fe="${v}" aria-pressed="${v === 'all'}">${l}</button>`);
+    });
+  }
+
+  // ── Render dinámico ──────────────────────────────────────
+  function updateCard(id) {
+    const card = document.getElementById('case-' + id);
+    if (!card) return;
+    const s = state[id];
+    const st = statusOf(id);
+    card.dataset.status = st;
+    card.querySelectorAll('.sb').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === s.status)));
+    const pill = card.querySelector('[data-pill]');
+    pill.textContent = STATUS_LABEL[st];
+    pill.className = 'pill' + (st === 'none' ? '' : ' s-' + st);
+    const ta = card.querySelector('.note');
+    if (document.activeElement !== ta && ta.value !== s.note) ta.value = s.note;
+    card.querySelector('[data-when]').textContent = s.at ? 'Actualizado ' + fmtWhen(s.at) : 'Sin marcar';
+  }
+
+  function visible(c) {
+    const st = statusOf(c.id);
+    if (fStatus !== 'all' && st !== fStatus) return false;
+    if (fEnv !== 'all' && !c.env.includes(fEnv) && !c.env.includes('TODOS')) return false;
+    return true;
+  }
+
+  function applyFilters() {
+    let any = false;
+    GROUPS.forEach((g) => {
+      let shown = 0;
+      CASES.filter((c) => c.g === g.id).forEach((c) => {
+        const v = visible(c);
+        document.getElementById('case-' + c.id).hidden = !v;
+        if (v) shown++;
+      });
+      document.getElementById(g.id).hidden = shown === 0;
+      if (shown) any = true;
+    });
+    $('#empty').hidden = any;
+  }
+
+  function updateSummary() {
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const total = CASES.length;
+    ['ok', 'fail', 'retest', 'none'].forEach((k) => { $('#n-' + k).textContent = n[k]; });
+    ['ok', 'fail', 'retest'].forEach((k) => { $('#b-' + k).style.width = (n[k] / total * 100) + '%'; });
+    $('#bar').setAttribute('aria-label', `${total - n.none} de ${total} casos probados: ${n.ok} funcionan, ${n.fail} fallan, ${n.retest} para re-testear`);
+    document.querySelectorAll('[data-k]').forEach((el) => {
+      const k = el.dataset.k;
+      el.textContent = k === 'all' ? total : n[k];
+    });
+    GROUPS.forEach((g) => {
+      const cs = CASES.filter((c) => c.g === g.id);
+      const done = cs.filter((c) => statusOf(c.id) !== 'none').length;
+      const fails = cs.filter((c) => statusOf(c.id) === 'fail').length;
+      const txt = `${done}/${cs.length} probados${fails ? ` · ${fails} con falla` : ''}`;
+      document.getElementById(g.id).querySelector('[data-gprog]').textContent = txt;
+      document.querySelector(`[data-jump="${g.id}"] [data-jp]`).textContent = `${done}/${cs.length}`;
+    });
+  }
+
+  function refreshAll() {
+    CASES.forEach((c) => updateCard(c.id));
+    updateSummary();
+    applyFilters();
+  }
+
+  function setSave(kind, text) {
+    const el = $('#save');
+    el.className = 'save' + (kind ? ' is-' + kind : '');
+    $('#save-t').textContent = text;
+  }
+
+  // ── Guardado ─────────────────────────────────────────────
+  function saveLocal() {
+    try { localStorage.setItem(LOCAL_KEY, JSON.stringify(state)); } catch { /* sin storage: queda en memoria */ }
+  }
+  function loadLocal() {
+    try {
+      const raw = localStorage.getItem(LOCAL_KEY);
+      if (!raw) return;
+      const v = JSON.parse(raw);
+      Object.keys(state).forEach((id) => { if (v && v[id]) state[id] = normalize(v[id]); });
+    } catch { /* ignorar */ }
+  }
+  function normalize(v) {
+    const okStatus = ['ok', 'fail', 'retest'].includes(v.status) ? v.status : null;
+    return { status: okStatus, note: typeof v.note === 'string' ? v.note : '', at: typeof v.at === 'string' ? v.at : null };
+  }
+
+  const DB_OK = 'Guardado en el artefacto: lo ves desde cualquier dispositivo.';
+  const LOCAL_ONLY = 'Solo en este navegador: no se ve desde otro dispositivo y se pierde si borrás los datos de navegación. Copiá un respaldo de vez en cuando.';
+
+  // Siempre queda una copia en el navegador; en el artefacto, además, se sube.
+  async function persist(id) {
+    saveLocal();
+    if (mode !== 'db') return;
+    pending.add(id);
+    if (writing.has(id)) { dirty.add(id); return; }
+    writing.add(id);
+    setSave('db', 'Guardando…');
+    try {
+      do {
+        dirty.delete(id);
+        const s = state[id];
+        await db.doc('results/' + id).set({ status: s.status, note: s.note, at: s.at });
+      } while (dirty.has(id));
+      setSave('db', DB_OK);
+    } catch (e) {
+      setSave('err', 'No se pudo guardar el último cambio en el artefacto. Quedó en este navegador: volvé a marcarlo en un momento.');
+    } finally {
+      writing.delete(id);
+      pending.delete(id);
+    }
+  }
+
+  // Por cada caso gana el resultado más reciente, venga del navegador o del artefacto.
+  const isNewer = (a, b) => Boolean(a.at) && (!b.at || a.at > b.at);
+
+  async function uploadNewer() {
+    const remote = {};
+    try {
+      const snap = await db.collection('results').get();
+      snap.docs.forEach((d) => { const v = d.data(); if (v) remote[d.id] = normalize(v); });
+    } catch {
+      setSave('err', 'No se pudo comparar con el artefacto. Lo que marques queda en este navegador.');
+      return;
+    }
+    const ids = CASES.map((c) => c.id).filter((id) => {
+      const s = state[id];
+      if (!s.status && !s.note) return false;
+      return !remote[id] || isNewer(s, remote[id]);
+    });
+    if (!ids.length) { setSave('db', DB_OK); return; }
+    setSave('db', `Subiendo ${ids.length} resultados de este navegador al artefacto…`);
+    for (const id of ids) await persist(id);
+  }
+
+  async function initStore() {
+    let ns = null;
+    try {
+      ns = window.claude && typeof window.claude.use === 'function' ? await window.claude.use('db') : null;
+    } catch { ns = null; }
+    if (!ns) {
+      mode = 'local';
+      setSave('local', LOCAL_ONLY);
+      return;
+    }
+    db = ns;
+    mode = 'db';
+    setSave('db', 'Sincronizando…');
+    let synced = false;
+    db.collection('results').onSnapshot((snap) => {
+      snap.docs.forEach((d) => {
+        if (!state[d.id] || pending.has(d.id)) return;
+        const v = d.data();
+        if (!v) return;
+        const r = normalize(v);
+        if (!state[d.id].at || !isNewer(state[d.id], r)) state[d.id] = r;
+      });
+      refreshAll();
+      if (!synced) { synced = true; uploadNewer(); }
+      else if (!writing.size) setSave('db', DB_OK);
+    }, () => {
+      mode = 'local';
+      setSave('err', 'Se perdió la conexión con el artefacto. Lo que marques ahora queda solo en este navegador.');
+    });
+  }
+
+  function buildBackup() {
+    const results = {};
+    CASES.forEach((c) => { const s = state[c.id]; if (s.status || s.note) results[c.id] = s; });
+    return JSON.stringify({ pagina: PAGE_ID, v: 1, results });
+  }
+
+  async function restore(text) {
+    const msg = $('#restore-msg');
+    let parsed = null;
+    try { parsed = JSON.parse(text); } catch { parsed = null; }
+    if (parsed && parsed.pagina && parsed.pagina !== PAGE_ID) { msg.textContent = 'Ese respaldo es de otro plan de pruebas. Copiá el respaldo desde esta misma página.'; return; }
+    const res = parsed && typeof parsed.results === 'object' && parsed.results ? parsed.results : null;
+    if (!res) { msg.textContent = 'Ese texto no es un respaldo de esta página. Copialo de nuevo con «Copiar respaldo».'; return; }
+    const ids = [];
+    Object.keys(res).forEach((id) => {
+      if (!state[id]) return;
+      const r = normalize(res[id]);
+      if (!r.status && !r.note) return;
+      if (!state[id].at || isNewer(r, state[id])) { state[id] = r; ids.push(id); }
+    });
+    refreshAll();
+    for (const id of ids) await persist(id);
+    msg.textContent = ids.length ? `Listo: se restauraron ${ids.length} casos.` : 'No había nada más nuevo que lo que ya tenés marcado.';
+  }
+
+  // ── Eventos ──────────────────────────────────────────────
+  function copyText(text, onDone) {
+    const fallback = () => {
+      const box = $('#copy-fall');
+      const ta = $('#copy-fall-t');
+      ta.value = text;
+      box.hidden = false;
+      ta.focus();
+      ta.select();
+    };
+    try {
+      navigator.clipboard.writeText(text).then(onDone, fallback);
+    } catch { fallback(); }
+  }
+
+  function buildSummary() {
+    const today = new Date().toLocaleDateString('es-AR');
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const lines = [`${PLAN_NAME} · ${today}`, `Funciona ${n.ok} · Falla ${n.fail} · Re-testear ${n.retest} · Sin probar ${n.none}`];
+    [['fail', 'Falla'], ['retest', 'Re-testear']].forEach(([k, label]) => {
+      const cs = CASES.filter((c) => statusOf(c.id) === k);
+      if (!cs.length) return;
+      lines.push('', label);
+      cs.forEach((c) => {
+        const note = state[c.id].note.trim();
+        lines.push(`- ${c.id} ${c.t}${note ? ': ' + note.replace(/\s+/g, ' ') : ''}`);
+      });
+    });
+    if (!n.fail && !n.retest) lines.push('', 'Sin fallas ni casos para re-testear.');
+    return lines.join('\n');
+  }
+
+  document.addEventListener('click', (e) => {
+    const sb = e.target.closest('.sb');
+    if (sb) {
+      const id = sb.closest('.case').dataset.id;
+      const s = state[id];
+      s.status = s.status === sb.dataset.v ? null : sb.dataset.v;
+      s.at = new Date().toISOString();
+      updateCard(id);
+      updateSummary();
+      persist(id);
+      return;
+    }
+    const fs = e.target.closest('[data-fs]');
+    if (fs) {
+      fStatus = fs.dataset.fs;
+      document.querySelectorAll('[data-fs]').forEach((b) => b.setAttribute('aria-pressed', String(b === fs)));
+      applyFilters();
+      return;
+    }
+    const fe = e.target.closest('[data-fe]');
+    if (fe) {
+      fEnv = fe.dataset.fe;
+      document.querySelectorAll('[data-fe]').forEach((b) => b.setAttribute('aria-pressed', String(b === fe)));
+      applyFilters();
+      return;
+    }
+    const t = e.target.closest('.tok');
+    if (t) {
+      copyText(t.dataset.copy, () => {
+        t.classList.add('copied');
+        setTimeout(() => t.classList.remove('copied'), 1200);
+      });
+      return;
+    }
+    if (e.target.closest('#copy-backup')) {
+      const btn = $('#copy-backup');
+      copyText(buildBackup(), () => {
+        btn.textContent = 'Respaldo copiado';
+        setTimeout(() => { btn.textContent = 'Copiar respaldo'; }, 1600);
+      });
+      return;
+    }
+    if (e.target.closest('#open-restore')) {
+      const panel = $('#restore');
+      panel.hidden = !panel.hidden;
+      if (!panel.hidden) $('#restore-t').focus();
+      return;
+    }
+    if (e.target.closest('#restore-cancel')) {
+      $('#restore').hidden = true;
+      $('#restore-t').value = '';
+      $('#restore-msg').textContent = '';
+      return;
+    }
+    if (e.target.closest('#restore-ok')) {
+      restore($('#restore-t').value);
+      return;
+    }
+    if (e.target.closest('#copy-sum')) {
+      const btn = $('#copy-sum');
+      copyText(buildSummary(), () => {
+        btn.textContent = 'Resumen copiado';
+        setTimeout(() => { btn.textContent = 'Copiar resumen de fallas'; }, 1600);
+      });
+    }
+  });
+
+  document.addEventListener('input', (e) => {
+    const ta = e.target.closest('.note');
+    if (!ta) return;
+    const id = ta.closest('.case').dataset.id;
+    state[id].note = ta.value;
+    clearTimeout(noteTimers[id]);
+    noteTimers[id] = setTimeout(() => {
+      state[id].at = new Date().toISOString();
+      updateCard(id);
+      persist(id);
+    }, 700);
+  });
+  document.addEventListener('focusout', (e) => {
+    const ta = e.target.closest && e.target.closest('.note');
+    if (!ta) return;
+    const id = ta.closest('.case').dataset.id;
+    if (noteTimers[id]) {
+      clearTimeout(noteTimers[id]);
+      noteTimers[id] = null;
+      state[id].at = new Date().toISOString();
+      updateCard(id);
+      persist(id);
+    }
+  });
+
+  const prep = $('#prep');
+  try { if (localStorage.getItem(LOCAL_KEY + '.prep') === 'closed') prep.open = false; } catch { /* ignorar */ }
+  prep.addEventListener('toggle', () => {
+    try { localStorage.setItem(LOCAL_KEY + '.prep', prep.open ? 'open' : 'closed'); } catch { /* ignorar */ }
+  });
+
+  renderStatic();
+  loadLocal();
+  refreshAll();
+  initStore();
+})();
+</script>
+
+</body></html>
