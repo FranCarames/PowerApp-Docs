@@ -1,0 +1,212 @@
+{
+  "plan": "pruebas-ejercicios",
+  "version": 1,
+  "exportedAt": "2026-10-12T22:36:09.197Z",
+  "summary": {
+    "total": 33,
+    "ok": 29,
+    "fail": 2,
+    "retest": 2,
+    "none": 0
+  },
+  "results": {
+    "LST-01": {
+      "title": "Llegar a Ejercicios",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:11:12.582Z"
+    },
+    "LST-02": {
+      "title": "Filas del listado",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:11:36.691Z"
+    },
+    "LST-03": {
+      "title": "Buscar ejercicios",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:11:46.984Z"
+    },
+    "LST-04": {
+      "title": "Filtrar por grupo muscular",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:11:54.564Z"
+    },
+    "LST-05": {
+      "title": "Solo para el Admin",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:12:08.831Z"
+    },
+    "CRE-01": {
+      "title": "Crear con lo mínimo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:12:52.966Z"
+    },
+    "CRE-02": {
+      "title": "Crear con todos los datos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:13:53.284Z"
+    },
+    "CRE-03": {
+      "title": "Validaciones del formulario",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:13:54.591Z"
+    },
+    "CRE-04": {
+      "title": "Un músculo no se repite",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:15:12.356Z"
+    },
+    "CRE-05": {
+      "title": "Nombre repetido",
+      "status": "retest",
+      "note": "Hoy no cumple el CU. El backend no controla que el nombre sea único, así que se crea un segundo «QA Ejercicio». Marcalo Falla, borrá el duplicado y decidí si se agrega la validación en el backend o se ajusta el CU.",
+      "at": "2026-10-12T22:14:46.873Z"
+    },
+    "CRE-06": {
+      "title": "Doble envío",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:15:22.198Z"
+    },
+    "EDT-01": {
+      "title": "Editar datos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:15:47.986Z"
+    },
+    "EDT-02": {
+      "title": "Agregar un músculo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:15:50.349Z"
+    },
+    "EDT-03": {
+      "title": "Quitar un músculo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:16:48.100Z"
+    },
+    "EDT-04": {
+      "title": "Quedarse sin músculos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:16:57.716Z"
+    },
+    "EDT-05": {
+      "title": "Vaciar un dato opcional ya cargado",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:17:08.121Z"
+    },
+    "EDT-06": {
+      "title": "Editar un ejercicio que ya no existe",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:24:15.438Z"
+    },
+    "EDT-07": {
+      "title": "Link a un ejercicio que no existe",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:24:40.809Z"
+    },
+    "EDT-08": {
+      "title": "Volver sin guardar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:25:04.782Z"
+    },
+    "INT-01": {
+      "title": "La ficha en la wiki del alumno",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:26:42.523Z"
+    },
+    "INT-02": {
+      "title": "El ejercicio en los circuitos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:27:11.189Z"
+    },
+    "INT-03": {
+      "title": "Renombrar se ve en todos lados",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:28:19.190Z"
+    },
+    "DEL-01": {
+      "title": "Eliminar un ejercicio sin uso",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:29:11.893Z"
+    },
+    "DEL-02": {
+      "title": "Cancelar la eliminación",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:29:28.390Z"
+    },
+    "DEL-03": {
+      "title": "Un ejercicio con un RM registrado",
+      "status": "fail",
+      "note": "Se puede borrar el ejercicio sin bloqueantes y se borran los rms.",
+      "at": "2026-10-12T22:31:07.637Z"
+    },
+    "DEL-04": {
+      "title": "Un ejercicio que está en un circuito",
+      "status": "fail",
+      "note": "Hoy no cumple el CU. El backend lo borra igual y lo saca de los circuitos; el diálogo ya lo avisa («Si está en circuitos, se quita de ellos»). Si te sirve así, actualizá CU-A-06; si no, es un cambio del backend. Seguí con DEL-05.",
+      "at": "2026-10-12T22:31:19.631Z"
+    },
+    "DEL-05": {
+      "title": "El circuito que se quedó sin ejercicios",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:34:30.373Z"
+    },
+    "DEL-06": {
+      "title": "Eliminar un ejercicio que ya no existe",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:33:24.713Z"
+    },
+    "ERR-01": {
+      "title": "Servidor caído al cargar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:31:28.306Z"
+    },
+    "ERR-02": {
+      "title": "Servidor caído al guardar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:31:29.052Z"
+    },
+    "ERR-03": {
+      "title": "Celular y escritorio",
+      "status": "retest",
+      "note": "",
+      "at": "2026-10-12T22:31:32.091Z"
+    },
+    "ERR-04": {
+      "title": "Teclado y lector de pantalla",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:31:34.522Z"
+    },
+    "FIN-01": {
+      "title": "Borrar lo que quedó",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:33:28.420Z"
+    }
+  }
+}
