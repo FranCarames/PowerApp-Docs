@@ -43,6 +43,9 @@ Con eso, **no hace falta importar a mano**:
 - [Pruebas de acceso](Acceso/Pruebas%20de%20acceso%20PowerApp.html) — Registro, login, recuperación y cambio de contraseña, cierre de sesión y navegación (CU-U-01 a CU-U-05).
   - [Tanda 1](Acceso/1-pruebas-acceso.resultados.json)
   - [Tanda 2](Acceso/2026-10-11-1842-pruebas-acceso.resultados.json)
-- [Pruebas de membresías](Membresias/Pruebas%20de%20membres%C3%ADas.html) — Tipos de membresía del Admin: listado, alta, edición, baja y reactivación, y cómo llegan al registro de pagos del Entrenador y al historial del alumno (CU-A-20 a CU-A-23).
+- [Pruebas de ejercicios](Ejercicios/Pruebas%20de%20ejercicios.html) — Catálogo de ejercicios del Admin: listado, búsqueda y filtro por grupo, alta y edición con sus músculos, borrado, y cómo llegan a los circuitos, a la wiki y a los RMs del alumno (CU-A-01 a CU-A-06).
 - [Pruebas de músculos y grupos](Musculos/Pruebas%20de%20m%C3%BAsculos%20y%20grupos.html) — Catálogo del Admin: alta, edición, detalle y borrado de grupos musculares y músculos, y cómo llegan a Ejercicios y a la wiki del alumno (CU-A-07 a CU-A-15).
   - [Tanda 1](Musculos/1-pruebas-musculos.resultados.json)
+- [Pruebas de usuarios y entrenadores](Usuarios%20y%20entrenadores/Pruebas%20de%20usuarios%20y%20entrenadores.html) — Gestión de cuentas del Admin: listado y detalle de usuarios, baja y reactivación, y entrenadores (convertir a un alumno, editar sus datos profesionales y darlo de baja) (CU-A-16 a CU-A-19).
+- [Pruebas de membresías](Membresias/Pruebas%20de%20membres%C3%ADas.html) — Tipos de membresía del Admin: listado, alta, edición, baja y reactivación, y cómo llegan al registro de pagos del Entrenador y al historial del alumno (CU-A-20 a CU-A-23).
+- [Pruebas de circuitos](Circuitos/Pruebas%20de%20circuitos.html) — Circuitos desde el Admin y del lado del Entrenador: listado y filtros, alta y edición con sus ejercicios y bloques de series, duplicar, desactivar y reactivar (CU-E-21 a CU-E-24).

@@ -79,6 +79,8 @@ h1{font-family:var(--fD);font-weight:800;font-size:clamp(34px,6vw,52px);line-hei
 .save .dot{margin-top:.45em}
 .save.is-local{color:var(--warn)}
 .save.is-err{color:var(--err)}
+.iomsg{margin:0;font-size:12.5px;color:var(--tx2)}
+.iomsg.is-ok{color:var(--ok)} .iomsg.is-err{color:var(--err)}
 
 /* Antes de empezar */
 details.prep{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:18px}
@@ -190,20 +192,17 @@ tr:last-child td{border-bottom:0}
     <div class="sumfoot">
       <span class="save" id="save"><span class="dot"></span><span id="save-t">Conectando el guardado…</span></span>
       <div class="actions">
-        <button type="button" class="btn" id="copy-backup">Copiar respaldo</button>
-        <button type="button" class="btn" id="open-restore">Restaurar respaldo</button>
+        <button type="button" class="btn" id="exp-res">Exportar resultados</button>
+        <button type="button" class="btn" id="imp-res">Importar resultados</button>
         <button type="button" class="btn pri" id="copy-sum">Copiar resumen de fallas</button>
+        <input type="file" id="imp-file" accept=".json,application/json" hidden>
       </div>
     </div>
     <div class="copyfall" id="copy-fall" hidden>
       <label for="copy-fall-t" class="when">Tu navegador no dejó copiar automáticamente. El texto ya está seleccionado: copialo con Ctrl+C.</label>
       <textarea id="copy-fall-t" readonly></textarea>
     </div>
-    <div class="copyfall" id="restore" hidden>
-      <label for="restore-t" class="when">Pegá el respaldo que copiaste en otro navegador o dispositivo. Por cada caso queda el resultado más reciente.</label>
-      <textarea id="restore-t" spellcheck="false"></textarea>
-      <div class="actions"><button type="button" class="btn pri" id="restore-ok">Restaurar</button><button type="button" class="btn" id="restore-cancel">Cancelar</button><span class="when" id="restore-msg" role="status"></span></div>
-    </div>
+    <p class="iomsg" id="io-msg" role="status" hidden></p>
   </section>
 
   <details class="prep" id="prep" open>
@@ -590,7 +589,7 @@ tr:last-child td{border-bottom:0}
   }
 
   const DB_OK = 'Guardado en el artefacto: lo ves desde cualquier dispositivo.';
-  const LOCAL_ONLY = 'Solo en este navegador: no se ve desde otro dispositivo y se pierde si borrás los datos de navegación. Copiá un respaldo de vez en cuando.';
+  const LOCAL_ONLY = 'Solo en este navegador: no se ve desde otro dispositivo y se pierde si borrás los datos de navegación. Exportá los resultados a un JSON para conservarlos.';
 
   // Siempre queda una copia en el navegador; en el artefacto, además, se sube.
   async function persist(id) {
@@ -668,31 +667,6 @@ tr:last-child td{border-bottom:0}
     });
   }
 
-  function buildBackup() {
-    const results = {};
-    CASES.forEach((c) => { const s = state[c.id]; if (s.status || s.note) results[c.id] = s; });
-    return JSON.stringify({ pagina: PAGE_ID, v: 1, results });
-  }
-
-  async function restore(text) {
-    const msg = $('#restore-msg');
-    let parsed = null;
-    try { parsed = JSON.parse(text); } catch { parsed = null; }
-    if (parsed && parsed.pagina && parsed.pagina !== PAGE_ID) { msg.textContent = 'Ese respaldo es de otro plan de pruebas. Copiá el respaldo desde esta misma página.'; return; }
-    const res = parsed && typeof parsed.results === 'object' && parsed.results ? parsed.results : null;
-    if (!res) { msg.textContent = 'Ese texto no es un respaldo de esta página. Copialo de nuevo con «Copiar respaldo».'; return; }
-    const ids = [];
-    Object.keys(res).forEach((id) => {
-      if (!state[id]) return;
-      const r = normalize(res[id]);
-      if (!r.status && !r.note) return;
-      if (!state[id].at || isNewer(r, state[id])) { state[id] = r; ids.push(id); }
-    });
-    refreshAll();
-    for (const id of ids) await persist(id);
-    msg.textContent = ids.length ? `Listo: se restauraron ${ids.length} casos.` : 'No había nada más nuevo que lo que ya tenés marcado.';
-  }
-
   // ── Eventos ──────────────────────────────────────────────
   function copyText(text, onDone) {
     const fallback = () => {
@@ -724,6 +698,170 @@ tr:last-child td{border-bottom:0}
     });
     if (!n.fail && !n.retest) lines.push('', 'Sin fallas ni casos para re-testear.');
     return lines.join('\n');
+  }
+
+  // ── Exportar / importar resultados (JSON para versionar en el repo) ──
+  const PLAN_ID = PAGE_ID.replace(/-powerapp$/, '');
+  const EXPORT_VERSION = 1;
+  // Nombre listo para el repo: <N>-<plan>.resultados.json, con N = la tanda que sigue a las que lista Tests/README.md
+  // (ver loadFromRepo). Si no se pudo leer ese índice (file://, sin red) no se sabe N: se usa la fecha, que no pisa nada.
+  let nextRun = null;
+  const exportFileName = () => {
+    if (nextRun) return `${nextRun}-${PLAN_ID}.resultados.json`;
+    const d = new Date();
+    const p = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}-${PLAN_ID}.resultados.json`;
+  };
+
+  function buildExport() {
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const results = {};
+    CASES.forEach((c) => {
+      const s = state[c.id];
+      results[c.id] = { title: c.t, status: s.status, note: s.note, at: s.at };
+    });
+    return { plan: PLAN_ID, version: EXPORT_VERSION, exportedAt: new Date().toISOString(), summary: { total: CASES.length, ...n }, results };
+  }
+
+  function showIo(kind, text) {
+    const el = $('#io-msg');
+    el.className = 'iomsg' + (kind ? ' is-' + kind : '');
+    el.textContent = text;
+    el.hidden = false;
+  }
+
+  function exportResults() {
+    const file = exportFileName();
+    const blob = new Blob([JSON.stringify(buildExport(), null, 2) + '\n'], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    const folder = decodeURIComponent(location.pathname.split('/').slice(-2, -1)[0] || '');
+    const where = folder ? `Tests/${folder}/` : 'la carpeta de este plan en Tests/';
+    if (nextRun) {
+      const line = `  - [Tanda ${nextRun}](${encodeURIComponent(folder)}/${file})`;
+      showIo('ok', `Descargué ${file}. Guardalo en ${where} y, si querés que quede en el sitio, sumá esta línea bajo este plan en Tests/README.md: ${line.trim()}`);
+    } else {
+      showIo('ok', `Descargué ${file}. Guardalo en ${where} y, si querés que quede en el sitio, sumalo como sub-bullet bajo este plan en Tests/README.md.`);
+    }
+  }
+
+  // Combina por caso: gana el resultado con la fecha (at) más reciente, así no se pierde nada de lo marcado acá.
+  const stamp = (iso) => { const t = iso ? Date.parse(iso) : NaN; return Number.isNaN(t) ? -Infinity : t; };
+
+  // Devuelve un mensaje de error si el JSON no es un export de este plan, o null si está bien.
+  function checkResults(data) {
+    if (!data || typeof data !== 'object' || data.plan !== PLAN_ID || !data.results || typeof data.results !== 'object') {
+      return `Ese archivo no corresponde a este plan (esperaba plan «${PLAN_ID}»).`;
+    }
+    if (typeof data.version !== 'number' || data.version > EXPORT_VERSION) {
+      return 'El archivo es de una versión más nueva del plan y no sé leerlo.';
+    }
+    return null;
+  }
+
+  function mergeResults(data) {
+    const changed = [];
+    let newer = 0;
+    CASES.forEach((c) => {
+      const src = data.results[c.id];
+      if (!src || typeof src !== 'object') return;
+      const inc = normalize(src);
+      if (!inc.status && !inc.note) return;
+      const cur = state[c.id];
+      if (inc.status === cur.status && inc.note === cur.note && inc.at === cur.at) return;
+      if (stamp(inc.at) > stamp(cur.at)) { state[c.id] = inc; changed.push(c.id); } else newer++;
+    });
+    const unknown = Object.keys(data.results).filter((id) => !state[id]).length;
+    changed.forEach((id) => persist(id));
+    refreshAll();
+    return { changed: changed.length, newer, unknown };
+  }
+
+  async function importResults(file) {
+    let data;
+    try {
+      data = JSON.parse(await file.text());
+    } catch {
+      showIo('err', 'No pude leer el archivo: no es un JSON válido.');
+      return;
+    }
+    const bad = checkResults(data);
+    if (bad) { showIo('err', bad); return; }
+    const { changed, newer, unknown } = mergeResults(data);
+
+    const parts = [];
+    if (changed) {
+      const when = data.exportedAt ? fmtWhen(data.exportedAt) : '';
+      parts.push(`Importé ${changed} ${changed === 1 ? 'caso' : 'casos'}${when ? ' (exportado el ' + when + ')' : ''}.`);
+    } else if (newer) {
+      parts.push('No cambié nada: lo que tenés acá es más reciente que el archivo.');
+    } else {
+      parts.push('El archivo no trae nada nuevo: ya tenés esos resultados.');
+    }
+    if (changed && newer) parts.push(newer === 1 ? 'Dejé 1 caso que acá ya tenía un resultado más reciente.' : `Dejé ${newer} casos que acá ya tenían un resultado más reciente.`);
+    if (unknown) parts.push(unknown === 1 ? 'Ignoré 1 caso que ya no está en el plan.' : `Ignoré ${unknown} casos que ya no están en el plan.`);
+    showIo(changed ? 'ok' : '', parts.join(' '));
+  }
+
+  // ── Resultados guardados en el repo ──────────────────────
+  // Tests/README.md lista las tandas de cada plan (sub-bullets bajo el plan; la última es la más reciente).
+  // Al abrir el plan se busca su entrada, se baja ese JSON y se combina con lo local (gana la fecha más nueva).
+  function runsOf(md, readmeUrl, pageKey) {
+    let inFence = false;
+    let mine = false;
+    const runs = [];
+    md.split(/\r?\n/).forEach((line) => {
+      if (/^\s*```/.test(line)) { inFence = !inFence; return; }
+      if (inFence) return;
+      const plan = /^-\s+\[[^\]]+\]\(([^)]+)\)/.exec(line);
+      if (plan) {
+        const u = new URL(plan[1], readmeUrl);
+        mine = u.origin + u.pathname === pageKey;
+        return;
+      }
+      const run = /^\s+-\s+\[([^\]]+)\]\(([^)]+)\)/.exec(line);
+      if (run && mine) runs.push({ label: run[1], url: new URL(run[2], readmeUrl).href });
+    });
+    return runs;
+  }
+
+  // Número de la próxima tanda: el mayor entre la cantidad de tandas listadas y el prefijo numérico más alto
+  // de sus archivos (1-…, 2-…); los nombres con fecha (2026-…) no cuentan como número.
+  function nextRunNumber(runs) {
+    let max = runs.length;
+    runs.forEach((r) => {
+      const m = /^(\d{1,3})-/.exec(decodeURIComponent(r.url.split('/').pop() || ''));
+      if (m) max = Math.max(max, Number(m[1]));
+    });
+    return max + 1;
+  }
+
+  async function loadFromRepo() {
+    try {
+      const readmeUrl = new URL('../README.md', location.href).href;
+      const res = await fetch(readmeUrl, { cache: 'no-cache' });
+      if (!res.ok) return;
+      const runs = runsOf(await res.text(), readmeUrl, location.origin + location.pathname);
+      nextRun = nextRunNumber(runs);
+      const last = runs[runs.length - 1];
+      if (!last) return;
+      const r = await fetch(last.url, { cache: 'no-cache' });
+      if (!r.ok) return;
+      const data = await r.json();
+      if (checkResults(data)) return;
+      const { changed } = mergeResults(data);
+      if (changed) {
+        const when = data.exportedAt ? fmtWhen(data.exportedAt) : '';
+        showIo('ok', `Cargué ${changed} ${changed === 1 ? 'caso' : 'casos'} de «${last.label}», la última tanda guardada en el repo${when ? ' (exportada el ' + when + ')' : ''}.`);
+      }
+    } catch { /* sin README ni red (por ejemplo, abierto con file://): queda lo que haya en este navegador */ }
   }
 
   document.addEventListener('click', (e) => {
@@ -760,30 +898,8 @@ tr:last-child td{border-bottom:0}
       });
       return;
     }
-    if (e.target.closest('#copy-backup')) {
-      const btn = $('#copy-backup');
-      copyText(buildBackup(), () => {
-        btn.textContent = 'Respaldo copiado';
-        setTimeout(() => { btn.textContent = 'Copiar respaldo'; }, 1600);
-      });
-      return;
-    }
-    if (e.target.closest('#open-restore')) {
-      const panel = $('#restore');
-      panel.hidden = !panel.hidden;
-      if (!panel.hidden) $('#restore-t').focus();
-      return;
-    }
-    if (e.target.closest('#restore-cancel')) {
-      $('#restore').hidden = true;
-      $('#restore-t').value = '';
-      $('#restore-msg').textContent = '';
-      return;
-    }
-    if (e.target.closest('#restore-ok')) {
-      restore($('#restore-t').value);
-      return;
-    }
+    if (e.target.closest('#exp-res')) { exportResults(); return; }
+    if (e.target.closest('#imp-res')) { $('#imp-file').click(); return; }
     if (e.target.closest('#copy-sum')) {
       const btn = $('#copy-sum');
       copyText(buildSummary(), () => {
@@ -791,6 +907,14 @@ tr:last-child td{border-bottom:0}
         setTimeout(() => { btn.textContent = 'Copiar resumen de fallas'; }, 1600);
       });
     }
+  });
+
+  document.addEventListener('change', (e) => {
+    const inp = e.target.closest && e.target.closest('#imp-file');
+    if (!inp) return;
+    const file = inp.files && inp.files[0];
+    inp.value = '';
+    if (file) importResults(file);
   });
 
   document.addEventListener('input', (e) => {
@@ -827,7 +951,7 @@ tr:last-child td{border-bottom:0}
   renderStatic();
   loadLocal();
   refreshAll();
-  initStore();
+  initStore().then(loadFromRepo);
 })();
 </script>
 
