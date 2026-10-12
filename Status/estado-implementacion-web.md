@@ -1,23 +1,23 @@
 # PowerApp Web — Estado de implementación vs. Casos de Uso
 
-> **Corte:** 2026-10-08 · **Fuente:** `Use Cases/` de PowerApp-Docs comparado contra `PowerApp-Web` (`main` en `3c3c2d7`, `develop` en `adac0d2`) y `PLAN.md` v1.3
+> **Corte:** 2026-10-10 · **Fuente:** `Use Cases/` de PowerApp-Docs comparado contra `PowerApp-Web` (`main` en `b69a477`, `develop` en `ff3ebe2`) y `PLAN.md` v1.3
 > **Método:** mapeo 1:1 de los 75 CU contra las rutas, pantallas, hooks y el registry de mocks del front. Un CU cuenta como implementado si su pantalla existe, está en la navegación y llama al endpoint real; lo que el backend todavía no tiene queda como mock o placeholder.
 
 ## Resumen
 
 | Estado | CU | % | Significado |
 |---|---:|---:|---|
-| ✅ Implementado | 46 | 61% | Pantalla en la navegación, conectada al endpoint real |
+| ✅ Implementado | 49 | 65% | Pantalla en la navegación, conectada al endpoint real |
 | 🟡 Parcial | 2 | 3% | Pantalla hecha, pero una parte depende de algo que el backend no tiene |
-| 🔵 Placeholder | 16 | 21% | Ruta o sección con el aviso «Pantalla en construcción» |
-| ⬜ No implementado | 11 | 15% | Sin pantalla ni ruta |
+| 🔵 Placeholder | 14 | 19% | Ruta o sección con el aviso «Pantalla en construcción» |
+| ⬜ No implementado | 10 | 13% | Sin pantalla ni ruta |
 | **Total** | **75** | | |
 
-**48 de 75 CU con pantalla funcional (✅ + 🟡, ~64%).** Los otros 27 son trabajo pendiente (placeholder + no implementado).
+**51 de 75 CU con pantalla funcional (✅ + 🟡, ~68%).** Los otros 24 son trabajo pendiente (placeholder + no implementado).
 
-**32 de 49 tareas** del plan hechas (T01 a T20, T26, T30 a T37 y T46 a T48). Quedan ≈29 h estimadas en `PLAN.md`: 3,5 h sin dependencias del backend, 10,5 h de contratos, 13 h del bloque C2, 2 h de T44 (mocks a real).
+**35 de 49 tareas** del plan hechas (T01 a T20, T26 a T37 y T46 a T48). Quedan ≈25,5 h estimadas en `PLAN.md`: 10,5 h de contratos, 13 h del bloque C2, 2 h de T44 (mocks a real).
 
-> **Nota (8/10):** el corte incluye T26 (CU-U-17 a U-20), mergeada en `develop` (PR #42) pero todavía no en `main`: ahí son 42 ✅ hasta el próximo release.
+> **Nota (10/10):** no hay nada del corte sin liberar: `main` (`b69a477`) y `develop` (`ff3ebe2`) tienen el mismo código, y ninguna tarea tiene un PR abierto.
 >
 > **Nota:** ✅ quiere decir «hecho contra el contrato», no «probado contra el backend real» (ver el hallazgo sobre verificación).
 >
@@ -27,18 +27,31 @@
 
 | Rol | CU | ✅ | 🟡 | 🔵 | ⬜ | % implementado |
 |---|---:|---:|---:|---:|---:|---:|
-| Usuario | 20 | 10 | 1 | 3 | 6 | 50% |
+| Usuario | 20 | 13 | 1 | 1 | 5 | 65% |
 | Entrenador | 32 | 14 | 0 | 13 | 5 | 44% |
 | Admin | 23 | 22 | 1 | 0 | 0 | 96% |
 
 ## Cambios recientes
 
-### 2026-10-08 · release #41 en main y T26 en develop
+### 2026-10-12 · ejercicios y membresías: errores con motivo del backend, y un fix del detalle
 
-- El **release #41** (develop → main) está mergeado: `main` (`3c3c2d7`) lleva T16 a T18 (detalle de alumno, control de membresías y registrar pago) y T48 (circuitos del Entrenador). `develop` (`adac0d2`) lleva además T26, y su merge (PR #42) trajo el del release, así que las dos ramas quedaron niveladas salvo T26. **Falta un release develop → main con T26.**
-- **CU-U-17 a CU-U-20** 🔵 → ✅ con **T26 (Mis RMs)**, mergeada en `develop` con el PR #42 y todavía no en `main` (ahí el ✅ es 42). `/u/rms` agrupa los RMs por ejercicio, con alta y edición en un modal y borrado con confirmación; todo contra los endpoints reales del contrato (`GET /user_rm/user/{id}`, `POST /user_rm/create`, `POST /user_rm/edit/{id}`, `DELETE /user_rm/{id}`). Los mocks de alta, edición y baja atienden solo a las cuentas de demo.
-- **La fecha del RM viaja al mediodía** (`YYYY-MM-DDT12:00:00`): el service hace `new Date(date)` y lee día, mes y año en la zona horaria de su servidor, así que un `YYYY-MM-DD` pelado cae un día antes en un servidor al oeste de UTC. Solo los RMs normalizan la fecha así. El editor no cambia el ejercicio de un RM (CU-U-18 habla de peso, repeticiones y fecha), aunque el backend lo permite.
-- `/u/calculadora` quedó como placeholder (T27) para que el botón «Calculadora» de Mis RMs no apunte a una ruta inexistente.
+- **El backend cambió su contrato** en cuatro endpoints y el front lo sigue (rama `fix/mensajes-error-baja-ejercicio`, sin mergear). `DELETE /exercise/{id}` ya no borra un ejercicio en circuitos, ya entrenado o con RMs registrados (antes se llevaba los RMs y lo sacaba de los circuitos, o caía en un 500): responde **409 con el motivo** y el front muestra un aviso por cada uno. **CU-A-06 pasa a cumplirse como está escrito.** El alta y la edición de ejercicios y de tipos de membresía responden 409 por un nombre repetido; la edición de membresía suma el 400 por duración repetida.
+- **V7 sigue vigente** para músculos, grupos y entrenadores: su backend no cambió y siguen con el 500 genérico.
+- **No probado contra el backend real:** el cambio puede no estar desplegado todavía en Render. Se verificó en el navegador con los mocks, que ahora tienen un ejercicio por cada motivo.
+- **Fix del detalle de ejercicio** (PR #50, en `develop`): `GET /exercise/{id}` no aplana `exercisedMuscles` como el listado (manda el vínculo con el músculo anidado), así que el editor del Admin y la ficha de la wiki mostraban los músculos sin nombre, y el editor mandaba ids de vínculo al guardar. Suma a V9.
+
+### 2026-10-09 · el Usuario sin dependencias del backend queda completo (T26 a T29)
+
+- **T26 — Mis RMs** (CU-U-17 a U-20, PR #42): `/u/rms` agrupa los RMs por ejercicio, con alta y edición en un modal y borrado con confirmación, todo contra los endpoints reales del contrato. **La fecha del RM viaja al mediodía** (`YYYY-MM-DDT12:00:00`): el service hace `new Date(date)` y lee día, mes y año en la zona horaria de su servidor, así que un `YYYY-MM-DD` pelado cae un día antes en un servidor al oeste de UTC. El editor no cambia el ejercicio de un RM (CU-U-18 habla de peso, repeticiones y fecha), aunque el backend lo permite.
+- **T27 — calculadora de RM** (CU-U-16, PR #43): `/u/calculadora` calcula sola, 400 ms después del último cambio, con `POST /user_rm/potential`. **El cálculo lo hace el backend** (tabla de 1RM a 12RM): el front no repite Epley. Hallazgos: el endpoint pide y valida el ejercicio aunque la cuenta no dependa de él, y los `@Max` del DTO no traen mensaje en español.
+- **T28 — wiki de ejercicios** (CU-U-15, PR #45): lista con búsqueda sin acentos y un chip por grupo muscular (los que trae el backend, no cinco fijos), y ficha con descripción, tips, video e imágenes. El buscador y los chips pasaron a `features/catalog` y los usa también el Admin. El prototipo **no tiene la ficha**: se armó con su cabecera de ejercicio. Hallazgo: las columnas opcionales de `Exercise` llegan en `null` y el Swagger las declara opcionales (suma a V9).
+- **T29 — temporizador** (CU-U-14, PR #46): `/u/timer`, solo cliente. El estado vive fuera de React (`restTimerStore`) para que siga corriendo si cambiás de pantalla, y cuenta contra el reloj y no contando ticks, así una pestaña dormida no lo atrasa. Al llegar a cero avisa con un toast y vibra si el dispositivo puede. Sin notificación del sistema ni sonido, y **sin probar en un celular**.
+- Releases **#44** (T26 y T27) y **#47** (T28 y T29) a `main`: `main` quedó en `b69a477` y `develop` en `ff3ebe2`, que solo difieren en los dos merges de release. No queda nada sin liberar.
+
+### 2026-10-08 · release #41 en main y status del front
+
+- El **release #41** (develop → main) llevó T16 a T18 (detalle de alumno, control de membresías y registrar pago) y T48 (circuitos del Entrenador) a `main`.
+- Se armó este status y Fran lo sincronizó en `PowerApp-Docs/Status/` (commit `7d3da6c`), que además renombró los archivos del backend a `*-backend`.
 
 ### 2026-10-07 · el Entrenador queda completo con lo que tiene contrato (T16, T17, T18, T48)
 
@@ -76,16 +89,17 @@
 
 > Lista de **hallazgos abiertos**. Los que se cerraron salieron de acá y quedan registrados en *Cambios recientes*: CORS, C1 (5/10, comprobado el 6/10) · V1, forma de `status/users` y `type/users` (T34 y T47) · V2, detalle de circuito (T20) · V3, listado de entrenadores (T35) · V5 y V6, contraseña de 6 caracteres y registro que vuelve al login (T10 y T12) · V7, borrados rechazados (T31 a T35) · V8, permisos del admin (T46).
 
-1. **8/10 — C2: el contrato ya trae los endpoints, el front espera el aviso de Fran.** Rutinas y planificaciones suman **16 CU (21%)**: 12 en placeholder (E-08 a E-12d y E-15 a E-18) y 4 sin pantalla (E-13, E-14, E-19 y E-20). Esperan el bloque C2 por una decisión del 5/10: el front no arranca hasta que Fran avise que su backend está completo. Pero `openapi.json` (72 paths) **ya declara** los 14 paths de `/planification/*` y los 6 de `/routine/*` (sin contar circuitos), y el status del backend (copia del 4/9) da E-08 a E-12d y E-15 a E-18 por ✅. **Si ese estado sigue vigente, el bloque C2 (≈13 h) se puede adelantar.** Falta que Fran lo confirme: la copia puede estar vieja, y las asignaciones a alumnos (E-13, E-14, E-19, E-20) dependen igual de B7 y B5.
-2. **Nuevo (8/10) — el flujo del alumno espera contratos que el backend no define.** **8 CU** (U-08 a U-13, E-06 y E-07) dependen de B1 a B4 y B6. La raíz está en el backend: según su status del 4/9, `Routine_Exercise_Finished` solo se lee y ningún endpoint la escribe (su hallazgo 02), así que no hay cómo marcar un ejercicio (B3), dejar una nota (B4) ni consultar historial (B6). Además `GET /routine/{id}` es solo de coach y admin, y un alumno recibe 403 (lo resuelve B2), y `GET /planification/user/{id}/active` cuelga. Hasta que lleguen, `/u/plan` es un placeholder y las pantallas de rutina y ejercicio no existen.
+1. **8/10 — C2: el contrato ya trae los endpoints, el front espera el aviso de Fran.** Rutinas y planificaciones suman **16 CU (21%)**: 12 en placeholder (E-08 a E-12d y E-15 a E-18) y 4 sin pantalla (E-13, E-14, E-19 y E-20). Esperan el bloque C2 por una decisión del 5/10: el front no arranca hasta que Fran avise que su backend está completo. Pero `openapi.json` (72 paths) **ya declara** los 14 paths de `/planification/*` y los 6 de `/routine/*` (sin contar circuitos), y el status del backend (copia del 4/9) da E-08 a E-12d y E-15 a E-18 por ✅. **Si ese estado sigue vigente, el bloque C2 (≈13 h) se puede adelantar.** Falta que Fran lo confirme: la copia puede estar vieja, y las asignaciones a alumnos (E-13, E-14, E-19, E-20) dependen igual de B7 y B5. Al 10/10 el backend no tuvo commits de código nuevos desde el 29/9 (el último es un renombre de archivos).
+2. **10/10 — el flujo del alumno espera contratos que el backend no define.** **8 CU** (U-08 a U-13, E-06 y E-07) dependen de B1 a B4 y B6. La raíz está en el backend: según su status del 4/9, `Routine_Exercise_Finished` solo se lee y ningún endpoint la escribe (su hallazgo 02), así que no hay cómo marcar un ejercicio (B3), dejar una nota (B4) ni consultar historial (B6). Además `GET /routine/{id}` es solo de coach y admin, y un alumno recibe 403 (lo resuelve B2), y `GET /planification/user/{id}/active` cuelga. **El 10/10 el Swagger de Render es idéntico a `openapi.json`** (72 paths, 75 operaciones y los mismos schemas): ninguno de B1 a B9 llegó. Con T26 a T29 hechas, `/u/plan` es el único placeholder del Usuario y las pantallas de rutina y de ejercicio no existen.
 3. **6/10 — CU-A-18: el front mockea un endpoint que no existe, pero el backend lo cubre con `promote_user`.** T37 usa `POST /coach/edit/{id}`, una propuesta del front que no está en el contrato (B8): contra el backend real el modal recibe un 404 de ruta. El status del backend, en cambio, da CU-A-18 por ✅ porque `POST /coach/promote_user` sobre un usuario que ya es coach **reactiva su `Coach` y pisa `coach_email` y `cuil`**. **Opción:** que T37 llame a `promote_user` y B8 se cierre sin tocar el backend. Con la salvedad de que ese endpoint no mira el rol ni `User.active` y devuelve 500 ante un `coach_email` repetido.
 4. **B9 y C4: la contraseña temporal no funciona de punta a punta.** El login no devuelve ningún flag de contraseña temporal (B9; el front propone `password_change_required`), así que con una cuenta real **nunca se fuerza el cambio**: solo lo simula la cuenta de demo. Y el backend imprime la temporal en su consola en vez de mandarla por mail (C4), de modo que **CU-U-04 no sirve en producción**. El front cumple su parte (CU-U-02 queda 🟡, CU-U-04 ✅) y queda a la espera.
-5. **8/10 — ✅ quiere decir «hecho contra el contrato», no «probado contra el backend real».** Cada tarea se verificó en el navegador con mocks y contra un doble local del contrato (`.claude/fake-backend.cjs`), que imita formatos y errores leyendo el código del backend. **Lo único comprobado contra Render es CORS** (preflight del 6/10). Sin credenciales de coach o admin no se pudo llamar a los endpoints que las piden (los de circuitos, por ejemplo); el checklist de pruebas manuales (apéndice A del plan) es un batch que hace Fran. Un ejemplo de lo que un doble no ve: en T16 los mocks no mostraron que `GET /user_rm/user/{id}` recorta columnas (V10); se descubrió leyendo el service. En el registry hay **47 endpoints**: 40 con mock (atienden solo a las cuentas de demo y una cuenta de verdad pasa al backend real, salvo B8, que no existe) y 7 apagados (circuitos y `routine/all-plus`, T44 primer tramo).
-6. **8/10 — 15 tipos provisionales en `pending.ts`.** Cada uno lleva `// PENDIENTE-CONTRATO` con el id de la dependencia: lo que el Swagger no declara o declara mal. **V1** (`status/users` y `type/users` sin schema), **V2** (el `exercise` del detalle de circuito sale vacío), **V9** (ejercicios y músculos con relaciones sin tipar), **V10** (RMs sin `exercise_id`), más **B7**, **B8** y **B9**. Salen de leer el código del backend; cuando Fran los declare en el Swagger, se borran y se regeneran los tipos (T25 y T44).
-7. **8/10 — Observaciones del backend, relevadas al hacer las tareas.** Para que Fran las revise; ninguna bloquea al front.
+5. **10/10 — ✅ quiere decir «hecho contra el contrato», no «probado contra el backend real».** Cada tarea se verificó en el navegador con mocks y contra un doble local del contrato (`.claude/fake-backend.cjs`), que imita formatos y errores leyendo el código del backend. **Lo único comprobado contra Render es CORS** (preflight del 6/10) y que su Swagger coincide con el contrato local (10/10). T26 a T29 se verificaron igual: en el navegador con mocks y contra el doble, no contra el backend real. Sin credenciales de coach o admin no se pudo llamar a los endpoints que las piden (los de circuitos, por ejemplo); el checklist de pruebas manuales (apéndice A del plan) es un batch que hace Fran. Un ejemplo de lo que un doble no ve: en T16 los mocks no mostraron que `GET /user_rm/user/{id}` recorta columnas (V10); se descubrió leyendo el service. En el registry hay **48 endpoints**: 41 con mock (atienden solo a las cuentas de demo y una cuenta de verdad pasa al backend real, salvo B8, que no existe) y 7 apagados (circuitos y `routine/all-plus`, T44 primer tramo).
+6. **10/10 — 15 tipos provisionales en `pending.ts`.** Cada uno lleva `// PENDIENTE-CONTRATO` con el id de la dependencia: lo que el Swagger no declara o declara mal. **V1** (`status/users` y `type/users` sin schema), **V2** (el `exercise` del detalle de circuito sale vacío), **V9** (ejercicios y músculos con relaciones sin tipar), **V10** (RMs sin `exercise_id`), más **B7**, **B8** y **B9**. Salen de leer el código del backend; cuando Fran los declare en el Swagger, se borran y se regeneran los tipos (T25 y T44).
+7. **10/10 — Observaciones del backend, relevadas al hacer las tareas.** Para que Fran las revise; ninguna bloquea al front.
    - **RMs (T26):** `weight` tiene `@Min(0.99)` en `CreateUserRmDto` y `EditUserRmDto` (parece un `1` mal escrito); editar responde 201 y el Swagger dice 200; el error al editar dice «Error al crear el RM de usuario»; y la fecha se normaliza con la zona horaria del servidor (conviene `getUTC*` o recibir un día sin hora).
+   - **Calculadora y wiki (T27, T28):** `POST /user_rm/potential` exige el ejercicio y lo valida aunque Epley no dependa de él (solo sirve para devolver el nombre); los `@Max(1000)` y `@Max(100)` del DTO no llevan mensaje en español. Las columnas opcionales de `Exercise` llegan en `null` y el Swagger las declara opcionales; los links de video e imágenes son texto libre que el backend no valida como http.
    - **Permisos (T15, T46):** `GET /users/all` usa `@Auth()` sin roles y lo puede llamar un alumno; `GET /coach/all` y `/coach/get/{id}` no tienen guard y devuelven CUIL y email profesional. `POST /users/set-active/{id}` no restringe nada: un admin puede darse de baja.
-   - **CU que el backend no cumple como están escritos:** CU-A-10 (borra el músculo en cascada en vez de rechazarlo), CU-A-06 (todo rechazo es un 500 genérico) y CU-A-17 (el camino «ya es entrenador» no existe: `promote_user` pisa email y CUIL).
+   - **CU que el backend no cumple como están escritos:** CU-A-10 (borra el músculo en cascada en vez de rechazarlo) y CU-A-17 (el camino «ya es entrenador» no existe: `promote_user` pisa email y CUIL).
    - **Sin transacción (T36):** `promote_user` cambia el rol antes de guardar el `Coach`; un `coach_email` repetido (es `unique`) da 500 y deja `role=coach` sin `Coach`.
 
 ---
@@ -96,12 +110,12 @@
 |---|---|---|
 | **3 al 10/10 ✅** | Fundaciones, Auth, Mi cuenta y Admin<br>*T01 a T14, T46, T30, T47 y T31 a T37* | ✅ registro, login, recuperar y cambiar contraseña, Mi cuenta (**U-01 a U-07**), con **U-02** 🟡 por B9<br>✅ Admin: ejercicios, músculos, grupos, entrenadores y tipos de membresía (**A-01 a A-23**)<br>🟡 editar entrenador (**A-18**): mock, el endpoint no existe (B8) |
 | **11 al 17/10 ✅** | Circuitos y Entrenador con contrato<br>*T19, T20, T15 a T18 y T48 · cerrada el 7/10* | ✅ alumnos, detalle, RMs y pagos (**E-01 a E-05**)<br>✅ circuitos (**E-21 a E-24**)<br>✅ membresías y registrar pago (**E-25 a E-29**)<br>🔵 rutinas y planificaciones del Entrenador: placeholder (T48) |
-| **18 al 24/10 ⏳** | Contratos nuevos, Usuario sin dependencias y núcleo<br>*T25 a T29 y T38 a T40* | ✅ Mis RMs (**U-17 a U-20**, T26), adelantada: mergeada en `develop`, falta el release a `main`<br>🔵 calculadora RM (**U-16**, T27) · temporizador (**U-14**, T29)<br>⬜ wiki de ejercicios (**U-15**, T28)<br>⬜ incorporar los contratos B1 a B9 (T25) y, sobre ellos, home semanal, detalle de rutina y de ejercicio (**U-08 a U-13**, T38 a T40) |
+| **18 al 24/10 ⏳** | Usuario sin dependencias, contratos nuevos y núcleo<br>*T26 a T29 cerradas el 9/10 · quedan T25 y T38 a T40* | ✅ Mis RMs (**U-17 a U-20**, T26), calculadora (**U-16**, T27), wiki (**U-15**, T28) y temporizador (**U-14**, T29): adelantadas, ya en `main`<br>⬜ incorporar los contratos B1 a B9 (T25): no llegaron, el Swagger de Render no cambió<br>🔵 home semanal (**U-08**, T38): placeholder, espera B1 y B5<br>⬜ detalle de rutina y de ejercicio, marcar series y notas (**U-09 a U-13**, T39 y T40): esperan B2, B3 y B4 |
 | **25 al 31/10** | Pendientes y backend real<br>*T43 y T44 (resto)* | ⬜ historial de entrenamientos y su filtro (**E-06, E-07**, T43, B6)<br>🟡 pasar a backend real lo que sigue en mock, incluido el flag de contraseña temporal (T44) |
 | **Bloque C2** | Rutinas y planificaciones · cuando Fran avise (previsto antes del 31/10)<br>*T21 a T24, T49, T41 y T42 · ≈13 h* | 🔵 listado y editor de rutinas (**E-15 a E-18**) y de planificaciones (**E-08 a E-12d**), para Admin y Entrenador<br>⬜ asignar planificación a un alumno (**E-13, E-14**, B7) y rutina puntual (**E-19, E-20**, B5)<br>🎯 Hito: **73 de 75 CU ✅**; los dos que quedan son U-02 y A-18, que esperan B9 y B8 |
 | **1 al 20/11** | Debug y entrega<br>*entrega final el 20/11* | checklist de pruebas manuales (apéndice A) en celular y en desktop; pasar a real lo que quede en mock<br>⚠️ la base de Render, recreada el 3/10, vence alrededor del 2/11 si el ciclo es de 30 días |
 
-## Detalle — Rol Usuario (20 CU · 50%)
+## Detalle — Rol Usuario (20 CU · 65%)
 
 ### Administrar mi cuenta
 
@@ -119,24 +133,24 @@
 
 | CU | Caso de uso | Estado | Pantalla · endpoint · nota |
 |---|---|---|---|
-| CU-U-08 | Obtener mi planificación | 🔵 Placeholder | `/u/plan` (T38) · `GET /planification/user/{id}/active` · placeholder · espera B1 (rutinas por semana) y B5 (rutina puntual) · el endpoint actual **cuelga** en el backend |
+| CU-U-08 | Obtener mi planificación | 🔵 Placeholder | `/u/plan` (T38) · `GET /planification/user/{id}/active` · es el **único placeholder que le queda al Usuario** · espera B1 (rutinas por semana) y B5 (rutina puntual) · el endpoint actual **cuelga** en el backend |
 | CU-U-09 | Ver detalle de rutina | ⬜ No implementado | `/u/rutina/:id` (sin ruta) (T39) · `GET /routine/{id}` · espera B2: hoy el endpoint es solo de coach y admin (un alumno recibe 403) |
 | CU-U-10 | Ver detalle de un ejercicio | ⬜ No implementado | `/u/ejercicio/:id` (sin ruta) (T40) · `GET /exercise/{id}` · espera B2 (series y estado dentro de la rutina) · la ficha de catálogo ya la muestra el Admin |
 | CU-U-11 | Ver mis RMs de un ejercicio | ⬜ No implementado | dentro de `/u/ejercicio/:id` (T40) · `GET /user_rm/user/{idUser}/exercise/{idExercise}` · endpoint real; falta la pantalla del ejercicio · `useUserRms` filtrado por `exercise.id` también sirve |
 | CU-U-12 | Marcar serie como realizado | ⬜ No implementado | sin ruta (T40) · espera B3: marcar una serie individual (`set_count: 3` son tres filas) |
 | CU-U-13 | Dejar una nota en el ejercicio | ⬜ No implementado | sin ruta (T40) · espera B4: nota por ejercicio (crear, editar y borrar) |
-| CU-U-14 | Temporizador | 🔵 Placeholder | `/u/timer` (T29) · placeholder · es solo cliente, sin backend |
-| CU-U-15 | Consultar wiki de ejercicios | ⬜ No implementado | `/u/wiki` y `/u/wiki/:id` (sin ruta) (T28) · `GET /exercise/all` · `GET /exercise/{id}` · `GET /muscles/mg/all` · sin dependencias · reusa `useExerciseCatalog` y `matchesSearch` de T31 |
+| CU-U-14 | Temporizador | ✅ Implementado | `/u/timer` (T29) · solo cliente, sin backend · sigue corriendo si cambiás de pantalla (el estado vive fuera de React y cuenta contra el reloj) · al llegar a cero avisa con un toast y vibra si el dispositivo puede |
+| CU-U-15 | Consultar wiki de ejercicios | ✅ Implementado | `/u/wiki` · `/u/wiki/:id` (T28) · `GET /exercise/all` · `GET /exercise/{id}` · `GET /muscles/mg/all` · búsqueda sin acentos y chips por grupo muscular, guardados en la URL · ficha con descripción, tips, video e imágenes (el prototipo no tiene la ficha) · comparte buscador y chips con el Admin |
 
 ### Administrar mis RMs
 
 | CU | Caso de uso | Estado | Pantalla · endpoint · nota |
 |---|---|---|---|
-| CU-U-16 | Calcular mis RM potenciales | 🔵 Placeholder | `/u/calculadora` (T27) · `POST /user_rm/potential` · placeholder (lo trae T26 para que el botón «Calculadora» tenga destino) · mostrará la tabla 1RM→12RM y avisará que no se guarda |
-| CU-U-17 | Registrar un RM | ✅ Implementado | `/u/rms` (T26) · `POST /user_rm/create` · en `develop` (PR #42), falta el release a `main` · la fecha viaja al mediodía para esquivar la zona horaria del servidor |
-| CU-U-18 | Editar un RM | ✅ Implementado | `/u/rms` (T26) · `POST /user_rm/edit/{id}` · en `develop` · no cambia el ejercicio · el backend responde 201 (el Swagger dice 200) |
-| CU-U-19 | Obtener mis RMs | ✅ Implementado | `/u/rms` (T26) · `GET /user_rm/user/{id}` · en `develop` · agrupados por ejercicio, del más reciente al más antiguo · llegan sin `exercise_id` (V10) |
-| CU-U-20 | Eliminar un RM | ✅ Implementado | `/u/rms` (T26) · `DELETE /user_rm/{id}` · en `develop` · borrado físico con confirmación |
+| CU-U-16 | Calcular mis RM potenciales | ✅ Implementado | `/u/calculadora` (T27) · `POST /user_rm/potential` · calcula solo, 400 ms después del último cambio · el cálculo es del backend (tabla 1RM→12RM), el front no repite Epley · avisa que no se guarda |
+| CU-U-17 | Registrar un RM | ✅ Implementado | `/u/rms` (T26) · `POST /user_rm/create` · la fecha viaja al mediodía para esquivar la zona horaria del servidor |
+| CU-U-18 | Editar un RM | ✅ Implementado | `/u/rms` (T26) · `POST /user_rm/edit/{id}` · no cambia el ejercicio · el backend responde 201 (el Swagger dice 200) |
+| CU-U-19 | Obtener mis RMs | ✅ Implementado | `/u/rms` (T26) · `GET /user_rm/user/{id}` · agrupados por ejercicio, del más reciente al más antiguo · llegan sin `exercise_id` (V10) |
+| CU-U-20 | Eliminar un RM | ✅ Implementado | `/u/rms` (T26) · `DELETE /user_rm/{id}` · borrado físico con confirmación |
 
 ---
 
@@ -211,9 +225,9 @@
 | CU-A-01 | Obtener ejercicios | ✅ Implementado | `/a/ejercicios` (T31) · `GET /exercise/all` · búsqueda por nombre y chips por grupo muscular, que cruzan tres endpoints (V9) |
 | CU-A-02 | Asignar músculo a ejercicio | ✅ Implementado | `/a/ejercicios/:id` (T31) · `POST /exercise/create` · `POST /exercise/edit/{id}` · dentro del editor, como en el backend |
 | CU-A-03 | Desasignar músculo de ejercicio | ✅ Implementado | `/a/ejercicios/:id` (T31) · `POST /exercise/edit/{id}` · dentro del editor |
-| CU-A-04 | Crear ejercicio | ✅ Implementado | `/a/ejercicios/nuevo` (T31) · `POST /exercise/create` · las imágenes se cargan como URL |
-| CU-A-05 | Editar ejercicio | ✅ Implementado | `/a/ejercicios/:id` (T31) · `POST /exercise/edit/{id}` · un campo opcional no se puede vaciar |
-| CU-A-06 | Eliminar ejercicio | ✅ Implementado | `/a/ejercicios` (T31) · `DELETE /exercise/{id}` · el backend no distingue el motivo del rechazo: 500 genérico (V7) |
+| CU-A-04 | Crear ejercicio | ✅ Implementado | `/a/ejercicios/nuevo` (T31) · `POST /exercise/create` · las imágenes se cargan como URL · un nombre repetido da 409 |
+| CU-A-05 | Editar ejercicio | ✅ Implementado | `/a/ejercicios/:id` (T31) · `POST /exercise/edit/{id}` · un campo opcional no se puede vaciar · un nombre repetido da 409 |
+| CU-A-06 | Eliminar ejercicio | ✅ Implementado | `/a/ejercicios` (T31) · `DELETE /exercise/{id}` · un ejercicio en circuitos, ya entrenado o con RMs registrados no se elimina: el backend responde 409 con el motivo y el front avisa cada caso |
 
 ### Administrar músculos
 
@@ -248,8 +262,8 @@
 | CU | Caso de uso | Estado | Pantalla · endpoint · nota |
 |---|---|---|---|
 | CU-A-20 | Obtener membresías | ✅ Implementado | `/a/membresias` (T34) · `GET /membership/all` · `GET /membership/type/users` · cuenta los alumnos de cada tipo (V1) |
-| CU-A-21 | Crear membresía | ✅ Implementado | `/a/membresias` (modal) (T34) · `POST /membership/create` · una duración repetida da 400 |
-| CU-A-22 | Editar membresía | ✅ Implementado | `/a/membresias` (modal) (T34) · `POST /membership/edit/{id}` · no es retroactivo: el pago copia nombre, duración y precio |
+| CU-A-21 | Crear membresía | ✅ Implementado | `/a/membresias` (modal) (T34) · `POST /membership/create` · una duración repetida da 400 y un nombre repetido, 409 |
+| CU-A-22 | Editar membresía | ✅ Implementado | `/a/membresias` (modal) (T34) · `POST /membership/edit/{id}` · no es retroactivo: el pago copia nombre, duración y precio · repetir la duración (400) o el nombre (409) se avisa |
 | CU-A-23 | Eliminar membresía | ✅ Implementado | `/a/membresias` (T34) · `POST /membership/set-active/{id}` · baja lógica con confirmación y reactivación |
 
 > Pantallas del Admin sin CU propio (reutilizan los del Entrenador): **navegación** (T46: sidebar, tab bar y «Más»), **panel** (T30: conteos de seis endpoints), **usuarios** (T47: E-01 a E-03 más plan vigente, pagos y estado de membresía) y **circuitos** (T19 y T20: E-21 a E-24). **Rutinas** y **planificaciones** muestran un placeholder hasta el bloque C2.
@@ -258,14 +272,13 @@
 
 ## Orden sugerido para cerrar la brecha
 
-Parte de **46 ✅** y suma lo que cada bloque habilita. Las horas son las del plan e incluyen la revisión.
+Parte de **49 ✅** y suma lo que cada bloque habilita. Las horas son las del plan e incluyen la revisión.
 
 | # | Qué lo bloquea | CU | Tareas | Estimado | ✅ acumulado |
 |---:|---|---|---|---:|---:|
-| 1 | **Sin dependencias del backend**<br>*El front puede hacerlas hoy* | U-14, U-15, U-16 (3) | T27, T28, T29 | ≈3,5 h | 49 de 75 |
-| 2 | **Contratos B1 a B4 y B6**<br>*U-08 usa además B5 como respaldo; U-11 ya tiene endpoint y espera la pantalla de T40* | U-08 a U-13, E-06, E-07 (8) | T25, T38, T39, T40, T43 | ≈10,5 h | 57 de 75 |
-| 3 | **Bloque C2 (aviso de Fran) más B5 y B7**<br>*Ver el hallazgo sobre lo que el contrato y el status del backend ya muestran* | E-08 a E-12d, E-13 a E-20 (16) | T21 a T24, T49, T41, T42 | ≈13 h | 73 de 75 |
-| 4 | **B8 y B9 (los dos 🟡)**<br>*Las 2 h son las de T44 (resto de mocks a real)* | A-18, U-02 (2) | T37, T09, T44 | ≈2 h | 75 de 75 |
+| 1 | **Contratos B1 a B4 y B6**<br>*Se pueden armar ya contra mock con tipos provisionales; conviene empezar por T39, porque la estructura de `GET /routine/{id}` ya está en el contrato. U-08 usa además B5; U-11 ya tiene endpoint y espera la pantalla de T40* | U-08 a U-13, E-06, E-07 (8) | T25, T38, T39, T40, T43 | ≈10,5 h | 57 de 75 |
+| 2 | **Bloque C2 (aviso de Fran) más B5 y B7**<br>*Con el aviso de Fran, T21 a T24 y T49 (≈9,5 h) salen contra el backend real porque el contrato ya está; T41 y T42 esperan B7 y B5* | E-08 a E-12d, E-13 a E-20 (16) | T21 a T24, T49, T41, T42 | ≈13 h | 73 de 75 |
+| 3 | **B8 y B9 (los dos 🟡)**<br>*Las 2 h son las de T44 (resto de mocks a real); A-18 se puede cerrar antes pasando T37 a `promote_user`* | A-18, U-02 (2) | T37, T09, T44 | ≈2 h | 75 de 75 |
 
 ---
 

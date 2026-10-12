@@ -213,10 +213,10 @@
     <p class="lede">Mapeo uno a uno de los 75 casos de uso especificados contra las rutas, pantallas y endpoints del front. Cada CU se clasifica según si su pantalla existe y llama al endpoint real.</p>
     <div class="meta">
       <span><b>75</b> casos de uso</span>
-      <span><b>32 de 49</b> tareas del plan</span>
-      <span><b>47</b> endpoints en el registry de mocks</span>
+      <span><b>35 de 49</b> tareas del plan</span>
+      <span><b>48</b> endpoints en el registry de mocks</span>
       <span>Fuente: <b>Use Cases/</b> vs <b>PowerApp-Web</b></span>
-      <span>Corte: <b>2026-10-08</b></span>
+      <span>Corte: <b>2026-10-10</b></span>
     </div>
   </header>
 
@@ -224,49 +224,49 @@
   <section>
     <div class="sec-head"><h2>Panorama general</h2><span class="kicker">75 CU clasificados</span></div>
     <div class="tiles">
-      <div class="tile done"><div class="n">46</div><div class="lbl">Implementado</div><div class="pct">61% · pantalla + endpoint real</div></div>
+      <div class="tile done"><div class="n">49</div><div class="lbl">Implementado</div><div class="pct">65% · pantalla + endpoint real</div></div>
       <div class="tile partial"><div class="n">2</div><div class="lbl">Parcial</div><div class="pct">3% · depende del backend</div></div>
-      <div class="tile stub"><div class="n">16</div><div class="lbl">Placeholder</div><div class="pct">21% · «en construcción»</div></div>
-      <div class="tile missing"><div class="n">11</div><div class="lbl">No implementado</div><div class="pct">15% · sin pantalla</div></div>
+      <div class="tile stub"><div class="n">14</div><div class="lbl">Placeholder</div><div class="pct">19% · «en construcción»</div></div>
+      <div class="tile missing"><div class="n">10</div><div class="lbl">No implementado</div><div class="pct">13% · sin pantalla</div></div>
     </div>
 
     <div class="bar-block">
-      <div class="bar" role="img" aria-label="46 implementados, 2 parciales, 16 placeholders, 11 no implementados de 75">
-        <span class="s-done" style="width:61.33%"></span>
+      <div class="bar" role="img" aria-label="49 implementados, 2 parciales, 14 placeholders, 10 no implementados de 75">
+        <span class="s-done" style="width:65.33%"></span>
         <span class="s-partial" style="width:2.67%"></span>
-        <span class="s-stub" style="width:21.33%"></span>
-        <span class="s-missing" style="width:14.67%"></span>
+        <span class="s-stub" style="width:18.67%"></span>
+        <span class="s-missing" style="width:13.33%"></span>
       </div>
       <div class="bar-cap">
-        <span><b>48 de 75</b> CU con pantalla funcional (64%)</span>
-        <span><b>27</b> pendientes de trabajo real (placeholder + no implementado)</span>
+        <span><b>51 de 75</b> CU con pantalla funcional (68%)</span>
+        <span><b>24</b> pendientes de trabajo real (placeholder + no implementado)</span>
       </div>
     </div>
     <div class="note-box">
-      <p>El corte incluye <b>T26</b> (CU-U-17 a U-20), mergeada en <code>develop</code> (PR #42) pero todavía no en <code>main</code>: ahí son 42 ✅ hasta el próximo release.</p>
+      <p>No hay nada del corte sin liberar: <code>main</code> (<code>b69a477</code>) y <code>develop</code> (<code>ff3ebe2</code>) tienen el mismo código.</p>
       <p>✅ quiere decir <b>«hecho contra el contrato»</b>, no «probado contra el backend real»: ver el hallazgo 05.</p>
     </div>
   </section>
 
   <!-- BY ROLE -->
   <section>
-    <div class="sec-head"><h2>Cobertura por rol</h2><span class="kicker">18 de los 29 pendientes son del Entrenador</span></div>
+    <div class="sec-head"><h2>Cobertura por rol</h2><span class="kicker">18 de los 26 pendientes son del Entrenador</span></div>
     <div class="roles">
       <div class="role-card">
         <h3>Usuario <em>20 CU</em></h3>
-        <div class="role-pct" style="color:var(--partial)">50%</div>
-        <div class="role-sub">10 implementados · Mi cuenta y Mis RMs hechos; el entrenamiento espera contratos (B1 a B4)</div>
+        <div class="role-pct" style="color:var(--partial)">65%</div>
+        <div class="role-sub">13 implementados · cuenta, RMs, calculadora, wiki y temporizador hechos; el entrenamiento espera contratos (B1 a B5)</div>
         <div class="mini-bar">
-          <span style="width:50.00%;background:var(--done)"></span>
+          <span style="width:65.00%;background:var(--done)"></span>
           <span style="width:5.00%;background:var(--partial)"></span>
-          <span style="width:15.00%;background:var(--stub)"></span>
-          <span style="width:30.00%;background:var(--missing-line)"></span>
+          <span style="width:5.00%;background:var(--stub)"></span>
+          <span style="width:25.00%;background:var(--missing-line)"></span>
         </div>
         <div class="role-legend">
-          <i><span class="swatch" style="background:var(--done)"></span><b>10</b> impl.</i>
+          <i><span class="swatch" style="background:var(--done)"></span><b>13</b> impl.</i>
           <i><span class="swatch" style="background:var(--partial)"></span><b>1</b> parc.</i>
-          <i><span class="swatch" style="background:var(--stub)"></span><b>3</b> placeh.</i>
-          <i><span class="swatch" style="background:var(--missing-line)"></span><b>6</b> falta</i>
+          <i><span class="swatch" style="background:var(--stub)"></span><b>1</b> placeh.</i>
+          <i><span class="swatch" style="background:var(--missing-line)"></span><b>5</b> falta</i>
         </div>
       </div>
       <div class="role-card">
@@ -308,14 +308,14 @@
         <div class="fi">01</div>
         <div>
           <h4>8/10 — C2: el contrato ya trae los endpoints, el front espera el aviso de Fran</h4>
-          <p>Rutinas y planificaciones suman <b>16 CU (21%)</b>: 12 en placeholder (E-08 a E-12d y E-15 a E-18) y 4 sin pantalla (E-13, E-14, E-19 y E-20). Esperan el bloque C2 por una decisión del 5/10: el front no arranca hasta que Fran avise que su backend está completo. Pero <code>openapi.json</code> (72 paths) <b>ya declara</b> los 14 paths de <code>/planification/*</code> y los 6 de <code>/routine/*</code> (sin contar circuitos), y el status del backend (copia del 4/9) da E-08 a E-12d y E-15 a E-18 por ✅. <b>Si ese estado sigue vigente, el bloque C2 (≈13 h) se puede adelantar.</b> Falta que Fran lo confirme: la copia puede estar vieja, y las asignaciones a alumnos (E-13, E-14, E-19, E-20) dependen igual de B7 y B5.</p>
+          <p>Rutinas y planificaciones suman <b>16 CU (21%)</b>: 12 en placeholder (E-08 a E-12d y E-15 a E-18) y 4 sin pantalla (E-13, E-14, E-19 y E-20). Esperan el bloque C2 por una decisión del 5/10: el front no arranca hasta que Fran avise que su backend está completo. Pero <code>openapi.json</code> (72 paths) <b>ya declara</b> los 14 paths de <code>/planification/*</code> y los 6 de <code>/routine/*</code> (sin contar circuitos), y el status del backend (copia del 4/9) da E-08 a E-12d y E-15 a E-18 por ✅. <b>Si ese estado sigue vigente, el bloque C2 (≈13 h) se puede adelantar.</b> Falta que Fran lo confirme: la copia puede estar vieja, y las asignaciones a alumnos (E-13, E-14, E-19, E-20) dependen igual de B7 y B5. Al 10/10 el backend no tuvo commits de código nuevos desde el 29/9 (el último es un renombre de archivos).</p>
         </div>
       </div>
       <div class="finding">
         <div class="fi">02</div>
         <div>
-          <h4>Nuevo (8/10) — el flujo del alumno espera contratos que el backend no define</h4>
-          <p><b>8 CU</b> (U-08 a U-13, E-06 y E-07) dependen de B1 a B4 y B6. La raíz está en el backend: según su status del 4/9, <code>Routine_Exercise_Finished</code> solo se lee y ningún endpoint la escribe (su hallazgo 02), así que no hay cómo marcar un ejercicio (B3), dejar una nota (B4) ni consultar historial (B6). Además <code>GET /routine/{id}</code> es solo de coach y admin, y un alumno recibe 403 (lo resuelve B2), y <code>GET /planification/user/{id}/active</code> cuelga. Hasta que lleguen, <code>/u/plan</code> es un placeholder y las pantallas de rutina y ejercicio no existen.</p>
+          <h4>10/10 — el flujo del alumno espera contratos que el backend no define</h4>
+          <p><b>8 CU</b> (U-08 a U-13, E-06 y E-07) dependen de B1 a B4 y B6. La raíz está en el backend: según su status del 4/9, <code>Routine_Exercise_Finished</code> solo se lee y ningún endpoint la escribe (su hallazgo 02), así que no hay cómo marcar un ejercicio (B3), dejar una nota (B4) ni consultar historial (B6). Además <code>GET /routine/{id}</code> es solo de coach y admin, y un alumno recibe 403 (lo resuelve B2), y <code>GET /planification/user/{id}/active</code> cuelga. <b>El 10/10 el Swagger de Render es idéntico a <code>openapi.json</code></b> (72 paths, 75 operaciones y los mismos schemas): ninguno de B1 a B9 llegó. Con T26 a T29 hechas, <code>/u/plan</code> es el único placeholder del Usuario y las pantallas de rutina y de ejercicio no existen.</p>
         </div>
       </div>
       <div class="finding">
@@ -335,26 +335,27 @@
       <div class="finding">
         <div class="fi">05</div>
         <div>
-          <h4>8/10 — ✅ quiere decir «hecho contra el contrato», no «probado contra el backend real»</h4>
-          <p>Cada tarea se verificó en el navegador con mocks y contra un doble local del contrato (<code>.claude/fake-backend.cjs</code>), que imita formatos y errores leyendo el código del backend. <b>Lo único comprobado contra Render es CORS</b> (preflight del 6/10). Sin credenciales de coach o admin no se pudo llamar a los endpoints que las piden (los de circuitos, por ejemplo); el checklist de pruebas manuales (apéndice A del plan) es un batch que hace Fran. Un ejemplo de lo que un doble no ve: en T16 los mocks no mostraron que <code>GET /user_rm/user/{id}</code> recorta columnas (V10); se descubrió leyendo el service. En el registry hay <b>47 endpoints</b>: 40 con mock (atienden solo a las cuentas de demo y una cuenta de verdad pasa al backend real, salvo B8, que no existe) y 7 apagados (circuitos y <code>routine/all-plus</code>, T44 primer tramo).</p>
+          <h4>10/10 — ✅ quiere decir «hecho contra el contrato», no «probado contra el backend real»</h4>
+          <p>Cada tarea se verificó en el navegador con mocks y contra un doble local del contrato (<code>.claude/fake-backend.cjs</code>), que imita formatos y errores leyendo el código del backend. <b>Lo único comprobado contra Render es CORS</b> (preflight del 6/10) y que su Swagger coincide con el contrato local (10/10). T26 a T29 se verificaron igual: en el navegador con mocks y contra el doble, no contra el backend real. Sin credenciales de coach o admin no se pudo llamar a los endpoints que las piden (los de circuitos, por ejemplo); el checklist de pruebas manuales (apéndice A del plan) es un batch que hace Fran. Un ejemplo de lo que un doble no ve: en T16 los mocks no mostraron que <code>GET /user_rm/user/{id}</code> recorta columnas (V10); se descubrió leyendo el service. En el registry hay <b>48 endpoints</b>: 41 con mock (atienden solo a las cuentas de demo y una cuenta de verdad pasa al backend real, salvo B8, que no existe) y 7 apagados (circuitos y <code>routine/all-plus</code>, T44 primer tramo).</p>
         </div>
       </div>
       <div class="finding">
         <div class="fi">06</div>
         <div>
-          <h4>8/10 — 15 tipos provisionales en <code>pending.ts</code></h4>
+          <h4>10/10 — 15 tipos provisionales en <code>pending.ts</code></h4>
           <p>Cada uno lleva <code>// PENDIENTE-CONTRATO</code> con el id de la dependencia: lo que el Swagger no declara o declara mal. <b>V1</b> (<code>status/users</code> y <code>type/users</code> sin schema), <b>V2</b> (el <code>exercise</code> del detalle de circuito sale vacío), <b>V9</b> (ejercicios y músculos con relaciones sin tipar), <b>V10</b> (RMs sin <code>exercise_id</code>), más <b>B7</b>, <b>B8</b> y <b>B9</b>. Salen de leer el código del backend; cuando Fran los declare en el Swagger, se borran y se regeneran los tipos (T25 y T44).</p>
         </div>
       </div>
       <div class="finding">
         <div class="fi">07</div>
         <div>
-          <h4>8/10 — Observaciones del backend, relevadas al hacer las tareas</h4>
+          <h4>10/10 — Observaciones del backend, relevadas al hacer las tareas</h4>
           <p>Para que Fran las revise; ninguna bloquea al front.</p>
           <ul>
             <li><b>RMs (T26):</b> <code>weight</code> tiene <code>@Min(0.99)</code> en <code>CreateUserRmDto</code> y <code>EditUserRmDto</code> (parece un <code>1</code> mal escrito); editar responde 201 y el Swagger dice 200; el error al editar dice «Error al crear el RM de usuario»; y la fecha se normaliza con la zona horaria del servidor (conviene <code>getUTC*</code> o recibir un día sin hora).</li>
+            <li><b>Calculadora y wiki (T27, T28):</b> <code>POST /user_rm/potential</code> exige el ejercicio y lo valida aunque Epley no dependa de él (solo sirve para devolver el nombre); los <code>@Max(1000)</code> y <code>@Max(100)</code> del DTO no llevan mensaje en español. Las columnas opcionales de <code>Exercise</code> llegan en <code>null</code> y el Swagger las declara opcionales; los links de video e imágenes son texto libre que el backend no valida como http.</li>
             <li><b>Permisos (T15, T46):</b> <code>GET /users/all</code> usa <code>@Auth()</code> sin roles y lo puede llamar un alumno; <code>GET /coach/all</code> y <code>/coach/get/{id}</code> no tienen guard y devuelven CUIL y email profesional. <code>POST /users/set-active/{id}</code> no restringe nada: un admin puede darse de baja.</li>
-            <li><b>CU que el backend no cumple como están escritos:</b> CU-A-10 (borra el músculo en cascada en vez de rechazarlo), CU-A-06 (todo rechazo es un 500 genérico) y CU-A-17 (el camino «ya es entrenador» no existe: <code>promote_user</code> pisa email y CUIL).</li>
+            <li><b>CU que el backend no cumple como están escritos:</b> CU-A-10 (borra el músculo en cascada en vez de rechazarlo) y CU-A-17 (el camino «ya es entrenador» no existe: <code>promote_user</code> pisa email y CUIL).</li>
             <li><b>Sin transacción (T36):</b> <code>promote_user</code> cambia el rol antes de guardar el <code>Coach</code>; un <code>coach_email</code> repetido (es <code>unique</code>) da 500 y deja <code>role=coach</code> sin <code>Coach</code>.</li>
           </ul>
         </div>
@@ -393,12 +394,12 @@
             <li class="stub"><span>rutinas y planificaciones del Entrenador: placeholder (T48)</span></li>
           </ul>
         </td></tr>
-          <tr><td class="cu">18 al 24/10 ⏳</td><td class="name">Contratos nuevos, Usuario sin dependencias y núcleo <span class="muted">· T25 a T29 y T38 a T40</span></td><td>
+          <tr><td class="cu">18 al 24/10 ⏳</td><td class="name">Usuario sin dependencias, contratos nuevos y núcleo <span class="muted">· T26 a T29 cerradas el 9/10 · quedan T25 y T38 a T40</span></td><td>
           <ul class="cu-list">
-            <li class="done"><span>Mis RMs (<b>U-17 a U-20</b>, T26), adelantada: mergeada en <code>develop</code>, falta el release a <code>main</code></span></li>
-            <li class="stub"><span>calculadora RM (<b>U-16</b>, T27) · temporizador (<b>U-14</b>, T29)</span></li>
-            <li class="missing"><span>wiki de ejercicios (<b>U-15</b>, T28)</span></li>
-            <li class="missing"><span>incorporar los contratos B1 a B9 (T25) y, sobre ellos, home semanal, detalle de rutina y de ejercicio (<b>U-08 a U-13</b>, T38 a T40)</span></li>
+            <li class="done"><span>Mis RMs (<b>U-17 a U-20</b>, T26), calculadora (<b>U-16</b>, T27), wiki (<b>U-15</b>, T28) y temporizador (<b>U-14</b>, T29): adelantadas, ya en <code>main</code></span></li>
+            <li class="missing"><span>incorporar los contratos B1 a B9 (T25): no llegaron, el Swagger de Render no cambió</span></li>
+            <li class="stub"><span>home semanal (<b>U-08</b>, T38): placeholder, espera B1 y B5</span></li>
+            <li class="missing"><span>detalle de rutina y de ejercicio, marcar series y notas (<b>U-09 a U-13</b>, T39 y T40): esperan B2, B3 y B4</span></li>
           </ul>
         </td></tr>
           <tr><td class="cu">25 al 31/10</td><td class="name">Pendientes y backend real <span class="muted">· T43 y T44 (resto)</span></td><td>
@@ -427,7 +428,7 @@
 
   <!-- DETAIL: USUARIO -->
   <section>
-    <div class="sec-head"><h2>Rol Usuario</h2><span class="kicker">20 CU · 50% implementado</span></div>
+    <div class="sec-head"><h2>Rol Usuario</h2><span class="kicker">20 CU · 65% implementado</span></div>
     <div class="table-scroll">
       <table>
         <thead>
@@ -444,21 +445,21 @@
           <tr><td class="cu">CU-U-07</td><td class="name">Obtener historial de pagos</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/cuenta/pagos · T14</span><span class="muted"> · </span><span class="verb">GET</span> /membership/payment/user/{id}</td></tr>
 
           <tr class="pkg"><td colspan="4"><span class="pkg-lbl">Mi entrenamiento</span></td></tr>
-          <tr><td class="cu">CU-U-08</td><td class="name">Obtener mi planificación</td><td><span class="chip stub"><span class="cd"></span>Placeholder</span></td><td class="endpoint"><span class="muted">/u/plan · T38</span><span class="muted"> · </span><span class="verb">GET</span> /planification/user/{id}/active<span class="muted"> · </span><span class="muted">placeholder · espera B1 (rutinas por semana) y B5 (rutina puntual) · el endpoint actual <b>cuelga</b> en el backend</span></td></tr>
+          <tr><td class="cu">CU-U-08</td><td class="name">Obtener mi planificación</td><td><span class="chip stub"><span class="cd"></span>Placeholder</span></td><td class="endpoint"><span class="muted">/u/plan · T38</span><span class="muted"> · </span><span class="verb">GET</span> /planification/user/{id}/active<span class="muted"> · </span><span class="muted">es el <b>único placeholder que le queda al Usuario</b> · espera B1 (rutinas por semana) y B5 (rutina puntual) · el endpoint actual <b>cuelga</b> en el backend</span></td></tr>
           <tr><td class="cu">CU-U-09</td><td class="name">Ver detalle de rutina</td><td><span class="chip missing"><span class="cd"></span>No implementado</span></td><td class="endpoint"><span class="muted">/u/rutina/:id (sin ruta) · T39</span><span class="muted"> · </span><span class="verb">GET</span> /routine/{id}<span class="muted"> · </span><span class="muted">espera B2: hoy el endpoint es solo de coach y admin (un alumno recibe 403)</span></td></tr>
           <tr><td class="cu">CU-U-10</td><td class="name">Ver detalle de un ejercicio</td><td><span class="chip missing"><span class="cd"></span>No implementado</span></td><td class="endpoint"><span class="muted">/u/ejercicio/:id (sin ruta) · T40</span><span class="muted"> · </span><span class="verb">GET</span> /exercise/{id}<span class="muted"> · </span><span class="muted">espera B2 (series y estado dentro de la rutina) · la ficha de catálogo ya la muestra el Admin</span></td></tr>
           <tr><td class="cu">CU-U-11</td><td class="name">Ver mis RMs de un ejercicio</td><td><span class="chip missing"><span class="cd"></span>No implementado</span></td><td class="endpoint"><span class="muted">dentro de /u/ejercicio/:id · T40</span><span class="muted"> · </span><span class="verb">GET</span> /user_rm/user/{idUser}/exercise/{idExercise}<span class="muted"> · </span><span class="muted">endpoint real; falta la pantalla del ejercicio · <code>useUserRms</code> filtrado por <code>exercise.id</code> también sirve</span></td></tr>
           <tr><td class="cu">CU-U-12</td><td class="name">Marcar serie como realizado</td><td><span class="chip missing"><span class="cd"></span>No implementado</span></td><td class="endpoint"><span class="muted">sin ruta · T40</span><span class="muted"> · </span><span class="muted">espera B3: marcar una serie individual (<code>set_count: 3</code> son tres filas)</span></td></tr>
           <tr><td class="cu">CU-U-13</td><td class="name">Dejar una nota en el ejercicio</td><td><span class="chip missing"><span class="cd"></span>No implementado</span></td><td class="endpoint"><span class="muted">sin ruta · T40</span><span class="muted"> · </span><span class="muted">espera B4: nota por ejercicio (crear, editar y borrar)</span></td></tr>
-          <tr><td class="cu">CU-U-14</td><td class="name">Temporizador</td><td><span class="chip stub"><span class="cd"></span>Placeholder</span></td><td class="endpoint"><span class="muted">/u/timer · T29</span><span class="muted"> · </span><span class="muted">placeholder · es solo cliente, sin backend</span></td></tr>
-          <tr><td class="cu">CU-U-15</td><td class="name">Consultar wiki de ejercicios</td><td><span class="chip missing"><span class="cd"></span>No implementado</span></td><td class="endpoint"><span class="muted">/u/wiki y /u/wiki/:id (sin ruta) · T28</span><span class="muted"> · </span><span class="verb">GET</span> /exercise/all<span class="muted"> · </span><span class="verb">GET</span> /exercise/{id}<span class="muted"> · </span><span class="verb">GET</span> /muscles/mg/all<span class="muted"> · </span><span class="muted">sin dependencias · reusa <code>useExerciseCatalog</code> y <code>matchesSearch</code> de T31</span></td></tr>
+          <tr><td class="cu">CU-U-14</td><td class="name">Temporizador</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/u/timer · T29</span><span class="muted"> · </span><span class="muted">solo cliente, sin backend · sigue corriendo si cambiás de pantalla (el estado vive fuera de React y cuenta contra el reloj) · al llegar a cero avisa con un toast y vibra si el dispositivo puede</span></td></tr>
+          <tr><td class="cu">CU-U-15</td><td class="name">Consultar wiki de ejercicios</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/u/wiki · /u/wiki/:id · T28</span><span class="muted"> · </span><span class="verb">GET</span> /exercise/all<span class="muted"> · </span><span class="verb">GET</span> /exercise/{id}<span class="muted"> · </span><span class="verb">GET</span> /muscles/mg/all<span class="muted"> · </span><span class="muted">búsqueda sin acentos y chips por grupo muscular, guardados en la URL · ficha con descripción, tips, video e imágenes (el prototipo no tiene la ficha) · comparte buscador y chips con el Admin</span></td></tr>
 
           <tr class="pkg"><td colspan="4"><span class="pkg-lbl">Administrar mis RMs</span></td></tr>
-          <tr><td class="cu">CU-U-16</td><td class="name">Calcular mis RM potenciales</td><td><span class="chip stub"><span class="cd"></span>Placeholder</span></td><td class="endpoint"><span class="muted">/u/calculadora · T27</span><span class="muted"> · </span><span class="verb">POST</span> /user_rm/potential<span class="muted"> · </span><span class="muted">placeholder (lo trae T26 para que el botón «Calculadora» tenga destino) · mostrará la tabla 1RM→12RM y avisará que no se guarda</span></td></tr>
-          <tr><td class="cu">CU-U-17</td><td class="name">Registrar un RM</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/u/rms · T26</span><span class="muted"> · </span><span class="verb">POST</span> /user_rm/create<span class="muted"> · </span><span class="muted">en <code>develop</code> (PR #42), falta el release a <code>main</code> · la fecha viaja al mediodía para esquivar la zona horaria del servidor</span></td></tr>
-          <tr><td class="cu">CU-U-18</td><td class="name">Editar un RM</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/u/rms · T26</span><span class="muted"> · </span><span class="verb">POST</span> /user_rm/edit/{id}<span class="muted"> · </span><span class="muted">en <code>develop</code> · no cambia el ejercicio · el backend responde 201 (el Swagger dice 200)</span></td></tr>
-          <tr><td class="cu">CU-U-19</td><td class="name">Obtener mis RMs</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/u/rms · T26</span><span class="muted"> · </span><span class="verb">GET</span> /user_rm/user/{id}<span class="muted"> · </span><span class="muted">en <code>develop</code> · agrupados por ejercicio, del más reciente al más antiguo · llegan sin <code>exercise_id</code> (V10)</span></td></tr>
-          <tr><td class="cu">CU-U-20</td><td class="name">Eliminar un RM</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/u/rms · T26</span><span class="muted"> · </span><span class="verb">DELETE</span> /user_rm/{id}<span class="muted"> · </span><span class="muted">en <code>develop</code> · borrado físico con confirmación</span></td></tr>
+          <tr><td class="cu">CU-U-16</td><td class="name">Calcular mis RM potenciales</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/u/calculadora · T27</span><span class="muted"> · </span><span class="verb">POST</span> /user_rm/potential<span class="muted"> · </span><span class="muted">calcula solo, 400 ms después del último cambio · el cálculo es del backend (tabla 1RM→12RM), el front no repite Epley · avisa que no se guarda</span></td></tr>
+          <tr><td class="cu">CU-U-17</td><td class="name">Registrar un RM</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/u/rms · T26</span><span class="muted"> · </span><span class="verb">POST</span> /user_rm/create<span class="muted"> · </span><span class="muted">la fecha viaja al mediodía para esquivar la zona horaria del servidor</span></td></tr>
+          <tr><td class="cu">CU-U-18</td><td class="name">Editar un RM</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/u/rms · T26</span><span class="muted"> · </span><span class="verb">POST</span> /user_rm/edit/{id}<span class="muted"> · </span><span class="muted">no cambia el ejercicio · el backend responde 201 (el Swagger dice 200)</span></td></tr>
+          <tr><td class="cu">CU-U-19</td><td class="name">Obtener mis RMs</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/u/rms · T26</span><span class="muted"> · </span><span class="verb">GET</span> /user_rm/user/{id}<span class="muted"> · </span><span class="muted">agrupados por ejercicio, del más reciente al más antiguo · llegan sin <code>exercise_id</code> (V10)</span></td></tr>
+          <tr><td class="cu">CU-U-20</td><td class="name">Eliminar un RM</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/u/rms · T26</span><span class="muted"> · </span><span class="verb">DELETE</span> /user_rm/{id}<span class="muted"> · </span><span class="muted">borrado físico con confirmación</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -533,9 +534,9 @@
           <tr><td class="cu">CU-A-01</td><td class="name">Obtener ejercicios</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/a/ejercicios · T31</span><span class="muted"> · </span><span class="verb">GET</span> /exercise/all<span class="muted"> · </span><span class="muted">búsqueda por nombre y chips por grupo muscular, que cruzan tres endpoints (V9)</span></td></tr>
           <tr><td class="cu">CU-A-02</td><td class="name">Asignar músculo a ejercicio</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/a/ejercicios/:id · T31</span><span class="muted"> · </span><span class="verb">POST</span> /exercise/create<span class="muted"> · </span><span class="verb">POST</span> /exercise/edit/{id}<span class="muted"> · </span><span class="muted">dentro del editor, como en el backend</span></td></tr>
           <tr><td class="cu">CU-A-03</td><td class="name">Desasignar músculo de ejercicio</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/a/ejercicios/:id · T31</span><span class="muted"> · </span><span class="verb">POST</span> /exercise/edit/{id}<span class="muted"> · </span><span class="muted">dentro del editor</span></td></tr>
-          <tr><td class="cu">CU-A-04</td><td class="name">Crear ejercicio</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/a/ejercicios/nuevo · T31</span><span class="muted"> · </span><span class="verb">POST</span> /exercise/create<span class="muted"> · </span><span class="muted">las imágenes se cargan como URL</span></td></tr>
-          <tr><td class="cu">CU-A-05</td><td class="name">Editar ejercicio</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/a/ejercicios/:id · T31</span><span class="muted"> · </span><span class="verb">POST</span> /exercise/edit/{id}<span class="muted"> · </span><span class="muted">un campo opcional no se puede vaciar</span></td></tr>
-          <tr><td class="cu">CU-A-06</td><td class="name">Eliminar ejercicio</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/a/ejercicios · T31</span><span class="muted"> · </span><span class="verb">DELETE</span> /exercise/{id}<span class="muted"> · </span><span class="muted">el backend no distingue el motivo del rechazo: 500 genérico (V7)</span></td></tr>
+          <tr><td class="cu">CU-A-04</td><td class="name">Crear ejercicio</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/a/ejercicios/nuevo · T31</span><span class="muted"> · </span><span class="verb">POST</span> /exercise/create<span class="muted"> · </span><span class="muted">las imágenes se cargan como URL · un nombre repetido da 409</span></td></tr>
+          <tr><td class="cu">CU-A-05</td><td class="name">Editar ejercicio</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/a/ejercicios/:id · T31</span><span class="muted"> · </span><span class="verb">POST</span> /exercise/edit/{id}<span class="muted"> · </span><span class="muted">un campo opcional no se puede vaciar · un nombre repetido da 409</span></td></tr>
+          <tr><td class="cu">CU-A-06</td><td class="name">Eliminar ejercicio</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/a/ejercicios · T31</span><span class="muted"> · </span><span class="verb">DELETE</span> /exercise/{id}<span class="muted"> · </span><span class="muted">un ejercicio en circuitos, ya entrenado o con RMs registrados no se elimina: el backend responde 409 con el motivo y el front avisa cada caso</span></td></tr>
 
           <tr class="pkg"><td colspan="4"><span class="pkg-lbl">Administrar músculos</span></td></tr>
           <tr><td class="cu">CU-A-07</td><td class="name">Obtener músculos</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/a/catalogo (Músculos) · T32</span><span class="muted"> · </span><span class="verb">GET</span> /muscles/all</td></tr>
@@ -558,8 +559,8 @@
 
           <tr class="pkg"><td colspan="4"><span class="pkg-lbl">Administrar membresías (tipos)</span></td></tr>
           <tr><td class="cu">CU-A-20</td><td class="name">Obtener membresías</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/a/membresias · T34</span><span class="muted"> · </span><span class="verb">GET</span> /membership/all<span class="muted"> · </span><span class="verb">GET</span> /membership/type/users<span class="muted"> · </span><span class="muted">cuenta los alumnos de cada tipo (V1)</span></td></tr>
-          <tr><td class="cu">CU-A-21</td><td class="name">Crear membresía</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/a/membresias (modal) · T34</span><span class="muted"> · </span><span class="verb">POST</span> /membership/create<span class="muted"> · </span><span class="muted">una duración repetida da 400</span></td></tr>
-          <tr><td class="cu">CU-A-22</td><td class="name">Editar membresía</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/a/membresias (modal) · T34</span><span class="muted"> · </span><span class="verb">POST</span> /membership/edit/{id}<span class="muted"> · </span><span class="muted">no es retroactivo: el pago copia nombre, duración y precio</span></td></tr>
+          <tr><td class="cu">CU-A-21</td><td class="name">Crear membresía</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/a/membresias (modal) · T34</span><span class="muted"> · </span><span class="verb">POST</span> /membership/create<span class="muted"> · </span><span class="muted">una duración repetida da 400 y un nombre repetido, 409</span></td></tr>
+          <tr><td class="cu">CU-A-22</td><td class="name">Editar membresía</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/a/membresias (modal) · T34</span><span class="muted"> · </span><span class="verb">POST</span> /membership/edit/{id}<span class="muted"> · </span><span class="muted">no es retroactivo: el pago copia nombre, duración y precio · repetir la duración (400) o el nombre (409) se avisa</span></td></tr>
           <tr><td class="cu">CU-A-23</td><td class="name">Eliminar membresía</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">/a/membresias · T34</span><span class="muted"> · </span><span class="verb">POST</span> /membership/set-active/{id}<span class="muted"> · </span><span class="muted">baja lógica con confirmación y reactivación</span></td></tr>
         </tbody>
       </table>
@@ -569,17 +570,16 @@
 
   <!-- NEXT -->
   <section>
-    <div class="sec-head"><h2>Orden sugerido para cerrar la brecha</h2><span class="kicker">≈29 h estimadas en el plan</span></div>
+    <div class="sec-head"><h2>Orden sugerido para cerrar la brecha</h2><span class="kicker">≈25,5 h estimadas en el plan</span></div>
     <div class="table-scroll">
       <table>
         <thead>
           <tr><th style="width:36px">#</th><th>Qué lo bloquea</th><th>CU</th><th>Tareas</th><th style="width:90px">Estimado</th><th style="width:110px">✅ acumulado</th></tr>
         </thead>
         <tbody>
-          <tr><td class="cu">1</td><td class="name">Sin dependencias del backend<br><span class="muted">El front puede hacerlas hoy</span></td><td>U-14, U-15, U-16 <span class="muted">(3)</span></td><td class="endpoint">T27, T28, T29</td><td class="num">≈3,5 h</td><td class="num"><b>49</b> de 75</td></tr>
-          <tr><td class="cu">2</td><td class="name">Contratos B1 a B4 y B6<br><span class="muted">U-08 usa además B5 como respaldo; U-11 ya tiene endpoint y espera la pantalla de T40</span></td><td>U-08 a U-13, E-06, E-07 <span class="muted">(8)</span></td><td class="endpoint">T25, T38, T39, T40, T43</td><td class="num">≈10,5 h</td><td class="num"><b>57</b> de 75</td></tr>
-          <tr><td class="cu">3</td><td class="name">Bloque C2 (aviso de Fran) más B5 y B7<br><span class="muted">Ver el hallazgo sobre lo que el contrato y el status del backend ya muestran</span></td><td>E-08 a E-12d, E-13 a E-20 <span class="muted">(16)</span></td><td class="endpoint">T21 a T24, T49, T41, T42</td><td class="num">≈13 h</td><td class="num"><b>73</b> de 75</td></tr>
-          <tr><td class="cu">4</td><td class="name">B8 y B9 (los dos 🟡)<br><span class="muted">Las 2 h son las de T44 (resto de mocks a real)</span></td><td>A-18, U-02 <span class="muted">(2)</span></td><td class="endpoint">T37, T09, T44</td><td class="num">≈2 h</td><td class="num"><b>75</b> de 75</td></tr>
+          <tr><td class="cu">1</td><td class="name">Contratos B1 a B4 y B6<br><span class="muted">Se pueden armar ya contra mock con tipos provisionales; conviene empezar por T39, porque la estructura de <code>GET /routine/{id}</code> ya está en el contrato. U-08 usa además B5; U-11 ya tiene endpoint y espera la pantalla de T40</span></td><td>U-08 a U-13, E-06, E-07 <span class="muted">(8)</span></td><td class="endpoint">T25, T38, T39, T40, T43</td><td class="num">≈10,5 h</td><td class="num"><b>57</b> de 75</td></tr>
+          <tr><td class="cu">2</td><td class="name">Bloque C2 (aviso de Fran) más B5 y B7<br><span class="muted">Con el aviso de Fran, T21 a T24 y T49 (≈9,5 h) salen contra el backend real porque el contrato ya está; T41 y T42 esperan B7 y B5</span></td><td>E-08 a E-12d, E-13 a E-20 <span class="muted">(16)</span></td><td class="endpoint">T21 a T24, T49, T41, T42</td><td class="num">≈13 h</td><td class="num"><b>73</b> de 75</td></tr>
+          <tr><td class="cu">3</td><td class="name">B8 y B9 (los dos 🟡)<br><span class="muted">Las 2 h son las de T44 (resto de mocks a real); A-18 se puede cerrar antes pasando T37 a <code>promote_user</code></span></td><td>A-18, U-02 <span class="muted">(2)</span></td><td class="endpoint">T37, T09, T44</td><td class="num">≈2 h</td><td class="num"><b>75</b> de 75</td></tr>
         </tbody>
       </table>
     </div>
@@ -598,7 +598,7 @@
 
   <footer>
     <span>PowerApp Web · auditoría de casos de uso</span>
-    <span>46 impl · 2 parc · 16 placeh · 11 falta — de 75</span>
+    <span>49 impl · 2 parc · 14 placeh · 10 falta — de 75</span>
   </footer>
 
 </div>
