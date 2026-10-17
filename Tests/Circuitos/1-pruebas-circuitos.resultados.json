@@ -1,13 +1,13 @@
 {
   "plan": "pruebas-circuitos",
   "version": 1,
-  "exportedAt": "2026-10-17T19:49:17.318Z",
+  "exportedAt": "2026-10-17T21:19:56.831Z",
   "summary": {
     "total": 42,
-    "ok": 25,
+    "ok": 38,
     "fail": 0,
     "retest": 0,
-    "none": 17
+    "none": 4
   },
   "results": {
     "LST-01": {
@@ -42,9 +42,9 @@
     },
     "LST-06": {
       "title": "Quién puede entrar",
-      "status": null,
+      "status": "ok",
       "note": "",
-      "at": null
+      "at": "2026-10-17T21:18:30.228Z"
     },
     "CRE-01": {
       "title": "Crear un circuito",
@@ -144,9 +144,9 @@
     },
     "EDT-04": {
       "title": "Dejarlo sin ejercicios",
-      "status": null,
+      "status": "ok",
       "note": "",
-      "at": null
+      "at": "2026-10-17T21:09:36.677Z"
     },
     "EDT-05": {
       "title": "Aviso de varias rutinas",
@@ -156,39 +156,39 @@
     },
     "EDT-06": {
       "title": "Link a un circuito que no existe",
-      "status": null,
+      "status": "ok",
       "note": "",
-      "at": null
+      "at": "2026-10-17T21:10:20.641Z"
     },
     "EDT-07": {
       "title": "Guardar uno que desactivaron en otra pestaña",
-      "status": null,
+      "status": "ok",
       "note": "",
-      "at": null
+      "at": "2026-10-17T21:19:30.239Z"
     },
     "EDT-08": {
       "title": "Volver sin guardar",
-      "status": null,
+      "status": "ok",
       "note": "",
-      "at": null
+      "at": "2026-10-17T21:11:36.891Z"
     },
     "DUP-01": {
       "title": "Duplicar",
-      "status": null,
+      "status": "ok",
       "note": "",
-      "at": null
+      "at": "2026-10-17T21:12:11.764Z"
     },
     "DUP-02": {
       "title": "Duplicar con cambios sin guardar",
-      "status": null,
+      "status": "ok",
       "note": "",
-      "at": null
+      "at": "2026-10-17T21:13:59.137Z"
     },
     "DUP-03": {
       "title": "La copia es independiente",
-      "status": null,
+      "status": "ok",
       "note": "",
-      "at": null
+      "at": "2026-10-17T21:14:57.263Z"
     },
     "BAJ-01": {
       "title": "Desactivar",
@@ -222,27 +222,27 @@
     },
     "COA-01": {
       "title": "La pantalla del entrenador",
-      "status": null,
+      "status": "ok",
       "note": "",
-      "at": null
+      "at": "2026-10-17T21:15:51.385Z"
     },
     "COA-02": {
       "title": "Cambios entre roles",
-      "status": null,
+      "status": "ok",
       "note": "",
-      "at": null
+      "at": "2026-10-17T21:16:00.497Z"
     },
     "ERR-01": {
       "title": "Servidor caído al cargar",
-      "status": null,
+      "status": "ok",
       "note": "",
-      "at": null
+      "at": "2026-10-17T21:16:03.767Z"
     },
     "ERR-02": {
       "title": "Servidor caído al guardar",
-      "status": null,
+      "status": "ok",
       "note": "",
-      "at": null
+      "at": "2026-10-17T21:16:04.928Z"
     },
     "ERR-03": {
       "title": "Celular y escritorio",
@@ -252,9 +252,9 @@
     },
     "ERR-04": {
       "title": "Teclado y lector de pantalla",
-      "status": null,
+      "status": "ok",
       "note": "",
-      "at": null
+      "at": "2026-10-17T21:16:17.909Z"
     },
     "FIN-01": {
       "title": "Dejar los circuitos de prueba fuera de uso",
