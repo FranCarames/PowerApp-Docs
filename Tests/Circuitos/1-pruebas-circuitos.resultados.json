@@ -1,13 +1,13 @@
 {
   "plan": "pruebas-circuitos",
   "version": 1,
-  "exportedAt": "2026-10-17T19:42:42.503Z",
+  "exportedAt": "2026-10-17T19:49:17.318Z",
   "summary": {
     "total": 42,
-    "ok": 17,
+    "ok": 25,
     "fail": 0,
     "retest": 0,
-    "none": 25
+    "none": 17
   },
   "results": {
     "LST-01": {
@@ -18,21 +18,21 @@
     },
     "LST-02": {
       "title": "Tarjetas",
-      "status": null,
+      "status": "ok",
       "note": "",
-      "at": null
+      "at": "2026-10-17T19:47:11.562Z"
     },
     "LST-03": {
       "title": "Activos, inactivos y todos",
-      "status": null,
+      "status": "ok",
       "note": "",
-      "at": null
+      "at": "2026-10-17T19:47:35.621Z"
     },
     "LST-04": {
       "title": "Buscar circuitos",
-      "status": null,
+      "status": "ok",
       "note": "",
-      "at": null
+      "at": "2026-10-17T19:47:56.817Z"
     },
     "LST-05": {
       "title": "Filtrar por tipo",
@@ -192,33 +192,33 @@
     },
     "BAJ-01": {
       "title": "Desactivar",
-      "status": null,
+      "status": "ok",
       "note": "",
-      "at": null
+      "at": "2026-10-17T19:48:15.384Z"
     },
     "BAJ-02": {
       "title": "Cancelar la desactivación",
-      "status": null,
+      "status": "ok",
       "note": "",
-      "at": null
+      "at": "2026-10-17T19:48:16.959Z"
     },
     "BAJ-03": {
       "title": "Un circuito inactivo no se edita",
-      "status": null,
+      "status": "ok",
       "note": "",
-      "at": null
+      "at": "2026-10-17T19:49:01.175Z"
     },
     "BAJ-04": {
       "title": "Reactivar",
-      "status": null,
+      "status": "ok",
       "note": "",
-      "at": null
+      "at": "2026-10-17T19:48:23.965Z"
     },
     "BAJ-05": {
       "title": "El panel cuenta solo los activos",
-      "status": null,
+      "status": "ok",
       "note": "",
-      "at": null
+      "at": "2026-10-17T19:48:49.761Z"
     },
     "COA-01": {
       "title": "La pantalla del entrenador",
