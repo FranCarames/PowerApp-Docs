@@ -6,7 +6,7 @@
 
 ## Descripción breve
 
-Vincula varias rutinas sistémicas a una planificación en una sola operación, agregándolas al final del plan en el orden en que fueron seleccionadas. Es la vía normal para armar un plan desde cero.
+Vincula varias rutinas sistémicas a una planificación en una sola operación, agregándolas al final de **una semana** del plan, en el orden en que fueron seleccionadas. Es la vía normal para armar un plan desde cero.
 
 ## Actores involucrados
 
@@ -21,11 +21,12 @@ Vincula varias rutinas sistémicas a una planificación en una sola operación, 
 
 **Cubre:**
 
-- Alta de un Routine_Asignation por cada rutina seleccionada, con posiciones consecutivas al final del plan.
+- Alta de un Routine_Asignation por cada rutina seleccionada, todas en la misma semana y con posiciones consecutivas al final de esa semana.
 
 **Fuera de alcance:**
 
 - Indicar una posición puntual para cada rutina: para eso está CU-E-12a, que se ejecuta de a una.
+- Repartir las rutinas del lote en semanas distintas: un lote es de una sola semana.
 - Creación de las rutinas.
 
 ## Precondiciones
@@ -36,14 +37,14 @@ Vincula varias rutinas sistémicas a una planificación en una sola operación, 
 
 ## Postcondiciones
 
-- Existe un Routine_Asignation por cada rutina seleccionada, con posiciones consecutivas a continuación de la última rutina vigente del plan.
+- Existe un Routine_Asignation por cada rutina seleccionada, en la semana indicada y con posiciones consecutivas a continuación de la última rutina vigente de esa semana.
 - La planificación muestra todas esas rutinas en su detalle, en el orden en que fueron seleccionadas.
 
 ## Camino principal (flujo básico)
 
 1. El entrenador abre una planificación y elige agregar rutinas.
 2. El sistema lista las rutinas sistémicas disponibles.
-3. El entrenador selecciona varias.
+3. El entrenador elige la semana y selecciona varias rutinas.
 4. El sistema crea todos los Routine_Asignation en una sola transacción y devuelve la planificación actualizada.
 
 ## Caminos alternativos / excepciones
@@ -52,6 +53,11 @@ Vincula varias rutinas sistémicas a una planificación en una sola operación, 
 
 1. El entrenador incluye la misma rutina dos veces en la selección.
 2. El sistema crea un vínculo por cada aparición: la repetición está permitida y cada una ocupa su propia posición.
+
+### En el paso 3 — Semana inválida
+
+1. La semana falta, no es un entero mayor o igual que 1, o supera la duración de la planificación (cuando esta es mayor que 0).
+2. El sistema informa el error y **no crea ninguna** asignación.
 
 ### En el paso 4 — Alguna rutina no existe
 

@@ -7,6 +7,13 @@
 > 2. **No hay tests automáticos** (decisión del 16/10). La verificación es el build más **scripts descartables en el scratchpad**, que no entran a ningún repo.
 > 3. **No se levanta el server.** Ni siquiera en segundo plano.
 
+> **Registro de ejecución (17/10):** plan aprobado con la fusión de BE-10 y BE-10b, **sin PGlite** (decisión del usuario: no instalar nada). Qué cambió en la ejecución respecto de lo escrito abajo:
+> - **Tarea 1** (instalar PGlite): no se hizo.
+> - **Tarea 9a:** `compare-ddl.js` lee el texto de los `CREATE TABLE` del `01` en vez del catálogo de un Postgres. Mismas comparaciones (nombres, tipos, nulabilidad, únicos y reglas de borrado de las FK) contra los metadatos de TypeORM.
+> - **Tarea 9b** (ejecutar el patch): **no se corrió.** Se reemplazó por `patch-static.py`, un control estático (el patch agrega textualmente lo que dice el `01`, cubre con un `DROP` todo lo que el `01` quitó, las guardas van primero). No prueba la semántica del SQL.
+> - **Tarea 10c:** el SQL que arma el service se genera sin conectarse y se verifica como texto; no se ejecuta.
+> - **Tarea 9c** (el `01` contra el diagrama de `Doc/`) se hizo tal cual, sin cambios.
+
 **Spec que manda:** [`2026-10-17-rutina-individual-y-refactor-de-planificaciones-design.md`](../specs/2026-10-17-rutina-individual-y-refactor-de-planificaciones-design.md), §2, §3, §5, §9, §10 y §12. **Diagrama:** `Doc/PowerApp - Modelo DB.pdf` / `.svg` (validado contra la spec el 17/10).
 **Modelo contra el que se sincroniza (el último cargado en `Doc/`):** `PowerApp - Modelo DB.svg`, última modificación 17/10 16:26, sha256 `135ca4b6fb646a72dad03516627afa76d9ef07b6d017694ece564e7089cc7ede` (el `.pdf` es del mismo minuto, sha256 `5af42a0b…0a2`). El plan **lo compara contra el DDL de forma mecánica** (§3b y Tarea 9c) y no sólo contra la spec. Si el diagrama cambia antes de implementar, el paso 4 de la Tarea 0 lo detecta.
 **Roadmap:** [`2026-10-16-roadmap-backend.md`](2026-10-16-roadmap-backend.md). Donde contradice a la spec (DA1 a DA6, BE-10 a BE-16), manda la spec.

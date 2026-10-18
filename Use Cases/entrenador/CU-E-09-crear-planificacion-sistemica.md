@@ -16,7 +16,7 @@ Crea una planificación sistémica (plantilla) que agrupará rutinas a lo largo 
 
 **Cubre:**
 
-- Alta de una Planification sistémica con sus datos base.
+- Alta de una Planification sistémica con sus datos base, incluida su duración en semanas (obligatoria).
 
 **Fuera de alcance:**
 
@@ -33,7 +33,7 @@ Crea una planificación sistémica (plantilla) que agrupará rutinas a lo largo 
 
 ## Camino principal (flujo básico)
 
-1. El entrenador ingresa los datos de la planificación (nombre, duración, etc.).
+1. El entrenador ingresa los datos de la planificación (nombre, duración en semanas, etc.).
 2. El sistema valida los datos.
 3. El sistema persiste la nueva Planification y confirma.
 
@@ -42,4 +42,9 @@ Crea una planificación sistémica (plantilla) que agrupará rutinas a lo largo 
 ### En el paso 2 — Datos inválidos
 
 1. Faltan campos obligatorios o son inválidos.
+2. El sistema marca el error y no persiste.
+
+### En el paso 2 — Duración inválida
+
+1. La duración falta o no es un entero mayor o igual que 0. La duración se mide en **semanas**; 0 significa "sin duración fija".
 2. El sistema marca el error y no persiste.

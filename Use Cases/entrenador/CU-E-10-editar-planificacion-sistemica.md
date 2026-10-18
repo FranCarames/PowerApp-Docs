@@ -16,7 +16,7 @@ Modifica los datos de una planificación sistémica existente.
 
 **Cubre:**
 
-- Edición de los datos de la Planification sistémica.
+- Edición de los datos de la Planification sistémica, incluida su duración en semanas (obligatoria, como al crearla).
 
 **Fuera de alcance:**
 
@@ -48,3 +48,13 @@ Modifica los datos de una planificación sistémica existente.
 
 1. Datos inválidos.
 2. El sistema marca el error y no persiste.
+
+### En el paso 2 — Duración menor que la semana más alta en uso
+
+1. La nueva duración es mayor que 0 y menor que la semana más alta ocupada por una rutina **vigente** del plan.
+2. El sistema informa en qué semana hay rutinas, no permite achicar la duración hasta ahí y no persiste. Con duración 0 (sin duración fija) no hay límite.
+
+### Consecuencia en las asignaciones a alumnos
+
+1. La duración de la plantilla fija el fin de cada asignación a un alumno (inicio más las semanas de la duración).
+2. Editarla mueve el fin de **todos** los alumnos que tienen el plan asignado: es una consecuencia asumida.

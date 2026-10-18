@@ -21,7 +21,7 @@ Lista las rutinas sistémicas disponibles para el entrenador.
 **Fuera de alcance:**
 
 - Las rutinas dadas de baja lógicamente (active = false).
-- Las rutinas instanciadas a alumnos (User_Routine).
+- Las rutinas asignadas a alumnos, ya sea de forma individual (Routine_Asignation_User) o dentro de una planificación (User_Planification).
 
 ## Precondiciones
 
