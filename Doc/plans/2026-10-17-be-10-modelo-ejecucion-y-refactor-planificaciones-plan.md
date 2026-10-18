@@ -8,6 +8,7 @@
 > 3. **No se levanta el server.** Ni siquiera en segundo plano.
 
 **Spec que manda:** [`2026-10-17-rutina-individual-y-refactor-de-planificaciones-design.md`](../specs/2026-10-17-rutina-individual-y-refactor-de-planificaciones-design.md), §2, §3, §5, §9, §10 y §12. **Diagrama:** `Doc/PowerApp - Modelo DB.pdf` / `.svg` (validado contra la spec el 17/10).
+**Modelo contra el que se sincroniza (el último cargado en `Doc/`):** `PowerApp - Modelo DB.svg`, última modificación 17/10 16:26, sha256 `135ca4b6fb646a72dad03516627afa76d9ef07b6d017694ece564e7089cc7ede` (el `.pdf` es del mismo minuto, sha256 `5af42a0b…0a2`). El plan **lo compara contra el DDL de forma mecánica** (§3b y Tarea 9c) y no sólo contra la spec. Si el diagrama cambia antes de implementar, el paso 4 de la Tarea 0 lo detecta.
 **Roadmap:** [`2026-10-16-roadmap-backend.md`](2026-10-16-roadmap-backend.md). Donde contradice a la spec (DA1 a DA6, BE-10 a BE-16), manda la spec.
 
 **Goal:** dejar el esquema, las entidades y el código de planificaciones en el modelo del 17/10: ejecución propia para cada vía de asignación, `User_Routine` eliminada, y planificaciones armadas por semanas.
@@ -113,6 +114,20 @@ Son exactamente las líneas que reescribe BE-10b (spec §5).
 
 ---
 
+## 3b. Sincronía con el modelo de `Doc/` (verificada el 17/10, antes de implementar)
+
+Se leyó el texto del `.svg` vigente (20 tablas) y se lo comparó con el DDL de HEAD (20 tablas): columnas, tipos y `NOT NULL`. En las FK el diagrama no dibuja la nulabilidad, así que ahí sólo se compara que la columna exista. El comparador es el de la Tarea 9c.
+
+| Resultado | Diferencias | Qué pasa con ellas |
+|---|---|---|
+| **15 diferencias que este plan resuelve** | `Planification.duration` (tipo y `NOT NULL`) · `Routine_Asignation.week` y `.order` NOT NULL · `Routine_Asignation_User` (+`date`, −`order`, −`routine_asignation_id`) · `Routine_Asign_Exercise_Finished` (tabla nueva) · `Routine_Exercise_Finished` (+`user_planification_id`, +`routine_asignation_id`, −`user_routine_id`) · `User_Planification` (−`duration`, −`end_date`, `number_of_routines` NOT NULL) · `User_Routine` (tabla de más) | Tareas 2 a 5. **Al terminar, la Tarea 9c tiene que dar 0 diferencias nuevas** |
+| **3 desalineaciones previas del dibujo** | `User.role` (el dibujo dice `Varchar(150)`, el código usa el enum `User_role_enum`) · `User.profile_picture` (`Varchar(10)` en el dibujo, `VARCHAR(150)` en el DDL) · `User.email` (el dibujo no marca el `NOT NULL`, que sí tiene) | **No se tocan.** Están anotadas como desvíos conocidos desde antes (memoria del proyecto) y no son de este cambio. Si querés alinearlas, es una tarea aparte: cambiaría el tipo de `User.role` en la base |
+| **Nada más** | Las 17 tablas restantes coinciden con el diagrama, incluidas `Exercise_Set.amrap`/`amrap_time`/`rm`, `Membership.active` y `User.active`/`email_verified`/`phone_verified` | — |
+
+Lo que **no** se puede comparar mecánicamente: los `UNIQUE`, los índices y las reglas de borrado de las FK, que el diagrama no dibuja (los define la spec §3). Esos se verifican contra las entidades en la Tarea 9a.
+
+---
+
 ## Tarea 0 — Línea de base
 
 **Archivos:** ninguno (sólo lectura y copias al scratchpad).
@@ -144,6 +159,13 @@ SCRATCH="C:/Users/caram/AppData/Local/Temp/claude/D--Power-App-Backend-PowerApp-
 cd "D:/Power App/Backend/PowerApp-Backend/Db Creator" && py build_sql.py > /dev/null && sha256sum 01_estructura.sql 02_datos_estaticos.sql 03_datos_dinamicos.sql | diff - "$SCRATCH/baseline-hashes.txt" && echo "BASELINE OK" ; git status --short
 ```
 Esperado: `BASELINE OK` y `git status` sin salida. Si difiere, **parar y avisar**.
+
+- [ ] **Paso 4: confirmar que el modelo de `Doc/` es el mismo contra el que se armó el plan**
+
+```bash
+cd "D:/Power App/Docs/PowerApp-Docs/Doc" && sha256sum "PowerApp - Modelo DB.svg" | grep -q 135ca4b6fb646a72dad03516627afa76d9ef07b6d017694ece564e7089cc7ede && echo "MODELO SIN CAMBIOS" || echo "EL DIAGRAMA CAMBIO"
+```
+Esperado: `MODELO SIN CAMBIOS`. Si dice `EL DIAGRAMA CAMBIO`, **parar**: correr el comparador de la Tarea 9c contra el `01` de HEAD, ver qué se movió y actualizar el plan antes de seguir.
 
 ---
 
@@ -1532,6 +1554,90 @@ const fresh = async (sql) => { const d = new PGlite(); await d.exec(sql); return
 
 ---
 
+### 9c. El `01` regenerado contra el diagrama de `Doc/`
+
+- [ ] **Paso 6: `svg_vs_ddl.py`** (scratchpad). Lee el texto del `.svg` (tabla → columnas con tipo y etiquetas `PK`/`FK`/`NOT NULL`), parsea los `CREATE TABLE` del `01` y compara columnas, tipos y `NOT NULL`. Sólo tolera las tres desalineaciones previas de la sección 3b, y las rotula `PREVIA`. Sale con código 1 si hay una diferencia nueva.
+
+```python
+# py svg_vs_ddl.py <01_estructura.sql> [<modelo.svg>]
+import re, sys
+SVG = sys.argv[2] if len(sys.argv) > 2 else r'D:/Power App/Docs/PowerApp-Docs/Doc/PowerApp - Modelo DB.svg'
+PREVIAS = {'User.email:NOT NULL', 'User.profile_picture:tipo', 'User.role:tipo'}
+svg = open(SVG, encoding='utf-8').read()
+txt = [t.strip() for t in re.findall(r'>([^<>]{1,80})<', svg) if t.strip()]
+TAGS = {'PK', 'FK', 'NOT NULL', 'NOT_NULL', 'UNIQUE'}
+TYPE = re.compile(r'^(UNIQUEIDENTIFIER|Bit|Varchar\(\w+\)|Datetime|Date|Integer|Boolean|Decimal\(\d+,\d+\))$', re.I)
+starts = [i for i, t in enumerate(txt) if i + 1 < len(txt) and txt[i + 1] == 'PK' and t not in TAGS]
+model = {}
+for k, i in enumerate(starts):
+    j = starts[k + 1] if k + 1 < len(starts) else len(txt)
+    toks, cols, tags, n = txt[i + 1:j], {}, set(), 0
+    while n < len(toks):
+        if toks[n] in TAGS: tags.add(toks[n]); n += 1
+        elif n + 1 < len(toks) and TYPE.match(toks[n + 1]): cols[toks[n]] = (toks[n + 1], set(tags)); tags = set(); n += 2
+        else: n += 1
+    model[txt[i]] = cols
+
+ddl = open(sys.argv[1], encoding='utf-8').read()
+db = {}
+for m in re.finditer(r'CREATE TABLE public\."(\w+)" \((.*?)\n\);', ddl, re.S):
+    cols = {}
+    for line in m.group(2).splitlines():
+        line = line.split('--')[0].strip().rstrip(',')
+        mm = re.match(r'^("?\w+"?)\s+([A-Za-z_."]+(?:\(\d+(?:,\d+)?\))?)(.*)$', line)
+        if not mm or mm.group(1).upper() in ('CONSTRAINT', 'FOREIGN', 'PRIMARY', 'UNIQUE'): continue
+        cols[mm.group(1).strip('"')] = (mm.group(2), 'NOT NULL' in mm.group(3) or 'PRIMARY KEY' in mm.group(3))
+    db[m.group(1)] = cols
+
+NORM = {'UNIQUEIDENTIFIER': 'UUID', 'DATETIME': 'TIMESTAMPTZ', 'VARCHAR(MAX)': 'TEXT', 'BIT': 'BOOLEAN'}
+nt = lambda t: NORM.get(t.upper(), t.upper())
+nuevas = 0
+def informar(clave, msg):
+    global nuevas
+    previa = clave in PREVIAS
+    if not previa: nuevas += 1
+    print(('PREVIA ' if previa else 'DIFF   ') + msg)
+for t in sorted(set(model) | set(db)):
+    if t not in model: informar(t, f'{t}: tabla solo en el DDL'); continue
+    if t not in db: informar(t, f'{t}: tabla solo en el diagrama'); continue
+    for c in sorted(set(model[t]) | set(db[t])):
+        if c not in model[t]: informar(f'{t}.{c}', f'{t}.{c}: columna solo en el DDL'); continue
+        if c not in db[t]: informar(f'{t}.{c}', f'{t}.{c}: columna solo en el diagrama'); continue
+        mt, tags = model[t][c]; dt, dnn = db[t][c]
+        if nt(mt) != nt(dt): informar(f'{t}.{c}:tipo', f'{t}.{c}: tipo diagrama={mt} ddl={dt}')
+        if not tags & {'FK', 'PK'}:
+            mnn = bool(tags & {'NOT NULL', 'NOT_NULL'})
+            if mnn != dnn: informar(f'{t}.{c}:NOT NULL', f'{t}.{c}: NOT NULL diagrama={mnn} ddl={dnn}')
+print(f'tablas: diagrama={len(model)} ddl={len(db)} | diferencias nuevas: {nuevas}')
+sys.exit(1 if nuevas else 0)
+```
+
+- [ ] **Paso 7: correrlo dos veces**
+
+```bash
+cd "D:/Power App/Backend/PowerApp-Backend"
+py "$SCRATCH/svg_vs_ddl.py" "$SCRATCH/baseline-01.sql"   # contra HEAD: 15 DIFF (las de la sección 3b) + 3 PREVIA
+py "$SCRATCH/svg_vs_ddl.py" "Db Creator/01_estructura.sql"  # contra el 01 regenerado: sólo las 3 PREVIA
+```
+Esperado: la primera termina con `diferencias nuevas: 15` (confirma que el comparador detecta lo que cambia); la segunda, con `diferencias nuevas: 0`, y sólo las tres líneas `PREVIA`. **Ese es el criterio de "sincronizado con el último modelo cargado en `Doc/`".**
+
+- [ ] **Paso 8: lo mismo contra el patch.** El esquema parcheado también tiene que quedar sincronizado, no sólo el `01`. Se agrega a `patch-test.js`, justo después de la comparación con el `01` nuevo, un volcado del DDL de la base parcheada (columnas con tipo y nulabilidad, en el formato de un `CREATE TABLE`) a un archivo temporal y se corre el comparador sobre él. Si el patch y el `01` son iguales como conjuntos (ya lo prueba el paso 5), esto es redundante a propósito: la fuente de verdad es el diagrama, no el `01`.
+
+```js
+  // 1b) el esquema parcheado contra el diagrama de Doc/ (mismo comparador que el 01)
+  const cols = (await db.query(`select table_name t, column_name c,
+        case data_type when 'character varying' then 'VARCHAR('||character_maximum_length||')'
+                       when 'timestamp with time zone' then 'TIMESTAMPTZ' when 'numeric' then 'DECIMAL('||numeric_precision||','||numeric_scale||')'
+                       when 'USER-DEFINED' then 'public."User_role_enum"' else upper(data_type) end ty, is_nullable n
+        from information_schema.columns where table_schema='public' order by table_name, ordinal_position`)).rows;
+  const byT = {}; for (const r of cols) (byT[r.t] ||= []).push(`    ${/^[a-z_]+$/.test(r.c) && r.c !== 'order' ? r.c : '"' + r.c + '"'} ${r.ty}${r.n === 'NO' ? ' NOT NULL' : ''}`);
+  const ddlParcheado = Object.entries(byT).map(([t, l]) => `CREATE TABLE public."${t}" (\n${l.join(',\n')}\n);`).join('\n\n');
+  fs.writeFileSync(process.env.SCRATCH + '/parcheado-ddl.sql', ddlParcheado);
+```
+y, después de correr `patch-test.js`: `py "$SCRATCH/svg_vs_ddl.py" "$SCRATCH/parcheado-ddl.sql"`. Esperado: `diferencias nuevas: 0` y sólo las tres `PREVIA`.
+
+---
+
 ## Tarea 10 — Verificar las reglas del refactor (spec §5, §10)
 
 ### 10a. Validación de los DTOs
@@ -1979,7 +2085,7 @@ Fuera de alcance suma: `- Repartir las rutinas del lote en semanas distintas: un
   8. **Hallazgo: `editCircuit`** ahora consulta las dos tablas de "hecho", y por qué (invariante de E-23/A-06).
   9. **El patch** (`Db Creator/patches/2026-10-17-be-10.sql`): las guardas, la idempotencia, y la advertencia de que `duration` no convierte unidades (`'3 meses'` → 3 semanas) y cómo revisarlo antes.
   10. **Decisiones menores**: `date` tipado `string`, el tope técnico `2147483647`, los tres índices nuevos, la tolerancia de mover una asignación ya activa al reactivar.
-  11. **Verificación**, con lo que se corrió y lo que **no**: build · dos regeneraciones idénticas (`02` y `03` sin cambios) · `01` contra entidades (`buildMetadatas`, sin conexión) · patch ejecutado en PGlite (versión usada) · reglas del service con repositorios falsos · DTOs · SQL de las consultas nuevas. **Sin verificar:** nada de esto corrió contra Render ni contra el server real; el patch se probó en PGlite y no en el Postgres de Render; el camino real de `editCircuit` con un ejercicio entrenado por la vía individual queda para BE-35.
+  11. **Verificación**, con lo que se corrió y lo que **no**: build · dos regeneraciones idénticas (`02` y `03` sin cambios) · **`01` y esquema parcheado contra el diagrama de `Doc/`** (con su fecha y sha256; 0 diferencias nuevas, y las tres desalineaciones previas del dibujo, `User.role`, `User.profile_picture` y `User.email`, anotadas como no tocadas) · `01` contra entidades (`buildMetadatas`, sin conexión) · patch ejecutado en PGlite (versión usada) · reglas del service con repositorios falsos · DTOs · SQL de las consultas nuevas. **Sin verificar:** nada de esto corrió contra Render ni contra el server real; el patch se probó en PGlite y no en el Postgres de Render; el camino real de `editCircuit` con un ejercicio entrenado por la vía individual queda para BE-35.
   12. **Para el web y el iOS**: qué regenerar. **Para BE-23**: el esquema ya está; al regenerar la base no hace falta el patch.
 
 - [ ] **Paso 2: arreglar lo que quedó falso** (secciones vivas; los cambios fechados de agosto y septiembre **no se tocan**, son historia):
@@ -2025,6 +2131,7 @@ cd "D:/Power App/Docs/PowerApp-Docs" && git add "Doc/plans/2026-10-17-be-10-mode
 ## 5. Autoevaluación contra la spec
 
 - **Cobertura:** cada fila de la tabla de la sección 3 tiene tarea. Lo único fuera de la spec es la Tarea 3 (hallazgo 1), y está marcado.
+- **Sincronía con el modelo:** las 15 diferencias entre el diagrama de `Doc/` y el DDL de HEAD (sección 3b) son exactamente las que cubren las Tareas 2 a 5; la Tarea 9c las vuelve a medir al final. No hay ninguna diferencia del diagrama que el plan ignore, salvo las tres previas, declaradas.
 - **Placeholders:** no quedan "TBD" ni "a completar". Lo que el plan **no** puede fijar de antemano es el texto final de la entrada del Status (depende de los resultados de la verificación): se especificó punto por punto qué debe decir.
 - **Consistencia de nombres:** `weekOutOfDuration`, `nextOrder(idPlanification, week, manager?)`, `maxActiveWeek`, `INTEGER_MAX`, `RoutineAsignExerciseFinished`, `uk_rau_routine_user_date`, `uk_raef_asign_exercise`, `uk_ref_plan_asignation_exercise` se usan igual en las entidades, el DDL, el patch, el service y los scripts.
 - **Reglas del proyecto:** los handlers no cambian (siguen con `await`); el `connect()`/`startTransaction()` de los lotes sigue dentro del `try`; los mensajes van en español con `{ error }`; ningún 403 nuevo (no se agrega ninguno).

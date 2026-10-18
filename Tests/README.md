@@ -54,3 +54,4 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 1](Membresias/1-pruebas-membresias.resultados.json)
   - [Tanda 2](Membresias/2-pruebas-membresias.resultados.json)
 - [Pruebas de circuitos](Circuitos/Pruebas%20de%20circuitos.html) — Circuitos desde el Admin y del lado del Entrenador: listado y filtros, alta y edición con sus ejercicios y bloques de series, duplicar, desactivar y reactivar (CU-E-21 a CU-E-24).
+  - [Tanda 1](Circuitos/1-pruebas-circuitos.resultados.json)
