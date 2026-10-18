@@ -22,7 +22,7 @@ Vía individual de asignación (alumnos nuevos, primeras clases): asigna una rut
 
 - Asignación vía planificación (CU-E-13).
 - Asignar la rutina a varios días de una vez: son tantas asignaciones como días.
-- Listar las rutinas asignadas a un alumno.
+- Consultar las rutinas asignadas a un alumno (el entrenador las ve en el listado del alumno, que usa también el home de CU-U-08).
 
 ## Precondiciones
 

@@ -35,7 +35,7 @@ Quita una rutina asignada a un alumno para un día, eliminando el Routine_Asigna
 
 ## Camino principal (flujo básico)
 
-1. El entrenador abre la asignación del alumno y solicita quitarla.
+1. El entrenador consulta las rutinas asignadas al alumno, abre la que quiere quitar y solicita quitarla.
 2. El sistema pide confirmación.
 3. El sistema elimina el Routine_Asignation_User y confirma, mostrando la asignación que se quitó.
 
