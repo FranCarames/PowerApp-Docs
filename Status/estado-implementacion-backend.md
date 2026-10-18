@@ -1,30 +1,316 @@
 # PowerApp Backend — Estado de implementación vs. Casos de Uso
 
-> **Corte:** 2026-09-04 · **Fuente:** `Documentation/Especificaciones de CU/especificaciones/` comparado contra `power-app/src`
-> **Método:** mapeo 1:1 de los 75 CU contra los `controller` y `service` presentes en el código.
+> **Corte:** 2026-10-18 · **Fuente:** `Use Cases/` del repo PowerApp-Docs (fuente de verdad de los CU) comparado contra `power-app/src`
+> **Método:** mapeo 1:1 de los 75 CU contra los `controller` y `service` del código, con el criterio del inventario del [roadmap del 16/10](https://github.com/FranCarames/PowerApp-Docs/blob/main/Doc/plans/2026-10-16-roadmap-backend.md) (§9): un CU es ✅ sólo si **todos los caminos de su spec** se cumplen.
 
 ## Resumen
 
 | Estado | CU | % | Significado |
 |---|---:|---:|---|
-| ✅ Implementado | 63 | 84% | Endpoint existe y su service ejecuta lógica real |
-| 🟡 Parcial | 1 | 1% | Funciona a medias / resuelto dentro de otro endpoint |
-| 🔵 Andamiaje | 4 | 5% | Ruta declarada pero service vacío y llamada comentada |
-| ⬜ No implementado | 7 | 9% | Sin endpoint, service ni módulo |
+| ✅ Implementado | 63 | 84% | El endpoint existe, ejecuta lógica real y cumple todos los caminos de su spec |
+| 🟡 Parcial | 7 | 9% | Un camino de la spec no se cumple, o la lógica existe sin la ruta o el rol que pide el CU |
+| 🔵 Andamiaje | 2 | 3% | Ruta declarada sin lógica: con `@Res()`, **no responde** (cuelga) |
+| ⬜ No implementado | 2 | 3% | Sin endpoint |
+| — Sin backend | 1 | 1% | Por su spec es del cliente (CU-U-14) |
 | **Total** | **75** | | |
 
-**64 de 75 CU con código implementado o parcial (~85%).** Los otros 11 son trabajo pendiente (andamiaje + no implementado).
-> **Nota (19/8):** la DB está **al día** con el modelo. El ajuste de circuitos se aplicó sobre la instancia existente con un delta puntual, sin recrearla, así que todos los endpoints se pueden probar en runtime.
+**63 de los 74 CU con backend están completos (85%).** Faltan 11: 7 parciales, 2 en andamiaje y 2 sin implementar. Dos de los ✅ tienen un defecto abierto (⚠): CU-E-29 y CU-A-04.
+> **Nota (17/10):** los ✅ bajan de 63 (corte del 4/9) a 57 porque **cambió el criterio, no porque se rompiera algo**. El de antes daba ✅ a todo endpoint con lógica real; el del roadmap exige además que se cumpla cada camino de la spec. Por eso pasaron a 🟡 CU-U-04 (no envía el mail), CU-A-10 y CU-A-15 (borran en cascada en vez de impedirlo), CU-A-13 y CU-A-14 (no validan el nombre único) y CU-A-17 (falta "ya es entrenador"). Ver los cambios del 17/10.
+> **Base de datos:** la de Render se recreó el 3/10 con el esquema vigente (dato del Status web). Es free tier y **vence alrededor del 2/11** (*sin verificar*), así que hay que regenerarla antes (BE-23). **Desde el 17/10 el esquema del bloque A ya está en `Db Creator`** (BE-10): al regenerar con `01` → `02` → `03` no hace falta el patch `patches/2026-10-17-be-10.sql`, que es para una base viva.
 
 ### Cobertura por rol
 
-| Rol | CU | ✅ | 🟡 | 🔵 | ⬜ | % implementado |
-|---|---:|---:|---:|---:|---:|---:|
-| Usuario | 20 | 14 | 1 | 2 | 3 | 70% |
-| Entrenador | 32 | 26 | 0 | 2 | 4 | 81% |
-| Admin | 23 | 23 | 0 | 0 | 0 | 100% |
+| Rol | CU | ✅ | 🟡 | 🔵 | ⬜ | Sin backend | % ✅ (sobre los CU con backend) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Usuario | 20 | 17 | 2 | 0 | 0 | 1 | 89% |
+| Entrenador | 32 | 28 | 0 | 2 | 2 | 0 | 88% |
+| Admin | 23 | 18 | 5 | 0 | 0 | 0 | 78% |
+| **Total** | **75** | **63** | **7** | **2** | **2** | **1** | **85%** |
 
 > **Nota (4/9):** `CU-E-12` es un CU **agrupador** y no se cuenta a sí mismo; cuentan sus cuatro operaciones anidadas (`CU-E-12a` a `CU-E-12d`). Por eso el total pasó de 72 a **75** sin que haya funcionalidad nueva respecto del corte anterior.
+
+## Cambios recientes (2026-10-18 · rutina individual: marcar, desmarcar y nota)
+
+- **Decimocuarta y decimoquinta tarea del roadmap (BE-14 y BE-15, fusionadas): U-12 y U-13 pasan a ✅.** `POST /routine/assign-user/:id/finished` y `DELETE /routine/assign-user/:id/finished/:routineExerciseId` (spec del 17/10, §4.5 y §4.6), en `routine.controller.ts` y `routine.service.ts`. Plan: `Doc/plans/2026-10-18-be-14-marcar-desmarcar-y-nota-plan.md` (repo PowerApp-Docs). Conteos: ✅ 61 → **63** y ⬜ 4 → **2**; el Usuario sube de 79% a 89%. **Es la primera tarea que escribe el "hecho".** Salvedad: igual que el detalle, marcar dentro de una planificación (la vía `Routine_Exercise_Finished`) es del bloque B; U-12 y U-13 pasan a ✅ porque así lo fija la spec (§11) para el cierre del bloque A.
+- **Se fusionaron BE-14 y BE-15 (D3).** El roadmap los separaba (marcar y desmarcar, por un lado; la nota, por otro). La spec los une: la nota vive en la **misma fila** que el hecho y se escribe por el mismo endpoint, así que **U-13 es un camino incluido de U-12** (sigue contando como CU). La tarea siguiente del roadmap es **BE-16** (el historial).
+- **Marcar: `POST …/finished`** con `{ routine_exercise_id, user_note? }` (sólo el rol `user`). `404` si la asignación no existe, `403` si es de otro alumno (el dueño se chequea en el service, como en el detalle). Después, en este orden: si **ya estaba marcado** → `200`, idempotente (con `user_note` la actualiza, y la cadena vacía la borra; sin `user_note` no toca nada). Si **no estaba marcado**, el ejercicio tiene que ser de la rutina de la asignación (`400` si no) y seguir en ella (`400` si el coach lo sacó) → se crea la fila y responde `201`. Respuesta: `{ routine_exercise_id, user_note, created_at, updated_at }`, la misma forma que `finished` en el detalle. **Sin ventana de fechas** (D5): se puede marcar en cualquier momento.
+- **Qué significa "sacado de la rutina".** Se mira contra los `Routine_Circuit` **de esa rutina** que apuntan al circuito del ejercicio: está sacado si el ejercicio está dado de baja **o** si todos esos vínculos están apagados. Con un circuito repetido (A, B, A) basta con un vínculo activo. Un ejercicio que no existe cuenta como "no pertenece" (`400`, no `404`): un `404` mandaría al cliente a buscar un bug de ids que no está. **Lo ya marcado no vuelve a validarse**: así se puede editar la nota de un ejercicio que el coach sacó después de que el alumno lo hizo.
+- **Desmarcar: `DELETE …/finished/:routineExerciseId`** (sólo `user`). Mismos `404` y `403`. Borra la fila **y su nota**. **Idempotente:** `200` `{ routine_exercise_id, finished: false }` también si no estaba marcado, y se puede desmarcar lo que el coach sacó de la rutina después.
+- **La carrera de dos marcas simultáneas se resuelve con el único** `uk_raef_asign_exercise`: las dos pasan la lectura, la segunda choca en el `INSERT`, y el service **relee la fila y sigue como "ya estaba marcado"** (aplica la nota si vino) → `200`. Se mira el nombre del único para no disfrazar otro error (mismo helper que BE-11). Sin transacción: cada endpoint es una sola escritura.
+- **Se marca por ejercicio, no por serie (aviso al web).** El web espera marcar por serie (B3). La spec ya lo resolvió el 25/8: el hecho es **por ejercicio** y el tildado serie por serie es de la interfaz. B3 tiene que adaptar lo que esperaba.
+- **Cambio en una entidad que no cambia el esquema.** `RoutineAsignExerciseFinished.user_note` pasa de `string` a `string | null` con `type: 'varchar'` explícito (el patrón de `Routine.coach_note`), porque borrar la nota la pone en `null` y TypeScript no lo dejaba. **La columna es la misma:** `VARCHAR(100)` nullable, igual que en `ddl.py` y en el `01`; se comprobó con la metadata y contra el `01`, así que `Db Creator` no se tocó. La gemela de la vía del plan (`RoutineExerciseFinished`) queda como está hasta el bloque B.
+- **`updated_at` se setea a mano al editar la nota** (el `onUpdate` de las entidades es sintaxis de MySQL; hallazgo 4, lo resuelve BE-30), y la nota sólo se escribe si cambia: repetir el mismo pedido no mueve `updated_at`. El `UPDATE` es explícito (`update()`, no `save()`), así que se puede leer como SQL.
+- **BE-13 pasó a usar los mismos helpers** (el chequeo de dueño y el armado de `finished`), sin cambiar lo que devuelve: sus 46 chequeos siguen en verde.
+- **Revisado y sin cambios:** `editCircuit` ya consulta las dos tablas de hecho desde BE-10, y `deleteExercise` (A-06) bloquea con `409` ante **cualquier** fila de `Routine_Exercise`, así que un ejercicio marcado nunca llega al `CASCADE`.
+- **Hallazgo 2 reescrito, no cerrado.** Ya no es cierto que "nada escribe" el registro: desde hoy la **vía individual** se escribe. Siguen abiertos el historial del entrenador (E-06 y E-07, BE-16) y **toda la vía del plan**.
+- **Para el web.** B3 (marcar) y B4 (nota) ya pueden tipar contra el Swagger de estos dos endpoints. Cruzar lo hecho por `routine_exercise_id`, que es el campo `id` de cada ejercicio del árbol.
+- **Verificación, sin levantar el server.** Hecho:
+  - Build en verde.
+  - 21 chequeos del body y de los parámetros con el `ValidationPipe` real.
+  - 102 chequeos de las reglas con **repositorios falsos con estado** (se comportan como la base: único, orden, `delete`): códigos y orden de las validaciones, los seis caminos de la tabla del §4.5, el dueño con ids en mayúscula, la idempotencia, la carrera por el único (y los casos en que no se disfraza), desmarcar, y un **cruce con el detalle de BE-13 sobre el mismo estado**: marcar aparece en `finished` y deja ver el vínculo apagado de ese circuito, y desmarcar lo saca.
+  - 32 chequeos sin conectarse a la base: `user_note` sigue siendo `varchar(100)` nullable y coincide con el `01`, el `INSERT … RETURNING`, y el SQL de las lecturas, del `UPDATE` y del `DELETE`, armados a partir de lo que el service realmente pasa y **leídos**.
+  - 41 chequeos del controller: rutas, sólo el rol `user`, sin `@Owner`, que le pasa al service el id, el body y el usuario del token, `await` sin `return` y el Swagger generado.
+  - Los cuatro scripts se corrieron antes **en rojo** (1, 34, 8 y 11 fallas) y después en verde; los once de BE-11, BE-12 y BE-13 siguen en verde como regresión.
+- **Lo que NO se verificó.**
+  - **Nada corrió contra un Postgres ni contra el server.** La carrera por el único se simuló en un fake: se probó que el código reacciona si la base devuelve el error, no que la base lo devuelva. Queda para BE-35.
+  - **Dos carreras que no se cubren** (la spec no las pide): que el coach borre la asignación (E-20, mientras no tenía hechos), o que `editCircuit` borre un ejercicio "sin historial", justo cuando el alumno lo marca. En ambos la base devuelve una violación de FK (`RESTRICT`) y la respuesta sería `500`. Son ventanas de milisegundos.
+  - El camino completo con datos reales (asignar → marcar → ver el detalle → quitar la asignación, que ahora responde `409`) queda para BE-35 con el seed de BE-21.
+- **Cambios de estado:** **U-12 y U-13 pasan de ⬜ a ✅.** La fase 2 avanza: **BE-10, BE-10b, BE-11, BE-12, BE-13 y BE-14 (con BE-15) hechas, sigue BE-16** (el historial del entrenador, E-06 y E-07).
+
+## Cambios recientes (2026-10-18 · rutina individual: detalle para el alumno)
+
+- **Decimotercera tarea del roadmap (BE-13): U-09 y U-10 pasan a ✅.** `GET /routine/assign-user/:id` (spec del 17/10, §4.4), en `routine.controller.ts` y `routine.service.ts`. Plan: `Doc/plans/2026-10-18-be-13-detalle-de-la-asignacion-para-el-alumno-plan.md` (repo PowerApp-Docs). Conteos: ✅ 59 → **61** y 🟡 9 → **7**; el Usuario sube de 68% a 79%. **Salvedad:** el detalle de una asignación **del plan** (`Routine_Asignation`) no tiene contrato en la spec y lo define el bloque B, igual que el marcar dentro de un plan (§8); U-09 y U-10 pasan a ✅ porque así lo fija la spec (§11) para el cierre del bloque A.
+- **El alumno lee por asignación, no por rutina.** El roadmap proponía abrirle `GET /routine/:id` al rol `user` con un chequeo de "asignación vigente" (DA5); la spec lo descartó (D8) y **ese endpoint sigue siendo sólo de coach y admin**. **Por qué:** la unidad de trabajo del alumno es la asignación del día, y así no se le cambia el contrato a `GET /routine/:id`. Se reescribió su comentario, que hablaba de una "cadena que todavía no existe".
+- **El contrato.** Roles: user, coach y admin. `404` si la asignación no existe; `403` (`No podés acceder a una rutina asignada a otro alumno.`) si es de otro alumno y quien pide tiene rol `user`; coach y admin abren la de cualquier alumno (gimnasio compartido). El `404` va **antes** que el `403`, como dice la spec. El dueño se chequea en el service y no con `@Owner`, porque el path trae el id de la asignación y no el del alumno; se compara en minúscula (el iOS manda los UUID en mayúscula). `200` con `{ id, routine_id, user_id, date, created_at, updated_at, routine, finished }`, donde `routine` es **el mismo árbol de `GET /routine/:id`** (misma consulta, mismos builders) y `finished` son los `{ routine_exercise_id, user_note, created_at, updated_at }` de lo que el alumno ya marcó. U-10 se resuelve dentro del mismo árbol: cada ejercicio trae su ficha de catálogo, sus series ordenadas y la nota del coach, y la nota del alumno sale de `finished`.
+- **Se propagó la visibilidad de lo dado de baja.** El builder de la rutina filtraba los vínculos apagados con `visibleInactiveIds` pero **llamaba al del circuito sin pasarle nada**: un ejercicio dado de baja que el alumno completó no habría aparecido. Ahora se propaga. Regla (27/8): un `Routine_Exercise` apagado se ve si el alumno lo completó en esa asignación; un `Routine_Circuit` apagado se ve si completó algo de **ese circuito** (se mira el circuito y no el vínculo porque la base no registra el hecho por vínculo: con un circuito repetido, A, B, A, el ejercicio completado es el mismo en los dos).
+- **Decisión de diseño: dentro de un circuito que el coach sacó de la rutina se ve sólo lo que el alumno completó.** La spec no lo definía (era el caso borde que dejó anotado BE-12). **Por qué:** mostrarle al alumno los demás ejercicios de ese circuito como pendientes contradice la decisión del coach de sacarlo; y así **el detalle coincide con el `total` del listado**: los ejercicios que se ven, sin repetir ids, son exactamente los activos de los vínculos activos más los completados. Se implementó con un tercer parámetro **opcional** en cada builder, de modo que `createRoutine`, `editRoutine`, `getRoutineById` y los tres de circuito **no cambian**.
+- **Orden de lo apagado.** El vínculo apagado tiene `order` en `null` y Postgres manda los `NULL` al final en `ASC`: los circuitos apagados que se muestran salen después de los vigentes.
+- **Una rutina dada de baja después de asignarla se abre igual**, con `routine.active: false`.
+- **Sin cambios de esquema:** `Db Creator/`, las entidades y `routine.module.ts` no se tocaron. Specs de CU reescritas en `Use Cases/` (repo PowerApp-Docs): **U-09 y U-10**.
+- **Para el web.** B2 (detalle de rutina y de ejercicio) ya puede tipar contra el Swagger de este endpoint: reutiliza el tipo y el componente del detalle de rutina y cruza lo hecho por `routine_exercise_id`.
+- **Verificación, sin levantar el server.** Hecho:
+  - Build en verde.
+  - **Regresión de los builders con una foto:** antes de tocar el código se guardó la salida de los dos builders sobre un árbol armado a mano (sin visibilidad y con el conjunto de visibilidad de un solo parámetro); después del cambio es **idéntica**, salvo la diferencia intencional (con un ejercicio apagado visible, ahora aparece; sacándolo, idéntico). Así lo que usan el alta, la edición y la lectura de rutinas y circuitos no cambió. 10 chequeos.
+  - 46 chequeos del service con repositorios falsos: `404` antes que `403`, dueño por rol con ids en mayúscula, la forma exacta de la respuesta, **el `routine` idéntico al de `GET /routine/:id`**, `finished`, y siete escenarios de visibilidad cruzados con la fórmula del `total` de BE-12 (activos ∪ hechos).
+  - 16 chequeos sobre el SQL de las tres consultas, armadas con un `DataSource` real **sin conexión** a partir de las opciones que el service realmente pasa, y **leídas**: incluye por primera vez el SQL del detalle de rutina con su `ORDER BY` anidado de tres niveles (vínculo → `exercise_order` → `set_order`) sobre los `LEFT JOIN` encadenados Routine → Routine_Circuit → Circuit → Routine_Exercise → Exercise, más Exercise_Set.
+  - 24 chequeos del controller: ruta, roles, sin `@Owner`, que le pasa al service el id y el usuario del token, `await` sin `return` y el Swagger generado.
+  - Los cuatro scripts se corrieron antes **en rojo** (3, 17, 3 y 8 fallas) y después en verde; los siete de BE-11 y BE-12 siguen en verde como regresión.
+- **Lo que NO se verificó.**
+  - **Nada corrió contra un Postgres ni contra el server.** El SQL del detalle de rutina se generó y se leyó, no se ejecutó: el orden anidado de tres niveles sigue siendo **lo primero a probar en BE-35** (spec §12).
+  - El rendimiento del detalle con datos reales no se midió.
+  - **El detalle con ejercicios realmente completados no se puede probar de punta a punta todavía**: nada escribe `Routine_Asign_Exercise_Finished` hasta BE-14 (hallazgo 2). Se probó con repositorios falsos y un árbol armado a mano.
+- **Cambios de estado:** **U-09 y U-10 pasan de 🟡 a ✅.** La fase 2 avanza: **BE-10, BE-10b, BE-11, BE-12 y BE-13 hechas, sigue BE-14** (marcar, desmarcar y la nota, fusionado con BE-15).
+
+## Cambios recientes (2026-10-18 · rutina individual: listado por alumno)
+
+- **Duodécima tarea del roadmap (BE-12): la parte individual de U-08.** `GET /routine/assigned/:userId?from=&to=` (spec del 17/10, §4.3), en `routine.controller.ts` y `routine.service.ts`. Plan: `Doc/plans/2026-10-18-be-12-listado-rutinas-por-alumno-plan.md` (repo PowerApp-Docs). **U-08 pasa de 🔵 a 🟡** (no a ✅): la parte del plan sigue colgando hasta BE-20. Conteos: 🟡 8 → **9** y 🔵 3 → **2**; los ✅ siguen en 59. También es el listado que necesitan E-19 y E-20: el coach lo usa para abrir la asignación que va a quitar.
+- **Va en `routine/` y no reemplaza al andamiaje de `planification/`.** El roadmap hablaba de reemplazar `GET /planification/user/:id/active` por el home; la spec fijó el endpoint en `routine/`, y los dos andamiajes de `planification.controller.ts` (`/user/:id` y `/user/:id/active`) **siguen colgando** porque son de la vía plan (BE-19 y BE-20).
+- **El contrato.** Roles: user (con `@Owner('userId')`: sólo el propio id, `403` si no), coach y admin (cualquier alumno, gimnasio compartido). `from` y `to` son opcionales, inclusivos y en formato día (reusan `@IsCalendarDay()` de BE-11); `from > to` es `400`; usuario inexistente es `404`. `200` con un array ordenado por día y nombre de rutina, vacío si no hay asignaciones. Cada ítem: `{ id, routine_id, user_id, date, created_at, updated_at, routine: { id, name, active }, progress: { finished, total } }`.
+- **Qué es `progress`.** `finished` son las filas de hecho de la asignación. `total` son los ejercicios que el alumno ve en el detalle: **los activos de los vínculos activos de la rutina, más los dados de baja que completó en esa asignación, cada uno una vez**. **Por qué una unión y no una suma:** un circuito repetido en la rutina (A, B, A) comparte sus `Routine_Exercise`, y un ejercicio completado puede ser a la vez activo; se cuentan ids distintos. Una asignación 2 de 3 un lunes no dice nada de otro día de la misma rutina: comparten los ejercicios, no lo hecho.
+- **La cuenta se hace en memoria, con tres consultas.** (1) Las asignaciones del alumno con su rutina (`id`, `name`, `active`), (2) los ejercicios vigentes de las rutinas que aparecen y (3) los hechos de esas asignaciones; las dos últimas con `getRawMany`, porque un `getMany` con select parcial sin la clave primaria hace que TypeORM colapse las filas. **Por qué no un `COUNT` en SQL:** `total` es una unión de conjuntos de ids y pediría subconsultas correlacionadas por fila; en memoria se prueba con los casos borde, y el SQL de las tres consultas se verificó como texto.
+- **Una rutina dada de baja después de asignarla se sigue listando**, con `routine.active: false` (informativo: la asignación existe y se puede ejecutar), y también se lista si la cuenta del alumno está cerrada (spec §6). Un usuario que existe pero no es alumno devuelve `200` con `[]`.
+- **Decisión menor que se puede vetar:** dos rutinas con el mismo nombre el mismo día se desempatan por fecha de alta; la spec ordena sólo por día y nombre. Nota técnica: TypeORM reescribe el orden por nombre de rutina como `ORDER BY ... "routine_name"` (el alias del `SELECT`), que en Postgres es equivalente.
+- **Caso borde que queda para BE-13.** Si el coach saca un circuito de la rutina *después* de que el alumno completó algo de él, el detalle (§4.4) tiene que mostrar ese vínculo apagado. Sus ejercicios activos y sin hacer **no cuentan en `total`** (la spec dice "circuitos activos"). **Recomendación para BE-13:** dentro de un vínculo apagado mostrar sólo lo completado, así el detalle y el `total` coinciden.
+- **Sin cambios de esquema:** `Db Creator/`, las entidades y `routine.module.ts` no se tocaron. Specs de CU reescritas en `Use Cases/` (repo PowerApp-Docs): **U-08** (el home combina las rutinas individuales de la semana con el plan vigente; la parte del plan sigue siendo del bloque B) y una línea en cada una de **E-19 y E-20** para que no contradigan al listado.
+- **Para el web.** B1 (rutinas de la semana) ya puede tipar la parte individual contra el Swagger; la parte del plan llega con BE-20.
+- **Verificación, sin levantar el server.** Hecho:
+  - Build en verde.
+  - 24 chequeos de los DTOs de query y de parámetros con el `ValidationPipe` real, 58 del service con un `DataSource` real **sin conexión** (las tres consultas se construyen de verdad, se verifica su SQL y sus parámetros y se interceptan al ejecutar con filas armadas: códigos, orden de las validaciones, el filtro de fechas y la cuenta del progreso con sus casos borde) y 27 del controller (ruta, roles, `@Owner` cableado a `userId`, el `OwnerGuard` real, `await` sin `return` y el Swagger generado).
+  - Los tres scripts se corrieron antes **en rojo** (1, 24 y 10 fallas) y después en verde, y los cuatro de BE-11 siguen en verde como regresión (58, 62, 19 y 30; este último pierde el chequeo de que el listado no existía todavía).
+- **Lo que NO se verificó.**
+  - Nada corrió contra un Postgres ni contra el server: las tres consultas se revisaron como texto, no se ejecutaron. Queda para BE-35.
+  - El rendimiento con datos reales (el listado sin filtro de un alumno con meses de historial) no se midió. El índice `idx_rau_user_date` cubre el filtro por alumno y fecha.
+  - **El progreso con ejercicios realmente completados no se puede probar de punta a punta todavía**: nada escribe `Routine_Asign_Exercise_Finished` hasta BE-14 (hallazgo 2). Se probó con filas armadas.
+- **Cambios de estado:** **U-08 pasa de 🔵 a 🟡.** La fase 2 avanza: **BE-10, BE-10b, BE-11 y BE-12 hechas, sigue BE-13** (el detalle para el alumno, con la visibilidad propagada a los ejercicios).
+
+## Cambios recientes (2026-10-18 · rutina individual: asignar y quitar)
+
+- **Undécima tarea del roadmap (BE-11): E-19 y E-20 pasan a ✅.** Son los primeros endpoints de la vía individual (spec del 17/10, §4.1 y §4.2), en `routine.controller.ts` y `routine.service.ts` como se acordó el 27/8. Plan: `Doc/plans/2026-10-18-be-11-asignar-rutina-individual-plan.md` (repo PowerApp-Docs). Conteos: 57 → **59** ✅ de 75 (80% de los 74 con backend); el Entrenador sube de 81% a 88%.
+- **Son dos endpoints y no tres.** El roadmap metía `GET /routine/assigned/:userId` en esta tarea; la spec del 17/10 lo movió a **BE-12** (§4.3 y §9) porque trae el progreso de cada asignación. Manda la spec. **Consecuencia:** hasta BE-12 el entrenador puede asignar y quitar, pero **no tiene cómo listar las asignaciones de un alumno**, y E-20 arranca justamente de abrir una asignación. Queda diferido, no olvidado.
+- **`POST /routine/assign-user`** (coach, admin). Body `{ routine_id, user_id, date }`; `201` con `{ id, routine_id, user_id, date, created_at, updated_at, routine: { id, name } }`. Las validaciones van en un orden que es parte del contrato: `404` rutina inexistente → `400` rutina de baja → `404` usuario inexistente → `400` destinatario que no es alumno o con la cuenta cerrada → `409` si ya tiene esa rutina ese día. **Por qué ese orden:** el cliente corrige de a un error por vez, y la rutina es lo primero que eligió el coach. El `400` del destinatario tiene dos mensajes (no es alumno / cuenta cerrada) para que el coach no tenga que adivinar cuál fue.
+- **`DELETE /routine/assign-user/:id`** (coach, admin). `404` si no existe; `409` `El alumno ya entrenó esta rutina: no se puede quitar.` si tiene filas en `Routine_Asign_Exercise_Finished`; si no, **borrado físico** y `200` con la asignación borrada, con la misma forma que el alta. **Por qué físico y con 409:** es lo que dice la spec de E-20, y no se destruye el historial del alumno (D4, criterio del 22/8). El `RESTRICT` de la base es el respaldo.
+- **El `409` sale por dos caminos en cada endpoint.** El alta chequea el duplicado antes de insertar *y* traduce el `23505` del único `uk_rau_routine_user_date` (dos altas simultáneas pasan las dos el chequeo). La baja chequea la ejecución antes de borrar *y* traduce el `23503` de la FK `RESTRICT` (el alumno marca un ejercicio entre el chequeo y el borrado). Es la **primera vez que el proyecto traduce un error de Postgres a un código HTTP**: se mira `QueryFailedError` y `driverError.code`, y en el alta también el nombre del único, para no disfrazar de duplicado cualquier otro `23505`.
+- **Sin transacción, a propósito.** Cada endpoint es una sola escritura precedida de lecturas; las carreras las cierra la base. Por eso no aplica la regla de `connect()` y `startTransaction()` dentro del `try`.
+- **`date` es un día sin hora, validado a mano.** `@IsDateString()` (el que usa `user_rm`) acepta fecha con hora y zona y la dejaría pasar a un `date` de Postgres; el año `0000` pasaría la forma y daría un 500. El body usa un validador propio (`@IsCalendarDay()`: forma `YYYY-MM-DD`, día que exista en el calendario, año ≥ 1) que BE-12 reutiliza para `from` y `to`. El servidor sigue sin calcular "hoy": la fecha es siempre del cliente, pasada o futura.
+- **Dos rutinas distintas el mismo día se permiten.** El único es `(rutina, alumno, día)`; lo que se rechaza es repetir la **misma** rutina el mismo día. Es consecuencia de D2 y queda escrito en la spec de E-19.
+- **Los ids de la respuesta son los de la base.** El iOS manda los UUID en mayúscula; el alta guarda y devuelve los ids de las filas leídas y no los del body.
+- **Registros del módulo.** `routine.module.ts` suma `RoutineAsignationUser` (sólo estaba en `planification.module.ts`) y `User`, con `forFeature` y no importando `UsersModule` (el usuario ya rechazó acoplar módulos). Se actualizó el comentario de `planification.controller.ts` que decía que E-19 y E-20 "se retomarán".
+- **Sin cambios de esquema:** `Db Creator/` y las entidades no se tocaron. Specs de CU reescritas en `Use Cases/` (repo PowerApp-Docs): **E-19 y E-20**. Las precondiciones de E-03 a E-07 ("gimnasio compartido", D6) siguen para BE-38.
+- **Para el web.** B5 (rutina puntual) ya puede tipar el alta y la baja contra el Swagger de estos dos endpoints. Falta el listado (BE-12) para completar la pantalla.
+- **Verificación, sin levantar el server.** Hecho:
+  - Build en verde.
+  - 58 chequeos del body con el `ValidationPipe` real y el validador del día, 62 de las reglas de los dos métodos con repositorios falsos (códigos, mensajes, **orden de las validaciones**, los dos 409 de cada endpoint, ids en mayúscula, qué se guardó y qué no, la forma exacta de las respuestas), 31 del controller (rutas, verbos, roles, `await` sin `return`, y el Swagger generado con `@nestjs/testing` sin abrir ningún puerto) y 19 sin conectarse a la base (nombre del único, `INSERT ... RETURNING "id", "created_at", "updated_at"`, `date` hidratado como `'YYYY-MM-DD'`, FK `RESTRICT`).
+  - Los scripts de DTO, reglas y controller se corrieron antes **en rojo** (1, 21 y 11 fallas contra HEAD: el módulo o el método no existían) y después en verde. El de TypeORM mide el esquema de BE-10, así que ya pasaba; su único ajuste fue de método: `getQuery()` suelto no muestra el `RETURNING` porque TypeORM lo arma recién en `execute()`, así que el script reproduce ese paso.
+- **Lo que NO se verificó.**
+  - Nada corrió contra un Postgres ni contra el server. El `INSERT ... RETURNING` y la hidratación de `date` se revisaron contra la metadata de TypeORM y el parser de `pg`, no en vivo: queda para BE-35.
+  - La carrera real (dos altas simultáneas, o una marca en medio de un borrado) no se reprodujo: se probó que el código traduce el error si la base lo devuelve, no que la base lo devuelva.
+  - **La baja de una asignación entrenada no se puede probar de punta a punta todavía**: nada escribe `Routine_Asign_Exercise_Finished` hasta BE-14 (hallazgo 2). Se probó con un repositorio falso.
+- **Cambios de estado:** **E-19 y E-20 pasan de ⬜ a ✅.** La fase 2 avanza: **BE-10, BE-10b y BE-11 hechas, sigue BE-12** (el listado por alumno, que es la parte individual de U-08).
+
+## Cambios recientes (2026-10-17 · modelo de ejecución y planificaciones por semanas)
+
+- **Novena y décima tarea del roadmap (BE-10 y BE-10b), hechas juntas.** Pone el esquema, las entidades y `Db Creator` en el modelo del diagrama del 17/10 (spec del 17/10, §3) y rehace el contrato de planificaciones por semanas (§5). Plan: `Doc/plans/2026-10-17-be-10-modelo-ejecucion-y-refactor-planificaciones-plan.md` (repo PowerApp-Docs).
+- **Por qué se fusionaron.** BE-10 sola **no compilaba**: `planification.service.ts` usaba `duration` como texto y ponía `order = null` en la baja. Y aun parchada para compilar, el alta de una rutina a un plan habría insertado sin `week` y la base habría respondido NOT NULL → 500: **E-12a y E-12b dejaban de andar en Render**. Un parche mínimo habría sido código descartable que BE-10b reescribe, con las rutinas cayendo todas en la semana 1 mientras tanto, y el web habría visto cambiar el contrato dos veces. Partirlo en dos commits dejaba un primero que no compila solo.
+- **Cada vía de asignación tiene su propia tabla de ejecución** (D1). La tabla nueva `Routine_Asign_Exercise_Finished` es la gemela de `Routine_Exercise_Finished` para la vía individual: la existencia de la fila es el "hecho" del ejercicio y la nota vive en la misma fila. FK a `Routine_Asignation_User` y a `Routine_Exercise` en `RESTRICT`, y único `(user_routine_asign_id, routine_exercise_id)`. **No se unificó todo en `User_Routine`** (era la recomendación DA1-a del roadmap): las dos vías son productos distintos, y el usuario eligió separarlas. No volver a unificarlas.
+- **`Routine_Asignation_User` pasa a ser "una rutina para un día".** Pierde `routine_asignation_id` y `order`, y suma `date` con único `(routine_id, user_id, date)`. El FK obligatorio a `Routine_Asignation` era lo que hacía **imposible** E-19: obligaba a inventar una planificación para poder asignar una rutina suelta. Con `date`, la misma rutina se puede dar al mismo alumno en días distintos, y cada día es una sesión con su propio registro de ejecución. En la entidad, `date` está tipado `string` y no `Date`, porque TypeORM hidrata una columna `date` como `'YYYY-MM-DD'` (es lo que se razonó con `User_RM` en BE-05; sin verificar en runtime). Se suma un índice `(user_id, date)` para el listado por alumno y rango de fechas (BE-12, BE-16).
+- **`User_Routine` se eliminó** (D11). Sin `date` no guardaba nada propio: el `user_id` sale de la asignación y su `active` lo cubre `User_Planification.active`. Además no distinguía dos asignaciones del mismo plan al mismo alumno. `Routine_Exercise_Finished` ahora cuelga directo de `User_Planification` y de `Routine_Asignation`, con las tres FK en `RESTRICT` y único de las tres. **Lo que la base no puede garantizar** con dos FK simples es que la `Routine_Asignation` sea de la misma planificación que la `User_Planification`: lo valida el service al marcar (bloque B). Desaparece la pregunta de cuándo nace una instancia (DA2 y DB1 del roadmap).
+- **`RESTRICT` en las dos tablas de "hecho"** (D4). Una asignación ya entrenada no se borra, y la baja física de un `Routine_Exercise` sólo pasa cuando nadie lo completó. Si una de esas FK llega a frenar un `DELETE`, es un bug de la reconciliación, y se prefiere el error de la base antes que perder historial.
+- **`Routine_Asignation.week` y `order` pasan a NOT NULL** (D10). La baja lógica ahora **sólo apaga `active`**: la rutina conserva su semana y su orden (antes perdía el `order`). `order` sigue siendo una etiqueta dentro de la semana, con repetidos y huecos permitidos (decisión del 4/9), así que conservarlo es inocuo.
+- **`Planification.duration` pasa de texto a entero en semanas** (D9): obligatoria, `≥ 0`, y `0` significa "sin duración fija". Si es mayor que 0, **limita** la `week` de las rutinas del plan a `1..duration`. **`User_Planification` pierde `duration` y `end_date`** (D12): el fin de la asignación se calcula como `start_date` más las semanas de la plantilla. **Consecuencia asumida: editar la duración de la plantilla mueve el fin de todos los alumnos que la tienen asignada.** `number_of_routines` queda NOT NULL (DB3, como ya decía el diagrama).
+- **Contrato nuevo para el web** (E-09, E-10, E-12a a E-12d; lo mismo en el Swagger):
+  - `duration` es un entero `≥ 0` y **obligatorio**, también al editar. Al editar, si es mayor que 0 y menor que la semana más alta usada por una rutina **vigente** del plan, responde `400` `La planificación tiene rutinas en la semana N: la duración no puede ser menor.`
+  - `POST /planification/routine/assign` y `assign-bulk` exigen `week` (`≥ 1`, y `≤ duration` si `duration > 0`). Sin `order`, la rutina va al final **de esa semana**. Un lote es de una sola semana.
+  - `set-active` acepta `week` y `order` sólo al reincorporar (con `active: false` es `400`). Sin ninguno, la rutina vuelve a su lugar; con `week` y sin `order`, al final de esa semana. Si la semana queda fuera de la duración actual, `400`. `set-active-bulk` devuelve cada una a su lugar y es todo o nada.
+  - Las respuestas traen `duration` como número y cada rutina con su `week`. La lista sigue **plana**, ordenada por `week`, `order` y fecha de asignación; **agrupar por semana es del cliente**.
+  - **Esto rompe a un cliente que mande `duration` como texto o un `assign` sin `week`** (el `ValidationPipe` usa `forbidNonWhitelisted`). Hay que avisarle al web y regenerar los tipos.
+- **Hallazgo: `editCircuit` no veía la tabla nueva.** Para decidir si un ejercicio que sale del circuito se da de baja lógica o se borra, miraba sólo `Routine_Exercise_Finished`. Con la vía individual, un ejercicio entrenado ahí habría parecido sin historial: el service lo habría intentado borrar y la FK `RESTRICT` habría devuelto un 500. Además A-06 se apoya en que *un `Routine_Exercise` inactivo sólo existe si alguien lo completó*. Ahora `editCircuit` consulta **las dos tablas**. La spec no lo mencionaba (decía que ningún service tocaba `User_Routine`, y es cierto). **Regla que deja: toda tabla nueva que referencie `Routine_Exercise` obliga a revisar `editCircuit`.**
+- **El patch** `Db Creator/patches/2026-10-17-be-10.sql` lleva una base viva al esquema nuevo. **Aborta sin tocar nada** si `User_Routine`, `Routine_Exercise_Finished` o `Routine_Asignation_User` tienen filas, o si hay filas de `User_Planification` con `number_of_routines` nulo que no se pueden completar desde la plantilla. Las guardas sólo miran la **forma vieja** de cada tabla: después del patch, `Routine_Asignation_User` se llena con E-19 y una guarda ingenua abortaría al re-correrlo. Convierte `duration` tomando el primer número del texto (`'12 semanas'` → 12; sin número → 0), deja `week = 1` en las filas existentes y manda al final del plan las inactivas que tenían `order` nulo. **Ojo: no convierte unidades**, `'3 meses'` queda en 3 **semanas**; el encabezado trae la consulta para revisarlo antes. Al regenerar la base (BE-23) no hace falta: el `01` ya trae el esquema.
+- **Decisiones menores** (se pueden vetar): `@Max(2147483647)` en `duration` y `week`, un **tope técnico** (no de dominio) para evitar el 500 por "integer out of range"; los índices `idx_rau_user_date`, `idx_raef_routine_exercise_id` e `idx_ref_routine_asignation_id`, que la spec no define; y reactivar una asignación que ya estaba activa, mandando `week` u `order`, la **mueve**.
+- **Verificación, sin levantar el server.** Hecho:
+  - Build en verde.
+  - `py build_sql.py` dos veces seguidas: los tres `.sql` byte-idénticos entre sí. `02` y `03` quedaron idénticos a lo versionado; sólo cambió el `01`.
+  - **`01` contra el diagrama de `Doc/`** (`PowerApp - Modelo DB.svg`, 17/10 16:26, sha256 `135ca4b6…7ede`): de 15 diferencias contra el DDL anterior a **0 nuevas**. Quedan tres desalineaciones previas del dibujo que no se tocan: `User.role` (enum en el código), `User.profile_picture` y `User.email`.
+  - **`01` contra las entidades**, armando el `DataSource` con las entidades compiladas **sin conectarse** (`buildMetadatas`): en las seis tablas tocadas no hay diferencias de nombres, tipos, nulabilidad, únicos ni reglas de borrado de las FK. En el modelo completo quedan 19 diferencias, **las mismas que en HEAD** (FK de `User_RM`, `Membership_Payment` y `Muscle` sin `onDelete` en la entidad, únicos de `Coach`/`User`/`Exercised_Muscle`, nulabilidad de `Coach`): previas, ninguna en estas tablas, no se tocaron.
+  - 37 chequeos de las reglas del service con repositorios falsos (códigos, mensajes, qué se guardó y qué no, transacción y rollback de los lotes), 18 de los DTOs con el `ValidationPipe` real, y 7 sobre el SQL que arma el service sin conectarse (el `MAX(order)` por semana, el `MAX(week)` y el `ORDER BY week, order, created_at`). Las reglas y los DTOs se corrieron antes en rojo contra HEAD (11 y 23 fallas) y después en verde.
+- **Lo que NO se verificó.**
+  - **Cuando se escribió, el patch y el `01` no se habían ejecutado contra ningún Postgres.** El usuario decidió no instalar PGlite (Postgres en memoria) para probarlos. Se hizo en su lugar un control **estático** (33 chequeos): lo que el patch agrega es textualmente igual al `01` (la tabla nueva, cada constraint y cada índice), todo lo que el `01` quitó queda cubierto por un `DROP` del patch, las guardas van antes del primer cambio y la tabla `User_Routine` se borra después de soltar la FK que la referenciaba. Ese control no cubre la semántica del SQL.
+  - **Actualización del 18/10: el patch se ejecutó sobre la base viva.** El usuario lo corrió desde DBeaver y la consulta de verificación del propio patch devolvió las **8 filas en `ok`** (sin `User_Routine`, con `Routine_Asign_Exercise_Finished`, `Routine_Asignation_User` con `date` y sin `order`, `Routine_Exercise_Finished` colgando del plan, `week` y `order` NOT NULL, `duration` entero NOT NULL, `User_Planification` sin `duration` ni `end_date` y con `number_of_routines` NOT NULL). Con eso quedan **probados contra un Postgres real** la conversión de `duration`, el `UPDATE` de los `order` nulos y las guardas **en ese camino feliz**. **Sigue sin probarse:** la **idempotencia** (correrlo dos veces), las guardas **cuando abortan**, y el **`01` aplicado desde cero** (`01` → `02` → `03` sobre una base vacía). Las constraints y los índices nuevos no se chequearon más allá de las 8 filas (la consulta sobre `pg_constraint` quedó como sugerencia). Recrear la base con el `01` en BE-23 es la primera vez que se ejecuta.
+  - Nada corrió contra Render ni contra el server. El SQL del service se revisó como texto, no se ejecutó.
+  - `editCircuit` con un ejercicio realmente entrenado por la vía individual: el código consulta las dos tablas, pero el camino completo necesita datos que recién crea BE-14. Queda para BE-35.
+  - Siguen sin probarse en runtime las consultas con orden anidado de tres niveles (riesgo del detalle de rutina, spec §12).
+- **Sin cambios de estado en ningún CU:** E-09, E-10 y E-12a a E-12d siguen ✅ con un contrato nuevo. Los conteos no se mueven. Specs de CU reescritas en `Use Cases/` (repo PowerApp-Docs): E-09, E-10, E-12, E-12a a E-12d, y una línea de E-15 que nombraba `User_Routine`. **Quedan para sus tareas** E-13 y E-14 (BE-17), E-06 y E-07 (BE-16), U-08 (BE-12) y U-09 (BE-13). La fase 2 avanza: **BE-10 y BE-10b hechas, sigue BE-11** (E-19 y E-20).
+
+## Cambios recientes (2026-10-17 · corte nuevo con el inventario del roadmap)
+
+- **Octava tarea del roadmap (BE-08), sin código: cierra la fase 1 (hito H1).** El resumen era del 4/9 y el dashboard, del 27/8. Este corte toma el inventario del roadmap (§9, 16/10), que se armó leyendo el código CU por CU, y le aplica lo cerrado el 16 y 17/10 (BE-01 a BE-07).
+- **Criterio más estricto.** Un CU es ✅ sólo si se cumplen **todos los caminos de su spec**: no alcanza con que el endpoint exista y ejecute lógica. Pasaron a 🟡:
+  - **U-04:** no envía el mail; se resuelve en BE-29.
+  - **A-10:** borra el músculo en cascada; BE-24.
+  - **A-15:** borra el grupo y sus músculos en cascada; BE-25.
+  - **A-13 y A-14:** no validan el nombre único; BE-26.
+  - **A-17:** falta el camino "ya es entrenador"; BE-27.
+
+  Se verificó contra el código de hoy: no hay ningún chequeo de uso ni de nombre en `muscles.service.ts`. **No es una regresión.** Con el criterio viejo esos seis seguirían en ✅.
+- **Reclasificaciones:**
+  - **U-09**, de 🔵 a 🟡: `GET /routine/:id` ya arma el árbol completo; falta abrirlo al rol `user` con el check de asignación (BE-13).
+  - **U-14**, de ⬜ a "— sin backend": su spec lo deja en el cliente, y el web lo tiene.
+  - **U-02**, de 🟡 a ✅ con BE-03.
+  - **E-19 y E-20** siguen en ⬜, pero **entran al MVP** (decisión del 16/10, BE-10 y BE-11).
+- **⚠ (un ✅ con un defecto abierto):** quedan dos. **E-29** acepta un tipo de membresía dado de baja y un destinatario que no es alumno (BE-28). **A-04** tiene la `description` opcional en el DTO y NOT NULL en la base, y responde 500 (BE-31). Los otros siete del inventario se cerraron con BE-01, BE-02 y BE-05.
+- **Conteos:** 57 ✅, 8 🟡, 3 🔵, 6 ⬜ y 1 sin backend, de 75. Son **57 de los 74 CU con backend (77%)**. El porcentaje por rol pasa a calcularse sobre los CU con backend.
+- **Se corrigió lo que había quedado viejo:**
+  - Se cerraron los hallazgos 1 (planificaciones vacío, resuelto el 31/8 y el 4/9) y 3 (`Routine.routine_plan_id`, borrada el 4/9). El 2 y el 4 conservan su número, porque el roadmap los cita así.
+  - El encabezado citaba la carpeta vieja `Documentation/`, y el detalle del Entrenador decía "29 CU · 62%": son 32.
+  - A-23 decía "pendiente: columna `active` en DB", que existe desde que se regeneró la base.
+  - U-08, E-13 y E-14 decían "service vacío", cuando el problema real es que **cuelgan**: la ruta existe, la llamada está comentada y, con `@Res()`, nunca responden.
+  - Lo que sigue abierto lleva la tarea del roadmap que lo cierra (BE-xx).
+- **"Próximas semanas" y "Orden sugerido" se reemplazaron por "Plan de trabajo"**: el link al roadmap y sus 5 fases. El cronograma por viernes terminó el 4/9; la historia de esos bloques sigue en los cambios de agosto y septiembre.
+- **Dashboard sincronizado** con los mismos números. Suma un estado "sin backend", y corrige la tarjeta del Entrenador, cuya leyenda decía "18 impl. · 7 andam." y no coincidía con su propio 81%.
+
+## Cambios recientes (2026-10-17 · aviso al web: C2 y novedades del contrato)
+
+- **Séptima tarea del roadmap (BE-07), sin código.** El hallazgo 1 del Status web dice que el bloque C2 (rutinas y planificaciones del entrenador, 12 CU en placeholder) espera el aviso de que su backend está completo. **Confirmado:** E-08 a E-12d y E-15 a E-18 no cambiaron de contrato desde el 4/9. El único commit posterior en esos módulos es BE-04, que no cambia ninguna respuesta. **Salvedad que se le pasa al web:** esos endpoints **nunca se ejecutaron contra una base**, y el seed no tiene rutinas ni planificaciones (eso es BE-21). Lo que el web encuentre en la primera llamada es un bug del backend.
+- **El aviso suma lo que cambió del contrato el 16 y 17/10**, para que el web regenere los tipos una sola vez: B9 (el flag del login), V10 (la forma única de los RMs), los permisos de BE-02, el registro sólo de alumnos y la decisión del 16/10 sobre B8 (editar entrenador sigue por `promote_user`).
+- **Hallazgo al preparar el aviso: BE-02 rompió una pantalla del web desplegado.** El cliente del web **no manda el token** a las operaciones que su `openapi.json` declara sin `security`: las junta en `PUBLIC_OPERATIONS`, que se regenera con `api:gen`. BE-02 pasó `GET /coach/all` y `/coach/get/:id` de públicos a sólo admin. Desde el deploy del 17/10, el web los llama sin token y Render responde **`401`** (verificado contra el servicio en vivo). Fallan la lista de entrenadores del admin, la conversión a entrenador y los contadores de su panel. Se comparó el contrato del web con el Swagger en vivo, y son **las únicas dos operaciones** que pasaron de públicas a protegidas. **No se revirtió en el backend:** el arreglo del web no lleva código (regenerar el contrato desde Render y redesplegar), y volver a abrir `/coach/*` reabriría la exposición del CUIL. Es lo primero del aviso.
+- **Regla que deja este hallazgo:** cualquier endpoint que pase de **público a protegido** rompe al web hasta que regenere su contrato, así que hay que avisarle **en el mismo deploy**. Lo inverso, de protegido a público (DG2, por ejemplo), no rompe nada.
+- **Sin cambios de código ni de esquema.** El hallazgo 1 del Status web lo cierra el web del lado suyo.
+
+## Cambios recientes (2026-10-17 · higiene de producción)
+
+- **Sexta tarea del roadmap (BE-06).** Son tres cosas que no son de ningún CU pero estaban expuestas en el deploy público.
+- **Se borró `power-app/config.ts`.** Era código muerto desde el primer commit: exportaba un secreto JWT escrito a mano que sólo nombraban líneas comentadas de `auth.service.ts` (el JWT real sale de `JWT_SECRET`). Además estaba fuera de `src/`, y eso movía la raíz de compilación: el build emitía `dist/config.js` y **`dist/src/main.js`**, así que el `npm run start:prod` del README (`node dist/main`) no arrancaba. Sin el archivo, el build vuelve a emitir **`dist/main.js`** y `dist/src/` desaparece (verificado).
+- **El secreto sigue en el historial, y el repo es público.** Borrar el archivo no lo saca de los commits viejos. Se comparó contra el `JWT_SECRET` del `.env` local, sin mostrar ninguno de los dos, y **no coinciden**. El de Render no se puede ver desde acá. **Pendiente del usuario:** confirmar que el `JWT_SECRET` de Render no es el de `config.ts`. Si lo es, cualquiera puede firmar un token de admin, y hay que rotarlo (cierra todas las sesiones).
+- **Pendiente del usuario (deploy):** confirmar el Start Command de Render. Si es `node dist/src/main.js`, **deja de arrancar con este cambio** y hay que pasarlo a `npm run start:prod` en el mismo deploy. Con `npm start` (`nest start`) sigue andando, porque prueba las dos rutas (se leyó en `@nestjs/cli`).
+- **Logs sensibles detrás de flags explícitos** (decisión del 17/10, entre un `NODE_ENV` y un flag por cosa): **`DB_LOGGING`** prende el `logging` de TypeORM, que logueaba cada query con sus parámetros, hashes de contraseña incluidos. **`LOG_TEMP_PASSWORD`** prende el `[EMAIL STUB]` de CU-U-04, que imprimía la contraseña temporal en texto plano. **Los dos fallan cerrados:** sólo se encienden con `true` exacto, así que en Render, sin las variables, no se loguea nada y no hay que configurar nada. `UsersService` recibe `ConfigService`, igual que `MembershipService`.
+- **Consecuencia asumida:** en Render, recuperar la contraseña **no le llega a nadie** hasta BE-29 (el mail real). En los hechos ya era así, salvo para quien leía los logs del servicio.
+- **Para seguir probando en local** hay que sumar `DB_LOGGING=true` y `LOG_TEMP_PASSWORD=true` al `.env`. Si no, el plan `Tests/Acceso` no encuentra la temporal en la consola (REC-01 y los que la usan). El README documenta las dos variables, y también `MEMBERSHIP_EXPIRING_SOON_DAYS`, que ya se usaba y no figuraba.
+- **Verificación:** build (`dist/main.js` existe y `dist/src/` no) y un script sobre el código compilado. `recoverPassword` sólo loguea la temporal con `LOG_TEMP_PASSWORD=true` (con ausente, `false` o `TRUE`, no), y la factory real de TypeORM da `logging = true` sólo con `DB_LOGGING=true`. Que `start:prod` arranque contra una base **no se verificó en runtime**.
+- **Sin cambio de esquema** ni de ningún CU.
+- **Corrección del mismo día, después del deploy.** El primer deploy con este cambio **falló** (`Cannot find module .../dist/main`). La causa no estaba en el código sino en Render: el **Build Command era `yarn`**, que sólo instala, y `dist/` está gitignoreado, así que nada compilaba. Mientras el Start Command fue `nest start` alcanzaba, porque `nest start` compila antes de arrancar (`StartAction extends BuildAction`). Al pasar a `npm run start:prod`, que sólo ejecuta lo ya compilado, quedó a la vista. Lo de arriba sobre "confirmar el Start Command" se quedó corto: **hay que mirar los dos comandos**. Se reprodujo en un clon limpio del commit desplegado: sin `nest build` no existe `dist/main`, y con él sí. **Render quedó con Build `yarn && yarn build` y Start `npm run start:prod`, y el deploy levantó.** Pendiente opcional: Yarn ignora el `package-lock.json` versionado (`No lockfile found`) y resuelve versiones nuevas en cada deploy. Para builds reproducibles, el Build Command podría ser `npm ci && npm run build`.
+- **En Render, `DB_LOGGING=true` por decisión del usuario** (y `LOG_TEMP_PASSWORD=false`): hoy no hay otra forma de observar el servicio. Asumido: los logs de Render muestran los parámetros de cada query (datos personales y hashes bcrypt al registrar o cambiar la contraseña, **nunca contraseñas en claro**), y sólo los ve quien tiene acceso al panel. No es un descuido: no "corregirlo" sin preguntar. Si molesta, la alternativa es loguear sólo las queries que fallan (`['error']` en TypeORM).
+
+## Cambios recientes (2026-10-17 · una sola forma para los RMs)
+
+- **Quinta tarea del roadmap (BE-05), hallazgo V10 del web.** Las 5 lecturas de `user_rm` recortaban las FK con su `select`: mandaban el ejercicio y el usuario anidados (`exercise { id, name }`, `user { id, first_name, last_name }`), pero no `user_id` ni `exercise_id`. El Swagger las declaraba como `UserRM`, que es plano, con las FK y sin lo anidado, y con `date` como `date-time` cuando es un día sin hora. El web tipó la forma real a mano (`UserRmWithExercise`, pendiente de contrato).
+- **Además, el alta y la edición devolvían otra forma:** el RM plano, sin lo anidado, y con `date` como timestamp (`"2026-10-01T03:00:00.000Z"`, el `Date` de JS normalizado), mientras que las lecturas mandan el día (`"2026-10-01"`). **Se unificaron** (decisión del 17/10, entre esto y tocar sólo las lecturas): **todo endpoint de `user_rm` que devuelve RMs devuelve la misma forma**. Así el web y el iOS tipan un solo `UserRm`, en línea con la preferencia de contratos que no cambian de forma.
+- **Cómo:** el `select` estaba copiado 5 veces y ahora vive en una constante, `RM_DETAIL_OPTIONS`, que suma `user_id` y `exercise_id`. Un helper privado, `findRmDetail(id)`, relee el RM guardado con esas mismas opciones, y es lo que responden el alta y la edición. El costo es una consulta más por escritura. La respuesta de las escrituras cambió de forma, pero **el web no la usa**: después de guardar invalida la lista y la vuelve a pedir. Los códigos no cambian: el alta y la edición siguen en `201`, y pasar la edición a `200` es de BE-32.
+- **Swagger:** `UserRmDetailDto` (más `UserRmExerciseRefDto` y `UserRmUserRefDto` para lo anidado), con `date` como `string` de `format: date`, en los 7 endpoints que devuelven RMs. `GET /user_rm/:id` queda declarado como **array**, porque es lo que hoy devuelve (vacío si no existe), hasta que BE-32 lo pase a objeto y `404`. La edición declaraba un `200` que nunca respondía: ahora dice `201`.
+- **Verificación sin base:** se armó el `DataSource` con las entidades compiladas, sin conectarse, y se generó el SQL de `RM_DETAIL_OPTIONS`: selecciona `user_id` y `exercise_id` junto con los anidados. La metadata de Swagger del DTO tiene los 10 campos y `date` con `format: date`. Que el alta y la edición respondan con el día pelado sale de que la columna es `date`: TypeORM la hidrata como `YYYY-MM-DD`, igual que en las lecturas. **Sin verificar en runtime.**
+- **Observación, sin tocar (zona horaria):** el alta y la edición toman el día con `new Date(date)` y los getters **locales** del servidor. Un día pelado (`"2026-10-06"`) es la medianoche UTC, así que en un servidor al oeste de UTC (el local de desarrollo) **se guarda el día anterior**. El web lo esquiva mandando el mediodía (`T12:00:00`), pero un cliente que no lo sepa, como el iOS, lo pisaría. En Render (UTC) no pasa. Se puede resolver con BE-31 (DTOs) o con una tarea aparte: tomar `date` como día calendario.
+- **Sin cambio de esquema.** Ningún CU cambia de estado. Del inventario del roadmap se cierra el ⚠ de U-19 y E-04 (V10). **Del lado del web:** puede borrar `UserRmWithExercise` de `pending.ts` y tipar los RMs desde el contrato.
+
+## Cambios recientes (2026-10-16 · promesas sin esperar en los handlers)
+
+- **Cuarta tarea del roadmap (BE-04).** Los **70 handlers** de los 8 controllers llamaban al service sin `await` ni `return`. El handler resolvía al instante y Nest no se enteraba de lo que pasara después. Si el service rechazaba (la base caída, un error fuera de su `try`), quedaba un **rechazo sin manejar**, que en Node ≥ 15 **corta el proceso**: con un solo request se caía el servidor entero para todos. Los services con try/catch propio estaban cubiertos, pero `createUser` y `loginUser` no tenían, y los 6 métodos transaccionales hacían `connect()` y `startTransaction()` **antes** del `try`.
+- **Se usa `await`, no `return` como decía el roadmap. No volver a `return`.** Muchos services terminan en `return res.status(...).send(...)`, o sea que resuelven con el `Response` de Express. Si el handler lo devuelve, el `ClassSerializerInterceptor` global lo recibe y lo pasa por class-transformer, y eso **tira abajo el proceso** (un `error` sin manejar en el socket), aunque la respuesta ya se haya mandado. Con `await`, el handler resuelve `undefined` y el interceptor no lo toca. **Regla para los handlers nuevos con `@Res()`: `await this.service.x(...)`, nunca `return`.**
+- **Verificado en el framework real, sin la base:** un mini Nest descartable con las versiones del proyecto (controller con `@Res()`, `ClassSerializerInterceptor` global, `supertest`), cada escenario en un proceso aparte:
+
+  | Patrón | Service | Resultado |
+  |---|---|---|
+  | Sin `await` (el de antes) | la base falla | **el proceso muere**, sin respuesta |
+  | `await` (el de ahora) | la base falla | `500`, el proceso sigue vivo |
+  | `return` (el del roadmap) | `404` normal | **el proceso muere** |
+  | `await` (el de ahora) | `404` normal | `404`, el proceso sigue vivo |
+
+- **`createUser` y `loginUser` tienen try/catch**, con `500` en el formato de los demás services: `Error al registrar el usuario` (es el camino "error de persistencia" de CU-U-01) y `Error al iniciar sesión`. Con el `await`, el filtro de Nest ya convertía el rechazo en un `500`, pero en inglés y con otra forma. Ahora el filtro queda sólo como red para lo imprevisto.
+- **`connect()` y `startTransaction()` pasaron adentro del `try`** en `createRoutine`, `editRoutine`, `createCircuit`, `editCircuit`, `assignRoutinesToPlanification` y `setRoutineAsignationsActive`. Si `startTransaction` fallaba después de conectar, el `finally` no corría y **la conexión quedaba tomada del pool**. Es seguro moverlos: el `catch` ya pregunta `isTransactionActive` antes del rollback, y `release()` sobre un query runner que nunca se conectó no hace nada (se leyó en el código de TypeORM).
+- **Escaneo de los services:** ningún método que recibe `res` hace un `await` fuera de un `try`. Quedan con código antes del `try` siete métodos, todos con validaciones sincrónicas, y `logout`, que no hace nada asincrónico.
+- **Sin cambio de esquema ni de contrato:** las respuestas son las mismas, salvo los dos `500` nuevos. Ningún CU cambia de estado. Las cinco llamadas comentadas de `planification/user/*` no se tocaron: las rehacen BE-18 y BE-19.
+
+## Cambios recientes (2026-10-16 · flag de contraseña temporal en el login)
+
+- **Tercera tarea del roadmap (BE-03), dependencia B9 del web.** CU-U-02 pide, en el paso 3, detectar el ingreso con la temporal y obligar a cambiarla. `loginUser` ya lo distinguía (prueba la contraseña normal y, si no coincide, la temporal), pero respondía igual en las dos ramas. Con una cuenta real **nunca se forzaba el cambio**: sólo lo simulaba la cuenta de demo del web (LOG-10 marcado como falla conocida).
+- **Contrato:** el `200` del login sigue siendo el `User`, más **`password_change_required: boolean`**, con el nombre que propuso el web. **Viene siempre**: `true` si se entró con la temporal y `false` con la contraseña normal, así la forma de la respuesta no depende de cómo se entró. El Swagger lo declara con un `LoginResponseDto extends User`, y suma los `401` (credenciales inválidas) y `403` (cuenta cerrada) de `/login`, que no figuraban.
+- **La obligación la hace cumplir el cliente, no el backend** (decisión del 16/10). El web ya abre un modal bloqueante y sólo deja usar `/cambiar-contrasena`. Se descartó marcar el token y que `JwtAuthGuard` rechace todo menos `change-password` hasta el cambio: era más seguro, pero cambiaba el contenido del token y sumaba un `403` a mitad de sesión que el web y el iOS tendrían que manejar, por 2 a 3 h más. Queda asumido que un cliente que ignore el flag usa la sesión normalmente. Quien tiene la temporal es el dueño del mail.
+- **`loginUser` se unificó en un solo camino.** Las dos ramas repetían el chequeo de cuenta cerrada, el token y la respuesta, y ahora sólo difieren en el valor del flag. Fuera del campo nuevo, el comportamiento no cambia: la contraseña normal sigue entrando aunque haya una temporal pendiente (REC-07), y la temporal se anula al cambiar la contraseña (CPO-08). El try/catch que le falta es de BE-04.
+- **Observación, sin tocar:** si el usuario recuerda su contraseña y nunca la cambia, **la temporal sigue valiendo para siempre**, porque nada la anula salvo `change-password`. Anularla en un login normal, o darle vencimiento, sería un endurecimiento sin CU que lo pida.
+- **Verificación** por build y por `loginUser` corrido con un `authService` falso: normal → `200` con `false`; temporal → `200` con `true`; ninguna → `401`; temporal con la cuenta cerrada → `403`. En ningún caso el body trae `password` ni `temp_password`. La metadata de Swagger del DTO trae el campo nuevo y los heredados del `User`.
+- **Sin cambio de esquema.** Ningún CU cambia de estado en este informe, y del inventario del roadmap U-02 pasa de 🟡 a ✅. **Del lado del web:** B9 queda cubierto, así que puede borrar `LoginResponse` de `pending.ts` y apagar el mock del login (su T44). LOG-09, LOG-10 y REC-07 se pueden re-correr con una cuenta real.
+
+## Cambios recientes (2026-10-16 · autorización por rol y por dueño)
+
+- **Segunda tarea del roadmap (BE-02), por seguridad.** El rollout de guards del 11/8 dejó cada endpoint con su rol, pero el **check de dueño** quedó sólo en CU-U-11. Las otras lecturas abiertas al rol `user` devolvían los datos de **cualquier** alumno con sólo cambiar el id del path: datos personales (`/users/get/:id`), pagos (`/membership/payment/user/:id`) y RMs (`/user_rm/user/:id`). Además, `GET /coach/all` y `/coach/get/:id` eran **públicos sin token** y exponían el CUIL, y un coach podía cerrar la cuenta de otro coach, de un admin o la propia.
+- **El check de dueño pasó a ser declarativo: `@Owner('<param>')`** (decisión del 16/10, entre ponerlo en el guard o en un helper de cada service). `@Auth` ahora suma un tercer guard, `OwnerGuard`, que **no hace nada** salvo que el endpoint declare `@Owner`. Si lo declara y quien llama es un alumno, exige que ese parámetro del path sea su propio id (`403`, `No podés acceder a los datos de otro usuario.`); coach y admin pasan. Se eligió el guard porque la regla queda a la vista en el controller al lado de `@Auth`, los services no cambian de firma y **es el patrón que van a usar los endpoints del alumno del bloque A** (BE-12 en adelante). El orden de los guards lo fija `@Auth` (`Jwt` → `Roles` → `Owner`), así que el de dueño siempre corre con `request.user` resuelto.
+- **Los ids se comparan en minúscula.** El token trae el id de la base y el iOS manda `uuidString` en mayúscula: con la comparación literal que tenía U-11, **un alumno de iOS recibía 403 sobre sus propios RMs**. U-11 se migró al guard (`@Owner('idUser')`) y su check del service se borró. Su `403` cambia de forma: pasa de `{ error }` a la de Nest (`{ statusCode, message }`), la misma que ya devuelve el `403` de rol. El web lee las dos, y sólo cierra la sesión ante el texto literal de "cuenta deshabilitada", que es distinto.
+- **La matriz que quedó:**
+
+  | Endpoint | Antes | Ahora |
+  |---|---|---|
+  | `GET /users/all` | cualquier usuario autenticado | coach, admin |
+  | `GET /users/get/:id` | user, coach, admin | + `@Owner('id')` |
+  | `GET /membership/payment/user/:id` | user, coach, admin | + `@Owner('id')`, orden por `created_at` DESC |
+  | `GET /user_rm/user/:id` | user, coach, admin | + `@Owner('id')` |
+  | `GET /user_rm/user/:idUser/exercise/:idExercise` | check en el service | `@Owner('idUser')` |
+  | `GET /user_rm/exercise/:id` | user, coach, admin (un alumno veía los RMs de todos) | coach, admin |
+  | `GET /coach/all`, `GET /coach/get/:id` | **públicos** | admin |
+  | `POST /users/set-active/:id` | coach, admin | + reglas de destinatario en el service |
+
+- **Reglas de `set-active` (CU-E-03):** nadie cambia el estado de su **propia** cuenta (`403`, para que un admin no se deje afuera), y un **coach sólo actúa sobre alumnos**, tanto para cerrar como para reactivar (`403`). El admin actúa sobre cualquier otra cuenta. Viven en el service y no en el guard porque dependen del rol del destinatario, que sale de la base.
+- **CU-U-07 pide la lista ordenada por fecha** y salía en el orden de la relación. Ahora se consulta `Membership_Payment` directo con `order: { created_at: 'DESC' }`, después de confirmar que el usuario existe (el `404` se mantiene). No se ordenó dentro de la relación a propósito: el orden anidado de find options sigue **sin verificar en runtime** (ver la lectura de rutinas del 22/8), y esto es más simple. La forma de la respuesta no cambia.
+- **Se verificó que el web no se rompe:** sólo llama a `/users/all` desde pantallas de coach y admin (en `AccountPage`, sólo en el subtítulo del entrenador), a `/coach/*` sólo desde el admin, nunca a `/user_rm/exercise/:id`, y el alumno pide sus datos, pagos y RMs siempre con su propio id. Verificación por build, por el `OwnerGuard` compilado corrido sobre contextos falsos (incluido el id en mayúscula), por la metadata de los controllers compilados (roles, `@Owner` y los tres guards en orden en los 9 endpoints) y por las reglas de `set-active` con un repositorio falso. **Sin verificar en runtime:** que la inyección de `OwnerGuard` resuelva en cada módulo, aunque depende sólo de `Reflector`, igual que `RolesGuard`.
+- **Sin cambio de esquema:** `Db Creator` no se toca. Ningún CU cambia de estado. Del inventario del roadmap se cierran los defectos (⚠) de U-07, E-01, E-03 y A-16, y la falta de dueño de `GET /users/get/:id` (soporte de U-06). U-19 y E-04 conservan su ⚠ por el `exercise_id` que falta en la respuesta (V10, BE-05).
+- **Fuera de alcance, con su tarea:** `GET /planification/user/:id` y `/user/:id/active` siguen colgando y los rehacen BE-12 y BE-19, ya con `@Owner`. La nota vieja de CU-E-03 ("no hay guards") y su precondición "vinculado al coach" van en BE-38 y DA6. La matriz en el contexto del iOS va en BE-39.
+
+## Cambios recientes (2026-10-16 · el registro sólo crea alumnos)
+
+- **Primera tarea del [roadmap del 16/10](https://github.com/FranCarames/PowerApp-Docs/blob/main/Doc/plans/2026-10-16-roadmap-backend.md) (BE-01), por seguridad.** `POST /users/register` es público y guardaba el `role` que viniera en el body: `CreateUserDto` aceptaba cualquier valor de `UserRole` y `createUser` lo persistía tal cual con `repository.create(dto)`. **Cualquiera podía registrarse como admin** contra el deploy de Render. CU-U-01 es explícito: el alta crea un `User` con `role = usuario`; coaches y admins nacen por `promote_user` (CU-A-17) o por el seed.
+- **El campo `role` se conserva, a propósito.** El web manda `role: 'user'` explícito en cada registro (`useRegister.ts`), y con `forbidNonWhitelisted` borrar el campo del DTO haría que su registro empiece a dar `400`. Se descartó también ignorar el rol en silencio: quien manda `admin` recibiría un `201` engañoso.
+- **Contrato:** el DTO sólo acepta `user` (`@IsIn`). Con otro valor, el registro responde **`400`** con `El registro sólo crea cuentas de alumno (role = user)`. Sin `role`, o con `"user"`, responde `201` como siempre. El Swagger declara `enum: ['user']` y suma los `400` y `409` de `/register`, que no estaban.
+- **El service fuerza `role = user` igual**, aunque el DTO ya lo valide. No es redundante: `@IsOptional` deja pasar un `role: null` (se verificó contra el DTO compilado), y la barrera no tiene que depender de que nadie afloje el validador.
+- **Sin cambio de esquema:** `Db Creator` no se toca. Ningún CU cambia de estado: U-01 ya figuraba ✅, y lo que se cierra es su defecto (el ⚠ del inventario del roadmap).
+- **Pendiente del lado del usuario:** revisar en la base de Render si hay cuentas admin o coach que no sean del seed, creadas por este agujero. No se pudo verificar sin conectarse a la base.
+
+## Cambios recientes (2026-10-12 · baja de un ejercicio en uso)
+
+- **Las pruebas de integración del módulo de ejercicios marcaron dos fallas en CU-A-06**: **DEL-03** (eliminar un ejercicio con RMs registrados lo borraba y se llevaba los RMs) y **DEL-04** (eliminar uno que está en un circuito lo borraba y lo sacaba del circuito). CU-A-06 pide lo contrario: *"el sistema impide la baja e informa la restricción de integridad"*. La causa es la misma en los dos: `deleteExercise` hacía `remove` sin verificar nada, y las FK de `User_RM.exercise_id` y `Routine_Exercise.exercise_id` son **`ON DELETE CASCADE`**, así que la base obedecía.
+- **Lo que de verdad se perdía era historial del alumno**, no sólo un vínculo: los RMs son lo que el alumno registró, y un ejercicio sacado de un circuito deja al circuito sin ejercicios (DEL-05). Es el mismo tipo de agujero que ya se tapó con las bajas lógicas de rutinas y planificaciones (22/8 y 31/8).
+- **El único caso que ya se rechazaba era "ya entrenó con él", y por accidente**: lo frenaba el `RESTRICT` de `Routine_Exercise_Finished` →  `Routine_Exercise`, con un `500` genérico. El service ni lo sabía. Ahora lo detecta y responde como corresponde.
+- **Qué cuenta como "en uso":** *cualquier* fila de `Routine_Exercise` que apunte al ejercicio y *cualquier* `User_RM`. Una fila de `Routine_Exercise` inactiva sólo existe cuando alguien ya completó el ejercicio (`editCircuit` la deja de baja lógica justamente por el historial; si nadie lo hizo, la borra), así que inactiva equivale a "ya se entrenó". **Incluye los circuitos dados de baja**: el `CASCADE` los tocaría igual, y siguen referenciados por rutinas con historial.
+- **Contrato:** `409` con tres mensajes, en este orden de precedencia: `está en uso en circuitos` → `ya se entrenó con él` → `hay alumnos con RMs registrados`. El caso "ya entrenó" pasa de `500` a `409`. Se descartó mantener el `500` aunque el front lo tiene mapeado: un rechazo de negocio no es un error del servidor.
+- **Sin cambio de esquema, a propósito:** el control vive en el service y las FK siguen en `CASCADE`. Es una barrera de aplicación, no de base: si alguien registra un RM *entre* el chequeo y el borrado, el `CASCADE` se lo lleva. Pasar esas dos FK a `RESTRICT` —igual que `Routine_Exercise_Finished`— cerraría esa ventana, pero obliga a un delta sobre la base en uso, y la ventana es de un Admin borrando a mano. **Queda como endurecimiento a decidir.**
+- **`UserRmModule` también provee `ExerciseService`**, así que se le sumó `RoutineExercise` a su `forFeature`; sin eso la app no arrancaba. No hay forma de verificarlo sin levantar el server (la inyección no se ejercita por build).
+- **Pendiente del lado del front:** el diálogo de eliminar dice *"Si está en circuitos, se quita de ellos"* y deja de ser cierto; y `ExercisesPage` mapea el rechazo en el `500`, así que el `409` caería en el texto genérico "Ya existe un registro con esos datos.". Hay que pasar el texto al `409` y corregir el diálogo. **DEL-05 deja de ser alcanzable por este camino.**
+
+## Cambios recientes (2026-10-12 · unicidad del nombre de ejercicio)
+
+- **Las pruebas de integración del módulo de ejercicios** (plan `Tests/Ejercicios`) marcaron **CRE-05**: crear un segundo ejercicio con el nombre de otro se aceptaba, y CU-A-04 pide un nombre único. `createExercise` no miraba el nombre, y `Exercise.name` sólo tiene un índice común (`idx_exercise_name`), sin `UNIQUE`: el service era la única barrera.
+- **Se cerró también el hueco gemelo de la edición** (CU-A-05, "nombre en conflicto"), que el plan no cubre: `editExercise` tampoco controlaba nada, así que la regla se salteaba renombrando un ejercicio existente. Es la misma causa en el mismo archivo, y con sólo el alta arreglada la unicidad habría quedado a medias.
+- **Mismo criterio que membresías (12/10)**: el nombre es único en todo el catálogo, sin distinguir mayúsculas ni espacios en los extremos; el conflicto responde **`409`** con `Ya existe un ejercicio con ese nombre`. Se eligió `409` y no `404`/`400` porque `ExerciseForm` sólo pisa el texto del `404` (lo muestra como "no encontramos el ejercicio o alguno de sus músculos") y para el `409` ya trae un texto por defecto: anda sin tocar el front.
+- **En la edición el control va antes de tocar los músculos** y sólo corre si el nombre cambia (como `editUser` con el email). Lo primero evita dejar una edición a medias —`editExercise` borra y agrega relaciones antes de guardar el ejercicio—; lo segundo permite seguir editando un ejercicio con un duplicado heredado sin que lo bloquee un conflicto que no tocó. El propio ejercicio se excluye de la comparación, así que cambiarle las mayúsculas a su nombre es válido.
+- **La comparación se hace en memoria** (`id` y `name` de unos 200 ejercicios) y no con `LOWER()` en SQL: los nombres llevan tildes y eñes, y el resultado de `LOWER` depende del collation de la base. El catálogo semilla tiene 207 ejercicios y **ninguno repetido** (se verificó contra `02_datos_estaticos.sql`), así que la regla es coherente con los datos.
+- **Sin `UNIQUE` en la base**, por las mismas razones que en membresías: obligaría a regenerarla y fallaría con los duplicados que el defecto ya dejó en los datos de prueba. **Sin cambios de esquema, ningún CU cambia de estado y los conteos no se mueven.**
+- **Pendiente:** borrar el «QA Ejercicio» duplicado que dejó el defecto en Render, y sumar al plan de pruebas un caso de nombre en conflicto al editar.
+
+## Cambios recientes (2026-10-12 · unicidad de los tipos de membresía)
+
+- **La primera tanda de pruebas de integración del módulo** (plan `Tests/Membresias`, 32 casos: 28 funcionan, 4 en re-test) destapó **tres defectos en CU-A-21 y CU-A-22**, los tres con la misma causa: `createMembership` sólo controlaba que no se repitiera la **duración**, y `editMembership` no controlaba **nada**. La tabla `Membership` no tiene ningún `UNIQUE`, así que el service era la única barrera. Casos: **CRE-05** (alta con un nombre ya usado), **EDT-03** (editar a una duración que ya tiene otro tipo: quedaban dos de 45 días) y **EDT-04** (editar a un nombre en conflicto). El cuarto caso en re-test, **ERR-03** (la pantalla "se ve rara" en celular/escritorio), es del front y no se tocó acá.
+- **Reglas que quedaron:** el nombre y la duración son únicos entre **todos** los tipos, activos y dados de baja. Mismo criterio que ya tenía la duración (BAJ-06) y por la misma razón: así reactivar un tipo nunca puede dejar dos con el mismo nombre o duración. El nombre se compara **sin distinguir mayúsculas ni espacios en los extremos**: "Plan Mensual" y "plan mensual " son el mismo tipo para el Admin.
+- **Códigos de respuesta:** el conflicto de nombre responde **`409`** con `Ya existe una membresía con ese nombre`; el de duración sigue en **`400`** con el texto de siempre. No se unificaron a propósito: el `400` de duración es el contrato ya publicado, y el front compara ese mensaje **literal** para mostrar su aviso, así que cambiarlo habría roto una pantalla que anda. El `409` tiene precedente (el email repetido en `users`) y el front ya trae un texto por defecto para ese código.
+- **En la edición sólo se controla lo que cambia**, igual que `editUser` con el email. Un tipo con un nombre o duración duplicados *heredados* de antes de este arreglo se puede seguir editando (por ejemplo, el precio) sin que lo bloquee un conflicto que no tocó; para arreglar el duplicado hay que cambiar justamente ese campo. Al editar, el propio tipo se excluye de la comparación, así que cambiarle sólo las mayúsculas a su nombre es válido.
+- **La comparación se resuelve en memoria** (un `find()` de los tipos, que son un puñado) y no con `LOWER()` en SQL: no depende del collation de la base y se puede razonar sin DB. Es la misma decisión que ya tomó `getStudentsWithMembershipStatus`.
+- **No se agregó `UNIQUE` en la base**, a propósito: obligaría a regenerarla y **fallaría con los duplicados que estos mismos defectos ya dejaron** en los datos de prueba de Render. Queda como endurecimiento futuro; hoy la ventana de carrera (dos altas simultáneas) es de un Admin operando a mano.
+- **Sin cambios de esquema:** `Db Creator` no se toca. **Ningún CU cambia de estado y los conteos no se mueven.**
+- **Pendiente del lado del front:** el `409` de nombre cae al texto genérico "Ya existe un registro con esos datos." — alcanza, pero conviene un aviso específico en `MembershipTypeModal`. Y el plan de pruebas tiene que re-correr CRE-05, EDT-03 y EDT-04; el paso de renombrado de CIE-01 va a chocar con la regla nueva si dos tipos de prueba terminan con el mismo nombre.
 
 ## Cambios recientes (2026-09-04 · asignar rutinas a planificaciones)
 
@@ -216,99 +502,93 @@ Alineación de las entidades con el modelo vigente de `Doc/` (spec: `Doc/specs/2
 
 ## Hallazgos estructurales
 
-> Lista de **hallazgos abiertos**. Los que se cerraron salieron de acá y quedan registrados en *Cambios recientes*: módulo `/auth` comentado (resuelto 11/8), autorización manual sin Guards (11/8), gestión de cuenta del usuario — U-05, U-06, U-16 (18/8), alumnos y membresías — E-01→E-03, E-26→E-28 (6/8 y 18/8) y circuitos incompletos (cerrado 25/8, 4 de 4).
+> Lista de **hallazgos abiertos**, con el número que les dan el changelog y el roadmap (por eso faltan el 1 y el 3). Los que se cerraron salieron de acá y quedan registrados en *Cambios recientes*: módulo `/auth` comentado (resuelto 11/8), autorización manual sin Guards (11/8), gestión de cuenta del usuario — U-05, U-06, U-16 (18/8), alumnos y membresías — E-01→E-03, E-26→E-28 (6/8 y 18/8), circuitos incompletos (cerrado 25/8, 4 de 4), **1 · planificaciones sin service** (cerrado el 31/8 y el 4/9, con E-08→E-12d) y **3 · `Routine.routine_plan_id` obsoleta** (la columna se borró el 4/9).
 
-1. **Rutinas cerrado salvo E-19/E-20; Planification sigue siendo andamiaje** *(actualizado 27/8)*. `routine.service.ts` tiene **los circuitos completos** (E-21→E-24) y **el ciclo de vida entero de la rutina**: lectura (E-15, más `/all-plus` y el detalle), alta (E-16), edición (E-17) y baja lógica (E-18). Lo único que queda del bloque es **E-19/E-20** (asignar y quitar rutina puntual a un alumno), **post-MVP por decisión del 27/8**: dependen de `Routine_Asignation_User`, cuya FK obligatoria a `Routine_Asignation` hace imposible el "sin planificación" que pide el CU (ver los cambios del 27/8 para el contrato acordado). Planificaciones sigue entero: `planification.service.ts` está **vacío** (4 líneas) y las 12 rutas que le quedan al controller responden con la llamada comentada. De acá salen los **9 CU en andamiaje** (E-08→E-14, U-08, U-09), más E-19 y E-20 sin ruta.
-2. **Nada escribe el registro de ejecución de entrenamientos** *(nuevo 25/8 — absorbe lo que quedaba vivo de los hallazgos 4 y 5 anteriores)*. `Routine_Exercise_Finished` existe como entidad y como tabla, pero en todo el código **sólo se lee**: la única consulta está en `editCircuit`, para detectar historial y decidir si la baja es lógica. **Ningún endpoint inserta una fila.** De ahí cuelgan 4 CU: marcar serie realizada (**U-12**) y nota del ejercicio (**U-13**) del lado del alumno, e historial de entrenamientos (**E-06**) y su filtro por ejercicio (**E-07**) del lado del entrenador. Es también lo que mantiene a **U-10** en parcial — la ficha de catálogo está expuesta, falta el detalle en contexto de rutina. Todo depende del bloque de Rutinas (28/8). **Consecuencia inmediata:** es lo que dejó la rama de `active` de CU-E-23 **sin verificar en runtime** (ver los cambios del 25/8) — para probarla hay que insertar el "hecho" a mano, y eso obliga a armar la cadena `Planification` → `Routine_Asignation` → `User_Routine` que el seed tampoco genera.
-3. **`Routine.routine_plan_id` es una columna obsoleta** *(22/8)*. El modelo tiene **dos caminos** de `Routine` a `Planification`: la FK directa `Routine.routine_plan_id` (nullable, `ON DELETE SET NULL`) y la tabla `Routine_Asignation` (`routine_id` + `routine_plan_id` + `order`). **La spec de CU-E-12 nombra explícitamente la segunda**, y ningún CU usa la primera. Mantener las dos deja dos verdades posibles sobre el mismo hecho, que ningún endpoint reconcilia. **Decisión (22/8):** el alta de rutinas no la toca (queda en `null`) y la columna se deja nullable; sacarla implica `ALTER` + `ddl.py` + `01_estructura.sql` + diagrama, y conviene hacerlo junto al bloque de planificaciones (4/9), donde se implementa E-12.
-4. **`updated_at` no se actualiza solo, en ninguna tabla** *(25/8)*. Las entidades declaran `@Column({ onUpdate: 'CURRENT_TIMESTAMP' })` en 18 archivos, que es **sintaxis de MySQL**: en Postgres no hace nada, el DDL no tiene triggers y ninguna entidad usa `@UpdateDateColumn`. O sea que hoy `updated_at` queda **congelado en la fecha de alta** en las 20 tablas. Se resolvió a mano en `editCircuit` y, desde el 27/8, también en `editRoutine`, porque un endpoint de edición que devuelve la fecha vieja es directamente un dato incorrecto. **Ya son dos endpoints parcheando lo mismo**, así que conviene generalizarlo —trigger en `ddl.py` o `@UpdateDateColumn` en las entidades— antes de que sean cinco; el bloque de planificaciones (4/9) es la próxima oportunidad, porque va a tocar el DDL igual.
+- **2 · El registro de ejecución: la vía individual ya se escribe, falta el historial y la vía del plan** *(25/8; actualizado 18/10)*. Las dos tablas de ejecución existen desde el 17/10 (BE-10): `Routine_Exercise_Finished` para las planificaciones y `Routine_Asign_Exercise_Finished` para las asignaciones individuales. **Desde el 18/10 (BE-14) la vía individual se escribe:** el alumno marca y desmarca un ejercicio y deja o edita su nota (**U-12** y **U-13**), y el detalle de la asignación (BE-13) lo lee. **Siguen abiertos dos pedazos:** el historial de entrenamientos del entrenador (**E-06**) con su filtro por ejercicio (**E-07**), que lo resuelve BE-16, y **toda la vía del plan**, donde ningún endpoint inserta en `Routine_Exercise_Finished` (el marcar dentro de una planificación es del bloque B, con la validación de que la `Routine_Asignation` sea del mismo plan). **Consecuencia que sigue vigente:** la rama de baja lógica de CU-E-23 nunca se verificó en runtime; ahora el "hecho" individual existe, pero falta correrlo contra una base con una asignación y datos que el seed no genera (BE-21 y BE-35).
+- **4 · `updated_at` no se actualiza solo, en ninguna tabla** *(25/8; actualizado 17/10)*. Las entidades declaran `@Column({ onUpdate: 'CURRENT_TIMESTAMP' })` en 18 archivos, y eso es **sintaxis de MySQL**: en Postgres no hace nada, el DDL no tiene triggers y ninguna entidad usa `@UpdateDateColumn`. Así que `updated_at` queda **congelado en la fecha de alta**, salvo en los métodos que lo setean a mano (`editCircuit`, `editRoutine` y algunos de `users`). `editPlanification`, por ejemplo, no lo setea. **Lo resuelve BE-30**, con `@UpdateDateColumn` en todas las entidades.
 
 ---
 
-## Próximas semanas — cronograma del servidor (hasta 4/9)
+## Plan de trabajo
 
-> Organizado por **viernes** (clases). El **7/8** (infra y transversales) está **cerrado**: DB regenerada, autorización centralizada con Guards y CU-U-03/U-04 implementados. El **14/8** quedó **parcial** (ver abajo). Lo que sigue, hasta la **fecha límite de entrega del servidor (4/9)**:
+> Desde el 16/10 el plan es el **[roadmap para terminar el backend](https://github.com/FranCarames/PowerApp-Docs/blob/main/Doc/plans/2026-10-16-roadmap-backend.md)** (repo PowerApp-Docs): 39 tareas (BE-01 a BE-39) en 5 fases, con su detalle, sus dependencias y las decisiones pendientes. Reemplaza al cronograma por viernes, que terminó el 4/9. **Entrega: 20/11.**
 
-| Viernes | Foco | Casos de uso |
-|---|---|---|
-| **14/8** ✅ | CU sin dependencias — **7 de 8** (+ U-10 parcial) | ✅ cambiar contraseña (**U-05**)<br>✅ editar datos personales (**U-06**)<br>✅ filtrar RMs por usuario (**U-11**)<br>✅ RMs potenciales (**U-16**)<br>✅ estado y tipos de membresía + alumnos por estado/tipo (**E-26→E-28**)<br>🟡 detalle de ejercicio (**U-10**): ficha de catálogo expuesta, el resto depende de Rutinas |
-| **21/8** ✅ | Circuitos — **4 de 4** | ✅ obtener (**E-21**)<br>✅ crear (**E-22**)<br>✅ editar (**E-23**), cerrado el **25/8**: el "hecho" se repuntó a `Routine_Exercise` y la baja pasa a ser lógica cuando hay historial<br>✅ baja lógica (**E-24**)<br>✅ el detalle y el listado con ejercicios (`/all-plus`) |
-| **28/8** ✅ | Rutinas — **el núcleo cerrado, 4 de 6** | ✅ obtener (**E-15**) + `/all-plus` y el detalle<br>✅ crear (**E-16**)<br>✅ editar (**E-17**), reconciliación por `Routine_Circuit.id` con baja lógica del vínculo<br>✅ baja lógica (**E-18**), `POST /routine/set-active/:id`<br>⬜ asignar rutina a alumno (**E-19**) — **post-MVP (27/8)**, depende de `Routine_Asignation_User`<br>⬜ desasignar rutina a alumno (**E-20**) — ídem<br>⬜ marcar series realizadas (**U-12**)<br>⬜ notas del ejercicio (**U-13**)<br>⬜ historial de entrenamientos y su filtro (**E-06, E-07**) |
-| **4/9** | Planificaciones y cierre | ✅ ABM de planificaciones (**E-08→E-11**), sin tocar el esquema<br>✅ asignar y quitar rutinas al plan (**E-12**), ampliado a 4 operaciones<br>🔵 asignar planificaciones a alumnos (**E-13, E-14**)<br>🔵 planificación activa y detalle de rutina del usuario (**U-08, U-09**)<br>Pruebas de integración sobre la API + Swagger<br>**🎯 Hito: servidor con 73 de los 75 CU** — E-19 y E-20 quedaron fuera del MVP el 27/8 |
+| Fase | Foco | Tareas | Ventana | Hito | Estado |
+|---|---|---|---|---|---|
+| **1** | Seguridad y contrato inmediato | BE-01 a BE-08 | 16 al 19/10 | **H1:** sin agujeros de seguridad conocidos, el web avisado de C2 y el Status con conteos reales | ✅ cerrada el 17/10 |
+| **2** | Bloque A: rutina puntual y ejecución | BE-09 a BE-16 | 20 al 27/10 | **H2:** el flujo puntual de punta a punta: asignar → ver → marcar → nota → historial | en curso: BE-10 y BE-10b hechas el 17/10, BE-11, BE-12, BE-13 y BE-14 (con BE-15) el 18/10; sigue BE-16 |
+| ⏱ | Regenerar la base de Render | BE-23 | ≈ 1/11 | Esquema del bloque A aplicado, antes de que venza la base | fecha fija |
+| **3** | Bloque B: asignar planificaciones | BE-17 a BE-23 | 28/10 al 5/11 | **H3:** los 74 CU con backend tienen código | |
+| **4** | Brechas de CU y deuda | BE-24 a BE-34 | 3 al 12/11 | **H4:** ningún 🟡 y el Swagger completo | |
+| **5** | Verificación y cierre | BE-35 a BE-39 | 12 al 17/11 | **H5:** criterios de "backend terminado" cumplidos y código congelado | |
 
-> Secuencia según dependencias: primero los CU independientes, luego **Circuitos**, sobre ellos las **Rutinas** y por último las **Planificaciones** que las agrupan.
-
-> **Riesgo abierto (18/8):** los 6 CU pausados del 14/8 no bloquean a nadie, pero **Circuitos sí** — es la base de las Rutinas (28/8) y éstas de las Planificaciones (4/9). Si el 21/8 se corre, se corre toda la cadena hasta el hito del servidor.
-
-> **Actualización (27/8):** **Rutinas deja de ser el cuello de botella.** E-15→E-18 están implementados, así que **Planificaciones (4/9) ya se puede arrancar** sobre rutinas reales. **Pero el hito del 4/9 cambia de forma:** con E-19 y E-20 fuera del MVP, el objetivo pasa de "los 72 CU cubiertos" a **70 de 72**, y los dos que faltan quedan documentados con su contrato para retomarlos después de la entrega.
-
-> **Actualización (22/8):** **Circuitos deja de ser el cuello de botella.** E-21, E-22 y E-24 están implementados y la base está migrada, así que **Rutinas (28/8) ya se puede arrancar**: `Routine_Circuit` existe y hay circuitos reales para ensamblar. ~~E-23 quedó pausado a propósito y **no bloquea a Rutinas**.~~ **Cerrado el 25/8:** el bloque de circuitos ya no tiene pendientes.
+> **Dependencias del usuario:** el diagrama de `Doc/` actualizado antes de BE-10 (el modelo manda), la fecha real de vencimiento de la base de Render (BE-23), la cuenta del proveedor de mail (BE-29) y la corrida del plan de pruebas (BE-35).
 
 ---
 
-## Detalle — Rol Usuario (20 CU · 70%)
+## Detalle — Rol Usuario (20 CU · 68%)
 
 ### Administrar mi cuenta
 | CU | Caso de uso | Estado | Endpoint / nota |
 |---|---|---|---|
-| CU-U-01 | Registrar usuario | ✅ Implementado | `POST /users/register` |
-| CU-U-02 | Login | ✅ Implementado | `POST /users/login` |
+| CU-U-01 | Registrar usuario | ✅ Implementado | `POST /users/register` · siempre crea `role = user`; otro `role` en el body da `400` (16/10) |
+| CU-U-02 | Login | ✅ Implementado | `POST /users/login` · `password_change_required` en el `200`: `true` si se entró con la temporal (16/10) |
 | CU-U-03 | Cerrar sesión | ✅ Implementado | `POST /users/logout` · ack 200, el cliente descarta el token |
-| CU-U-04 | Recuperar contraseña | ✅ Implementado | `POST /users/recover-password` · genera `temp_password`; email stubbeado |
+| CU-U-04 | Recuperar contraseña | 🟡 Parcial | `POST /users/recover-password` · genera la temporal pero **no envía el mail** que pide el camino principal; el stub de consola quedó detrás de `LOG_TEMP_PASSWORD` (17/10) · BE-29 |
 | CU-U-05 | Cambiar contraseña | ✅ Implementado | `POST /users/change-password` · acepta contraseña actual o temporal; anula `temp_password` |
-| CU-U-06 | Editar datos personales | ✅ Implementado | `POST /users/edit` · sobre el propio registro (`@CurrentUser`), campos opcionales |
-| CU-U-07 | Obtener historial de pagos | ✅ Implementado | `GET /membership/payment/user/:id` |
+| CU-U-06 | Editar datos personales | ✅ Implementado | `POST /users/edit` · sobre el propio registro (`@CurrentUser`), campos opcionales; la lectura `GET /users/get/:id` con `@Owner` (16/10) |
+| CU-U-07 | Obtener historial de pagos | ✅ Implementado | `GET /membership/payment/user/:id` · `@Owner`, orden por fecha DESC (16/10) |
 
 ### Mi entrenamiento
 | CU | Caso de uso | Estado | Endpoint / nota |
 |---|---|---|---|
-| CU-U-08 | Obtener mi planificación | 🔵 Andamiaje | `GET /planification/user/:id/active` · service vacío |
-| CU-U-09 | Ver detalle de rutina | 🔵 Andamiaje | `GET /routine/:id` · service vacío |
-| CU-U-10 | Ver detalle de un ejercicio | 🟡 Parcial | `GET /exercise/:id` ✅ expuesto (ficha de catálogo) · **falta** el detalle en contexto de rutina (`Exercise_Set` ordenadas, notas) — depende de Rutinas |
-| CU-U-11 | Ver mis RMs de un ejercicio | ✅ Implementado | `GET /user_rm/user/:idUser/exercise/:idExercise` · check de dueño para rol `user`, orden por fecha DESC |
-| CU-U-12 | Marcar serie como realizado | ⬜ No implementado | sin endpoint · el registro pasa a ser por ejercicio (`Routine_Exercise_Finished`) |
-| CU-U-13 | Dejar una nota en el ejercicio | ⬜ No implementado | sin endpoint |
-| CU-U-14 | Temporizador | ⬜ No implementado | sin endpoint (probable front-end) |
+| CU-U-08 | Obtener mi planificación | 🟡 Parcial | `GET /routine/assigned/:userId?from=&to=` · la parte **individual** del home, con su progreso (18/10) · **falta la parte del plan**: `GET /planification/user/:id/active` sigue colgando · BE-20 |
+| CU-U-09 | Ver detalle de rutina | ✅ Implementado | `GET /routine/assign-user/:id` · el alumno lee la rutina **por su asignación** (`403` si es de otro; coach y admin, la de cualquiera) · mismo árbol que `GET /routine/:id`, con lo dado de baja que completó y lo hecho en `finished` (18/10) · el detalle de una asignación del plan es del bloque B |
+| CU-U-10 | Ver detalle de un ejercicio | ✅ Implementado | Se resuelve dentro del detalle de la asignación (`GET /routine/assign-user/:id`): ficha del ejercicio, series ordenadas, nota del coach y, en `finished`, la nota del alumno · `GET /exercise/:id` sigue siendo la ficha de catálogo (18/10) |
+| CU-U-11 | Ver mis RMs de un ejercicio | ✅ Implementado | `GET /user_rm/user/:idUser/exercise/:idExercise` · check de dueño para rol `user` (`@Owner`, ids en minúscula desde el 16/10), orden por fecha DESC |
+| CU-U-12 | Marcar serie como realizado | ✅ Implementado | `POST /routine/assign-user/:id/finished` y `DELETE …/finished/:routineExerciseId` · el hecho es **por ejercicio** (el tildado por serie es de la interfaz) · idempotentes · sólo el alumno dueño (`403` si es de otro) · marcar un ejercicio que el coach sacó es `400`, pero se puede desmarcar y editar su nota (18/10) · la vía del plan es del bloque B |
+| CU-U-13 | Dejar una nota en el ejercicio | ✅ Implementado | Es un camino incluido de U-12 (D3): `user_note` va en el mismo `POST …/finished`, hasta 100 caracteres, y la cadena vacía la borra · la nota vive en la fila del hecho, así que sólo se anota un ejercicio realizado (o se marca y anota en una sola llamada) (18/10) |
+| CU-U-14 | Temporizador | — Sin backend | por su spec es del cliente; el web lo tiene (T29) |
 | CU-U-15 | Consultar wiki de ejercicios | ✅ Implementado | `GET /exercise/all` |
 
 ### Administrar mis RMs
 | CU | Caso de uso | Estado | Endpoint / nota |
 |---|---|---|---|
 | CU-U-16 | Calcular mis RM potenciales | ✅ Implementado | `POST /user_rm/potential` · Epley, tabla 1RM→12RM, no persiste |
-| CU-U-17 | Registrar un RM | ✅ Implementado | `POST /user_rm/create` |
-| CU-U-18 | Editar un RM | ✅ Implementado | `POST /user_rm/edit/:id` |
-| CU-U-19 | Obtener mis RMs | ✅ Implementado | `GET /user_rm/user/:id` |
+| CU-U-17 | Registrar un RM | ✅ Implementado | `POST /user_rm/create` · responde el RM con la forma de las lecturas (17/10) |
+| CU-U-18 | Editar un RM | ✅ Implementado | `POST /user_rm/edit/:id` · responde el RM con la forma de las lecturas (17/10) |
+| CU-U-19 | Obtener mis RMs | ✅ Implementado | `GET /user_rm/user/:id` · `@Owner` (16/10); con `exercise_id` y `user_id` (17/10) |
 | CU-U-20 | Eliminar un RM | ✅ Implementado | `DELETE /user_rm/:id` |
 
 ---
 
-## Detalle — Rol Entrenador (29 CU · 62%)
+## Detalle — Rol Entrenador (32 CU · 88%)
 
 ### Administrar alumnos
 | CU | Caso de uso | Estado | Endpoint / nota |
 |---|---|---|---|
-| CU-E-01 | Obtener alumnos | ✅ Implementado | `GET /users/all?role=user` · filtros rol/keyword/active + paginación |
+| CU-E-01 | Obtener alumnos | ✅ Implementado | `GET /users/all?role=user` · filtros rol/keyword/active + paginación; coach y admin (16/10) |
 | CU-E-02 | Obtener alumnos — filtro por nombre | ✅ Implementado | `GET /users/all?keyword=` · busca en nombre, apellido y email |
-| CU-E-03 | Cerrar cuenta de alumno | ✅ Implementado | `POST /users/set-active/:id` · baja lógica `{ active }` + bloqueo de login (403) |
-| CU-E-04 | Obtener RMs del alumno | ✅ Implementado | `GET /user_rm/user/:id` |
+| CU-E-03 | Cerrar cuenta de alumno | ✅ Implementado | `POST /users/set-active/:id` · baja lógica `{ active }` + bloqueo de login (403); el coach sólo sobre alumnos y nadie sobre sí mismo (16/10) |
+| CU-E-04 | Obtener RMs del alumno | ✅ Implementado | `GET /user_rm/user/:id` · mismo endpoint que U-19; el `@Owner` no limita a coach ni a admin; con `exercise_id` (17/10) |
 | CU-E-05 | Historial de pagos de alumno | ✅ Implementado | `GET /membership/payment/user/:id` |
-| CU-E-06 | Historial de entrenamientos de alumno | ⬜ No implementado | sin tracking ni endpoint |
-| CU-E-07 | Historial entrenamientos — filtro ejercicio | ⬜ No implementado | sin endpoint |
+| CU-E-06 | Historial de entrenamientos de alumno | ⬜ No implementado | sin endpoint (hallazgo 2) · BE-16 |
+| CU-E-07 | Historial entrenamientos — filtro ejercicio | ⬜ No implementado | sin endpoint · BE-16 |
 
 ### Administrar planificaciones
 | CU | Caso de uso | Estado | Endpoint / nota |
 |---|---|---|---|
 | CU-E-08 | Obtener planificaciones sistémicas | ✅ Implementado | `GET /planification/all` · keyword/type/include_inactive + routine_count |
-| CU-E-09 | Crear planificación sistémica | ✅ Implementado | `POST /planification/create` · 201 con el detalle |
-| CU-E-10 | Editar planificación sistémica | ✅ Implementado | `POST /planification/edit/:id` · 400 si está de baja · el opcional omitido borra |
+| CU-E-09 | Crear planificación sistémica | ✅ Implementado | `POST /planification/create` · 201 con el detalle · `duration` en semanas, obligatoria (17/10) |
+| CU-E-10 | Editar planificación sistémica | ✅ Implementado | `POST /planification/edit/:id` · 400 si está de baja · el opcional omitido borra · `duration` obligatoria; 400 si queda por debajo de una semana en uso (17/10) |
 | CU-E-11 | Eliminar planificación sistémica (lógico) | ✅ Implementado | `POST /planification/set-active/:id` · baja y reactivación |
 | CU-E-12 | Gestionar rutinas de una planificación | — *agrupador* | no se cuenta: agrupa a E-12a → E-12d |
-| CU-E-12a | Asignar una rutina a planificación | ✅ Implementado | `POST /planification/routine/assign` · `order` opcional, al final si se omite |
-| CU-E-12b | Asignar rutinas en lote | ✅ Implementado | `POST /planification/routine/assign-bulk` · transaccional, consecutivas al final |
-| CU-E-12c | Quitar o reincorporar una rutina (lógico) | ✅ Implementado | `POST /planification/routine/set-active/:id` · `order` opcional al reincorporar |
-| CU-E-12d | Quitar o reincorporar rutinas en lote (lógico) | ✅ Implementado | `POST /planification/routine/set-active-bulk` · transaccional |
-| CU-E-13 | Asignar planificación a alumno | 🔵 Andamiaje | `POST /planification/user/assign` · comentado |
-| CU-E-14 | Eliminar planificación a alumno | 🔵 Andamiaje | pasa a baja lógica en cascada (31/8): será `POST /planification/user/set-active/:id`, apaga la `User_Planification` y sus `User_Routine` |
+| CU-E-12a | Asignar una rutina a planificación | ✅ Implementado | `POST /planification/routine/assign` · `week` obligatoria (≤ `duration` si es > 0); `order` opcional, al final **de esa semana** si se omite (17/10) |
+| CU-E-12b | Asignar rutinas en lote | ✅ Implementado | `POST /planification/routine/assign-bulk` · transaccional, una semana por lote, consecutivas al final de la semana (17/10) |
+| CU-E-12c | Quitar o reincorporar una rutina (lógico) | ✅ Implementado | `POST /planification/routine/set-active/:id` · la baja conserva semana y orden; `week` y `order` opcionales al reincorporar (17/10) |
+| CU-E-12d | Quitar o reincorporar rutinas en lote (lógico) | ✅ Implementado | `POST /planification/routine/set-active-bulk` · transaccional; cada una vuelve a su lugar, 400 si alguna queda fuera de la duración (17/10) |
+| CU-E-13 | Asignar planificación a alumno | 🔵 Andamiaje | `POST /planification/user/assign` · `body: any` y llamada comentada: **cuelga** · BE-18 |
+| CU-E-14 | Eliminar planificación a alumno | 🔵 Andamiaje | `DELETE /planification/user/:id` **cuelga** · pasa a baja lógica (31/8): `POST /planification/user/set-active/:id` apaga la `User_Planification`. Desde el 17/10 ya no hay `User_Routine` que apagar en cascada · BE-19 |
 
 ### Administrar rutinas
 | CU | Caso de uso | Estado | Endpoint / nota |
@@ -317,8 +597,8 @@ Alineación de las entidades con el modelo vigente de `Doc/` (spec: `Doc/specs/2
 | CU-E-16 | Crear rutina sistémica | ✅ Implementado | `POST /routine/create` · rutina + `Routine_Circuit` ordenados, en una transacción |
 | CU-E-17 | Editar rutina sistémica | ✅ Implementado | `POST /routine/edit/:id` · reconciliación por `Routine_Circuit.id`, en una transacción |
 | CU-E-18 | Eliminar rutina sistémica (lógico) | ✅ Implementado | `POST /routine/set-active/:id` · baja y reactivación |
-| CU-E-19 | Asignar rutina a alumno | ⬜ No implementado | **post-MVP (27/8)** · andamiaje retirado; irá en `POST /routine/assign-user` |
-| CU-E-20 | Eliminar rutina a alumno | ⬜ No implementado | **post-MVP (27/8)** · irá en `DELETE /routine/assign-user/:id` |
+| CU-E-19 | Asignar rutina a alumno | ✅ Implementado | `POST /routine/assign-user` · para un día (`date`), 404 → 400 → 404 → 400 → 409 · sin planificación · el listado es `GET /routine/assigned/:userId` (BE-12, 18/10) |
+| CU-E-20 | Eliminar rutina a alumno | ✅ Implementado | `DELETE /routine/assign-user/:id` · borrado físico; 409 si el alumno ya la entrenó (18/10) · lo abre desde el listado (BE-12) |
 
 ### Administrar circuitos
 | CU | Caso de uso | Estado | Endpoint / nota |
@@ -335,11 +615,11 @@ Alineación de las entidades con el modelo vigente de `Doc/` (spec: `Doc/specs/2
 | CU-E-26 | Obtener estado de membresías | ✅ Implementado | `GET /membership/status/summary` · contadores derivados de `expired_at` |
 | CU-E-27 | Obtener alumnos por estado de membresía | ✅ Implementado | `GET /membership/status/users?status=` · active / expiring_soon / expired / no_payments |
 | CU-E-28 | Obtener alumnos por tipo de membresía | ✅ Implementado | `GET /membership/type/users?membership_id=` · sin el param, agrupa por tipo |
-| CU-E-29 | Registrar pago de alumno | ✅ Implementado | `POST /membership/payment/register` |
+| CU-E-29 | Registrar pago de alumno | ✅ Implementado | `POST /membership/payment/register` · ⚠ acepta un tipo dado de baja y un destinatario que no es alumno · BE-28 |
 
 ---
 
-## Detalle — Rol Admin (23 CU · 100%)
+## Detalle — Rol Admin (23 CU · 78%)
 
 ### Administrar ejercicios
 | CU | Caso de uso | Estado | Endpoint / nota |
@@ -347,7 +627,7 @@ Alineación de las entidades con el modelo vigente de `Doc/` (spec: `Doc/specs/2
 | CU-A-01 | Obtener ejercicios | ✅ Implementado | `GET /exercise/all` |
 | CU-A-02 | Asignar músculo a ejercicio | ✅ Implementado | se gestiona al crear/editar ejercicios (`POST /exercise/create` y `/exercise/edit/:id`) |
 | CU-A-03 | Desasignar músculo de ejercicio | ✅ Implementado | se gestiona al editar ejercicios (`POST /exercise/edit/:id`) |
-| CU-A-04 | Crear ejercicio | ✅ Implementado | `POST /exercise/create` |
+| CU-A-04 | Crear ejercicio | ✅ Implementado | `POST /exercise/create` · ⚠ `description` es opcional en el DTO y NOT NULL en la base: sin ella responde 500 · BE-31 |
 | CU-A-05 | Editar ejercicio | ✅ Implementado | `POST /exercise/edit/:id` |
 | CU-A-06 | Eliminar ejercicio | ✅ Implementado | `DELETE /exercise/:id` |
 
@@ -357,23 +637,23 @@ Alineación de las entidades con el modelo vigente de `Doc/` (spec: `Doc/specs/2
 | CU-A-07 | Obtener músculos | ✅ Implementado | `GET /muscles/all` |
 | CU-A-08 | Crear músculo | ✅ Implementado | `POST /muscles/create` |
 | CU-A-09 | Editar músculo | ✅ Implementado | `POST /muscles/edit/:id` |
-| CU-A-10 | Eliminar músculo | ✅ Implementado | `DELETE /muscles/:id` |
+| CU-A-10 | Eliminar músculo | 🟡 Parcial | `DELETE /muscles/:id` · borra en cascada (lo quita de sus ejercicios) en vez de impedir la baja de un músculo en uso · BE-24 |
 | CU-A-11 | Obtener grupos musculares | ✅ Implementado | `GET /muscles/mg/all` |
 
 ### Administrar grupos musculares
 | CU | Caso de uso | Estado | Endpoint / nota |
 |---|---|---|---|
 | CU-A-12 | Obtener músculos del grupo muscular | ✅ Implementado | `GET /muscles/mg/get/:id` · incluye músculos |
-| CU-A-13 | Crear grupo muscular | ✅ Implementado | `POST /muscles/mg/create` |
-| CU-A-14 | Editar grupo muscular | ✅ Implementado | `POST /muscles/mg/edit/:id` |
-| CU-A-15 | Eliminar grupo muscular | ✅ Implementado | `DELETE /muscles/mg/:id` |
+| CU-A-13 | Crear grupo muscular | 🟡 Parcial | `POST /muscles/mg/create` · no valida que el nombre sea único · BE-26 |
+| CU-A-14 | Editar grupo muscular | 🟡 Parcial | `POST /muscles/mg/edit/:id` · no valida que el nombre sea único · BE-26 |
+| CU-A-15 | Eliminar grupo muscular | 🟡 Parcial | `DELETE /muscles/mg/:id` · borra el grupo, sus músculos y sus vínculos en cascada en vez de impedirlo · BE-25 |
 
 ### Administrar entrenadores
 | CU | Caso de uso | Estado | Endpoint / nota |
 |---|---|---|---|
-| CU-A-16 | Obtener entrenadores | ✅ Implementado | `GET /coach/all` |
-| CU-A-17 | Convertir alumno a entrenador | ✅ Implementado | `POST /coach/promote_user` |
-| CU-A-18 | Editar datos de entrenador | ✅ Implementado | `POST /coach/promote_user` · si el user ya es coach, actualiza `coach_email`, `cuil`, `active` |
+| CU-A-16 | Obtener entrenadores | ✅ Implementado | `GET /coach/all` · sólo admin; era público y exponía el CUIL (16/10) |
+| CU-A-17 | Convertir alumno a entrenador | 🟡 Parcial | `POST /coach/promote_user` · falta el camino "ya es entrenador" (hoy pisa email y CUIL) y no es transaccional; por la decisión del 16/10 se reescribe la spec y se arregla · BE-27 |
+| CU-A-18 | Editar datos de entrenador | ✅ Implementado | `POST /coach/promote_user` · si el user ya es coach, actualiza `coach_email`, `cuil`, `active`; se mantiene así (decisión del 16/10) |
 | CU-A-19 | Eliminar entrenador | ✅ Implementado | `POST /coach/delete_coach/:id` · baja lógica (`active: false`) |
 
 ### Administrar membresías (tipos)
@@ -382,23 +662,16 @@ Alineación de las entidades con el modelo vigente de `Doc/` (spec: `Doc/specs/2
 | CU-A-20 | Obtener membresías | ✅ Implementado | `GET /membership/all` |
 | CU-A-21 | Crear membresía | ✅ Implementado | `POST /membership/create` |
 | CU-A-22 | Editar membresía | ✅ Implementado | `POST /membership/edit/:id` |
-| CU-A-23 | Eliminar membresía | ✅ Implementado | `POST /membership/set-active/:id` · baja lógica con flag `{ active }` · **pendiente:** columna `active` en DB |
-
----
-
-## Orden sugerido para cerrar la brecha
-
-1. **Admin cerrado (23/23):** A-18 cubierto por `promote_user`; A-02/A-03 se resuelven al crear/editar ejercicios; A-23 implementado y con la columna `active` ya agregada a los scripts de DB (falta regenerar la base para aplicarlo).
-2. **Routine + Planification**: implementar los services stubbed → desbloquea 14 CU y hace usable el rol Entrenador y "Mi Entrenamiento" del Usuario.
-3. ~~**Circuitos** (E-21→E-24)~~ **cerrado del todo el 25/8**, con E-23 (editar) incluido. ~~Lo que sigue es **Rutinas** (E-15→E-18)~~ **cerrado el 27/8**; E-19/E-20 quedaron post-MVP. Lo que sigue es **Planificaciones** (E-08→E-14) y, con ellas, los CU de ejecución (U-08, U-09, U-12, U-13, E-06, E-07), que hoy están frenados porque nada escribe `Routine_Exercise_Finished` (hallazgo 2).
-4. ~~**Gestión de cuenta del Usuario** (U-05, U-06) y auth (U-03, U-04).~~ **Cerrado** (U-03/U-04 el 11/8, U-05/U-06 el 18/8).
-5. ~~**Transversal:** Guards de autenticación/roles.~~ **Cerrado el 11/8.** El manejo de schema no es una decisión pendiente: **`Db Creator` es la fuente** y los cambios se aplican a mano desde ahí.
+| CU-A-23 | Eliminar membresía | ✅ Implementado | `POST /membership/set-active/:id` · baja lógica con flag `{ active }` |
 
 ---
 
 ## Cómo leer los estados
 
-- **✅ Implementado** — el endpoint existe y su service ejecuta lógica real y validada.
-- **🟡 Parcial** — funciona a medias: resuelto dentro de otro endpoint, sin filtro por usuario, o con la lógica lista pero sin ruta expuesta.
-- **🔵 Andamiaje** — la ruta está declarada pero el service está vacío y la llamada comentada: responde, no ejecuta nada.
-- **⬜ No implementado** — no existe endpoint, service ni módulo que cubra el caso de uso.
+- **✅ Implementado:** el endpoint existe, su service ejecuta lógica real y **se cumplen todos los caminos de su spec**.
+- **⚠ (sobre un ✅):** además tiene un defecto abierto de seguridad o de contrato; la nota de la fila dice cuál y qué tarea lo cierra.
+- **🟡 Parcial:** un camino de la spec no se cumple, o la lógica existe sin la ruta o el rol que pide el CU.
+- **🔵 Andamiaje:** la ruta está declarada pero sin lógica. Con `@Res()` y la llamada comentada, **no responde**: el request cuelga.
+- **⬜ No implementado:** no hay endpoint que cubra el caso de uso.
+- **— Sin backend:** por su spec el CU es del cliente (hoy, sólo CU-U-14).
+- **BE-xx:** la tarea del roadmap que cierra lo que falta.

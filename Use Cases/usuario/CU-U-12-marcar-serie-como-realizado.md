@@ -5,47 +5,92 @@
 
 ## Descripción breve
 
-Registra el cumplimiento de una serie individual de un ejercicio, a nivel de serie y no de ejercicio completo.
+Registra que el usuario realizó un ejercicio de la rutina de su asignación, y permite deshacerlo. El registro es **por ejercicio y no por serie**: el tildado serie por serie es de la interfaz, y el sistema guarda el ejercicio completo cuando el usuario lo termina. La existencia del registro es el «hecho».
 
 ## Actores involucrados
 
 - **Principal:** Usuario autenticado
 - **Secundarios:** —
 
+## Casos de uso incluidos («include»)
+
+- Dejar una nota en el ejercicio
+
 ## Alcance
 
 **Cubre:**
 
-- Actualización del flag finished de un Exercise_Set puntual.
+- Registrar un ejercicio como realizado en una asignación del usuario, y deshacerlo.
+- Dejar o editar la nota del usuario sobre ese ejercicio en la misma operación (CU «Dejar una nota en el ejercicio»).
 
 **Fuera de alcance:**
 
-- Marcar el ejercicio entero de una sola vez.
+- Marcar cada serie por separado: el sistema no guarda el avance serie por serie.
 - Edición de reps/peso de la serie.
+- El registro de ejecución de una planificación (se resuelve en su propio bloque).
 
 ## Precondiciones
 
 - Existe una sesión activa con rol Usuario.
-- La serie pertenece a una rutina asignada vigente del usuario.
+- La asignación pertenece al usuario.
+- El ejercicio forma parte de la rutina de esa asignación.
 
 ## Postcondiciones
 
-- El Exercise_Set correspondiente queda con finished = true (o se revierte si se desmarca).
+- El ejercicio queda registrado como realizado en esa asignación (o se elimina el registro si se desmarca), junto con su nota si la hay.
 
 ## Camino principal (flujo básico)
 
-1. Durante la ejecución, el usuario marca una serie como realizada.
-2. El sistema identifica el Exercise_Set y actualiza su flag finished a true.
-3. El sistema confirma visualmente el cambio.
+1. Durante la ejecución, el usuario termina un ejercicio y lo marca como realizado.
+2. El sistema verifica que la asignación sea del usuario y que el ejercicio forme parte de su rutina.
+3. El sistema registra el ejercicio como realizado en esa asignación.
+4. El sistema confirma el registro.
 
 ## Caminos alternativos / excepciones
 
-### En el paso 1 — Desmarcar serie
+### En el paso 1 — Marcar fuera de fecha
 
-1. El usuario desmarca una serie ya completada.
-2. El sistema vuelve finished a false.
+1. El usuario marca un ejercicio de una asignación de cualquier día, pasado o futuro.
+2. El sistema lo acepta: no hay una ventana de fechas.
 
-### En el paso 2 — Error de persistencia
+### En el paso 1 — Desmarcar el ejercicio
+
+1. El usuario desmarca un ejercicio ya realizado.
+2. El sistema elimina el registro y, con él, la nota que el usuario hubiera dejado.
+3. Si el ejercicio no estaba marcado, el sistema responde igual: deshacer es idempotente.
+4. El usuario puede desmarcar también un ejercicio que el entrenador sacó de la rutina después de que lo realizó.
+
+### En el paso 1 — Dejar o editar la nota
+
+1. El usuario marca el ejercicio indicando una nota, o vuelve a marcar uno ya realizado con una nota nueva.
+2. El sistema guarda la nota en el mismo registro (CU «Dejar una nota en el ejercicio»).
+
+### En el paso 2 — La asignación no existe
+
+1. El sistema informa que no se encontró la asignación.
+
+### En el paso 2 — Asignación de otro alumno
+
+1. La asignación pertenece a otro usuario.
+2. El sistema deniega el acceso.
+
+### En el paso 2 — El ejercicio no pertenece a la rutina
+
+1. El ejercicio no forma parte de la rutina de esa asignación.
+2. El sistema informa el error y no registra nada.
+
+### En el paso 2 — El entrenador sacó el ejercicio de la rutina
+
+1. El ejercicio todavía no estaba marcado y el entrenador lo dio de baja, o sacó de la rutina el circuito que lo contiene.
+2. El sistema informa que ya no se puede marcar y no registra nada.
+3. Si el ejercicio ya estaba marcado, el sistema lo acepta igual y no cambia el registro: sólo puede editarse su nota.
+
+### En el paso 3 — Marcado repetido
+
+1. El usuario marca un ejercicio que ya estaba realizado (también si lo marcó desde dos lugares a la vez).
+2. El sistema no duplica el registro y responde igual: marcar es idempotente.
+
+### En el paso 3 — Error de persistencia
 
 1. Falla al guardar.
 2. El sistema revierte la marca visual e informa el error.
