@@ -214,7 +214,7 @@
     <div class="sec-head"><h2>Panorama general</h2><span class="kicker">75 CU clasificados</span></div>
     <div class="tiles">
       <div class="tile done">
-        <div class="n">63</div><div class="lbl">Implementado</div><div class="pct">84% · cumple su spec</div>
+        <div class="n">65</div><div class="lbl">Implementado</div><div class="pct">87% · cumple su spec</div>
       </div>
       <div class="tile partial">
         <div class="n">7</div><div class="lbl">Parcial</div><div class="pct">9% · un camino sin cumplir</div>
@@ -223,21 +223,20 @@
         <div class="n">2</div><div class="lbl">Andamiaje</div><div class="pct">3% · ruta que cuelga</div>
       </div>
       <div class="tile missing">
-        <div class="n">2</div><div class="lbl">No implementado</div><div class="pct">3% · sin endpoint</div>
+        <div class="n">0</div><div class="lbl">No implementado</div><div class="pct">0% · sin endpoint</div>
       </div>
     </div>
 
     <div class="bar-block">
-      <div class="bar" role="img" aria-label="63 implementados, 7 parciales, 2 andamiaje, 2 no implementados y 1 sin backend, de 75">
-        <span class="s-done" style="width:84.00%"></span>
+      <div class="bar" role="img" aria-label="65 implementados, 7 parciales, 2 andamiaje, 0 no implementados y 1 sin backend, de 75">
+        <span class="s-done" style="width:86.67%"></span>
         <span class="s-partial" style="width:9.33%"></span>
         <span class="s-stub" style="width:2.67%"></span>
-        <span class="s-missing" style="width:2.67%"></span>
         <span class="s-client" style="width:1.33%"></span>
       </div>
       <div class="bar-cap">
-        <span><b>63 de los 74</b> CU con backend completos (85%) · <span class="warn">⚠</span> 2 con un defecto abierto (E-29, A-04)</span>
-        <span><b>11</b> pendientes (7 parciales, 2 andamiaje, 2 sin endpoint) · 1 sin backend (U-14)</span>
+        <span><b>65 de los 74</b> CU con backend completos (88%) · <span class="warn">⚠</span> 2 con un defecto abierto (E-29, A-04)</span>
+        <span><b>9</b> pendientes (7 parciales, 2 andamiaje) · ninguno sin endpoint · 1 sin backend (U-14)</span>
       </div>
     </div>
   </section>
@@ -265,17 +264,15 @@
 
       <div class="role-card">
         <h3>Entrenador <em>32 CU</em></h3>
-        <div class="role-pct" style="color:var(--done)">88%</div>
-        <div class="role-sub">28 de 32 · circuitos, rutinas, planificaciones y la asignación individual cerrados; faltan las asignaciones de planificaciones (E-13, E-14) y el historial (E-06, E-07)</div>
+        <div class="role-pct" style="color:var(--done)">94%</div>
+        <div class="role-sub">30 de 32 · circuitos, rutinas, planificaciones, la asignación individual y el historial cerrados; faltan las asignaciones de planificaciones (E-13, E-14)</div>
         <div class="mini-bar">
-          <span style="width:87.50%;background:var(--done)"></span>
+          <span style="width:93.75%;background:var(--done)"></span>
           <span style="width:6.25%;background:var(--stub)"></span>
-          <span style="width:6.25%;background:var(--missing-line)"></span>
         </div>
         <div class="role-legend">
-          <i><span class="swatch" style="background:var(--done)"></span><b>28</b> impl.</i>
+          <i><span class="swatch" style="background:var(--done)"></span><b>30</b> impl.</i>
           <i><span class="swatch" style="background:var(--stub)"></span><b>2</b> andam.</i>
-          <i><span class="swatch" style="background:var(--missing-line)"></span><b>2</b> falta</i>
         </div>
       </div>
 
@@ -303,8 +300,8 @@
       <div class="finding">
         <div class="fi">02</div>
         <div>
-          <h4>25/8, actualizado 18/10 — el registro de ejecución: la vía individual ya se escribe</h4>
-          <p>Las dos tablas de ejecución existen desde el 17/10 (BE-10): <code>Routine_Exercise_Finished</code> para las planificaciones y <code>Routine_Asign_Exercise_Finished</code> para las asignaciones individuales. <b>Desde el 18/10 (BE-14) la vía individual se escribe:</b> el alumno marca y desmarca un ejercicio y deja o edita su nota (<b>U-12</b> y <b>U-13</b>), y el detalle de la asignación (BE-13) lo lee. <b>Siguen abiertos dos pedazos:</b> el historial de entrenamientos del entrenador (<b>E-06</b>) con su filtro (<b>E-07</b>), que lo resuelve BE-16, y <b>toda la vía del plan</b>, donde ningún endpoint inserta en <code>Routine_Exercise_Finished</code> (el marcar dentro de una planificación es del bloque B). Sigue vigente que la baja lógica de CU-E-23 nunca se probó en runtime: el "hecho" individual ya existe, pero falta correrlo contra una base con una asignación y datos que el seed no genera (BE-21, BE-35).</p>
+          <h4>25/8, actualizado 18/10 — el registro de ejecución de la vía del plan: ningún endpoint lo escribe</h4>
+          <p>Las dos tablas de ejecución existen desde el 17/10 (BE-10): <code>Routine_Exercise_Finished</code> para las planificaciones y <code>Routine_Asign_Exercise_Finished</code> para las asignaciones individuales. <b>La vía individual quedó completa el 18/10:</b> el alumno marca, desmarca y anota (<b>U-12</b> y <b>U-13</b>, BE-14), lo lee en el detalle de su asignación (<b>U-09</b> y <b>U-10</b>, BE-13) y el entrenador lo ve en el historial (<b>E-06</b> y <b>E-07</b>, BE-16). <b>Sigue abierta la vía del plan:</b> ningún endpoint inserta en <code>Routine_Exercise_Finished</code>, así que un alumno con una planificación asignada no puede marcar nada ni tiene historial. Es del bloque B. Sigue vigente que la baja lógica de CU-E-23 nunca se probó en runtime: el "hecho" individual existe, pero falta correrlo contra una base con una asignación y datos que el seed no genera (BE-21, BE-35).</p>
         </div>
       </div>
       <div class="finding">
@@ -334,7 +331,7 @@
         </thead>
         <tbody>
           <tr><td class="cu">1</td><td class="name">Seguridad y contrato inmediato <span class="muted">· BE-01 a BE-08</span></td><td class="endpoint">16 al 19/10</td><td><b>H1:</b> sin agujeros de seguridad conocidos, el web avisado de C2 y el Status con conteos reales</td><td><span class="chip done"><span class="cd"></span>Cerrada 17/10</span></td></tr>
-          <tr><td class="cu">2</td><td class="name">Bloque A: rutina puntual y ejecución <span class="muted">· BE-09 a BE-16</span></td><td class="endpoint">20 al 27/10</td><td><b>H2:</b> el flujo puntual de punta a punta: asignar → ver → marcar → nota → historial</td><td><span class="chip partial"><span class="cd"></span>En curso · BE-10, BE-10b, BE-11, BE-12, BE-13 y BE-14 hechas</span></td></tr>
+          <tr><td class="cu">2</td><td class="name">Bloque A: rutina puntual y ejecución <span class="muted">· BE-09 a BE-16</span></td><td class="endpoint">20 al 27/10</td><td><b>H2:</b> el flujo puntual de punta a punta: asignar → ver → marcar → nota → historial</td><td><span class="chip done"><span class="cd"></span>Cerrada 18/10</span></td></tr>
           <tr><td class="cu">⏱</td><td class="name">Regenerar la base de Render <span class="muted">· BE-23</span></td><td class="endpoint">≈ 1/11</td><td>Esquema del bloque A aplicado antes de que venza la base (≈ 2/11, sin verificar)</td><td><span class="muted">fecha fija</span></td></tr>
           <tr><td class="cu">3</td><td class="name">Bloque B: asignar planificaciones <span class="muted">· BE-17 a BE-23</span></td><td class="endpoint">28/10 al 5/11</td><td><b>H3:</b> los 74 CU con backend tienen código</td><td></td></tr>
           <tr><td class="cu">4</td><td class="name">Brechas de CU y deuda <span class="muted">· BE-24 a BE-34</span></td><td class="endpoint">3 al 12/11</td><td><b>H4:</b> ningún parcial y el Swagger completo</td><td></td></tr>
@@ -398,8 +395,8 @@
           <tr><td class="cu">CU-E-03</td><td class="name">Cerrar cuenta de alumno</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /users/set-active/:id <span class="muted">· baja lógica + login 403; el coach sólo sobre alumnos, nadie sobre sí mismo (16/10)</span></td></tr>
           <tr><td class="cu">CU-E-04</td><td class="name">Obtener RMs del alumno</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /user_rm/user/:id <span class="muted">· con <code>exercise_id</code> (17/10)</span></td></tr>
           <tr><td class="cu">CU-E-05</td><td class="name">Historial de pagos de alumno</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /membership/payment/user/:id</td></tr>
-          <tr><td class="cu">CU-E-06</td><td class="name">Historial de entrenamientos de alumno</td><td><span class="chip missing"><span class="cd"></span>No implementado</span></td><td class="endpoint"><span class="muted">sin endpoint (hallazgo 02) · BE-16</span></td></tr>
-          <tr><td class="cu">CU-E-07</td><td class="name">Historial de entrenamientos — filtro ejercicio</td><td><span class="chip missing"><span class="cd"></span>No implementado</span></td><td class="endpoint"><span class="muted">sin endpoint · BE-16</span></td></tr>
+          <tr><td class="cu">CU-E-06</td><td class="name">Historial de entrenamientos de alumno</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /routine/history/:userId <span class="muted">· las sesiones con al menos un ejercicio hecho, de la más nueva a la más vieja, con la prescripción, la fecha y la nota · sólo coach y admin · lo dado de baja aparece igual · la vía del plan es del bloque B (18/10)</span></td></tr>
+          <tr><td class="cu">CU-E-07</td><td class="name">Historial de entrenamientos — filtro ejercicio</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /routine/history/:userId?exercise_id= <span class="muted">· sólo las sesiones donde se hizo ese ejercicio y, en cada una, sólo ese; <code>[]</code> si no hay (18/10)</span></td></tr>
 
           <tr class="pkg"><td colspan="4"><span class="pkg-lbl">Administrar planificaciones</span></td></tr>
           <tr><td class="cu">CU-E-08</td><td class="name">Obtener planificaciones sistémicas</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /planification/all <span class="muted">· keyword/type/include_inactive + routine_count</span></td></tr>
@@ -500,7 +497,7 @@
 
   <footer>
     <span>PowerApp Backend · auditoría de casos de uso</span>
-    <span>63 impl · 7 parc · 2 andam · 2 falta · 1 sin backend — de 75 · corte 2026-10-18</span>
+    <span>65 impl · 7 parc · 2 andam · 0 falta · 1 sin backend — de 75 · corte 2026-10-18</span>
   </footer>
 
 </div>
