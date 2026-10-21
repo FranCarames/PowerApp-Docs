@@ -41,7 +41,7 @@ Quita la planificación asignada a un alumno dando de baja lógica su User_Plani
 
 ## Camino principal (flujo básico)
 
-1. El entrenador abre las planificaciones asignadas al alumno. Por defecto ve las vigentes; puede pedir también las quitadas.
+1. El entrenador abre las planificaciones asignadas al alumno. Por defecto ve las activas (las que no se quitaron, incluidas las ya terminadas y las futuras); puede pedir también las quitadas.
 2. Elige una y solicita quitarla.
 3. El sistema pide confirmación, advirtiendo que es un borrado lógico.
 4. El sistema marca la User_Planification con active = false y confirma.
