@@ -36,7 +36,7 @@ Variante de «Consultar historial de entrenamientos de alumno» que acota el his
 
 1. El entrenador selecciona un ejercicio para filtrar el historial.
 2. El sistema recupera las sesiones del alumno donde realizó ese ejercicio y, de cada una, únicamente ese ejercicio.
-3. El sistema presenta el historial filtrado, de la sesión más reciente a la más antigua, con la fecha, la prescripción (series, repeticiones, peso) y la nota del alumno.
+3. El sistema presenta el historial filtrado, de la sesión más reciente a la más antigua, con el día en que hizo el ejercicio, la prescripción (series, repeticiones, peso) y la nota del alumno.
 
 ## Caminos alternativos / excepciones
 
@@ -52,4 +52,4 @@ Variante de «Consultar historial de entrenamientos de alumno» que acota el his
 ### En el paso 2 — El ejercicio aparece más de una vez en una sesión
 
 1. La rutina incluye el mismo ejercicio del catálogo en más de un lugar y el alumno lo realizó en varios.
-2. El sistema los muestra todos dentro de esa sesión, en el orden en que el alumno los marcó.
+2. El sistema los muestra todos dentro de esa sesión, por el día en que los hizo y, dentro del mismo día, en el orden en que los marcó.

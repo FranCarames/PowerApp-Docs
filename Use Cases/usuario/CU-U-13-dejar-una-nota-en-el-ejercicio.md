@@ -50,7 +50,7 @@ Permite al usuario dejar o editar una nota personal (user_note) sobre un ejercic
 ### En el paso 1 — Ejercicio todavía sin marcar
 
 1. El usuario escribe una nota en un ejercicio que aún no marcó.
-2. El sistema marca el ejercicio y guarda la nota en la misma operación.
+2. El sistema marca el ejercicio con el día indicado y guarda la nota en la misma operación.
 
 ### En el paso 1 — Sin cambios en la nota
 

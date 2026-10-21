@@ -5,7 +5,7 @@
 
 ## Descripción breve
 
-Registra que el usuario realizó un ejercicio de la rutina de su asignación, y permite deshacerlo. El registro es **por ejercicio y no por serie**: el tildado serie por serie es de la interfaz, y el sistema guarda el ejercicio completo cuando el usuario lo termina. La existencia del registro es el «hecho».
+Registra que el usuario realizó un ejercicio de la rutina de su asignación, y permite deshacerlo. El registro es **por ejercicio y no por serie**: el tildado serie por serie es de la interfaz, y el sistema guarda el ejercicio completo cuando el usuario lo termina. La existencia del registro es el «hecho». Junto con el ejercicio se registra el día en que el usuario lo hizo, que él mismo indica: puede marcar en diferido.
 
 ## Actores involucrados
 
@@ -21,6 +21,7 @@ Registra que el usuario realizó un ejercicio de la rutina de su asignación, y 
 **Cubre:**
 
 - Registrar un ejercicio como realizado en una asignación del usuario, y deshacerlo.
+- Indicar el día en que se realizó el ejercicio, y corregirlo.
 - Dejar o editar la nota del usuario sobre ese ejercicio en la misma operación (CU «Dejar una nota en el ejercicio»).
 
 **Fuera de alcance:**
@@ -37,13 +38,13 @@ Registra que el usuario realizó un ejercicio de la rutina de su asignación, y 
 
 ## Postcondiciones
 
-- El ejercicio queda registrado como realizado en esa asignación (o se elimina el registro si se desmarca), junto con su nota si la hay.
+- El ejercicio queda registrado como realizado en esa asignación, con el día en que se hizo y su nota si la hay (o se elimina el registro si se desmarca).
 
 ## Camino principal (flujo básico)
 
-1. Durante la ejecución, el usuario termina un ejercicio y lo marca como realizado.
+1. Durante la ejecución, el usuario termina un ejercicio y lo marca como realizado, indicando el día en que lo hizo (la aplicación propone el día actual).
 2. El sistema verifica que la asignación sea del usuario y que el ejercicio forme parte de su rutina.
-3. El sistema registra el ejercicio como realizado en esa asignación.
+3. El sistema registra el ejercicio como realizado en esa asignación, con el día indicado.
 4. El sistema confirma el registro.
 
 ## Caminos alternativos / excepciones
@@ -52,6 +53,16 @@ Registra que el usuario realizó un ejercicio de la rutina de su asignación, y 
 
 1. El usuario marca un ejercicio de una asignación de cualquier día, pasado o futuro.
 2. El sistema lo acepta: no hay una ventana de fechas.
+
+### En el paso 1 — Marcar en diferido
+
+1. El usuario marca un ejercicio que hizo otro día e indica ese día.
+2. El sistema registra el día indicado, no el del momento en que marca.
+
+### En el paso 1 — Corregir el día
+
+1. El usuario vuelve a marcar un ejercicio ya realizado indicando otro día.
+2. El sistema corrige el día en el mismo registro, sin duplicarlo.
 
 ### En el paso 1 — Desmarcar el ejercicio
 
@@ -69,6 +80,11 @@ Registra que el usuario realizó un ejercicio de la rutina de su asignación, y 
 
 1. El sistema informa que no se encontró la asignación.
 
+### En el paso 2 — Sin el día
+
+1. El usuario marca un ejercicio que todavía no estaba realizado sin indicar el día.
+2. El sistema informa el error y no registra nada.
+
 ### En el paso 2 — Asignación de otro alumno
 
 1. La asignación pertenece a otro usuario.
@@ -83,7 +99,7 @@ Registra que el usuario realizó un ejercicio de la rutina de su asignación, y 
 
 1. El ejercicio todavía no estaba marcado y el entrenador lo dio de baja, o sacó de la rutina el circuito que lo contiene.
 2. El sistema informa que ya no se puede marcar y no registra nada.
-3. Si el ejercicio ya estaba marcado, el sistema lo acepta igual y no cambia el registro: sólo puede editarse su nota.
+3. Si el ejercicio ya estaba marcado, el sistema lo acepta igual y no cambia el registro: sólo pueden editarse su nota y el día en que se hizo.
 
 ### En el paso 3 — Marcado repetido
 

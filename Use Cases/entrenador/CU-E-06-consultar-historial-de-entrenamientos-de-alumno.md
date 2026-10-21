@@ -5,7 +5,7 @@
 
 ## Descripción breve
 
-Muestra el historial de entrenamientos de un alumno: las sesiones en las que marcó al menos un ejercicio como realizado, de la más reciente a la más antigua, con los ejercicios que hizo, la prescripción del entrenador, la fecha y la nota que el alumno dejó. El sistema no registra la carga real que usó el alumno: lo que muestra de cada serie es lo prescrito.
+Muestra el historial de entrenamientos de un alumno: las sesiones en las que marcó al menos un ejercicio como realizado, de la más reciente a la más antigua, con los ejercicios que hizo y el día en que hizo cada uno, la prescripción del entrenador, la fecha de la sesión y la nota que el alumno dejó. El sistema no registra la carga real que usó el alumno: lo que muestra de cada serie es lo prescrito.
 
 ## Actores involucrados
 
@@ -37,8 +37,8 @@ Muestra el historial de entrenamientos de un alumno: las sesiones en las que mar
 ## Camino principal (flujo básico)
 
 1. El entrenador abre el historial de entrenamientos del alumno.
-2. El sistema recupera las sesiones del alumno con al menos un ejercicio realizado y, de cada una, los ejercicios realizados con su prescripción y la nota del alumno.
-3. El sistema presenta el historial ordenado de la sesión más reciente a la más antigua.
+2. El sistema recupera las sesiones del alumno con al menos un ejercicio realizado y, de cada una, los ejercicios realizados con el día en que los hizo, su prescripción y la nota del alumno.
+3. El sistema presenta el historial ordenado de la sesión más reciente a la más antigua y, dentro de cada sesión, los ejercicios por el día en que se hicieron.
 
 ## Caminos alternativos / excepciones
 
