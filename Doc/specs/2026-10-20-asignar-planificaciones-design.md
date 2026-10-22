@@ -33,7 +33,7 @@ Todas tomadas con el usuario entre el 18/10 y el 20/10. La numeración sigue la 
 | D25 | **Las dos tablas de ejecución suman `finished_at` (`DATE NOT NULL`): el día en que el alumno hizo el ejercicio.** Lo manda el cliente al marcar (obligatorio al crear la marca) y se puede corregir. En el historial, el `finished_at` de cada ejercicio pasa a ser ese día | Permite marcar en diferido: lo que se hizo el lunes y se marcó el miércoles queda el lunes. Va en las dos vías por la "misma lógica" de D1, y así el campo del historial tiene un solo significado. El servidor nunca calcula "hoy" |
 | D26 | **La fecha de una sesión del plan en el historial es el `finished_at` más viejo de sus ejercicios** | La vía del plan no tiene un día asignado. La individual sigue usando el día de la asignación |
 | D27 | **`planification/` tiene la gestión del coach (E-13, E-14, el listado); `routine/` tiene lo que el alumno ve y ejecuta (el home del plan, el detalle, marcar y desmarcar) y el historial** | En `routine/` están los builders del árbol y los helpers de la vía individual. Así no hay dependencias entre módulos |
-| D28 | **La parte del plan del home es un endpoint aparte**, agrupado por asignación y semana. **Las rutinas del plan no tienen día**, sólo semana y orden | `GET /routine/assigned/:userId` no cambia de forma. El "ordenadas por día" de U-08 queda para las individuales |
+| D28 | **La parte del plan del home es un endpoint aparte**, agrupado por asignación y semana. **Las rutinas del plan no tienen día**, sólo semana y orden | `GET /routine/assigned/:userId` no cambia de forma. El "ordenadas por día" de U-08 queda para las individuales. **Complementada el 21/10** ([spec del home](2026-10-21-home-del-alumno-design.md), D31): el home junta las dos fuentes en `GET /routine/home/:userId`, y esta ruta y `assigned/:userId` siguen como están |
 | D29 | **La regla de visibilidad del 27/8 se extiende a la rutina del plan:** una `Routine_Asignation` dada de baja se le muestra al alumno sólo si hizo algo en ella, y sólo lo que hizo | Es la regla del circuito sacado de la rutina, un nivel más arriba |
 | D30 | **El bloque B se parte en siete tareas** (§9): el modelo, E-13, E-14, el home, el detalle, marcar y el historial | Cada una con su commit, como en el bloque A |
 
@@ -172,6 +172,8 @@ Validaciones de las tres operaciones (§5.6 a §5.8), en este orden:
 
 ### 5.5 El plan en el home — `GET /routine/assigned-plan/:userId?from=&to=` (U-08)
 
+> **21/10:** el home del alumno pide las dos fuentes juntas en `GET /routine/home/:userId?date=&week=` ([spec del home](2026-10-21-home-del-alumno-design.md), BE-20e). Esta ruta sigue igual: el coach la usa sin filtro para ver el plan entero, y el home reutiliza su helper.
+
 - `from` y `to` son opcionales, inclusivos y en formato día. Si `from > to`, `400`. `404` si el usuario no existe.
 - El home lo pide con el lunes y el domingo de la semana, igual que `GET /routine/assigned/:userId`. El cliente hace los dos pedidos y muestra las dos fuentes juntas.
 
@@ -297,6 +299,7 @@ Cada tarea reescribe en `Use Cases/` las de los CU que toca.
 | **BE-20b** (nueva) | El detalle de una sesión del plan (§5.6) | — | 2 h |
 | **BE-20c** (nueva) | Marcar, la nota y desmarcar en el plan (§5.7, §5.8). **Cierra la escritura del hallazgo 2** | — | 2 h |
 | **BE-20d** (nueva) | Las sesiones del plan en el historial (§5.9). **Cierra el hallazgo 2** | — | 2 h |
+| **BE-20e** (nueva, 21/10) | El home en un solo pedido ([spec del home](2026-10-21-home-del-alumno-design.md)) | — (U-08 ya ✅) | 2 h |
 
 - Son **18 h**, contra las 11,5 h que el roadmap le daba a BE-18, BE-19 y BE-20. La diferencia son las tres piezas de ejecución del plan, que el roadmap no tenía, y la adaptación de la vía individual.
 - **U-09, U-10, U-12, U-13, E-06 y E-07 ya están ✅** (lo fijó la spec del bloque A para su cierre), así que BE-20b a BE-20d no mueven conteos. Al terminar el bloque: **68 ✅, 6 🟡, 0 🔵**, y H3 cumplido.
