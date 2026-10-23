@@ -5,7 +5,7 @@
 
 ## Descripción breve
 
-Muestra el detalle de un ejercicio dentro de la rutina de una asignación (series, reps, notas, video/tips) y habilita las acciones de ejecución asociadas. Los datos llegan **dentro del detalle de la rutina** (CU «Ver detalle de Rutina»), así que abrirlo no requiere una consulta aparte.
+Muestra el detalle de un ejercicio dentro de la rutina de una asignación (series, reps, notas, video/tips) y habilita las acciones de ejecución asociadas. La asignación puede ser individual o una sesión del plan. Los datos llegan **dentro del detalle de la rutina** (CU «Ver detalle de Rutina»), así que abrirlo no requiere una consulta aparte.
 
 ## Actores involucrados
 
@@ -33,7 +33,7 @@ Muestra el detalle de un ejercicio dentro de la rutina de una asignación (serie
 ## Precondiciones
 
 - Existe una sesión activa con rol Usuario.
-- El ejercicio forma parte de la rutina de una asignación del usuario.
+- El ejercicio forma parte de la rutina de una asignación del usuario: individual o una sesión de su plan.
 
 ## Postcondiciones
 
@@ -55,5 +55,10 @@ Muestra el detalle de un ejercicio dentro de la rutina de una asignación (serie
 
 ### En el paso 3 — Ejercicio dado de baja que el usuario completó
 
-1. El entrenador sacó el ejercicio de la rutina después de que el usuario lo completó en esa asignación.
+1. El entrenador sacó el ejercicio de la rutina, o la rutina del plan, después de que el usuario lo completó en esa asignación.
 2. El sistema lo sigue mostrando, con su nota, porque forma parte de lo que hizo.
+
+### En el paso 4 — El entrenador quitó la planificación al usuario
+
+1. En una sesión del plan, el entrenador quitó la planificación al usuario (CU «Eliminar Planificación a Alumno»).
+2. El sistema muestra el detalle, pero sólo ofrece ver los RMs: ya no se puede marcar ni dejar nota.

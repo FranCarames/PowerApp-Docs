@@ -196,6 +196,8 @@ Validaciones de las tres operaciones (§5.6 a §5.8), en este orden:
 
 ### 5.6 Detalle — `GET /routine/assign-plan/:userPlanificationId/:routineAsignationId` (U-09, U-10)
 
+> **22/10:** revisado con el usuario en la [spec del detalle de una sesión del plan](2026-10-22-detalle-de-una-sesion-del-plan-design.md) (BE-20b). La respuesta trae el bloque `user_planification` del home con su `active`, y la semana con `week_start` y `week_end` (D37). La rutina quitada sin nada hecho da `404` con texto propio para todos los roles (D38). Las validaciones de §5.4 se escriben una sola vez, para el detalle y para marcar y desmarcar (D39).
+
 - Las validaciones de §5.4, más `404` si la `Routine_Asignation` está dada de baja y el alumno no completó nada en ella.
 - Se lee también si la asignación está dada de baja (D24).
 
