@@ -205,7 +205,7 @@
       <span><b>75</b> casos de uso</span>
       <span><b>9</b> módulos</span>
       <span>Fuente: <b>Use Cases/</b> (PowerApp-Docs) vs <b>power-app/src</b></span>
-      <span>Corte: <b>2026-10-21</b></span>
+      <span>Corte: <b>2026-10-22</b></span>
     </div>
   </header>
 
@@ -214,10 +214,10 @@
     <div class="sec-head"><h2>Panorama general</h2><span class="kicker">75 CU clasificados</span></div>
     <div class="tiles">
       <div class="tile done">
-        <div class="n">68</div><div class="lbl">Implementado</div><div class="pct">91% · cumple su spec</div>
+        <div class="n">72</div><div class="lbl">Implementado</div><div class="pct">96% · cumple su spec</div>
       </div>
       <div class="tile partial">
-        <div class="n">6</div><div class="lbl">Parcial</div><div class="pct">8% · un camino sin cumplir</div>
+        <div class="n">2</div><div class="lbl">Parcial</div><div class="pct">3% · un camino sin cumplir</div>
       </div>
       <div class="tile stub">
         <div class="n">0</div><div class="lbl">Andamiaje</div><div class="pct">0% · ruta que cuelga</div>
@@ -228,21 +228,21 @@
     </div>
 
     <div class="bar-block">
-      <div class="bar" role="img" aria-label="68 implementados, 6 parciales, 0 andamiaje, 0 no implementados y 1 sin backend, de 75">
-        <span class="s-done" style="width:90.67%"></span>
-        <span class="s-partial" style="width:8%"></span>
+      <div class="bar" role="img" aria-label="72 implementados, 2 parciales, 0 andamiaje, 0 no implementados y 1 sin backend, de 75">
+        <span class="s-done" style="width:96%"></span>
+        <span class="s-partial" style="width:2.67%"></span>
         <span class="s-client" style="width:1.33%"></span>
       </div>
       <div class="bar-cap">
-        <span><b>68 de los 74</b> CU con backend completos (92%) · <span class="warn">⚠</span> 2 con un defecto abierto (E-29, A-04)</span>
-        <span><b>6</b> pendientes (6 parciales) · ninguno sin endpoint ni en andamiaje · 1 sin backend (U-14)</span>
+        <span><b>72 de los 74</b> CU con backend completos (97%) · <span class="warn">⚠</span> 2 con un defecto abierto (E-29, A-04)</span>
+        <span><b>2</b> pendientes (U-04 y A-17, parciales) · ninguno sin endpoint ni en andamiaje · 1 sin backend (U-14)</span>
       </div>
     </div>
   </section>
 
   <!-- BY ROLE -->
   <section>
-    <div class="sec-head"><h2>Cobertura por rol</h2><span class="kicker">% sobre los CU con backend · lo pendiente es el flujo del alumno y las brechas del Admin</span></div>
+    <div class="sec-head"><h2>Cobertura por rol</h2><span class="kicker">% sobre los CU con backend · lo pendiente es el mail de U-04 y el camino «ya es entrenador» de A-17</span></div>
     <div class="roles">
 
       <div class="role-card">
@@ -275,15 +275,15 @@
 
       <div class="role-card">
         <h3>Admin <em>23 CU</em></h3>
-        <div class="role-pct" style="color:var(--done)">78%</div>
-        <div class="role-sub">18 de 23 · cinco CU de músculos y entrenadores no cumplen un camino de su spec</div>
+        <div class="role-pct" style="color:var(--done)">96%</div>
+        <div class="role-sub">22 de 23 · ejercicios, músculos, grupos y membresías cerrados; falta el camino «ya es entrenador» de A-17</div>
         <div class="mini-bar">
-          <span style="width:78.26%;background:var(--done)"></span>
-          <span style="width:21.74%;background:var(--partial)"></span>
+          <span style="width:95.65%;background:var(--done)"></span>
+          <span style="width:4.35%;background:var(--partial)"></span>
         </div>
         <div class="role-legend">
-          <i><span class="swatch" style="background:var(--done)"></span><b>18</b> impl.</i>
-          <i><span class="swatch" style="background:var(--partial)"></span><b>5</b> parc.</i>
+          <i><span class="swatch" style="background:var(--done)"></span><b>22</b> impl.</i>
+          <i><span class="swatch" style="background:var(--partial)"></span><b>1</b> parc.</i>
         </div>
       </div>
 
@@ -330,8 +330,8 @@
           <tr><td class="cu">1</td><td class="name">Seguridad y contrato inmediato <span class="muted">· BE-01 a BE-08</span></td><td class="endpoint">16 al 19/10</td><td><b>H1:</b> sin agujeros de seguridad conocidos, el web avisado de C2 y el Status con conteos reales</td><td><span class="chip done"><span class="cd"></span>Cerrada 17/10</span></td></tr>
           <tr><td class="cu">2</td><td class="name">Bloque A: rutina puntual y ejecución <span class="muted">· BE-09 a BE-16</span></td><td class="endpoint">20 al 27/10</td><td><b>H2:</b> el flujo puntual de punta a punta: asignar → ver → marcar → nota → historial</td><td><span class="chip done"><span class="cd"></span>Cerrada 18/10</span></td></tr>
           <tr><td class="cu">⏱</td><td class="name">Regenerar la base de Render <span class="muted">· BE-23</span></td><td class="endpoint">≈ 1/11</td><td>Esquema del bloque A aplicado antes de que venza la base (≈ 2/11, sin verificar)</td><td><span class="muted">fecha fija</span></td></tr>
-          <tr><td class="cu">3</td><td class="name">Bloque B: asignar planificaciones <span class="muted">· BE-17 a BE-23</span></td><td class="endpoint">28/10 al 5/11</td><td><b>H3:</b> los 74 CU con backend tienen código</td><td><span class="chip partial"><span class="cd"></span>En curso</span> <span class="muted">BE-17, BE-18, BE-18b, BE-19 y BE-20 (20 y 21/10)</span></td></tr>
-          <tr><td class="cu">4</td><td class="name">Brechas de CU y deuda <span class="muted">· BE-24 a BE-34</span></td><td class="endpoint">3 al 12/11</td><td><b>H4:</b> ningún parcial y el Swagger completo</td><td></td></tr>
+          <tr><td class="cu">3</td><td class="name">Bloque B: asignar planificaciones <span class="muted">· BE-17 a BE-23</span></td><td class="endpoint">28/10 al 5/11</td><td><b>H3:</b> los 74 CU con backend tienen código</td><td><span class="chip partial"><span class="cd"></span>En curso</span> <span class="muted">BE-17, BE-18, BE-18b, BE-19, BE-20 y BE-20e (20 y 21/10)</span></td></tr>
+          <tr><td class="cu">4</td><td class="name">Brechas de CU y deuda <span class="muted">· BE-24 a BE-34</span></td><td class="endpoint">3 al 12/11</td><td><b>H4:</b> ningún parcial y el Swagger completo</td><td><span class="chip partial"><span class="cd"></span>En curso</span> <span class="muted">BE-24, BE-25 y BE-26 adelantadas (22/10)</span></td></tr>
           <tr><td class="cu">5</td><td class="name">Verificación y cierre <span class="muted">· BE-35 a BE-39</span></td><td class="endpoint">12 al 17/11</td><td><b>H5:</b> criterios de "backend terminado" cumplidos y código congelado</td><td></td></tr>
         </tbody>
       </table>
@@ -357,7 +357,7 @@
           <tr><td class="cu">CU-U-07</td><td class="name">Obtener historial de pagos</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /membership/payment/user/:id <span class="muted">· <code>@Owner</code>, del más reciente al más viejo (16/10)</span></td></tr>
 
           <tr class="pkg"><td colspan="4"><span class="pkg-lbl">Mi entrenamiento</span></td></tr>
-          <tr><td class="cu">CU-U-08</td><td class="name">Obtener mi planificación</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /routine/assigned/:userId <span class="muted">· la parte individual, por día y con su progreso (18/10) · </span><span class="verb">GET</span> /routine/assigned-plan/:userId <span class="muted">· la parte del plan: las semanas de cada plan activo, sus rutinas sin día y con su progreso · tope de 520 semanas (BE-20, 21/10)</span></td></tr>
+          <tr><td class="cu">CU-U-08</td><td class="name">Obtener mi planificación</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /routine/home/:userId <span class="muted">· el home en un solo pedido: week semanas desde el lunes de date, con las dos fuentes (BE-20e, 21/10) · </span><span class="verb">GET</span> /routine/assigned/:userId <span class="muted">· la parte individual, por día y con su progreso (18/10) · </span><span class="verb">GET</span> /routine/assigned-plan/:userId <span class="muted">· la parte del plan: las semanas de cada plan activo, sus rutinas sin día y con su progreso · tope de 520 semanas (BE-20, 21/10)</span></td></tr>
           <tr><td class="cu">CU-U-09</td><td class="name">Ver detalle de rutina</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /routine/assign-user/:id <span class="muted">· el alumno lee la rutina por su asignación (403 si es de otro) · mismo árbol que GET /routine/:id, con lo dado de baja que completó y lo hecho en <code>finished</code> (18/10)</span></td></tr>
           <tr><td class="cu">CU-U-10</td><td class="name">Ver detalle de un ejercicio</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">dentro del detalle de la asignación: ficha, series, nota del coach y, en <code>finished</code>, la nota del alumno (18/10) · </span><span class="verb">GET</span> /exercise/:id <span class="muted">sigue siendo el catálogo</span></td></tr>
           <tr><td class="cu">CU-U-11</td><td class="name">Ver mis RMs de un ejercicio</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /user_rm/user/:idUser/exercise/:idExercise <span class="muted">· check de dueño (<code>@Owner</code> desde el 16/10)</span></td></tr>
@@ -435,7 +435,7 @@
 
   <!-- DETAIL: ADMIN -->
   <section>
-    <div class="sec-head"><h2>Rol Admin</h2><span class="kicker">23 CU · 78% implementado</span></div>
+    <div class="sec-head"><h2>Rol Admin</h2><span class="kicker">23 CU · 96% implementado</span></div>
     <div class="table-scroll">
       <table>
         <thead>
@@ -454,14 +454,14 @@
           <tr><td class="cu">CU-A-07</td><td class="name">Obtener músculos</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /muscles/all</td></tr>
           <tr><td class="cu">CU-A-08</td><td class="name">Crear músculo</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /muscles/create</td></tr>
           <tr><td class="cu">CU-A-09</td><td class="name">Editar músculo</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /muscles/edit/:id</td></tr>
-          <tr><td class="cu">CU-A-10</td><td class="name">Eliminar músculo</td><td><span class="chip partial"><span class="cd"></span>Parcial</span></td><td class="endpoint"><span class="verb">DELETE</span> /muscles/:id <span class="muted">· borra en cascada en vez de impedir la baja de un músculo en uso · BE-24</span></td></tr>
+          <tr><td class="cu">CU-A-10</td><td class="name">Eliminar músculo</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">DELETE</span> /muscles/:id <span class="muted">· 409 si está asociado a ejercicios, con la FK en RESTRICT de respaldo (BE-24, 22/10)</span></td></tr>
           <tr><td class="cu">CU-A-11</td><td class="name">Obtener grupos musculares</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /muscles/mg/all</td></tr>
 
           <tr class="pkg"><td colspan="4"><span class="pkg-lbl">Administrar grupos musculares</span></td></tr>
           <tr><td class="cu">CU-A-12</td><td class="name">Obtener músculos del grupo muscular</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /muscles/mg/get/:id <span class="muted">· incluye músculos</span></td></tr>
-          <tr><td class="cu">CU-A-13</td><td class="name">Crear grupo muscular</td><td><span class="chip partial"><span class="cd"></span>Parcial</span></td><td class="endpoint"><span class="verb">POST</span> /muscles/mg/create <span class="muted">· no valida el nombre único · BE-26</span></td></tr>
-          <tr><td class="cu">CU-A-14</td><td class="name">Editar grupo muscular</td><td><span class="chip partial"><span class="cd"></span>Parcial</span></td><td class="endpoint"><span class="verb">POST</span> /muscles/mg/edit/:id <span class="muted">· no valida el nombre único · BE-26</span></td></tr>
-          <tr><td class="cu">CU-A-15</td><td class="name">Eliminar grupo muscular</td><td><span class="chip partial"><span class="cd"></span>Parcial</span></td><td class="endpoint"><span class="verb">DELETE</span> /muscles/mg/:id <span class="muted">· borra el grupo y sus músculos en cascada · BE-25</span></td></tr>
+          <tr><td class="cu">CU-A-13</td><td class="name">Crear grupo muscular</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /muscles/mg/create <span class="muted">· nombre único, sin distinguir mayúsculas ni espacios en los extremos: 409 (BE-26, 22/10)</span></td></tr>
+          <tr><td class="cu">CU-A-14</td><td class="name">Editar grupo muscular</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /muscles/mg/edit/:id <span class="muted">· 409 si el nombre nuevo ya es de otro grupo; sólo se controla si cambia (BE-26, 22/10)</span></td></tr>
+          <tr><td class="cu">CU-A-15</td><td class="name">Eliminar grupo muscular</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">DELETE</span> /muscles/mg/:id <span class="muted">· 409 si todavía tiene músculos, con la FK en RESTRICT de respaldo (BE-25, 22/10)</span></td></tr>
 
           <tr class="pkg"><td colspan="4"><span class="pkg-lbl">Administrar entrenadores</span></td></tr>
           <tr><td class="cu">CU-A-16</td><td class="name">Obtener entrenadores</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /coach/all <span class="muted">· sólo admin; era público (16/10)</span></td></tr>
@@ -494,7 +494,7 @@
 
   <footer>
     <span>PowerApp Backend · auditoría de casos de uso</span>
-    <span>68 impl · 6 parc · 0 andam · 0 falta · 1 sin backend — de 75 · corte 2026-10-21</span>
+    <span>72 impl · 2 parc · 0 andam · 0 falta · 1 sin backend — de 75 · corte 2026-10-22</span>
   </footer>
 
 </div>
