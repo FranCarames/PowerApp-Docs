@@ -64,8 +64,18 @@ Permite al usuario dejar o editar una nota personal (user_note) sobre un ejercic
 
 ### En el paso 1 — El entrenador sacó el ejercicio de la rutina
 
-1. El ejercicio ya estaba realizado y el entrenador lo sacó de la rutina después.
+1. El ejercicio ya estaba realizado y el entrenador lo sacó de la rutina después, o quitó del plan la rutina que lo contiene.
 2. El sistema permite editar la nota igual: forma parte de lo que el usuario hizo.
+
+### En el paso 1 — La planificación fue quitada
+
+1. El ejercicio es de una planificación que el entrenador quitó al usuario.
+2. El sistema informa que la planificación fue quitada y que no se puede modificar: no guarda, no edita ni borra la nota.
+
+### En el paso 1 — La rutina fue quitada del plan y el ejercicio no estaba marcado
+
+1. El usuario escribe una nota en un ejercicio que aún no marcó, de una rutina que el entrenador quitó del plan.
+2. El sistema informa que la rutina fue quitada de la planificación y que ya no se puede marcar, y no guarda nada.
 
 ### En el paso 2 — Desmarcar el ejercicio
 

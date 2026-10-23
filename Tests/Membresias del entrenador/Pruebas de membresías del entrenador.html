@@ -1,0 +1,918 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Pruebas de membresías del entrenador</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: una columna de trabajo (máx. 980px). Resumen arriba, barra de filtros fija, casos agrupados por CU. Paleta de PowerApp, dark-first. */
+:root{
+  --bg:#0B0D16; --card:#13161F; --el:#1B1F2E; --line:#232739; --line2:#2E3347;
+  --tx:#F5F1EB; --tx2:#A3ACC2; --tx3:#6B7390;
+  --pri:#FF6B3D; --priS:rgba(232,69,10,.14); --acc:#A78BFA; --accS:rgba(139,92,246,.16);
+  --ok:#3DD47A; --okS:rgba(34,197,94,.14); --warn:#F5B23D; --warnS:rgba(245,158,11,.14); --err:#F26464; --errS:rgba(239,68,68,.14);
+  --none:#6B7390;
+  --fD:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --fB:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --fM:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#F2F3F7; --card:#FFFFFF; --el:#E8EAF1; --line:#D9DCE6; --line2:#C8CCDA;
+    --tx:#141826; --tx2:#47506A; --tx3:#687089;
+    --pri:#C23A07; --priS:rgba(232,69,10,.10); --acc:#6A3FDB; --accS:rgba(139,92,246,.12);
+    --ok:#157A3C; --okS:rgba(34,197,94,.13); --warn:#A25A06; --warnS:rgba(245,158,11,.16); --err:#C42525; --errS:rgba(239,68,68,.11);
+    --none:#8A91A8;
+    color-scheme:light;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#F2F3F7; --card:#FFFFFF; --el:#E8EAF1; --line:#D9DCE6; --line2:#C8CCDA;
+  --tx:#141826; --tx2:#47506A; --tx3:#687089;
+  --pri:#C23A07; --priS:rgba(232,69,10,.10); --acc:#6A3FDB; --accS:rgba(139,92,246,.12);
+  --ok:#157A3C; --okS:rgba(34,197,94,.13); --warn:#A25A06; --warnS:rgba(245,158,11,.16); --err:#C42525; --errS:rgba(239,68,68,.11);
+  --none:#8A91A8;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--tx);font-family:var(--fB);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding-inline:20px;padding-block:28px 72px}
+code,.mono{font-family:var(--fM);font-size:.86em}
+code{background:var(--el);border:1px solid var(--line);border-radius:5px;padding:1px 5px;overflow-wrap:anywhere}
+.ui{color:var(--tx);font-weight:600}
+a{color:var(--acc)}
+a:focus-visible,button:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+h1,h2,h3{text-wrap:balance}
+
+/* Encabezado */
+.mast{display:grid;gap:6px;margin-bottom:22px}
+.eyebrow{font-family:var(--fM);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--pri);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.eyebrow .sep{color:var(--tx3)}
+h1{font-family:var(--fD);font-weight:800;font-size:clamp(34px,6vw,52px);line-height:1;letter-spacing:-.01em;margin:4px 0 0}
+.lede{color:var(--tx2);max-width:66ch;margin:6px 0 0}
+
+/* Resumen */
+.summary{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:14px;margin-bottom:18px}
+.counts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.count{display:grid;gap:2px}
+.count .n{font-family:var(--fD);font-size:34px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.count .l{font-size:12.5px;color:var(--tx2);display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;flex:none}
+.c-ok .n{color:var(--ok)} .c-ok .dot{background:var(--ok)}
+.c-fail .n{color:var(--err)} .c-fail .dot{background:var(--err)}
+.c-retest .n{color:var(--warn)} .c-retest .dot{background:var(--warn)}
+.c-none .n{color:var(--tx2)} .c-none .dot{background:var(--none)}
+.bar{display:flex;height:10px;border-radius:6px;overflow:hidden;background:var(--el)}
+.bar span{height:100%;transition:width .3s ease}
+.bar .b-ok{background:var(--ok)} .bar .b-fail{background:var(--err)} .bar .b-retest{background:var(--warn)}
+.sumfoot{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.save{font-size:12.5px;color:var(--tx3);display:flex;align-items:center;gap:7px}
+.save .dot{background:var(--tx3)}
+.save.is-db .dot{background:var(--ok)} .save.is-err .dot{background:var(--err)} .save.is-local .dot{background:var(--warn)}
+.btn{font:600 13.5px/1 var(--fB);color:var(--tx);background:var(--el);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{border-color:var(--tx3)}
+.btn.pri{background:var(--priS);border-color:var(--pri);color:var(--pri)}
+.copyfall{display:grid;gap:8px}
+.copyfall textarea{width:100%;min-height:140px;font:13px/1.5 var(--fM);background:var(--el);color:var(--tx);border:1px solid var(--line2);border-radius:10px;padding:10px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.save{flex:1 1 260px;min-width:0;align-items:flex-start}
+.save .dot{margin-top:.45em}
+.save.is-local{color:var(--warn)}
+.save.is-err{color:var(--err)}
+.iomsg{margin:0;font-size:12.5px;color:var(--tx2)}
+.iomsg.is-ok{color:var(--ok)} .iomsg.is-err{color:var(--err)}
+
+/* Antes de empezar */
+details.prep{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:18px}
+details.prep>summary{cursor:pointer;list-style:none;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+details.prep>summary::-webkit-details-marker{display:none}
+details.prep>summary h2{font-family:var(--fD);font-weight:700;font-size:24px;margin:0}
+.chev{color:var(--tx3);font-family:var(--fM);font-size:13px}
+details[open] .chev .c-open{display:none} details:not([open]) .chev .c-close{display:none}
+.prep-body{padding:0 18px 18px;display:grid;gap:18px}
+.prep h3{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin:0 0 8px;font-weight:700}
+.envs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.env{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg);display:grid;gap:6px;align-content:start;min-width:0}
+.env p{margin:0;font-size:13.5px;color:var(--tx2)}
+.tag{display:inline-flex;align-items:center;font:700 11px/1 var(--fM);letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border-radius:6px;border:1px solid currentColor;white-space:nowrap}
+.t-LOCAL{color:var(--acc)} .t-DEMO{color:var(--warn)} .t-RENDER{color:var(--pri)} .t-TODOS{color:var(--tx2)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);font-weight:700;background:var(--bg)}
+tr:last-child td{border-bottom:0}
+.tips{margin:0;padding-left:18px;display:grid;gap:6px;color:var(--tx2);font-size:14px}
+.tips b{color:var(--tx)}
+.tok{font:500 12.5px/1.3 var(--fM);color:var(--tx);background:var(--el);border:1px dashed var(--line2);border-radius:6px;padding:2px 6px;cursor:copy;overflow-wrap:anywhere;text-align:left}
+.tok:hover{border-color:var(--acc)}
+.tok.copied{border-style:solid;border-color:var(--ok);color:var(--ok)}
+
+/* Filtros */
+.filters{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;margin-bottom:8px;display:grid;gap:8px;border-bottom:1px solid var(--line)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chips .lbl{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);font-weight:700;margin-right:4px}
+.chip{font:600 12.5px/1 var(--fB);color:var(--tx2);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 11px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.chip .k{font-family:var(--fM);font-size:11px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.chip[aria-pressed="true"]{color:var(--tx);border-color:var(--tx2);background:var(--el)}
+.jump{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.jump a{font:600 12px/1 var(--fB);color:var(--tx2);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:6px 9px;white-space:nowrap;background:var(--card)}
+.jump a:hover{color:var(--tx);border-color:var(--line2)}
+.jump .p{font-family:var(--fM);font-size:11px;color:var(--tx3);margin-left:4px}
+
+/* Grupos y casos */
+.group{margin-top:28px;scroll-margin-top:120px}
+.ghead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:12px}
+.ghead h2{font-family:var(--fD);font-weight:700;font-size:28px;margin:0;line-height:1.1}
+.ghead .cu{font-family:var(--fM);font-size:12.5px;color:var(--pri)}
+.ghead .gsub{color:var(--tx3);font-size:13.5px}
+.ghead .gprog{margin-left:auto;font-family:var(--fM);font-size:12px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.cases{display:grid;gap:12px}
+.case{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:grid;gap:12px;min-width:0}
+.case[data-status="fail"]{border-color:color-mix(in srgb,var(--err) 55%,var(--line))}
+.case[data-status="ok"]{border-color:color-mix(in srgb,var(--ok) 40%,var(--line))}
+.case[data-status="retest"]{border-color:color-mix(in srgb,var(--warn) 50%,var(--line))}
+.chead{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+.cid{font:700 13px/1 var(--fM);color:var(--pri);letter-spacing:.02em}
+.chead h3{font-size:16.5px;font-weight:700;margin:0;flex:1 1 220px;min-width:0}
+.ctags{display:flex;gap:6px;flex-wrap:wrap}
+.pill{font:700 11px/1 var(--fB);letter-spacing:.04em;text-transform:uppercase;padding:5px 8px;border-radius:999px;background:var(--el);color:var(--tx3);white-space:nowrap}
+.pill.s-ok{background:var(--okS);color:var(--ok)} .pill.s-fail{background:var(--errS);color:var(--err)} .pill.s-retest{background:var(--warnS);color:var(--warn)}
+.cdata{margin:0;font-size:14px;color:var(--tx2)}
+.cdata b{color:var(--tx);font-weight:600}
+.cbody{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:14px}
+.cbody h4{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin:0 0 6px;font-weight:700}
+.steps{margin:0;padding-left:20px;display:grid;gap:5px;font-size:14px}
+.steps li::marker{font-family:var(--fM);color:var(--tx3);font-size:12px}
+.expect{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;min-width:0}
+.expect p{margin:0}
+.expect ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.known{display:flex;gap:10px;align-items:flex-start;background:var(--warnS);color:var(--tx);border-radius:10px;padding:10px 12px;font-size:13.5px}
+.known b{color:var(--warn)}
+.cfoot{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px 14px;align-items:start;border-top:1px solid var(--line);padding-top:12px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.sb{font:600 13px/1 var(--fB);color:var(--tx2);background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:9px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;min-height:38px}
+.sb .ic{font-family:var(--fM);font-weight:700}
+.sb:hover{color:var(--tx)}
+.sb.v-ok[aria-pressed="true"]{background:var(--okS);border-color:var(--ok);color:var(--ok)}
+.sb.v-fail[aria-pressed="true"]{background:var(--errS);border-color:var(--err);color:var(--err)}
+.sb.v-retest[aria-pressed="true"]{background:var(--warnS);border-color:var(--warn);color:var(--warn)}
+.notewrap{display:grid;gap:4px;min-width:0}
+.note{width:100%;min-height:38px;resize:vertical;font:14px/1.45 var(--fB);color:var(--tx);background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:8px 10px}
+.note::placeholder{color:var(--tx3)}
+.when{font-size:12px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.empty{color:var(--tx2);text-align:center;padding:40px 16px;border:1px dashed var(--line2);border-radius:14px;margin-top:24px}
+
+.summary>*,.prep-body>*,.filters>*,.group,.cases>*{min-width:0}
+@media (max-width:760px){
+  .filters{position:static}
+  .group{scroll-margin-top:16px}
+  .envs{grid-template-columns:minmax(0,1fr)}
+  .cbody{grid-template-columns:minmax(0,1fr)}
+  .cfoot{grid-template-columns:minmax(0,1fr)}
+  .counts{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="eyebrow"><span>PowerApp Web</span><span class="sep">/</span><span>Entrenador · CU-E-25 a CU-E-29</span><span class="sep">/</span><span>Pruebas manuales</span></div>
+    <h1>Pruebas de membresías del entrenador</h1>
+    <p class="lede">El control de membresías del Entrenador, en <code>/c/membresias</code> y <code>/c/pago</code>: los contadores por estado, los alumnos filtrados por estado y por tipo, y el registro de un pago. Cada caso dice cómo probarlo y qué tenés que ver. Marcá el resultado y anotá lo que observes.</p>
+  </header>
+
+  <section class="summary" aria-label="Resumen">
+    <div class="counts">
+      <div class="count c-ok"><span class="n" id="n-ok">0</span><span class="l"><span class="dot"></span>Funciona</span></div>
+      <div class="count c-fail"><span class="n" id="n-fail">0</span><span class="l"><span class="dot"></span>Falla</span></div>
+      <div class="count c-retest"><span class="n" id="n-retest">0</span><span class="l"><span class="dot"></span>Re-testear</span></div>
+      <div class="count c-none"><span class="n" id="n-none">0</span><span class="l"><span class="dot"></span>Sin probar</span></div>
+    </div>
+    <div class="bar" role="img" id="bar" aria-label="Progreso"><span class="b-ok" id="b-ok"></span><span class="b-fail" id="b-fail"></span><span class="b-retest" id="b-retest"></span></div>
+    <div class="sumfoot">
+      <span class="save" id="save"><span class="dot"></span><span id="save-t">Conectando el guardado…</span></span>
+      <div class="actions">
+        <button type="button" class="btn" id="exp-res">Exportar resultados</button>
+        <button type="button" class="btn" id="imp-res">Importar resultados</button>
+        <button type="button" class="btn pri" id="copy-sum">Copiar resumen de fallas</button>
+        <input type="file" id="imp-file" accept=".json,application/json" hidden>
+      </div>
+    </div>
+    <div class="copyfall" id="copy-fall" hidden>
+      <label for="copy-fall-t" class="when">Tu navegador no dejó copiar automáticamente. El texto ya está seleccionado: copialo con Ctrl+C.</label>
+      <textarea id="copy-fall-t" readonly></textarea>
+    </div>
+    <p class="iomsg" id="io-msg" role="status" hidden></p>
+  </section>
+
+  <details class="prep" id="prep" open>
+    <summary><h2>Antes de empezar</h2><span class="chev"><span class="c-close">Ocultar</span><span class="c-open">Mostrar</span></span></summary>
+    <div class="prep-body">
+      <div>
+        <h3>Entornos</h3>
+        <div class="envs">
+          <div class="env"><span class="tag t-LOCAL">Local</span><p>Backend local en <code>localhost:3000</code> y el front con <code>npm run dev</code>. Hace falta para los casos con el servidor apagado.</p></div>
+          <div class="env"><span class="tag t-RENDER">Render</span><p><a href="https://powerapp-web.onrender.com" target="_blank" rel="noopener">powerapp-web.onrender.com</a> contra el backend de Render. Todo lo que crees queda en esa base.</p></div>
+          <div class="env"><span class="tag t-TODOS">Cualquiera</span><p>El caso da lo mismo en los dos. Con cuentas reales, los mocks no intervienen aunque estén prendidos.</p></div>
+        </div>
+      </div>
+      <div>
+        <h3>Cuentas y datos</h3>
+        <ul class="tips">
+          <li><b>Una cuenta real de entrenador y una de admin.</b> El admin solo hace falta en PAG-07. Las de demo no sirven: el backend rechaza su token.</li>
+          <li><b>Un alumno de prueba nuevo,</b> registrado desde <code>/registro</code>: <button type="button" class="tok" data-copy="QA">QA</button> <button type="button" class="tok" data-copy="Membresías">Membresías</button>, con un email tuyo con sufijo, por ejemplo <button type="button" class="tok" data-copy="tuemail+qa-membresias-coach@gmail.com">tuemail+qa-membresias-coach@gmail.com</button>. Arranca en «Sin pagos».</li>
+          <li><b>Los pagos no se pueden anular.</b> Registralos solo a QA Membresías: van a quedar en su historial y en los contadores.</li>
+          <li><b>Tipos del seed:</b> «Membresia Diaria» (1 día) y «Membresia Mensual» (30 días). Si no están activos, usá otro de 7 días o menos y otro de más de 7.</li>
+          <li><b>Dos roles a la vez:</b> ventana normal para el entrenador y de incógnito para el admin.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Cómo encararlo</h3>
+        <ul class="tips">
+          <li><b>Seguí el orden de la página.</b> QA Membresías pasa de «Sin pagos» a «Por vencer» y después a «Activa», y los contadores lo van reflejando.</li>
+          <li><b>Anotá los cuatro contadores al empezar</b> (CNT-01): varios casos los comparan.</li>
+          <li><b>Ya están en «Pruebas de membresías»</b> del Admin: que Registrar pago ofrezca solo los tipos activos, el aviso de que el pago no suma los días que quedaban y el tipo «(dado de baja)» en el selector. Acá no se repiten.</li>
+          <li><b>DevTools › Network</b>, filtrado por <code>membership</code>, para ver qué requests salen y qué código responden.</li>
+          <li><b>Lo que hoy no cumple el caso de uso</b> está marcado con un aviso amarillo: TIP-04 (no hay vista agrupada por tipo, es del front) y PAG-07 (se registra un pago con un tipo dado de baja, es del backend, BE-28).</li>
+        </ul>
+      </div>
+    </div>
+  </details>
+
+  <div class="filters" id="filters">
+    <div class="chips" id="f-status" role="group" aria-label="Filtrar por resultado">
+      <span class="lbl">Resultado</span>
+    </div>
+    <div class="chips" id="f-env" role="group" aria-label="Filtrar por entorno">
+      <span class="lbl">Entorno</span>
+    </div>
+    <nav class="jump" id="jump" aria-label="Ir a un grupo"></nav>
+  </div>
+
+  <main id="groups"></main>
+  <p class="empty" id="empty" hidden>Ningún caso coincide con estos filtros.</p>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const PLAN_NAME = 'Pruebas de membresías del entrenador PowerApp';
+  const PAGE_ID = 'pruebas-membresias-entrenador-powerapp';
+  const DOCS = 'https://github.com/FranCarames/PowerApp-Docs/blob/main/Use%20Cases/';
+  const tok = (t) => `<button type="button" class="tok" data-copy="${t.replace(/"/g, '&quot;')}">${t}</button>`;
+  const ui = (t) => `<span class="ui">«${t}»</span>`;
+
+  const ENVS = { LOCAL: 'Local', RENDER: 'Render', TODOS: 'Cualquiera' };
+  const ENV_FILTERS = [['all', 'Todos'], ['LOCAL', 'Local'], ['RENDER', 'Render']];
+  const STATUSES = [
+    { v: 'ok', label: 'Funciona', ic: '✓' },
+    { v: 'fail', label: 'Falla', ic: '✕' },
+    { v: 'retest', label: 'Re-testear', ic: '↻' },
+  ];
+  const STATUS_LABEL = { ok: 'Funciona', fail: 'Falla', retest: 'Re-testear', none: 'Sin probar' };
+
+  const GROUPS = [
+    { id: 'acc', name: 'Llegar a Membresías', cu: null, sub: 'Los accesos del Entrenador' },
+    { id: 'cnt', name: 'Contadores', cu: 'CU-E-26', file: 'entrenador/CU-E-26-obtener-estado-de-membresias.md' },
+    { id: 'est', name: 'Alumnos por estado', cu: 'CU-E-27', file: 'entrenador/CU-E-27-obtener-alumnos-por-estado-de-membresia.md' },
+    { id: 'tip', name: 'Alumnos por tipo', cu: 'CU-E-25 y CU-E-28', file: 'entrenador/CU-E-28-obtener-alumnos-por-tipo-de-membresia.md' },
+    { id: 'pag', name: 'Registrar pago', cu: 'CU-E-29', file: 'entrenador/CU-E-29-registrar-pago-de-alumno.md' },
+    { id: 'err', name: 'Errores y pantallas', cu: null, sub: 'Servidor caído, celular, escritorio y teclado' },
+    { id: 'cie', name: 'Cierre', cu: null, sub: 'Dejar los datos de prueba identificados' },
+  ];
+
+  const CASES = [
+    // ── Llegar a Membresías ─────────────────────────────────
+    { id: 'ACC-01', g: 'acc', t: 'Desde Mis alumnos', env: ['TODOS'],
+      data: 'Tu cuenta real de entrenador.',
+      steps: ['En Mis alumnos, mirá el botón de la billetera de la barra superior y su número.', 'Tocalo.'],
+      exp: `<p>El número es la suma de los alumnos por vencer y vencidos, y el lector lo anuncia como ${ui('Control de membresías: N requieren atención')}. Abre <code>/c/membresias</code> con ${ui('Organización')} arriba, el título ${ui('Membresías')} y ${ui('Volver')}, que lleva a <code>/c/alumnos</code>. En el celular sigue marcada la tab Alumnos.</p>` },
+    { id: 'ACC-02', g: 'acc', t: 'Los otros accesos', env: ['TODOS'],
+      steps: ['En escritorio, entrá desde la barra lateral › Organización › Membresías.', `Entrá desde Mi cuenta › ${ui('Control de membresías')}.`],
+      exp: '<p>Los dos llevan a <code>/c/membresias</code>.</p>' },
+    { id: 'ACC-03', g: 'acc', t: 'Solo para el entrenador', env: ['TODOS'],
+      steps: ['Como alumno, escribí <code>/c/membresias</code> y <code>/c/pago</code> en la barra.'],
+      exp: '<p>Las dos vuelven a <code>/u/plan</code>.</p>' },
+
+    // ── Contadores ──────────────────────────────────────────
+    { id: 'CNT-01', g: 'cnt', t: 'Los cuatro contadores', env: ['TODOS'],
+      steps: ['Anotá los contadores.', 'Tocá cada chip de estado y contá las tarjetas.'],
+      exp: `<p>Cuatro contadores: ${ui('Activas')} en verde, ${ui('Por vencer')} en amarillo, ${ui('Vencidas')} en rojo y ${ui('Sin pagos')}. Cada uno coincide con la cantidad de tarjetas de su chip. <code>GET /membership/status/summary</code> responde 200. (CU-E-26, pasos 2 y 3)</p>` },
+    { id: 'CNT-02', g: 'cnt', t: 'No dependen de los filtros', env: ['TODOS'],
+      steps: ['Buscá un nombre, elegí un chip y un tipo.'],
+      exp: '<p>Los contadores no cambian: son de todos los alumnos.</p>' },
+    { id: 'CNT-03', g: 'cnt', t: 'El alumno de prueba sin pagos', env: ['TODOS'],
+      steps: ['Recargá Membresías después de registrar a QA Membresías.'],
+      exp: `<p>${ui('Sin pagos')} subió uno respecto de lo que anotaste en CNT-01.</p>` },
+
+    // ── Alumnos por estado ──────────────────────────────────
+    { id: 'EST-01', g: 'est', t: 'Todas', env: ['TODOS'],
+      steps: [`Con el chip ${ui('Todas')}, recorré la lista.`, 'En Network, mirá qué requests salen.'],
+      exp: `<p>Aparecen todos los alumnos: primero los vencidos (los que vencieron hace más tiempo arriba), después por fecha de vencimiento y al final los que nunca pagaron. Salen cuatro <code>GET /membership/status/users?status=…</code>, uno por estado. (CU-E-27)</p>` },
+    { id: 'EST-02', g: 'est', t: 'Cada estado', env: ['TODOS'],
+      steps: [`Tocá ${ui('Activas')}, ${ui('Por vencer')}, ${ui('Vencidas')} y ${ui('Sin pagos')}.`, 'Con un chip elegido, recargá la página.'],
+      exp: '<p>Cada chip muestra solo los alumnos de ese estado y sale un solo request con ese estado. El chip queda en la dirección (<code>?estado=…</code>) y se mantiene al recargar. (CU-E-27, pasos 1 a 3)</p>' },
+    { id: 'EST-03', g: 'est', t: 'La tarjeta de cada alumno', env: ['TODOS'],
+      steps: ['Recorré una tarjeta de cada estado.'],
+      exp: `<ul><li>Nombre, el tipo de su último pago (o ${ui('Sin membresía')}) y la píldora del estado.</li><li>Abajo, ${ui('Vence')} con la fecha y los días que faltan, como «15 Nov 2026 · 23 días» u «hoy», o ${ui('Venció')} con ${ui('hace N días')} en rojo. Sin pagos: ${ui('Todavía no registró pagos')}.</li><li>El botón dice ${ui('Renovar')} en las vencidas y ${ui('Registrar pago')} en el resto.</li></ul>` },
+    { id: 'EST-04', g: 'est', t: 'Un estado sin alumnos', env: ['TODOS'],
+      data: 'Un estado cuyo contador esté en 0. Si ninguno lo está, marcá Re-testear.',
+      steps: ['Tocá el chip de ese estado.'],
+      exp: `<p>${ui('No hay alumnos en este estado.')} (CU-E-27, caminos alternativos)</p>` },
+    { id: 'EST-05', g: 'est', t: 'Buscar por nombre o email', env: ['TODOS'],
+      steps: [`Buscá ${tok('membresias')}, sin tilde.`, 'Buscá parte del email de un alumno.', `Buscá ${tok('zzz')}.`],
+      exp: `<p>Sin tilde encuentra a QA Membresías, y también encuentra por email. La búsqueda se combina con el chip y no manda requests. Con zzz: ${ui('Sin coincidencias')} y ${ui('No hay alumnos que coincidan con la búsqueda o el tipo elegidos.')}</p>` },
+    { id: 'EST-06', g: 'est', t: 'Una cuenta inactiva', env: ['TODOS'],
+      data: 'Un alumno con la cuenta cerrada (lo ves Inactivo en Mis alumnos).',
+      steps: ['Buscalo en Membresías.'],
+      exp: '<p>Aparece en su estado y cuenta en los contadores, sin ninguna marca de cuenta inactiva. Anotalo si te parece que debería distinguirse.</p>' },
+
+    // ── Alumnos por tipo ────────────────────────────────────
+    { id: 'TIP-01', g: 'tip', t: 'Los tipos de membresía', env: ['TODOS'],
+      steps: ['Desplegá el selector de tipo.'],
+      exp: `<p>Arranca en ${ui('Todos los tipos de membresía')} y lista los tipos que cargó el Admin, los mismos de <code>GET /membership/all</code>. (CU-E-25, pasos 2 y 3)</p>` },
+    { id: 'TIP-02', g: 'tip', t: 'Filtrar por tipo', env: ['TODOS'],
+      steps: ['Elegí «Membresia Mensual».', 'Combinalo con el chip Vencidas.', 'Recargá la página.'],
+      exp: '<p>Quedan solo los alumnos cuyo último pago es de ese tipo, y el chip se suma al filtro. No sale ningún request al elegir el tipo. Al recargar, el tipo vuelve a Todos: a diferencia del chip y la búsqueda, no queda en la dirección. (CU-E-28, pasos 1 a 3)</p>' },
+    { id: 'TIP-03', g: 'tip', t: 'Un tipo sin alumnos', env: ['TODOS'],
+      data: 'Un tipo que nadie tenga en su último pago.',
+      steps: ['Elegilo con el chip Todas.'],
+      exp: `<p>${ui('Sin coincidencias')} y ${ui('No hay alumnos que coincidan con la búsqueda o el tipo elegidos.')} (CU-E-28, caminos alternativos)</p>` },
+    { id: 'TIP-04', g: 'tip', t: 'Todos agrupados por tipo', env: ['TODOS'],
+      steps: [`Con ${ui('Todos los tipos de membresía')}, buscá cómo ver a los alumnos agrupados por su tipo.`],
+      exp: '<p>Se pueden ver todos los alumnos agrupados por tipo de membresía. (CU-E-28, pasos 1 y 3)</p>',
+      kt: 'Hoy no cumple el CU.', known: 'Con «Todos los tipos» la lista va ordenada por vencimiento y cada tarjeta dice su tipo, pero no hay una vista agrupada. El backend ya agrupa (<code>GET /membership/type/users</code> sin <code>membership_id</code>) y el front no lo usa. Marcalo Falla; es un ajuste del front, o del CU si te alcanza con el selector.' },
+
+    // ── Registrar pago ──────────────────────────────────────
+    { id: 'PAG-01', g: 'pag', t: 'La pantalla sin alumno', env: ['TODOS'],
+      steps: [`En Membresías, tocá ${ui('Registrar nuevo pago')}.`],
+      exp: `<p>Abre <code>/c/pago</code> con ${ui('Membresías')} arriba, el título ${ui('Registrar pago')} y ${ui('Volver')}, que lleva a <code>/c/membresias</code>. En ${ui('Alumno')} hay un buscador ${ui('Buscar alumno por nombre o email')} y la lista de alumnos; debajo, ${ui('Elegí un alumno para elegir su tipo de membresía.')}</p>` },
+    { id: 'PAG-02', g: 'pag', t: 'Elegir y cambiar el alumno', env: ['TODOS'],
+      steps: ['Buscá QA Membresías y elegilo.', `Tocá ${ui('Cambiar')} y volvé a elegirlo.`],
+      exp: `<p>Arriba pasa a decir su nombre y queda solo su fila, con ${ui('Cambiar')}. El tipo arranca en ${ui('Elegí un tipo de membresía')}, porque no tiene pagos; ${ui('Monto')} dice «–» y ${ui('Fecha de pago')}, ${ui('Hoy')}, los dos de solo lectura. ${ui('Confirmar pago')} está apagado hasta elegir un tipo. (CU-E-29, paso 1)</p>` },
+    { id: 'PAG-03', g: 'pag', t: 'Registrar un pago', env: ['TODOS'],
+      steps: [`Elegí ${ui('Membresia Diaria · 1 día')}.`, 'Leé el resumen.', `Tocá ${ui('Confirmar pago')}.`, 'En Network, mirá el body del request.'],
+      exp: `<ul><li>${ui('Monto')} pasa a ${ui('$3.000')} y aparece el resumen: ${ui('Membresía')}, ${ui('Vigencia')} de hoy a mañana y ${ui('Total')}.</li><li>Al confirmar: ${ui('Pago registrado · QA Membresías')} y vuelve a <code>/c/membresias</code>. QA Membresías aparece en Por vencer: ${ui('Sin pagos')} baja uno y ${ui('Por vencer')} sube uno. (CU-E-29, pasos 2 a 4)</li><li><code>POST /membership/payment/register</code> responde 201 y el body lleva solo <code>user_id</code> y <code>membership_id</code>.</li></ul>` },
+    { id: 'PAG-04', g: 'pag', t: 'Renovar arranca con el mismo tipo', env: ['TODOS'],
+      steps: [`En la tarjeta de QA Membresías, tocá ${ui('Registrar pago')}.`, `Cambiá a ${ui('Membresia Mensual · 30 días')} y confirmá.`],
+      exp: `<p>Abre <code>/c/pago?alumno={id}</code> con QA Membresías ya elegido y el tipo de su último pago, Membresia Diaria, ya puesto. Al confirmar con Mensual, pasa a Activas con vencimiento a 30 días, y los contadores se actualizan: ${ui('Por vencer')} baja uno y ${ui('Activas')} sube uno. (CU-E-29, paso 4)</p>` },
+    { id: 'PAG-05', g: 'pag', t: 'Doble envío', env: ['TODOS'],
+      steps: ['Elegí a QA Membresías y un tipo, y hacé doble clic rápido en Confirmar pago.', 'Abrí su historial de pagos desde su ficha.'],
+      exp: '<p>Sale un solo POST, el botón muestra que está cargando y en el historial hay un solo pago nuevo.</p>' },
+    { id: 'PAG-06', g: 'pag', t: 'Alguien que no es alumno', env: ['TODOS'],
+      steps: ['Abrí <code>/c/pago?alumno=</code> seguido del id de tu cuenta de entrenador (sale de <code>powerapp.session</code> en Local Storage).', 'Abrí <code>/c/pago?alumno=abc</code>.'],
+      exp: `<p>Con el entrenador: ${ui('… no es un alumno: solo se registran pagos de alumnos.')} Con abc: ${ui('No encontramos al alumno que elegiste.')} En los dos queda el buscador para elegir otro alumno y no se puede confirmar nada. (CU-E-29, caminos alternativos)</p>` },
+    { id: 'PAG-07', g: 'pag', t: 'Un tipo dado de baja mientras tanto', env: ['TODOS'],
+      data: `Como admin, creá el tipo ${tok('QA Tipo baja')}, de ${tok('48')} días y precio ${tok('1000')}. Si ya hay un tipo de 48 días, usá otra duración libre.`,
+      steps: ['Como entrenador, recargá Registrar pago, elegí a QA Membresías y QA Tipo baja, sin confirmar.', 'En incógnito, como admin, dale de baja a QA Tipo baja.', 'Como entrenador, tocá Confirmar pago.'],
+      exp: '<p>El pago no se registra y aparece un aviso de que el tipo ya no es válido, por ejemplo «Ese tipo de membresía ya no existe. Elegí otro.» (CU-E-29, caminos alternativos)</p>',
+      kt: 'Hoy no cumple el CU.', known: 'El backend no mira si el tipo está activo (BE-28) y el front solo lo filtra al cargar la lista, así que el pago se registra con un tipo dado de baja. Marcalo Falla; el arreglo es del backend, en BE-28.' },
+    { id: 'PAG-08', g: 'pag', t: 'Un alumno con la cuenta cerrada', env: ['TODOS'],
+      data: 'El alumno de EST-06, con la cuenta cerrada.',
+      steps: ['En Registrar pago, buscalo y elegilo. No confirmes.'],
+      exp: `<p>En la lista lleva la píldora ${ui('Inactivo')}. Al elegirlo aparece ${ui('La cuenta está inactiva. El pago se registra igual, pero no va a poder ingresar hasta que la reactives.')}</p>` },
+
+    // ── Errores y pantallas ─────────────────────────────────
+    { id: 'ERR-01', g: 'err', t: 'Servidor caído al cargar', env: ['LOCAL'],
+      steps: ['Apagá el backend local y recargá Membresías.', 'Recargá Mis alumnos y mirá el botón de la billetera.', `Prendelo y tocá ${ui('Reintentar')} en Membresías.`],
+      exp: `<p>Membresías muestra ${ui('No pudimos cargar los datos')} con Reintentar, y los contadores quedan en «–». En Mis alumnos, la billetera queda sin número. Con el backend prendido, Reintentar repite lo que falló y carga la lista.</p>` },
+    { id: 'ERR-02', g: 'err', t: 'Servidor caído al confirmar', env: ['LOCAL'],
+      steps: ['En Registrar pago, elegí a QA Membresías y un tipo.', 'Apagá el backend y confirmá.', 'Prendelo y confirmá otra vez.'],
+      exp: `<p>Aviso rojo arriba del botón, por ejemplo ${ui('No pudimos conectarnos con el servidor. Revisá tu conexión e intentá de nuevo.')}, y la pantalla no cambia. Con el backend prendido se registra.</p>` },
+    { id: 'ERR-03', g: 'err', t: 'Celular y escritorio', env: ['TODOS'],
+      steps: ['Recorré Membresías y Registrar pago en el celular, o en DevTools a 390 px.', 'Repetí en escritorio.'],
+      exp: '<ul><li>Sin scroll horizontal ni textos cortados. Los cuatro contadores entran y los chips se acomodan.</li><li>Un nombre largo no rompe la tarjeta y el botón Renovar o Registrar pago queda a la vista.</li><li>En escritorio, las tarjetas van en dos columnas.</li></ul>' },
+    { id: 'ERR-04', g: 'err', t: 'Teclado y lector de pantalla', env: ['TODOS'],
+      steps: ['Recorré Membresías y Registrar pago solo con Tab y Enter.'],
+      exp: '<p>El foco siempre se ve. Los chips, el selector de tipo y los botones de cada tarjeta se usan con el teclado, y el selector se anuncia como «Tipo de membresía».</p>' },
+
+    // ── Cierre ──────────────────────────────────────────────
+    { id: 'CIE-01', g: 'cie', t: 'Dejar los datos de prueba identificados', env: ['TODOS'],
+      steps: ['Como admin, renombrá QA Tipo baja con «QA (no usar)» adelante y dejalo dado de baja.', 'Si no vas a usar más a QA Membresías, cerrá su cuenta desde su ficha.'],
+      exp: '<p>No queda ningún tipo QA activo. Los pagos de prueba quedan, porque el backend no permite borrarlos.</p>' },
+  ];
+
+  // ── Estado ────────────────────────────────────────────────
+  const LOCAL_KEY = 'powerapp.pruebas-membresias-entrenador.v1';
+  const blank = () => ({ status: null, note: '', at: null });
+  const state = Object.fromEntries(CASES.map((c) => [c.id, blank()]));
+  let db = null;
+  let mode = 'connecting'; // connecting | db | local | error
+  let fStatus = 'all';
+  let fEnv = 'all';
+  const writing = new Set();
+  const dirty = new Set();
+  const pending = new Set();
+  const noteTimers = {};
+
+  const $ = (s, el = document) => el.querySelector(s);
+  const statusOf = (id) => state[id].status || 'none';
+
+  function fmtWhen(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+
+  // ── Render estático ──────────────────────────────────────
+  function caseHtml(c) {
+    const envs = c.env.map((e) => `<span class="tag t-${e}">${ENVS[e]}</span>`).join('');
+    const steps = c.steps.map((s) => `<li>${s}</li>`).join('');
+    const seg = STATUSES.map((s) => `<button type="button" class="sb v-${s.v}" data-v="${s.v}" aria-pressed="false"><span class="ic" aria-hidden="true">${s.ic}</span>${s.label}</button>`).join('');
+    return `<article class="case" id="case-${c.id}" data-id="${c.id}" data-status="none">
+      <div class="chead"><span class="cid">${c.id}</span><h3>${c.t}</h3><div class="ctags">${envs}<span class="pill" data-pill>Sin probar</span></div></div>
+      ${c.data ? `<p class="cdata"><b>Datos:</b> ${c.data}</p>` : ''}
+      <div class="cbody"><div><h4>Cómo probarlo</h4><ol class="steps">${steps}</ol></div><div class="expect"><h4>Qué tenés que ver</h4>${c.exp}</div></div>
+      ${c.known ? `<div class="known" role="note"><span><b>${c.kt || 'Hoy falla.'}</b> ${c.known}</span></div>` : ''}
+      <div class="cfoot">
+        <div class="seg" role="group" aria-label="Resultado de ${c.id}">${seg}</div>
+        <div class="notewrap">
+          <label class="when" for="note-${c.id}"><span data-when>Sin marcar</span></label>
+          <textarea class="note" id="note-${c.id}" rows="1" placeholder="Qué viste, si algo no coincide (opcional)"></textarea>
+        </div>
+      </div>
+    </article>`;
+  }
+
+  function renderStatic() {
+    const root = $('#groups');
+    root.innerHTML = GROUPS.map((g) => {
+      const cases = CASES.filter((c) => c.g === g.id);
+      const cu = g.cu ? `<a class="cu" href="${DOCS}${g.file}" target="_blank" rel="noopener">${g.cu}</a>` : '';
+      return `<section class="group" id="${g.id}" data-g="${g.id}">
+        <div class="ghead"><h2>${g.name}</h2>${cu}${g.sub ? `<span class="gsub">${g.sub}</span>` : ''}<span class="gprog" data-gprog></span></div>
+        <div class="cases">${cases.map(caseHtml).join('')}</div>
+      </section>`;
+    }).join('');
+
+    $('#jump').innerHTML = GROUPS.map((g) => `<a href="#${g.id}" data-jump="${g.id}">${g.name}<span class="p" data-jp></span></a>`).join('');
+
+    const st = $('#f-status');
+    [['all', 'Todos'], ['none', 'Sin probar'], ['fail', 'Falla'], ['retest', 'Re-testear'], ['ok', 'Funciona']].forEach(([v, l]) => {
+      st.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-fs="${v}" aria-pressed="${v === 'all'}">${l}<span class="k" data-k="${v}"></span></button>`);
+    });
+    const en = $('#f-env');
+    ENV_FILTERS.forEach(([v, l]) => {
+      en.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-fe="${v}" aria-pressed="${v === 'all'}">${l}</button>`);
+    });
+  }
+
+  // ── Render dinámico ──────────────────────────────────────
+  function updateCard(id) {
+    const card = document.getElementById('case-' + id);
+    if (!card) return;
+    const s = state[id];
+    const st = statusOf(id);
+    card.dataset.status = st;
+    card.querySelectorAll('.sb').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === s.status)));
+    const pill = card.querySelector('[data-pill]');
+    pill.textContent = STATUS_LABEL[st];
+    pill.className = 'pill' + (st === 'none' ? '' : ' s-' + st);
+    const ta = card.querySelector('.note');
+    if (document.activeElement !== ta && ta.value !== s.note) ta.value = s.note;
+    card.querySelector('[data-when]').textContent = s.at ? 'Actualizado ' + fmtWhen(s.at) : 'Sin marcar';
+  }
+
+  function visible(c) {
+    const st = statusOf(c.id);
+    if (fStatus !== 'all' && st !== fStatus) return false;
+    if (fEnv !== 'all' && !c.env.includes(fEnv) && !c.env.includes('TODOS')) return false;
+    return true;
+  }
+
+  function applyFilters() {
+    let any = false;
+    GROUPS.forEach((g) => {
+      let shown = 0;
+      CASES.filter((c) => c.g === g.id).forEach((c) => {
+        const v = visible(c);
+        document.getElementById('case-' + c.id).hidden = !v;
+        if (v) shown++;
+      });
+      document.getElementById(g.id).hidden = shown === 0;
+      if (shown) any = true;
+    });
+    $('#empty').hidden = any;
+  }
+
+  function updateSummary() {
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const total = CASES.length;
+    ['ok', 'fail', 'retest', 'none'].forEach((k) => { $('#n-' + k).textContent = n[k]; });
+    ['ok', 'fail', 'retest'].forEach((k) => { $('#b-' + k).style.width = (n[k] / total * 100) + '%'; });
+    $('#bar').setAttribute('aria-label', `${total - n.none} de ${total} casos probados: ${n.ok} funcionan, ${n.fail} fallan, ${n.retest} para re-testear`);
+    document.querySelectorAll('[data-k]').forEach((el) => {
+      const k = el.dataset.k;
+      el.textContent = k === 'all' ? total : n[k];
+    });
+    GROUPS.forEach((g) => {
+      const cs = CASES.filter((c) => c.g === g.id);
+      const done = cs.filter((c) => statusOf(c.id) !== 'none').length;
+      const fails = cs.filter((c) => statusOf(c.id) === 'fail').length;
+      const txt = `${done}/${cs.length} probados${fails ? ` · ${fails} con falla` : ''}`;
+      document.getElementById(g.id).querySelector('[data-gprog]').textContent = txt;
+      document.querySelector(`[data-jump="${g.id}"] [data-jp]`).textContent = `${done}/${cs.length}`;
+    });
+  }
+
+  function refreshAll() {
+    CASES.forEach((c) => updateCard(c.id));
+    updateSummary();
+    applyFilters();
+  }
+
+  function setSave(kind, text) {
+    const el = $('#save');
+    el.className = 'save' + (kind ? ' is-' + kind : '');
+    $('#save-t').textContent = text;
+  }
+
+  // ── Guardado ─────────────────────────────────────────────
+  function saveLocal() {
+    try { localStorage.setItem(LOCAL_KEY, JSON.stringify(state)); } catch { /* sin storage: queda en memoria */ }
+  }
+  function loadLocal() {
+    try {
+      const raw = localStorage.getItem(LOCAL_KEY);
+      if (!raw) return;
+      const v = JSON.parse(raw);
+      Object.keys(state).forEach((id) => { if (v && v[id]) state[id] = normalize(v[id]); });
+    } catch { /* ignorar */ }
+  }
+  function normalize(v) {
+    const okStatus = ['ok', 'fail', 'retest'].includes(v.status) ? v.status : null;
+    return { status: okStatus, note: typeof v.note === 'string' ? v.note : '', at: typeof v.at === 'string' ? v.at : null };
+  }
+
+  const DB_OK = 'Guardado en el artefacto: lo ves desde cualquier dispositivo.';
+  const LOCAL_ONLY = 'Solo en este navegador: no se ve desde otro dispositivo y se pierde si borrás los datos de navegación. Exportá los resultados a un JSON para conservarlos.';
+
+  // Siempre queda una copia en el navegador; en el artefacto, además, se sube.
+  async function persist(id) {
+    saveLocal();
+    if (mode !== 'db') return;
+    pending.add(id);
+    if (writing.has(id)) { dirty.add(id); return; }
+    writing.add(id);
+    setSave('db', 'Guardando…');
+    try {
+      do {
+        dirty.delete(id);
+        const s = state[id];
+        await db.doc('results/' + id).set({ status: s.status, note: s.note, at: s.at });
+      } while (dirty.has(id));
+      setSave('db', DB_OK);
+    } catch (e) {
+      setSave('err', 'No se pudo guardar el último cambio en el artefacto. Quedó en este navegador: volvé a marcarlo en un momento.');
+    } finally {
+      writing.delete(id);
+      pending.delete(id);
+    }
+  }
+
+  // Por cada caso gana el resultado más reciente, venga del navegador o del artefacto.
+  const isNewer = (a, b) => Boolean(a.at) && (!b.at || a.at > b.at);
+
+  async function uploadNewer() {
+    const remote = {};
+    try {
+      const snap = await db.collection('results').get();
+      snap.docs.forEach((d) => { const v = d.data(); if (v) remote[d.id] = normalize(v); });
+    } catch {
+      setSave('err', 'No se pudo comparar con el artefacto. Lo que marques queda en este navegador.');
+      return;
+    }
+    const ids = CASES.map((c) => c.id).filter((id) => {
+      const s = state[id];
+      if (!s.status && !s.note) return false;
+      return !remote[id] || isNewer(s, remote[id]);
+    });
+    if (!ids.length) { setSave('db', DB_OK); return; }
+    setSave('db', `Subiendo ${ids.length} resultados de este navegador al artefacto…`);
+    for (const id of ids) await persist(id);
+  }
+
+  async function initStore() {
+    let ns = null;
+    try {
+      ns = window.claude && typeof window.claude.use === 'function' ? await window.claude.use('db') : null;
+    } catch { ns = null; }
+    if (!ns) {
+      mode = 'local';
+      setSave('local', LOCAL_ONLY);
+      return;
+    }
+    db = ns;
+    mode = 'db';
+    setSave('db', 'Sincronizando…');
+    let synced = false;
+    db.collection('results').onSnapshot((snap) => {
+      snap.docs.forEach((d) => {
+        if (!state[d.id] || pending.has(d.id)) return;
+        const v = d.data();
+        if (!v) return;
+        const r = normalize(v);
+        if (!state[d.id].at || !isNewer(state[d.id], r)) state[d.id] = r;
+      });
+      refreshAll();
+      if (!synced) { synced = true; uploadNewer(); }
+      else if (!writing.size) setSave('db', DB_OK);
+    }, () => {
+      mode = 'local';
+      setSave('err', 'Se perdió la conexión con el artefacto. Lo que marques ahora queda solo en este navegador.');
+    });
+  }
+
+  // ── Eventos ──────────────────────────────────────────────
+  function copyText(text, onDone) {
+    const fallback = () => {
+      const box = $('#copy-fall');
+      const ta = $('#copy-fall-t');
+      ta.value = text;
+      box.hidden = false;
+      ta.focus();
+      ta.select();
+    };
+    try {
+      navigator.clipboard.writeText(text).then(onDone, fallback);
+    } catch { fallback(); }
+  }
+
+  function buildSummary() {
+    const today = new Date().toLocaleDateString('es-AR');
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const lines = [`${PLAN_NAME} · ${today}`, `Funciona ${n.ok} · Falla ${n.fail} · Re-testear ${n.retest} · Sin probar ${n.none}`];
+    [['fail', 'Falla'], ['retest', 'Re-testear']].forEach(([k, label]) => {
+      const cs = CASES.filter((c) => statusOf(c.id) === k);
+      if (!cs.length) return;
+      lines.push('', label);
+      cs.forEach((c) => {
+        const note = state[c.id].note.trim();
+        lines.push(`- ${c.id} ${c.t}${note ? ': ' + note.replace(/\s+/g, ' ') : ''}`);
+      });
+    });
+    if (!n.fail && !n.retest) lines.push('', 'Sin fallas ni casos para re-testear.');
+    return lines.join('\n');
+  }
+
+  // ── Exportar / importar resultados (JSON para versionar en el repo) ──
+  const PLAN_ID = PAGE_ID.replace(/-powerapp$/, '');
+  const EXPORT_VERSION = 1;
+  // Nombre listo para el repo: <N>-<plan>.resultados.json, con N = la tanda que sigue a las que lista Tests/README.md
+  // (ver loadFromRepo). Si no se pudo leer ese índice (file://, sin red) no se sabe N: se usa la fecha, que no pisa nada.
+  let nextRun = null;
+  const exportFileName = () => {
+    if (nextRun) return `${nextRun}-${PLAN_ID}.resultados.json`;
+    const d = new Date();
+    const p = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}-${PLAN_ID}.resultados.json`;
+  };
+
+  function buildExport() {
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const results = {};
+    CASES.forEach((c) => {
+      const s = state[c.id];
+      results[c.id] = { title: c.t, status: s.status, note: s.note, at: s.at };
+    });
+    return { plan: PLAN_ID, version: EXPORT_VERSION, exportedAt: new Date().toISOString(), summary: { total: CASES.length, ...n }, results };
+  }
+
+  function showIo(kind, text) {
+    const el = $('#io-msg');
+    el.className = 'iomsg' + (kind ? ' is-' + kind : '');
+    el.textContent = text;
+    el.hidden = false;
+  }
+
+  function exportResults() {
+    const file = exportFileName();
+    const blob = new Blob([JSON.stringify(buildExport(), null, 2) + '\n'], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    const folder = decodeURIComponent(location.pathname.split('/').slice(-2, -1)[0] || '');
+    const where = folder ? `Tests/${folder}/` : 'la carpeta de este plan en Tests/';
+    if (nextRun) {
+      const line = `  - [Tanda ${nextRun}](${encodeURIComponent(folder)}/${file})`;
+      showIo('ok', `Descargué ${file}. Guardalo en ${where} y, si querés que quede en el sitio, sumá esta línea bajo este plan en Tests/README.md: ${line.trim()}`);
+    } else {
+      showIo('ok', `Descargué ${file}. Guardalo en ${where} y, si querés que quede en el sitio, sumalo como sub-bullet bajo este plan en Tests/README.md.`);
+    }
+  }
+
+  // Combina por caso: gana el resultado con la fecha (at) más reciente, así no se pierde nada de lo marcado acá.
+  const stamp = (iso) => { const t = iso ? Date.parse(iso) : NaN; return Number.isNaN(t) ? -Infinity : t; };
+
+  // Devuelve un mensaje de error si el JSON no es un export de este plan, o null si está bien.
+  function checkResults(data) {
+    if (!data || typeof data !== 'object' || data.plan !== PLAN_ID || !data.results || typeof data.results !== 'object') {
+      return `Ese archivo no corresponde a este plan (esperaba plan «${PLAN_ID}»).`;
+    }
+    if (typeof data.version !== 'number' || data.version > EXPORT_VERSION) {
+      return 'El archivo es de una versión más nueva del plan y no sé leerlo.';
+    }
+    return null;
+  }
+
+  function mergeResults(data) {
+    const changed = [];
+    let newer = 0;
+    CASES.forEach((c) => {
+      const src = data.results[c.id];
+      if (!src || typeof src !== 'object') return;
+      const inc = normalize(src);
+      if (!inc.status && !inc.note) return;
+      const cur = state[c.id];
+      if (inc.status === cur.status && inc.note === cur.note && inc.at === cur.at) return;
+      if (stamp(inc.at) > stamp(cur.at)) { state[c.id] = inc; changed.push(c.id); } else newer++;
+    });
+    const unknown = Object.keys(data.results).filter((id) => !state[id]).length;
+    changed.forEach((id) => persist(id));
+    refreshAll();
+    return { changed: changed.length, newer, unknown };
+  }
+
+  async function importResults(file) {
+    let data;
+    try {
+      data = JSON.parse(await file.text());
+    } catch {
+      showIo('err', 'No pude leer el archivo: no es un JSON válido.');
+      return;
+    }
+    const bad = checkResults(data);
+    if (bad) { showIo('err', bad); return; }
+    const { changed, newer, unknown } = mergeResults(data);
+
+    const parts = [];
+    if (changed) {
+      const when = data.exportedAt ? fmtWhen(data.exportedAt) : '';
+      parts.push(`Importé ${changed} ${changed === 1 ? 'caso' : 'casos'}${when ? ' (exportado el ' + when + ')' : ''}.`);
+    } else if (newer) {
+      parts.push('No cambié nada: lo que tenés acá es más reciente que el archivo.');
+    } else {
+      parts.push('El archivo no trae nada nuevo: ya tenés esos resultados.');
+    }
+    if (changed && newer) parts.push(newer === 1 ? 'Dejé 1 caso que acá ya tenía un resultado más reciente.' : `Dejé ${newer} casos que acá ya tenían un resultado más reciente.`);
+    if (unknown) parts.push(unknown === 1 ? 'Ignoré 1 caso que ya no está en el plan.' : `Ignoré ${unknown} casos que ya no están en el plan.`);
+    showIo(changed ? 'ok' : '', parts.join(' '));
+  }
+
+  // ── Resultados guardados en el repo ──────────────────────
+  // Tests/README.md lista las tandas de cada plan (sub-bullets bajo el plan; la última es la más reciente).
+  // Al abrir el plan se busca su entrada, se baja ese JSON y se combina con lo local (gana la fecha más nueva).
+  function runsOf(md, readmeUrl, pageKey) {
+    let inFence = false;
+    let mine = false;
+    const runs = [];
+    md.split(/\r?\n/).forEach((line) => {
+      if (/^\s*```/.test(line)) { inFence = !inFence; return; }
+      if (inFence) return;
+      const plan = /^-\s+\[[^\]]+\]\(([^)]+)\)/.exec(line);
+      if (plan) {
+        const u = new URL(plan[1], readmeUrl);
+        mine = u.origin + u.pathname === pageKey;
+        return;
+      }
+      const run = /^\s+-\s+\[([^\]]+)\]\(([^)]+)\)/.exec(line);
+      if (run && mine) runs.push({ label: run[1], url: new URL(run[2], readmeUrl).href });
+    });
+    return runs;
+  }
+
+  // Número de la próxima tanda: el mayor entre la cantidad de tandas listadas y el prefijo numérico más alto
+  // de sus archivos (1-…, 2-…); los nombres con fecha (2026-…) no cuentan como número.
+  function nextRunNumber(runs) {
+    let max = runs.length;
+    runs.forEach((r) => {
+      const m = /^(\d{1,3})-/.exec(decodeURIComponent(r.url.split('/').pop() || ''));
+      if (m) max = Math.max(max, Number(m[1]));
+    });
+    return max + 1;
+  }
+
+  async function loadFromRepo() {
+    try {
+      const readmeUrl = new URL('../README.md', location.href).href;
+      const res = await fetch(readmeUrl, { cache: 'no-cache' });
+      if (!res.ok) return;
+      const runs = runsOf(await res.text(), readmeUrl, location.origin + location.pathname);
+      nextRun = nextRunNumber(runs);
+      const last = runs[runs.length - 1];
+      if (!last) return;
+      const r = await fetch(last.url, { cache: 'no-cache' });
+      if (!r.ok) return;
+      const data = await r.json();
+      if (checkResults(data)) return;
+      const { changed } = mergeResults(data);
+      if (changed) {
+        const when = data.exportedAt ? fmtWhen(data.exportedAt) : '';
+        showIo('ok', `Cargué ${changed} ${changed === 1 ? 'caso' : 'casos'} de «${last.label}», la última tanda guardada en el repo${when ? ' (exportada el ' + when + ')' : ''}.`);
+      }
+    } catch { /* sin README ni red (por ejemplo, abierto con file://): queda lo que haya en este navegador */ }
+  }
+
+  document.addEventListener('click', (e) => {
+    const sb = e.target.closest('.sb');
+    if (sb) {
+      const id = sb.closest('.case').dataset.id;
+      const s = state[id];
+      s.status = s.status === sb.dataset.v ? null : sb.dataset.v;
+      s.at = new Date().toISOString();
+      updateCard(id);
+      updateSummary();
+      persist(id);
+      return;
+    }
+    const fs = e.target.closest('[data-fs]');
+    if (fs) {
+      fStatus = fs.dataset.fs;
+      document.querySelectorAll('[data-fs]').forEach((b) => b.setAttribute('aria-pressed', String(b === fs)));
+      applyFilters();
+      return;
+    }
+    const fe = e.target.closest('[data-fe]');
+    if (fe) {
+      fEnv = fe.dataset.fe;
+      document.querySelectorAll('[data-fe]').forEach((b) => b.setAttribute('aria-pressed', String(b === fe)));
+      applyFilters();
+      return;
+    }
+    const t = e.target.closest('.tok');
+    if (t) {
+      copyText(t.dataset.copy, () => {
+        t.classList.add('copied');
+        setTimeout(() => t.classList.remove('copied'), 1200);
+      });
+      return;
+    }
+    if (e.target.closest('#exp-res')) { exportResults(); return; }
+    if (e.target.closest('#imp-res')) { $('#imp-file').click(); return; }
+    if (e.target.closest('#copy-sum')) {
+      const btn = $('#copy-sum');
+      copyText(buildSummary(), () => {
+        btn.textContent = 'Resumen copiado';
+        setTimeout(() => { btn.textContent = 'Copiar resumen de fallas'; }, 1600);
+      });
+    }
+  });
+
+  document.addEventListener('change', (e) => {
+    const inp = e.target.closest && e.target.closest('#imp-file');
+    if (!inp) return;
+    const file = inp.files && inp.files[0];
+    inp.value = '';
+    if (file) importResults(file);
+  });
+
+  document.addEventListener('input', (e) => {
+    const ta = e.target.closest('.note');
+    if (!ta) return;
+    const id = ta.closest('.case').dataset.id;
+    state[id].note = ta.value;
+    clearTimeout(noteTimers[id]);
+    noteTimers[id] = setTimeout(() => {
+      state[id].at = new Date().toISOString();
+      updateCard(id);
+      persist(id);
+    }, 700);
+  });
+  document.addEventListener('focusout', (e) => {
+    const ta = e.target.closest && e.target.closest('.note');
+    if (!ta) return;
+    const id = ta.closest('.case').dataset.id;
+    if (noteTimers[id]) {
+      clearTimeout(noteTimers[id]);
+      noteTimers[id] = null;
+      state[id].at = new Date().toISOString();
+      updateCard(id);
+      persist(id);
+    }
+  });
+
+  const prep = $('#prep');
+  try { if (localStorage.getItem(LOCAL_KEY + '.prep') === 'closed') prep.open = false; } catch { /* ignorar */ }
+  prep.addEventListener('toggle', () => {
+    try { localStorage.setItem(LOCAL_KEY + '.prep', prep.open ? 'open' : 'closed'); } catch { /* ignorar */ }
+  });
+
+  renderStatic();
+  loadLocal();
+  refreshAll();
+  initStore().then(loadFromRepo);
+})();
+</script>
+
+
+</body></html>

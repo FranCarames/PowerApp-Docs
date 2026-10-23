@@ -214,6 +214,13 @@ Validaciones de las tres operaciones (§5.6 a §5.8), en este orden:
 
 ### 5.7 Marcar, y dejar o editar la nota — `POST /routine/assign-plan/:userPlanificationId/:routineAsignationId/finished` (U-12, U-13)
 
+> **23/10:** implementado en BE-20c ([plan](../plans/2026-10-23-be-20c-marcar-nota-y-desmarcar-en-el-plan-plan.md)), sin cambios al contrato. La spec no fijaba tres cosas, que quedaron así:
+> - **El orden entre las bajas, cuando no estaba marcado:** primero la pertenencia (`400` «no pertenece»), después el ejercicio o su vínculo sacados (`400` «sacado de la rutina»), y al final la rutina quitada del plan.
+> - **El texto del `400` de la rutina quitada del plan:** `La rutina fue quitada de la planificación: ya no se puede marcar.`
+> - **Los `500`:** `Error al marcar el ejercicio del plan.` y `Error al desmarcar el ejercicio del plan.`
+>
+> Una rutina quitada del plan con algo hecho se sigue pudiendo editar y desmarcar, pero no se le marca nada nuevo.
+
 Body: `{ routine_exercise_id, finished_at?, user_note? }`. `finished_at` es un día; `user_note`, hasta 100 caracteres, y la cadena vacía la borra.
 
 Las validaciones de §5.4, y después:

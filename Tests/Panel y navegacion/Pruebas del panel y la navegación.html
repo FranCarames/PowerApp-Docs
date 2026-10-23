@@ -1,0 +1,932 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Pruebas del panel y la navegación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: una columna de trabajo (máx. 980px). Resumen arriba, barra de filtros fija, casos agrupados por CU. Paleta de PowerApp, dark-first. */
+:root{
+  --bg:#0B0D16; --card:#13161F; --el:#1B1F2E; --line:#232739; --line2:#2E3347;
+  --tx:#F5F1EB; --tx2:#A3ACC2; --tx3:#6B7390;
+  --pri:#FF6B3D; --priS:rgba(232,69,10,.14); --acc:#A78BFA; --accS:rgba(139,92,246,.16);
+  --ok:#3DD47A; --okS:rgba(34,197,94,.14); --warn:#F5B23D; --warnS:rgba(245,158,11,.14); --err:#F26464; --errS:rgba(239,68,68,.14);
+  --none:#6B7390;
+  --fD:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --fB:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --fM:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#F2F3F7; --card:#FFFFFF; --el:#E8EAF1; --line:#D9DCE6; --line2:#C8CCDA;
+    --tx:#141826; --tx2:#47506A; --tx3:#687089;
+    --pri:#C23A07; --priS:rgba(232,69,10,.10); --acc:#6A3FDB; --accS:rgba(139,92,246,.12);
+    --ok:#157A3C; --okS:rgba(34,197,94,.13); --warn:#A25A06; --warnS:rgba(245,158,11,.16); --err:#C42525; --errS:rgba(239,68,68,.11);
+    --none:#8A91A8;
+    color-scheme:light;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#F2F3F7; --card:#FFFFFF; --el:#E8EAF1; --line:#D9DCE6; --line2:#C8CCDA;
+  --tx:#141826; --tx2:#47506A; --tx3:#687089;
+  --pri:#C23A07; --priS:rgba(232,69,10,.10); --acc:#6A3FDB; --accS:rgba(139,92,246,.12);
+  --ok:#157A3C; --okS:rgba(34,197,94,.13); --warn:#A25A06; --warnS:rgba(245,158,11,.16); --err:#C42525; --errS:rgba(239,68,68,.11);
+  --none:#8A91A8;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--tx);font-family:var(--fB);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding-inline:20px;padding-block:28px 72px}
+code,.mono{font-family:var(--fM);font-size:.86em}
+code{background:var(--el);border:1px solid var(--line);border-radius:5px;padding:1px 5px;overflow-wrap:anywhere}
+.ui{color:var(--tx);font-weight:600}
+a{color:var(--acc)}
+a:focus-visible,button:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+h1,h2,h3{text-wrap:balance}
+
+/* Encabezado */
+.mast{display:grid;gap:6px;margin-bottom:22px}
+.eyebrow{font-family:var(--fM);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--pri);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.eyebrow .sep{color:var(--tx3)}
+h1{font-family:var(--fD);font-weight:800;font-size:clamp(34px,6vw,52px);line-height:1;letter-spacing:-.01em;margin:4px 0 0}
+.lede{color:var(--tx2);max-width:66ch;margin:6px 0 0}
+
+/* Resumen */
+.summary{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:14px;margin-bottom:18px}
+.counts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.count{display:grid;gap:2px}
+.count .n{font-family:var(--fD);font-size:34px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.count .l{font-size:12.5px;color:var(--tx2);display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;flex:none}
+.c-ok .n{color:var(--ok)} .c-ok .dot{background:var(--ok)}
+.c-fail .n{color:var(--err)} .c-fail .dot{background:var(--err)}
+.c-retest .n{color:var(--warn)} .c-retest .dot{background:var(--warn)}
+.c-none .n{color:var(--tx2)} .c-none .dot{background:var(--none)}
+.bar{display:flex;height:10px;border-radius:6px;overflow:hidden;background:var(--el)}
+.bar span{height:100%;transition:width .3s ease}
+.bar .b-ok{background:var(--ok)} .bar .b-fail{background:var(--err)} .bar .b-retest{background:var(--warn)}
+.sumfoot{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.save{font-size:12.5px;color:var(--tx3);display:flex;align-items:center;gap:7px}
+.save .dot{background:var(--tx3)}
+.save.is-db .dot{background:var(--ok)} .save.is-err .dot{background:var(--err)} .save.is-local .dot{background:var(--warn)}
+.btn{font:600 13.5px/1 var(--fB);color:var(--tx);background:var(--el);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{border-color:var(--tx3)}
+.btn.pri{background:var(--priS);border-color:var(--pri);color:var(--pri)}
+.copyfall{display:grid;gap:8px}
+.copyfall textarea{width:100%;min-height:140px;font:13px/1.5 var(--fM);background:var(--el);color:var(--tx);border:1px solid var(--line2);border-radius:10px;padding:10px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.save{flex:1 1 260px;min-width:0;align-items:flex-start}
+.save .dot{margin-top:.45em}
+.save.is-local{color:var(--warn)}
+.save.is-err{color:var(--err)}
+.iomsg{margin:0;font-size:12.5px;color:var(--tx2)}
+.iomsg.is-ok{color:var(--ok)} .iomsg.is-err{color:var(--err)}
+
+/* Antes de empezar */
+details.prep{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:18px}
+details.prep>summary{cursor:pointer;list-style:none;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+details.prep>summary::-webkit-details-marker{display:none}
+details.prep>summary h2{font-family:var(--fD);font-weight:700;font-size:24px;margin:0}
+.chev{color:var(--tx3);font-family:var(--fM);font-size:13px}
+details[open] .chev .c-open{display:none} details:not([open]) .chev .c-close{display:none}
+.prep-body{padding:0 18px 18px;display:grid;gap:18px}
+.prep h3{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin:0 0 8px;font-weight:700}
+.envs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.env{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg);display:grid;gap:6px;align-content:start;min-width:0}
+.env p{margin:0;font-size:13.5px;color:var(--tx2)}
+.tag{display:inline-flex;align-items:center;font:700 11px/1 var(--fM);letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border-radius:6px;border:1px solid currentColor;white-space:nowrap}
+.t-LOCAL{color:var(--acc)} .t-DEMO{color:var(--warn)} .t-RENDER{color:var(--pri)} .t-TODOS{color:var(--tx2)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);font-weight:700;background:var(--bg)}
+tr:last-child td{border-bottom:0}
+.tips{margin:0;padding-left:18px;display:grid;gap:6px;color:var(--tx2);font-size:14px}
+.tips b{color:var(--tx)}
+.tok{font:500 12.5px/1.3 var(--fM);color:var(--tx);background:var(--el);border:1px dashed var(--line2);border-radius:6px;padding:2px 6px;cursor:copy;overflow-wrap:anywhere;text-align:left}
+.tok:hover{border-color:var(--acc)}
+.tok.copied{border-style:solid;border-color:var(--ok);color:var(--ok)}
+
+/* Filtros */
+.filters{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;margin-bottom:8px;display:grid;gap:8px;border-bottom:1px solid var(--line)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chips .lbl{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);font-weight:700;margin-right:4px}
+.chip{font:600 12.5px/1 var(--fB);color:var(--tx2);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 11px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.chip .k{font-family:var(--fM);font-size:11px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.chip[aria-pressed="true"]{color:var(--tx);border-color:var(--tx2);background:var(--el)}
+.jump{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.jump a{font:600 12px/1 var(--fB);color:var(--tx2);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:6px 9px;white-space:nowrap;background:var(--card)}
+.jump a:hover{color:var(--tx);border-color:var(--line2)}
+.jump .p{font-family:var(--fM);font-size:11px;color:var(--tx3);margin-left:4px}
+
+/* Grupos y casos */
+.group{margin-top:28px;scroll-margin-top:120px}
+.ghead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:12px}
+.ghead h2{font-family:var(--fD);font-weight:700;font-size:28px;margin:0;line-height:1.1}
+.ghead .cu{font-family:var(--fM);font-size:12.5px;color:var(--pri)}
+.ghead .gsub{color:var(--tx3);font-size:13.5px}
+.ghead .gprog{margin-left:auto;font-family:var(--fM);font-size:12px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.cases{display:grid;gap:12px}
+.case{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:grid;gap:12px;min-width:0}
+.case[data-status="fail"]{border-color:color-mix(in srgb,var(--err) 55%,var(--line))}
+.case[data-status="ok"]{border-color:color-mix(in srgb,var(--ok) 40%,var(--line))}
+.case[data-status="retest"]{border-color:color-mix(in srgb,var(--warn) 50%,var(--line))}
+.chead{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+.cid{font:700 13px/1 var(--fM);color:var(--pri);letter-spacing:.02em}
+.chead h3{font-size:16.5px;font-weight:700;margin:0;flex:1 1 220px;min-width:0}
+.ctags{display:flex;gap:6px;flex-wrap:wrap}
+.pill{font:700 11px/1 var(--fB);letter-spacing:.04em;text-transform:uppercase;padding:5px 8px;border-radius:999px;background:var(--el);color:var(--tx3);white-space:nowrap}
+.pill.s-ok{background:var(--okS);color:var(--ok)} .pill.s-fail{background:var(--errS);color:var(--err)} .pill.s-retest{background:var(--warnS);color:var(--warn)}
+.cdata{margin:0;font-size:14px;color:var(--tx2)}
+.cdata b{color:var(--tx);font-weight:600}
+.cbody{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:14px}
+.cbody h4{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin:0 0 6px;font-weight:700}
+.steps{margin:0;padding-left:20px;display:grid;gap:5px;font-size:14px}
+.steps li::marker{font-family:var(--fM);color:var(--tx3);font-size:12px}
+.expect{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;min-width:0}
+.expect p{margin:0}
+.expect ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.known{display:flex;gap:10px;align-items:flex-start;background:var(--warnS);color:var(--tx);border-radius:10px;padding:10px 12px;font-size:13.5px}
+.known b{color:var(--warn)}
+.cfoot{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px 14px;align-items:start;border-top:1px solid var(--line);padding-top:12px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.sb{font:600 13px/1 var(--fB);color:var(--tx2);background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:9px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;min-height:38px}
+.sb .ic{font-family:var(--fM);font-weight:700}
+.sb:hover{color:var(--tx)}
+.sb.v-ok[aria-pressed="true"]{background:var(--okS);border-color:var(--ok);color:var(--ok)}
+.sb.v-fail[aria-pressed="true"]{background:var(--errS);border-color:var(--err);color:var(--err)}
+.sb.v-retest[aria-pressed="true"]{background:var(--warnS);border-color:var(--warn);color:var(--warn)}
+.notewrap{display:grid;gap:4px;min-width:0}
+.note{width:100%;min-height:38px;resize:vertical;font:14px/1.45 var(--fB);color:var(--tx);background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:8px 10px}
+.note::placeholder{color:var(--tx3)}
+.when{font-size:12px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.empty{color:var(--tx2);text-align:center;padding:40px 16px;border:1px dashed var(--line2);border-radius:14px;margin-top:24px}
+
+.summary>*,.prep-body>*,.filters>*,.group,.cases>*{min-width:0}
+@media (max-width:760px){
+  .filters{position:static}
+  .group{scroll-margin-top:16px}
+  .envs{grid-template-columns:minmax(0,1fr)}
+  .cbody{grid-template-columns:minmax(0,1fr)}
+  .cfoot{grid-template-columns:minmax(0,1fr)}
+  .counts{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="eyebrow"><span>PowerApp Web</span><span class="sep">/</span><span>Los tres roles · Sin CU</span><span class="sep">/</span><span>Pruebas manuales</span></div>
+    <h1>Pruebas del panel y la navegación</h1>
+    <p class="lede">El marco de la app: el panel del Admin, «Más», el inicio del Entrenador y del alumno, la tab bar y la barra lateral de cada rol, qué rol entra a qué ruta, las direcciones que no existen, el aviso de servidor dormido y la sesión que se cierra sola. Cada caso dice cómo probarlo y qué tenés que ver. Marcá el resultado y anotá lo que observes.</p>
+  </header>
+
+  <section class="summary" aria-label="Resumen">
+    <div class="counts">
+      <div class="count c-ok"><span class="n" id="n-ok">0</span><span class="l"><span class="dot"></span>Funciona</span></div>
+      <div class="count c-fail"><span class="n" id="n-fail">0</span><span class="l"><span class="dot"></span>Falla</span></div>
+      <div class="count c-retest"><span class="n" id="n-retest">0</span><span class="l"><span class="dot"></span>Re-testear</span></div>
+      <div class="count c-none"><span class="n" id="n-none">0</span><span class="l"><span class="dot"></span>Sin probar</span></div>
+    </div>
+    <div class="bar" role="img" id="bar" aria-label="Progreso"><span class="b-ok" id="b-ok"></span><span class="b-fail" id="b-fail"></span><span class="b-retest" id="b-retest"></span></div>
+    <div class="sumfoot">
+      <span class="save" id="save"><span class="dot"></span><span id="save-t">Conectando el guardado…</span></span>
+      <div class="actions">
+        <button type="button" class="btn" id="exp-res">Exportar resultados</button>
+        <button type="button" class="btn" id="imp-res">Importar resultados</button>
+        <button type="button" class="btn pri" id="copy-sum">Copiar resumen de fallas</button>
+        <input type="file" id="imp-file" accept=".json,application/json" hidden>
+      </div>
+    </div>
+    <div class="copyfall" id="copy-fall" hidden>
+      <label for="copy-fall-t" class="when">Tu navegador no dejó copiar automáticamente. El texto ya está seleccionado: copialo con Ctrl+C.</label>
+      <textarea id="copy-fall-t" readonly></textarea>
+    </div>
+    <p class="iomsg" id="io-msg" role="status" hidden></p>
+  </section>
+
+  <details class="prep" id="prep" open>
+    <summary><h2>Antes de empezar</h2><span class="chev"><span class="c-close">Ocultar</span><span class="c-open">Mostrar</span></span></summary>
+    <div class="prep-body">
+      <div>
+        <h3>Entornos</h3>
+        <div class="envs">
+          <div class="env"><span class="tag t-LOCAL">Local</span><p>Backend local en <code>localhost:3000</code> y el front con <code>npm run dev</code>. Hace falta para el panel con el servidor apagado.</p></div>
+          <div class="env"><span class="tag t-RENDER">Render</span><p><a href="https://powerapp-web.onrender.com" target="_blank" rel="noopener">powerapp-web.onrender.com</a> contra el backend de Render. Es el único donde el servidor se duerme de verdad (SRV-01).</p></div>
+          <div class="env"><span class="tag t-TODOS">Cualquiera</span><p>El caso da lo mismo en los dos. Con cuentas reales, los mocks no intervienen aunque estén prendidos.</p></div>
+        </div>
+      </div>
+      <div>
+        <h3>Cuentas y datos</h3>
+        <ul class="tips">
+          <li><b>Una cuenta real de cada rol:</b> alumno, entrenador y admin. Las de demo no sirven: el backend rechaza su token.</li>
+          <li><b>Un alumno de prueba nuevo</b> para SES-02, que le cierra la cuenta: <button type="button" class="tok" data-copy="QA">QA</button> <button type="button" class="tok" data-copy="Navegación">Navegación</button>, con un email tuyo con sufijo, por ejemplo <button type="button" class="tok" data-copy="tuemail+qa-nav@gmail.com">tuemail+qa-nav@gmail.com</button>.</li>
+          <li><b>Para ver los dos diseños,</b> DevTools a 390 px (celular, con tab bar) y la ventana a más de 960 px (escritorio, con barra lateral).</li>
+          <li><b>Dos roles a la vez:</b> ventana normal y ventana de incógnito.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Cómo encararlo</h3>
+        <ul class="tips">
+          <li><b>Ya están en «Pruebas de acceso»</b> y acá no se repiten: rutas sin sesión, «/», el rol equivocado en el inicio de otro rol, <code>/cualquier-cosa</code>, la sesión vencida al abrir Datos personales y la cuenta cerrada con la sesión abierta (NAV-01 a NAV-07, OUT-03, OUT-04 y LOG-13). El catálogo y cómo se llega a cada sección están en el plan de cada sección.</li>
+          <li><b>DevTools › Network</b> sirve para tres cosas: ver los requests, bloquear uno (clic derecho › <i>Block request URL</i>) y simular un servidor lento (<i>Throttling</i> › <i>Add custom profile</i> con 5000 ms de latencia).</li>
+          <li><b>Local Storage</b> (DevTools › Application) guarda la sesión en <code>powerapp.session</code>. SES-01 le cambia el token.</li>
+          <li><b>Lo que hoy falla</b> está marcado con un aviso amarillo: el inicio del alumno sigue en construcción (T38).</li>
+        </ul>
+      </div>
+    </div>
+  </details>
+
+  <div class="filters" id="filters">
+    <div class="chips" id="f-status" role="group" aria-label="Filtrar por resultado">
+      <span class="lbl">Resultado</span>
+    </div>
+    <div class="chips" id="f-env" role="group" aria-label="Filtrar por entorno">
+      <span class="lbl">Entorno</span>
+    </div>
+    <nav class="jump" id="jump" aria-label="Ir a un grupo"></nav>
+  </div>
+
+  <main id="groups"></main>
+  <p class="empty" id="empty" hidden>Ningún caso coincide con estos filtros.</p>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const PLAN_NAME = 'Pruebas del panel y la navegación PowerApp';
+  const PAGE_ID = 'pruebas-navegacion-powerapp';
+  const DOCS = 'https://github.com/FranCarames/PowerApp-Docs/blob/main/Use%20Cases/';
+  const tok = (t) => `<button type="button" class="tok" data-copy="${t.replace(/"/g, '&quot;')}">${t}</button>`;
+  const ui = (t) => `<span class="ui">«${t}»</span>`;
+
+  const ENVS = { LOCAL: 'Local', RENDER: 'Render', TODOS: 'Cualquiera' };
+  const ENV_FILTERS = [['all', 'Todos'], ['LOCAL', 'Local'], ['RENDER', 'Render']];
+  const STATUSES = [
+    { v: 'ok', label: 'Funciona', ic: '✓' },
+    { v: 'fail', label: 'Falla', ic: '✕' },
+    { v: 'retest', label: 'Re-testear', ic: '↻' },
+  ];
+  const STATUS_LABEL = { ok: 'Funciona', fail: 'Falla', retest: 'Re-testear', none: 'Sin probar' };
+
+  const GROUPS = [
+    { id: 'pan', name: 'Panel del Admin', cu: null, sub: 'Los números y los accesos de /a/inicio' },
+    { id: 'mas', name: 'Más y la barra lateral del Admin', cu: null },
+    { id: 'coa', name: 'Inicio del Entrenador', cu: null, sub: 'Mis alumnos, su tab bar y su barra lateral' },
+    { id: 'alu', name: 'Inicio del alumno', cu: null, sub: 'Tu plan, su tab bar y su barra lateral' },
+    { id: 'rut', name: 'Qué rol entra a qué ruta', cu: null, sub: 'Además de los inicios, que están en «Pruebas de acceso»' },
+    { id: 'nfd', name: 'Direcciones que no existen', cu: null, sub: 'Dentro de cada zona' },
+    { id: 'srv', name: 'Servidor dormido', cu: null, sub: 'El aviso mientras navegás' },
+    { id: 'ses', name: 'Sesión que se cierra', cu: null, sub: 'Sesión vencida (401), cuenta cerrada y otra pestaña' },
+    { id: 'err', name: 'Errores y pantallas', cu: null, sub: 'Celular, escritorio y teclado' },
+    { id: 'cie', name: 'Cierre', cu: null, sub: 'Dejar el navegador y las cuentas como estaban' },
+  ];
+
+  const CASES = [
+    // ── Panel del Admin ─────────────────────────────────────
+    { id: 'PAN-01', g: 'pan', t: 'El panel', env: ['TODOS'],
+      data: 'Tu cuenta real de admin.',
+      steps: ['Iniciá sesión como admin.', 'En Network, mirá qué requests salen.'],
+      exp: `<ul><li>Abre <code>/a/inicio</code> con ${ui('Panel')} arriba y el título ${ui('Administración')}. La pestaña del navegador dice «Administración · PowerApp».</li><li>Cuatro tarjetas con su número: ${ui('Usuarios')}, ${ui('Ejercicios')}, ${ui('Circuitos activos')} y ${ui('Rutinas')}.</li><li>${ui('Gestión')}, con ${ui('Planificaciones')} (${ui('N planes sistémicos')}), ${ui('Entrenadores')} (${ui('N activos')}), ${ui('Músculos')}, ${ui('Grupos musculares')} y ${ui('Membresías')}.</li><li>Salen seis requests: <code>users/all</code>, <code>exercise/all</code>, <code>routine/circuit/all</code>, <code>routine/all</code>, <code>planification/all</code> y <code>coach/all</code>, todos con 200.</li></ul>` },
+    { id: 'PAN-02', g: 'pan', t: 'Los números que no se prueban en otro plan', env: ['TODOS'],
+      steps: ['Compará Rutinas con las rutinas activas de <code>/a/rutinas</code>.', 'Compará «N activos» de Entrenadores con los que dicen Activo en <code>/a/entrenadores</code>.', 'Compará «N planes sistémicos» con los <code>active: true</code> de la respuesta de <code>planification/all</code> en Network.'],
+      exp: '<p>Los tres coinciden. Usuarios, Ejercicios y Circuitos activos ya se comparan en sus planes.</p>' },
+    { id: 'PAN-03', g: 'pan', t: 'Cada acceso lleva a su sección', env: ['TODOS'],
+      steps: ['Tocá cada tarjeta y cada fila de Gestión, y volvé al panel.'],
+      exp: '<p>Usuarios, Ejercicios, Circuitos activos y Rutinas llevan a <code>/a/usuarios</code>, <code>/a/ejercicios</code>, <code>/a/circuitos</code> y <code>/a/rutinas</code>. Gestión lleva a <code>/a/planes</code>, <code>/a/entrenadores</code>, <code>/a/catalogo?seccion=musculos</code>, <code>/a/catalogo?seccion=grupos</code> y <code>/a/membresias</code>.</p>' },
+    { id: 'PAN-04', g: 'pan', t: 'Un número que no carga', env: ['TODOS'],
+      steps: ['En Network, bloqueá la URL de <code>planification/all</code> y recargá el panel.', `Desbloqueala y tocá ${ui('Reintentar')}.`],
+      exp: `<p>Arriba aparece ${ui('No pudimos cargar algunos números.')} con ${ui('Reintentar')}. Planificaciones queda con ${ui('Planes sistémicos')} en lugar del número y el resto carga normal. Al reintentar sale solo el request que había fallado, aparece el número y el aviso se va.</p>` },
+    { id: 'PAN-05', g: 'pan', t: 'Servidor caído', env: ['LOCAL'],
+      steps: ['Apagá el backend local y recargá el panel.', 'Prendelo y tocá Reintentar.'],
+      exp: '<p>Las cuatro tarjetas muestran «–», Gestión queda con los textos de cada sección y aparece el aviso con Reintentar. Con el backend prendido, carga todo.</p>' },
+
+    // ── Más y la barra lateral del Admin ────────────────────
+    { id: 'MAS-01', g: 'mas', t: 'La pantalla Más', env: ['TODOS'],
+      steps: ['A 390 px, tocá la tab Más.', 'Tocá cada fila y volvé.'],
+      exp: `<p>Abre <code>/a/mas</code> con ${ui('Administración')} arriba y el título ${ui('Más secciones')}. Las filas son ${ui('Planificaciones')}, ${ui('Circuitos')}, ${ui('Entrenadores')}, ${ui('Catálogo')}, ${ui('Membresías')} y ${ui('Mi cuenta')}, cada una con su línea de ayuda, y llevan a su sección.</p>` },
+    { id: 'MAS-02', g: 'mas', t: 'La tab bar del Admin', env: ['TODOS'],
+      steps: ['A 390 px, recorré la tab bar.', 'Abrí <code>/a/circuitos</code>, <code>/a/entrenadores</code>, <code>/a/catalogo</code>, <code>/a/membresias</code>, <code>/a/planes</code> y <code>/cuenta</code>.', 'Abrí <code>/a/usuarios</code>, un ejercicio y <code>/a/rutinas</code>.'],
+      exp: '<p>Las tabs son Inicio, Usuarios, Ejercicios, Rutinas y Más. En las secciones que no tienen tab queda marcada Más, y nunca hay dos tabs marcadas a la vez. En Usuarios, en un ejercicio y en Rutinas se marca su tab.</p>' },
+    { id: 'MAS-03', g: 'mas', t: 'La barra lateral del Admin', env: ['TODOS'],
+      steps: ['A más de 960 px, recorré la barra lateral.', 'Abrí <code>/a/convertir</code> y un circuito.'],
+      exp: `<ul><li>Arriba, el logo con ${ui('PowerApp')} y ${ui('Admin')}. Después Inicio, Usuarios y Entrenadores; ${ui('Entrenamiento')} con Ejercicios, Circuitos, Rutinas y Planificaciones; y ${ui('Configuración')} con Catálogo, Membresías y Perfil.</li><li>Abajo, tu avatar, tu nombre, ${ui('Admin')} y el botón de cerrar sesión.</li><li>En <code>/a/convertir</code> queda marcada Entrenadores, y en un circuito, Circuitos.</li></ul>` },
+
+    // ── Inicio del Entrenador ───────────────────────────────
+    { id: 'COA-01', g: 'coa', t: 'Mis alumnos', env: ['TODOS'],
+      data: 'Tu cuenta real de entrenador.',
+      steps: ['Iniciá sesión como entrenador.'],
+      exp: `<ul><li>Abre <code>/c/alumnos</code> con ${ui('Coach …')} y tu nombre arriba, el título ${ui('Mis alumnos')}, y a la derecha la billetera de membresías y tu avatar.</li><li>Los contadores ${ui('Activos')}, ${ui('Inactivos')} y ${ui('Total')}, el buscador ${ui('Buscar por nombre o email')} y los chips ${ui('Todos')}, ${ui('Activos')} e ${ui('Inactivos')}.</li><li>La lista con el avatar, el nombre, el email y la píldora Activo o Inactivo de cada alumno. Tocar una fila abre su ficha. (CU-E-01)</li></ul>` },
+    { id: 'COA-02', g: 'coa', t: 'Buscar y filtrar', env: ['TODOS'],
+      steps: ['Buscá un alumno por nombre, otro por apellido y otro por parte del email.', 'Combiná una búsqueda con el chip Activos y recargá.', `Buscá ${tok('zzz')}.`, 'Con la búsqueda vacía, tocá Inactivos.'],
+      exp: `<p>Encuentra por los tres datos. La búsqueda va al backend un momento después de dejar de escribir (<code>users/all?keyword=…</code>). La búsqueda y el chip quedan en la dirección (<code>?q=…&amp;estado=activos</code>) y siguen al recargar. Con zzz: ${ui('Sin coincidencias')} y ${ui('No hay alumnos que coincidan con la búsqueda.')} Si no hay inactivos: ${ui('No hay alumnos inactivos.')} (CU-E-02)</p>` },
+    { id: 'COA-03', g: 'coa', t: 'Cargar más', env: ['TODOS'],
+      steps: [`Con Todos, bajá hasta el final y tocá ${ui('Cargar más')} hasta que no aparezca más.`],
+      exp: '<p>Se suman de a 20, sin repetidos, hasta llegar al Total del contador. Si hay 20 o menos, el botón no aparece.</p>' },
+    { id: 'COA-04', g: 'coa', t: 'La tab bar y la barra lateral del Entrenador', env: ['TODOS'],
+      steps: ['A 390 px, recorré las tabs Alumnos, Planes, Rutinas y Perfil.', 'En Rutinas, tocá el segmento Circuitos y abrí un circuito.', 'A más de 960 px, recorré la barra lateral.'],
+      exp: `<ul><li>Planes y el segmento Rutinas muestran ${ui('Sección en construcción')} y ${ui('Esta sección se habilita cuando el backend de rutinas y planificaciones esté completo.')} Su contenido se prueba en sus planes, cuando estén.</li><li>En <code>/c/circuitos</code> y en un circuito sigue marcada la tab Rutinas. En Membresías y en Registrar pago, Alumnos.</li><li>La barra lateral tiene Alumnos, Planes, Rutinas y Perfil, y ${ui('Organización')} con Membresías. Abajo, ${ui('Entrenador')} bajo tu nombre.</li></ul>` },
+
+    // ── Inicio del alumno ───────────────────────────────────
+    { id: 'ALU-01', g: 'alu', t: 'Tu plan', env: ['TODOS'],
+      data: 'Tu cuenta real de alumno, con una planificación asignada.',
+      steps: ['Iniciá sesión como alumno.'],
+      exp: `<p>Abre <code>/u/plan</code> con ${ui('Hola, …')} y tu nombre arriba, el título ${ui('Tu plan')} y la semana de su planificación, con las rutinas de cada día y su avance. (CU-U-08)</p>`,
+      kt: 'Hoy falla.', known: 'Muestra «Pantalla en construcción» y «El home semanal se arma en la tarea T38.»: falta el home semanal (T38). El backend ya lo responde con <code>GET /routine/home/:userId</code> (BE-20e). Marcalo Falla; el detalle se prueba en «Pruebas del plan del alumno», cuando exista.' },
+    { id: 'ALU-02', g: 'alu', t: 'La tab bar y la barra lateral del alumno', env: ['TODOS'],
+      steps: ['A 390 px, recorré las tabs.', 'Abrí la calculadora, la biblioteca y Datos personales.', 'A más de 960 px, recorré la barra lateral.'],
+      exp: `<p>Las tabs son Rutina, RMs, Timer y Perfil. En la calculadora queda marcada RMs; en la biblioteca, Rutina; y en Datos personales, Perfil. La barra lateral tiene las mismas cuatro entradas, sin grupos, y ${ui('Alumno')} bajo tu nombre.</p>` },
+
+    // ── Qué rol entra a qué ruta ────────────────────────────
+    { id: 'RUT-01', g: 'rut', t: 'El alumno fuera de su zona', env: ['TODOS'],
+      steps: ['Como alumno, escribí en la barra <code>/a/usuarios</code>, <code>/a/circuitos/nuevo</code>, <code>/c/membresias</code> y <code>/c/pago</code>.'],
+      exp: '<p>Todas vuelven a <code>/u/plan</code>, sin mostrar la otra pantalla ni por un instante.</p>' },
+    { id: 'RUT-02', g: 'rut', t: 'El entrenador fuera de su zona', env: ['TODOS'],
+      steps: ['Como entrenador, escribí <code>/a/circuitos</code>, <code>/a/usuarios</code>, <code>/u/wiki</code> y <code>/u/rms</code>.'],
+      exp: '<p>Todas vuelven a <code>/c/alumnos</code>. Los circuitos los ve en su propia ruta, <code>/c/circuitos</code>.</p>' },
+    { id: 'RUT-03', g: 'rut', t: 'El admin en la zona del entrenador', env: ['TODOS'],
+      steps: ['Como admin, escribí <code>/c/alumnos</code>, <code>/c/membresias</code> y <code>/c/circuitos</code>.'],
+      exp: '<p>Todas vuelven a <code>/a/inicio</code>. El backend le permite al admin lo mismo que al entrenador, pero el front lo lleva a sus propias pantallas.</p>' },
+    { id: 'RUT-04', g: 'rut', t: 'Mi cuenta para los tres', env: ['TODOS'],
+      steps: ['Con cada rol, escribí <code>/cuenta</code> y <code>/cuenta/datos</code>.'],
+      exp: '<p>Los tres entran a las dos, con su propia tab bar y barra lateral.</p>' },
+    { id: 'RUT-05', g: 'rut', t: 'La raíz de cada zona', env: ['TODOS'],
+      steps: ['Con cada rol, escribí <code>/u</code>, <code>/c</code> y <code>/a</code>.'],
+      exp: '<p>La de su rol lleva a su inicio (<code>/u/plan</code>, <code>/c/alumnos</code> o <code>/a/inicio</code>) y las otras dos también terminan ahí.</p>' },
+    { id: 'RUT-06', g: 'rut', t: 'Atrás y Adelante del navegador', env: ['TODOS'],
+      steps: ['Recorré tres o cuatro pantallas tocando la navegación.', 'Usá Atrás y Adelante del navegador.', 'Después de que una ruta de otro rol te devolvió a tu inicio (RUT-01 a RUT-03), tocá Atrás.'],
+      exp: '<p>Atrás y Adelante pasan por las mismas pantallas, con la tab o la entrada correcta marcada. Después de una redirección, Atrás no vuelve a la ruta prohibida ni queda en un bucle.</p>' },
+
+    // ── Direcciones que no existen ──────────────────────────
+    { id: 'NFD-01', g: 'nfd', t: 'Una dirección inventada dentro de una zona', env: ['TODOS'],
+      steps: ['Con cada rol, escribí <code>/u/xyz</code>, <code>/c/xyz</code>, <code>/a/xyz</code> y <code>/cuenta/xyz</code>.', `Tocá ${ui('Ir al inicio')}.`],
+      exp: `<p>Todas muestran ${ui('Página no encontrada')} y ${ui('La dirección que abriste no existe o ya no está disponible.')}, sin tab bar ni barra lateral, también las de otra zona: no se redirige porque la ruta no existe. ${ui('Ir al inicio')} lleva al inicio del rol.</p>` },
+    { id: 'NFD-02', g: 'nfd', t: 'Una ruta de más', env: ['TODOS'],
+      steps: ['Como entrenador, abrí <code>/c/alumnos/</code> seguido del id de un alumno y <code>/historial</code>.', 'Como admin, abrí <code>/a/inicio/x</code>.'],
+      exp: `<p>${ui('Página no encontrada')} en los dos.</p>` },
+
+    // ── Servidor dormido ────────────────────────────────────
+    { id: 'SRV-01', g: 'srv', t: 'Navegar con el servidor dormido', env: ['RENDER'],
+      data: 'El backend de Render sin uso por 15 minutos o más, con tu sesión de admin abierta.',
+      steps: ['Recargá el panel y esperá sin tocar nada.'],
+      exp: `<p>A los 4 segundos aparece arriba ${ui('Despertando el servidor, puede tardar un poco…')} con un spinner, mientras las tarjetas siguen cargando. No se corta nada: cuando el backend contesta, aparecen los números y el aviso se va.</p>` },
+    { id: 'SRV-02', g: 'srv', t: 'Con un servidor lento', env: ['TODOS'],
+      steps: ['En Network, creá un perfil de throttling con 5000 ms de latencia y elegilo.', 'Abrí Usuarios.', 'Como entrenador, abrí la ficha de un alumno y, mientras carga algo, el modal de RMs.', 'Volvé a No throttling.'],
+      exp: '<p>A los 4 segundos aparece el aviso y se va cuando llega la respuesta. Con el modal abierto, el aviso se ve encima del modal y no queda tapado.</p>' },
+
+    // ── Sesión que se cierra ────────────────────────────────
+    { id: 'SES-01', g: 'ses', t: 'Sesión vencida con varios requests a la vez', env: ['TODOS'],
+      steps: ['Como admin, en Local Storage, editá <code>powerapp.session</code> y cambiá el valor de <code>token</code> por <code>x</code>.', 'Recargá el panel, que manda seis requests.'],
+      exp: `<p>Los requests responden 401 y aparece un solo aviso ${ui('Tu sesión expiró. Volvé a iniciar sesión.')}, no seis. Va a <code>/login</code> y <code>powerapp.session</code> desaparece.</p>` },
+    { id: 'SES-02', g: 'ses', t: 'La cuenta se cierra mientras guardás', env: ['TODOS'],
+      data: 'El alumno QA Navegación y tu cuenta de entrenador.',
+      steps: ['Como QA Navegación, abrí Datos personales y cambiá el teléfono, sin guardar.', 'En incógnito, como entrenador, cerrale la cuenta desde su ficha.', 'Como QA Navegación, tocá Guardar cambios.'],
+      exp: `<p>El request responde 403 y la sesión se cierra: ${ui('Tu cuenta está deshabilitada. Consultá con tu gimnasio.')} y va a <code>/login</code>. El teléfono no se guardó.</p>` },
+    { id: 'SES-03', g: 'ses', t: 'Volver a entrar', env: ['TODOS'],
+      steps: ['Después de SES-01, iniciá sesión como admin.'],
+      exp: '<p>Va al inicio del rol (<code>/a/inicio</code>), no a la pantalla donde estabas. Los números se piden de nuevo: no quedan datos de la sesión anterior.</p>' },
+    { id: 'SES-04', g: 'ses', t: 'Cerrar sesión en otra pestaña', env: ['TODOS'],
+      steps: ['Abrí la app en dos pestañas con la misma sesión.', 'En la pestaña A, cerrá sesión.', 'En la pestaña B, navegá a otra pantalla.', 'Recargá la pestaña B.'],
+      exp: '<p>La pestaña B sigue andando mientras no la recargues, porque guarda la sesión en memoria. Al recargarla va a <code>/login</code>. Si esperabas que se cerrara al instante, anotalo.</p>' },
+    { id: 'SES-05', g: 'ses', t: 'Cerrar sesión desde la barra lateral', env: ['TODOS'],
+      steps: [`A más de 960 px, con cualquier rol, tocá el botón ${ui('Cerrar sesión')} del pie de la barra lateral.`, 'Tocá Atrás.'],
+      exp: '<p>Va a <code>/login</code> y <code>powerapp.session</code> desaparece. Atrás no vuelve a la app.</p>' },
+
+    // ── Errores y pantallas ─────────────────────────────────
+    { id: 'ERR-01', g: 'err', t: 'Celular y escritorio', env: ['TODOS'],
+      steps: ['Con cada rol, achicá y agrandá la ventana pasando por los 960 px.', 'En un iPhone, mirá la tab bar.'],
+      exp: '<ul><li>Debajo de 960 px está la tab bar y arriba la barra lateral, nunca las dos. Al cambiar, sigue marcada la misma sección.</li><li>Sin scroll horizontal en ninguna pantalla de inicio. El panel acomoda las cuatro tarjetas en dos columnas en el celular.</li><li>En el iPhone, la tab bar no queda tapada por la barra del sistema.</li></ul>' },
+    { id: 'ERR-02', g: 'err', t: 'Teclado y lector de pantalla', env: ['TODOS'],
+      steps: ['Recorré la barra lateral y la tab bar solo con Tab y Enter.', 'Con un lector de pantalla, pasá por la navegación.'],
+      exp: '<p>El foco siempre se ve. La navegación se anuncia como «Navegación principal» y la entrada marcada como la página actual. La pestaña del navegador siempre dice el título de la pantalla seguido de «· PowerApp».</p>' },
+
+    // ── Cierre ──────────────────────────────────────────────
+    { id: 'CIE-01', g: 'cie', t: 'Dejar el navegador y las cuentas como estaban', env: ['TODOS'],
+      steps: ['En Network, sacá el bloqueo de URLs y el throttling.', 'Si no vas a usar más a QA Navegación, dejalo con la cuenta cerrada.'],
+      exp: '<p>El navegador queda sin bloqueos ni latencia simulada, y ninguna cuenta real quedó cambiada.</p>' },
+  ];
+
+  // ── Estado ────────────────────────────────────────────────
+  const LOCAL_KEY = 'powerapp.pruebas-navegacion.v1';
+  const blank = () => ({ status: null, note: '', at: null });
+  const state = Object.fromEntries(CASES.map((c) => [c.id, blank()]));
+  let db = null;
+  let mode = 'connecting'; // connecting | db | local | error
+  let fStatus = 'all';
+  let fEnv = 'all';
+  const writing = new Set();
+  const dirty = new Set();
+  const pending = new Set();
+  const noteTimers = {};
+
+  const $ = (s, el = document) => el.querySelector(s);
+  const statusOf = (id) => state[id].status || 'none';
+
+  function fmtWhen(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+
+  // ── Render estático ──────────────────────────────────────
+  function caseHtml(c) {
+    const envs = c.env.map((e) => `<span class="tag t-${e}">${ENVS[e]}</span>`).join('');
+    const steps = c.steps.map((s) => `<li>${s}</li>`).join('');
+    const seg = STATUSES.map((s) => `<button type="button" class="sb v-${s.v}" data-v="${s.v}" aria-pressed="false"><span class="ic" aria-hidden="true">${s.ic}</span>${s.label}</button>`).join('');
+    return `<article class="case" id="case-${c.id}" data-id="${c.id}" data-status="none">
+      <div class="chead"><span class="cid">${c.id}</span><h3>${c.t}</h3><div class="ctags">${envs}<span class="pill" data-pill>Sin probar</span></div></div>
+      ${c.data ? `<p class="cdata"><b>Datos:</b> ${c.data}</p>` : ''}
+      <div class="cbody"><div><h4>Cómo probarlo</h4><ol class="steps">${steps}</ol></div><div class="expect"><h4>Qué tenés que ver</h4>${c.exp}</div></div>
+      ${c.known ? `<div class="known" role="note"><span><b>${c.kt || 'Hoy falla.'}</b> ${c.known}</span></div>` : ''}
+      <div class="cfoot">
+        <div class="seg" role="group" aria-label="Resultado de ${c.id}">${seg}</div>
+        <div class="notewrap">
+          <label class="when" for="note-${c.id}"><span data-when>Sin marcar</span></label>
+          <textarea class="note" id="note-${c.id}" rows="1" placeholder="Qué viste, si algo no coincide (opcional)"></textarea>
+        </div>
+      </div>
+    </article>`;
+  }
+
+  function renderStatic() {
+    const root = $('#groups');
+    root.innerHTML = GROUPS.map((g) => {
+      const cases = CASES.filter((c) => c.g === g.id);
+      const cu = g.cu ? `<a class="cu" href="${DOCS}${g.file}" target="_blank" rel="noopener">${g.cu}</a>` : '';
+      return `<section class="group" id="${g.id}" data-g="${g.id}">
+        <div class="ghead"><h2>${g.name}</h2>${cu}${g.sub ? `<span class="gsub">${g.sub}</span>` : ''}<span class="gprog" data-gprog></span></div>
+        <div class="cases">${cases.map(caseHtml).join('')}</div>
+      </section>`;
+    }).join('');
+
+    $('#jump').innerHTML = GROUPS.map((g) => `<a href="#${g.id}" data-jump="${g.id}">${g.name}<span class="p" data-jp></span></a>`).join('');
+
+    const st = $('#f-status');
+    [['all', 'Todos'], ['none', 'Sin probar'], ['fail', 'Falla'], ['retest', 'Re-testear'], ['ok', 'Funciona']].forEach(([v, l]) => {
+      st.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-fs="${v}" aria-pressed="${v === 'all'}">${l}<span class="k" data-k="${v}"></span></button>`);
+    });
+    const en = $('#f-env');
+    ENV_FILTERS.forEach(([v, l]) => {
+      en.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-fe="${v}" aria-pressed="${v === 'all'}">${l}</button>`);
+    });
+  }
+
+  // ── Render dinámico ──────────────────────────────────────
+  function updateCard(id) {
+    const card = document.getElementById('case-' + id);
+    if (!card) return;
+    const s = state[id];
+    const st = statusOf(id);
+    card.dataset.status = st;
+    card.querySelectorAll('.sb').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === s.status)));
+    const pill = card.querySelector('[data-pill]');
+    pill.textContent = STATUS_LABEL[st];
+    pill.className = 'pill' + (st === 'none' ? '' : ' s-' + st);
+    const ta = card.querySelector('.note');
+    if (document.activeElement !== ta && ta.value !== s.note) ta.value = s.note;
+    card.querySelector('[data-when]').textContent = s.at ? 'Actualizado ' + fmtWhen(s.at) : 'Sin marcar';
+  }
+
+  function visible(c) {
+    const st = statusOf(c.id);
+    if (fStatus !== 'all' && st !== fStatus) return false;
+    if (fEnv !== 'all' && !c.env.includes(fEnv) && !c.env.includes('TODOS')) return false;
+    return true;
+  }
+
+  function applyFilters() {
+    let any = false;
+    GROUPS.forEach((g) => {
+      let shown = 0;
+      CASES.filter((c) => c.g === g.id).forEach((c) => {
+        const v = visible(c);
+        document.getElementById('case-' + c.id).hidden = !v;
+        if (v) shown++;
+      });
+      document.getElementById(g.id).hidden = shown === 0;
+      if (shown) any = true;
+    });
+    $('#empty').hidden = any;
+  }
+
+  function updateSummary() {
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const total = CASES.length;
+    ['ok', 'fail', 'retest', 'none'].forEach((k) => { $('#n-' + k).textContent = n[k]; });
+    ['ok', 'fail', 'retest'].forEach((k) => { $('#b-' + k).style.width = (n[k] / total * 100) + '%'; });
+    $('#bar').setAttribute('aria-label', `${total - n.none} de ${total} casos probados: ${n.ok} funcionan, ${n.fail} fallan, ${n.retest} para re-testear`);
+    document.querySelectorAll('[data-k]').forEach((el) => {
+      const k = el.dataset.k;
+      el.textContent = k === 'all' ? total : n[k];
+    });
+    GROUPS.forEach((g) => {
+      const cs = CASES.filter((c) => c.g === g.id);
+      const done = cs.filter((c) => statusOf(c.id) !== 'none').length;
+      const fails = cs.filter((c) => statusOf(c.id) === 'fail').length;
+      const txt = `${done}/${cs.length} probados${fails ? ` · ${fails} con falla` : ''}`;
+      document.getElementById(g.id).querySelector('[data-gprog]').textContent = txt;
+      document.querySelector(`[data-jump="${g.id}"] [data-jp]`).textContent = `${done}/${cs.length}`;
+    });
+  }
+
+  function refreshAll() {
+    CASES.forEach((c) => updateCard(c.id));
+    updateSummary();
+    applyFilters();
+  }
+
+  function setSave(kind, text) {
+    const el = $('#save');
+    el.className = 'save' + (kind ? ' is-' + kind : '');
+    $('#save-t').textContent = text;
+  }
+
+  // ── Guardado ─────────────────────────────────────────────
+  function saveLocal() {
+    try { localStorage.setItem(LOCAL_KEY, JSON.stringify(state)); } catch { /* sin storage: queda en memoria */ }
+  }
+  function loadLocal() {
+    try {
+      const raw = localStorage.getItem(LOCAL_KEY);
+      if (!raw) return;
+      const v = JSON.parse(raw);
+      Object.keys(state).forEach((id) => { if (v && v[id]) state[id] = normalize(v[id]); });
+    } catch { /* ignorar */ }
+  }
+  function normalize(v) {
+    const okStatus = ['ok', 'fail', 'retest'].includes(v.status) ? v.status : null;
+    return { status: okStatus, note: typeof v.note === 'string' ? v.note : '', at: typeof v.at === 'string' ? v.at : null };
+  }
+
+  const DB_OK = 'Guardado en el artefacto: lo ves desde cualquier dispositivo.';
+  const LOCAL_ONLY = 'Solo en este navegador: no se ve desde otro dispositivo y se pierde si borrás los datos de navegación. Exportá los resultados a un JSON para conservarlos.';
+
+  // Siempre queda una copia en el navegador; en el artefacto, además, se sube.
+  async function persist(id) {
+    saveLocal();
+    if (mode !== 'db') return;
+    pending.add(id);
+    if (writing.has(id)) { dirty.add(id); return; }
+    writing.add(id);
+    setSave('db', 'Guardando…');
+    try {
+      do {
+        dirty.delete(id);
+        const s = state[id];
+        await db.doc('results/' + id).set({ status: s.status, note: s.note, at: s.at });
+      } while (dirty.has(id));
+      setSave('db', DB_OK);
+    } catch (e) {
+      setSave('err', 'No se pudo guardar el último cambio en el artefacto. Quedó en este navegador: volvé a marcarlo en un momento.');
+    } finally {
+      writing.delete(id);
+      pending.delete(id);
+    }
+  }
+
+  // Por cada caso gana el resultado más reciente, venga del navegador o del artefacto.
+  const isNewer = (a, b) => Boolean(a.at) && (!b.at || a.at > b.at);
+
+  async function uploadNewer() {
+    const remote = {};
+    try {
+      const snap = await db.collection('results').get();
+      snap.docs.forEach((d) => { const v = d.data(); if (v) remote[d.id] = normalize(v); });
+    } catch {
+      setSave('err', 'No se pudo comparar con el artefacto. Lo que marques queda en este navegador.');
+      return;
+    }
+    const ids = CASES.map((c) => c.id).filter((id) => {
+      const s = state[id];
+      if (!s.status && !s.note) return false;
+      return !remote[id] || isNewer(s, remote[id]);
+    });
+    if (!ids.length) { setSave('db', DB_OK); return; }
+    setSave('db', `Subiendo ${ids.length} resultados de este navegador al artefacto…`);
+    for (const id of ids) await persist(id);
+  }
+
+  async function initStore() {
+    let ns = null;
+    try {
+      ns = window.claude && typeof window.claude.use === 'function' ? await window.claude.use('db') : null;
+    } catch { ns = null; }
+    if (!ns) {
+      mode = 'local';
+      setSave('local', LOCAL_ONLY);
+      return;
+    }
+    db = ns;
+    mode = 'db';
+    setSave('db', 'Sincronizando…');
+    let synced = false;
+    db.collection('results').onSnapshot((snap) => {
+      snap.docs.forEach((d) => {
+        if (!state[d.id] || pending.has(d.id)) return;
+        const v = d.data();
+        if (!v) return;
+        const r = normalize(v);
+        if (!state[d.id].at || !isNewer(state[d.id], r)) state[d.id] = r;
+      });
+      refreshAll();
+      if (!synced) { synced = true; uploadNewer(); }
+      else if (!writing.size) setSave('db', DB_OK);
+    }, () => {
+      mode = 'local';
+      setSave('err', 'Se perdió la conexión con el artefacto. Lo que marques ahora queda solo en este navegador.');
+    });
+  }
+
+  // ── Eventos ──────────────────────────────────────────────
+  function copyText(text, onDone) {
+    const fallback = () => {
+      const box = $('#copy-fall');
+      const ta = $('#copy-fall-t');
+      ta.value = text;
+      box.hidden = false;
+      ta.focus();
+      ta.select();
+    };
+    try {
+      navigator.clipboard.writeText(text).then(onDone, fallback);
+    } catch { fallback(); }
+  }
+
+  function buildSummary() {
+    const today = new Date().toLocaleDateString('es-AR');
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const lines = [`${PLAN_NAME} · ${today}`, `Funciona ${n.ok} · Falla ${n.fail} · Re-testear ${n.retest} · Sin probar ${n.none}`];
+    [['fail', 'Falla'], ['retest', 'Re-testear']].forEach(([k, label]) => {
+      const cs = CASES.filter((c) => statusOf(c.id) === k);
+      if (!cs.length) return;
+      lines.push('', label);
+      cs.forEach((c) => {
+        const note = state[c.id].note.trim();
+        lines.push(`- ${c.id} ${c.t}${note ? ': ' + note.replace(/\s+/g, ' ') : ''}`);
+      });
+    });
+    if (!n.fail && !n.retest) lines.push('', 'Sin fallas ni casos para re-testear.');
+    return lines.join('\n');
+  }
+
+  // ── Exportar / importar resultados (JSON para versionar en el repo) ──
+  const PLAN_ID = PAGE_ID.replace(/-powerapp$/, '');
+  const EXPORT_VERSION = 1;
+  // Nombre listo para el repo: <N>-<plan>.resultados.json, con N = la tanda que sigue a las que lista Tests/README.md
+  // (ver loadFromRepo). Si no se pudo leer ese índice (file://, sin red) no se sabe N: se usa la fecha, que no pisa nada.
+  let nextRun = null;
+  const exportFileName = () => {
+    if (nextRun) return `${nextRun}-${PLAN_ID}.resultados.json`;
+    const d = new Date();
+    const p = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}-${PLAN_ID}.resultados.json`;
+  };
+
+  function buildExport() {
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const results = {};
+    CASES.forEach((c) => {
+      const s = state[c.id];
+      results[c.id] = { title: c.t, status: s.status, note: s.note, at: s.at };
+    });
+    return { plan: PLAN_ID, version: EXPORT_VERSION, exportedAt: new Date().toISOString(), summary: { total: CASES.length, ...n }, results };
+  }
+
+  function showIo(kind, text) {
+    const el = $('#io-msg');
+    el.className = 'iomsg' + (kind ? ' is-' + kind : '');
+    el.textContent = text;
+    el.hidden = false;
+  }
+
+  function exportResults() {
+    const file = exportFileName();
+    const blob = new Blob([JSON.stringify(buildExport(), null, 2) + '\n'], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    const folder = decodeURIComponent(location.pathname.split('/').slice(-2, -1)[0] || '');
+    const where = folder ? `Tests/${folder}/` : 'la carpeta de este plan en Tests/';
+    if (nextRun) {
+      const line = `  - [Tanda ${nextRun}](${encodeURIComponent(folder)}/${file})`;
+      showIo('ok', `Descargué ${file}. Guardalo en ${where} y, si querés que quede en el sitio, sumá esta línea bajo este plan en Tests/README.md: ${line.trim()}`);
+    } else {
+      showIo('ok', `Descargué ${file}. Guardalo en ${where} y, si querés que quede en el sitio, sumalo como sub-bullet bajo este plan en Tests/README.md.`);
+    }
+  }
+
+  // Combina por caso: gana el resultado con la fecha (at) más reciente, así no se pierde nada de lo marcado acá.
+  const stamp = (iso) => { const t = iso ? Date.parse(iso) : NaN; return Number.isNaN(t) ? -Infinity : t; };
+
+  // Devuelve un mensaje de error si el JSON no es un export de este plan, o null si está bien.
+  function checkResults(data) {
+    if (!data || typeof data !== 'object' || data.plan !== PLAN_ID || !data.results || typeof data.results !== 'object') {
+      return `Ese archivo no corresponde a este plan (esperaba plan «${PLAN_ID}»).`;
+    }
+    if (typeof data.version !== 'number' || data.version > EXPORT_VERSION) {
+      return 'El archivo es de una versión más nueva del plan y no sé leerlo.';
+    }
+    return null;
+  }
+
+  function mergeResults(data) {
+    const changed = [];
+    let newer = 0;
+    CASES.forEach((c) => {
+      const src = data.results[c.id];
+      if (!src || typeof src !== 'object') return;
+      const inc = normalize(src);
+      if (!inc.status && !inc.note) return;
+      const cur = state[c.id];
+      if (inc.status === cur.status && inc.note === cur.note && inc.at === cur.at) return;
+      if (stamp(inc.at) > stamp(cur.at)) { state[c.id] = inc; changed.push(c.id); } else newer++;
+    });
+    const unknown = Object.keys(data.results).filter((id) => !state[id]).length;
+    changed.forEach((id) => persist(id));
+    refreshAll();
+    return { changed: changed.length, newer, unknown };
+  }
+
+  async function importResults(file) {
+    let data;
+    try {
+      data = JSON.parse(await file.text());
+    } catch {
+      showIo('err', 'No pude leer el archivo: no es un JSON válido.');
+      return;
+    }
+    const bad = checkResults(data);
+    if (bad) { showIo('err', bad); return; }
+    const { changed, newer, unknown } = mergeResults(data);
+
+    const parts = [];
+    if (changed) {
+      const when = data.exportedAt ? fmtWhen(data.exportedAt) : '';
+      parts.push(`Importé ${changed} ${changed === 1 ? 'caso' : 'casos'}${when ? ' (exportado el ' + when + ')' : ''}.`);
+    } else if (newer) {
+      parts.push('No cambié nada: lo que tenés acá es más reciente que el archivo.');
+    } else {
+      parts.push('El archivo no trae nada nuevo: ya tenés esos resultados.');
+    }
+    if (changed && newer) parts.push(newer === 1 ? 'Dejé 1 caso que acá ya tenía un resultado más reciente.' : `Dejé ${newer} casos que acá ya tenían un resultado más reciente.`);
+    if (unknown) parts.push(unknown === 1 ? 'Ignoré 1 caso que ya no está en el plan.' : `Ignoré ${unknown} casos que ya no están en el plan.`);
+    showIo(changed ? 'ok' : '', parts.join(' '));
+  }
+
+  // ── Resultados guardados en el repo ──────────────────────
+  // Tests/README.md lista las tandas de cada plan (sub-bullets bajo el plan; la última es la más reciente).
+  // Al abrir el plan se busca su entrada, se baja ese JSON y se combina con lo local (gana la fecha más nueva).
+  function runsOf(md, readmeUrl, pageKey) {
+    let inFence = false;
+    let mine = false;
+    const runs = [];
+    md.split(/\r?\n/).forEach((line) => {
+      if (/^\s*```/.test(line)) { inFence = !inFence; return; }
+      if (inFence) return;
+      const plan = /^-\s+\[[^\]]+\]\(([^)]+)\)/.exec(line);
+      if (plan) {
+        const u = new URL(plan[1], readmeUrl);
+        mine = u.origin + u.pathname === pageKey;
+        return;
+      }
+      const run = /^\s+-\s+\[([^\]]+)\]\(([^)]+)\)/.exec(line);
+      if (run && mine) runs.push({ label: run[1], url: new URL(run[2], readmeUrl).href });
+    });
+    return runs;
+  }
+
+  // Número de la próxima tanda: el mayor entre la cantidad de tandas listadas y el prefijo numérico más alto
+  // de sus archivos (1-…, 2-…); los nombres con fecha (2026-…) no cuentan como número.
+  function nextRunNumber(runs) {
+    let max = runs.length;
+    runs.forEach((r) => {
+      const m = /^(\d{1,3})-/.exec(decodeURIComponent(r.url.split('/').pop() || ''));
+      if (m) max = Math.max(max, Number(m[1]));
+    });
+    return max + 1;
+  }
+
+  async function loadFromRepo() {
+    try {
+      const readmeUrl = new URL('../README.md', location.href).href;
+      const res = await fetch(readmeUrl, { cache: 'no-cache' });
+      if (!res.ok) return;
+      const runs = runsOf(await res.text(), readmeUrl, location.origin + location.pathname);
+      nextRun = nextRunNumber(runs);
+      const last = runs[runs.length - 1];
+      if (!last) return;
+      const r = await fetch(last.url, { cache: 'no-cache' });
+      if (!r.ok) return;
+      const data = await r.json();
+      if (checkResults(data)) return;
+      const { changed } = mergeResults(data);
+      if (changed) {
+        const when = data.exportedAt ? fmtWhen(data.exportedAt) : '';
+        showIo('ok', `Cargué ${changed} ${changed === 1 ? 'caso' : 'casos'} de «${last.label}», la última tanda guardada en el repo${when ? ' (exportada el ' + when + ')' : ''}.`);
+      }
+    } catch { /* sin README ni red (por ejemplo, abierto con file://): queda lo que haya en este navegador */ }
+  }
+
+  document.addEventListener('click', (e) => {
+    const sb = e.target.closest('.sb');
+    if (sb) {
+      const id = sb.closest('.case').dataset.id;
+      const s = state[id];
+      s.status = s.status === sb.dataset.v ? null : sb.dataset.v;
+      s.at = new Date().toISOString();
+      updateCard(id);
+      updateSummary();
+      persist(id);
+      return;
+    }
+    const fs = e.target.closest('[data-fs]');
+    if (fs) {
+      fStatus = fs.dataset.fs;
+      document.querySelectorAll('[data-fs]').forEach((b) => b.setAttribute('aria-pressed', String(b === fs)));
+      applyFilters();
+      return;
+    }
+    const fe = e.target.closest('[data-fe]');
+    if (fe) {
+      fEnv = fe.dataset.fe;
+      document.querySelectorAll('[data-fe]').forEach((b) => b.setAttribute('aria-pressed', String(b === fe)));
+      applyFilters();
+      return;
+    }
+    const t = e.target.closest('.tok');
+    if (t) {
+      copyText(t.dataset.copy, () => {
+        t.classList.add('copied');
+        setTimeout(() => t.classList.remove('copied'), 1200);
+      });
+      return;
+    }
+    if (e.target.closest('#exp-res')) { exportResults(); return; }
+    if (e.target.closest('#imp-res')) { $('#imp-file').click(); return; }
+    if (e.target.closest('#copy-sum')) {
+      const btn = $('#copy-sum');
+      copyText(buildSummary(), () => {
+        btn.textContent = 'Resumen copiado';
+        setTimeout(() => { btn.textContent = 'Copiar resumen de fallas'; }, 1600);
+      });
+    }
+  });
+
+  document.addEventListener('change', (e) => {
+    const inp = e.target.closest && e.target.closest('#imp-file');
+    if (!inp) return;
+    const file = inp.files && inp.files[0];
+    inp.value = '';
+    if (file) importResults(file);
+  });
+
+  document.addEventListener('input', (e) => {
+    const ta = e.target.closest('.note');
+    if (!ta) return;
+    const id = ta.closest('.case').dataset.id;
+    state[id].note = ta.value;
+    clearTimeout(noteTimers[id]);
+    noteTimers[id] = setTimeout(() => {
+      state[id].at = new Date().toISOString();
+      updateCard(id);
+      persist(id);
+    }, 700);
+  });
+  document.addEventListener('focusout', (e) => {
+    const ta = e.target.closest && e.target.closest('.note');
+    if (!ta) return;
+    const id = ta.closest('.case').dataset.id;
+    if (noteTimers[id]) {
+      clearTimeout(noteTimers[id]);
+      noteTimers[id] = null;
+      state[id].at = new Date().toISOString();
+      updateCard(id);
+      persist(id);
+    }
+  });
+
+  const prep = $('#prep');
+  try { if (localStorage.getItem(LOCAL_KEY + '.prep') === 'closed') prep.open = false; } catch { /* ignorar */ }
+  prep.addEventListener('toggle', () => {
+    try { localStorage.setItem(LOCAL_KEY + '.prep', prep.open ? 'open' : 'closed'); } catch { /* ignorar */ }
+  });
+
+  renderStatic();
+  loadLocal();
+  refreshAll();
+  initStore().then(loadFromRepo);
+})();
+</script>
+
+
+</body></html>

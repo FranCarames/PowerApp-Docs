@@ -5,7 +5,7 @@
 
 ## Descripción breve
 
-Registra que el usuario realizó un ejercicio de la rutina de su asignación, y permite deshacerlo. El registro es **por ejercicio y no por serie**: el tildado serie por serie es de la interfaz, y el sistema guarda el ejercicio completo cuando el usuario lo termina. La existencia del registro es el «hecho». Junto con el ejercicio se registra el día en que el usuario lo hizo, que él mismo indica: puede marcar en diferido.
+Registra que el usuario realizó un ejercicio de la rutina de su asignación, y permite deshacerlo. La asignación puede ser una rutina asignada para un día o una rutina de su planificación; en los dos casos el registro pertenece a la asignación, así que una misma planificación asignada dos veces tiene marcas independientes. El registro es **por ejercicio y no por serie**: el tildado serie por serie es de la interfaz, y el sistema guarda el ejercicio completo cuando el usuario lo termina. La existencia del registro es el «hecho». Junto con el ejercicio se registra el día en que el usuario lo hizo, que él mismo indica: puede marcar en diferido.
 
 ## Actores involucrados
 
@@ -20,7 +20,7 @@ Registra que el usuario realizó un ejercicio de la rutina de su asignación, y 
 
 **Cubre:**
 
-- Registrar un ejercicio como realizado en una asignación del usuario, y deshacerlo.
+- Registrar un ejercicio como realizado en una asignación del usuario, individual o de su planificación, y deshacerlo.
 - Indicar el día en que se realizó el ejercicio, y corregirlo.
 - Dejar o editar la nota del usuario sobre ese ejercicio en la misma operación (CU «Dejar una nota en el ejercicio»).
 
@@ -28,13 +28,13 @@ Registra que el usuario realizó un ejercicio de la rutina de su asignación, y 
 
 - Marcar cada serie por separado: el sistema no guarda el avance serie por serie.
 - Edición de reps/peso de la serie.
-- El registro de ejecución de una planificación (se resuelve en su propio bloque).
 
 ## Precondiciones
 
 - Existe una sesión activa con rol Usuario.
-- La asignación pertenece al usuario.
-- El ejercicio forma parte de la rutina de esa asignación.
+- La asignación (la rutina individual o la planificación) pertenece al usuario.
+- El ejercicio forma parte de la rutina de esa asignación. En una planificación, de la rutina del plan que el usuario está ejecutando.
+- Si es una planificación, el entrenador no se la quitó al usuario.
 
 ## Postcondiciones
 
@@ -69,7 +69,7 @@ Registra que el usuario realizó un ejercicio de la rutina de su asignación, y 
 1. El usuario desmarca un ejercicio ya realizado.
 2. El sistema elimina el registro y, con él, la nota que el usuario hubiera dejado.
 3. Si el ejercicio no estaba marcado, el sistema responde igual: deshacer es idempotente.
-4. El usuario puede desmarcar también un ejercicio que el entrenador sacó de la rutina después de que lo realizó.
+4. El usuario puede desmarcar también un ejercicio que el entrenador sacó de la rutina después de que lo realizó, o una rutina que el entrenador quitó del plan.
 
 ### En el paso 1 — Dejar o editar la nota
 
@@ -90,6 +90,16 @@ Registra que el usuario realizó un ejercicio de la rutina de su asignación, y 
 1. La asignación pertenece a otro usuario.
 2. El sistema deniega el acceso.
 
+### En el paso 2 — La rutina no pertenece a la planificación
+
+1. La rutina del plan que se indica no es de la planificación asignada.
+2. El sistema informa que la rutina no pertenece a esa planificación y no registra nada.
+
+### En el paso 2 — La planificación fue quitada
+
+1. El entrenador quitó la planificación al usuario. Lo ya realizado queda como historia y no se reescribe.
+2. El sistema informa que la planificación fue quitada y que no se puede modificar. No registra la marca, no edita una existente (ni su nota ni su día) y tampoco permite desmarcar.
+
 ### En el paso 2 — El ejercicio no pertenece a la rutina
 
 1. El ejercicio no forma parte de la rutina de esa asignación.
@@ -100,6 +110,12 @@ Registra que el usuario realizó un ejercicio de la rutina de su asignación, y 
 1. El ejercicio todavía no estaba marcado y el entrenador lo dio de baja, o sacó de la rutina el circuito que lo contiene.
 2. El sistema informa que ya no se puede marcar y no registra nada.
 3. Si el ejercicio ya estaba marcado, el sistema lo acepta igual y no cambia el registro: sólo pueden editarse su nota y el día en que se hizo.
+
+### En el paso 2 — El entrenador quitó la rutina del plan
+
+1. La rutina era de la planificación del usuario, el entrenador la quitó del plan y el ejercicio todavía no estaba marcado.
+2. El sistema informa que la rutina fue quitada de la planificación y que ya no se puede marcar, y no registra nada.
+3. Si el ejercicio ya estaba marcado, el sistema lo acepta igual: sólo pueden editarse su nota y el día en que se hizo, y puede desmarcarse.
 
 ### En el paso 3 — Marcado repetido
 

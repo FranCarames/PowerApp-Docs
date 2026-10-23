@@ -1,0 +1,924 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Pruebas de RMs y calculadora</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: una columna de trabajo (máx. 980px). Resumen arriba, barra de filtros fija, casos agrupados por CU. Paleta de PowerApp, dark-first. */
+:root{
+  --bg:#0B0D16; --card:#13161F; --el:#1B1F2E; --line:#232739; --line2:#2E3347;
+  --tx:#F5F1EB; --tx2:#A3ACC2; --tx3:#6B7390;
+  --pri:#FF6B3D; --priS:rgba(232,69,10,.14); --acc:#A78BFA; --accS:rgba(139,92,246,.16);
+  --ok:#3DD47A; --okS:rgba(34,197,94,.14); --warn:#F5B23D; --warnS:rgba(245,158,11,.14); --err:#F26464; --errS:rgba(239,68,68,.14);
+  --none:#6B7390;
+  --fD:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --fB:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --fM:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#F2F3F7; --card:#FFFFFF; --el:#E8EAF1; --line:#D9DCE6; --line2:#C8CCDA;
+    --tx:#141826; --tx2:#47506A; --tx3:#687089;
+    --pri:#C23A07; --priS:rgba(232,69,10,.10); --acc:#6A3FDB; --accS:rgba(139,92,246,.12);
+    --ok:#157A3C; --okS:rgba(34,197,94,.13); --warn:#A25A06; --warnS:rgba(245,158,11,.16); --err:#C42525; --errS:rgba(239,68,68,.11);
+    --none:#8A91A8;
+    color-scheme:light;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#F2F3F7; --card:#FFFFFF; --el:#E8EAF1; --line:#D9DCE6; --line2:#C8CCDA;
+  --tx:#141826; --tx2:#47506A; --tx3:#687089;
+  --pri:#C23A07; --priS:rgba(232,69,10,.10); --acc:#6A3FDB; --accS:rgba(139,92,246,.12);
+  --ok:#157A3C; --okS:rgba(34,197,94,.13); --warn:#A25A06; --warnS:rgba(245,158,11,.16); --err:#C42525; --errS:rgba(239,68,68,.11);
+  --none:#8A91A8;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--tx);font-family:var(--fB);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding-inline:20px;padding-block:28px 72px}
+code,.mono{font-family:var(--fM);font-size:.86em}
+code{background:var(--el);border:1px solid var(--line);border-radius:5px;padding:1px 5px;overflow-wrap:anywhere}
+.ui{color:var(--tx);font-weight:600}
+a{color:var(--acc)}
+a:focus-visible,button:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+h1,h2,h3{text-wrap:balance}
+
+/* Encabezado */
+.mast{display:grid;gap:6px;margin-bottom:22px}
+.eyebrow{font-family:var(--fM);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--pri);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.eyebrow .sep{color:var(--tx3)}
+h1{font-family:var(--fD);font-weight:800;font-size:clamp(34px,6vw,52px);line-height:1;letter-spacing:-.01em;margin:4px 0 0}
+.lede{color:var(--tx2);max-width:66ch;margin:6px 0 0}
+
+/* Resumen */
+.summary{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:14px;margin-bottom:18px}
+.counts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.count{display:grid;gap:2px}
+.count .n{font-family:var(--fD);font-size:34px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.count .l{font-size:12.5px;color:var(--tx2);display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;flex:none}
+.c-ok .n{color:var(--ok)} .c-ok .dot{background:var(--ok)}
+.c-fail .n{color:var(--err)} .c-fail .dot{background:var(--err)}
+.c-retest .n{color:var(--warn)} .c-retest .dot{background:var(--warn)}
+.c-none .n{color:var(--tx2)} .c-none .dot{background:var(--none)}
+.bar{display:flex;height:10px;border-radius:6px;overflow:hidden;background:var(--el)}
+.bar span{height:100%;transition:width .3s ease}
+.bar .b-ok{background:var(--ok)} .bar .b-fail{background:var(--err)} .bar .b-retest{background:var(--warn)}
+.sumfoot{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.save{font-size:12.5px;color:var(--tx3);display:flex;align-items:center;gap:7px}
+.save .dot{background:var(--tx3)}
+.save.is-db .dot{background:var(--ok)} .save.is-err .dot{background:var(--err)} .save.is-local .dot{background:var(--warn)}
+.btn{font:600 13.5px/1 var(--fB);color:var(--tx);background:var(--el);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{border-color:var(--tx3)}
+.btn.pri{background:var(--priS);border-color:var(--pri);color:var(--pri)}
+.copyfall{display:grid;gap:8px}
+.copyfall textarea{width:100%;min-height:140px;font:13px/1.5 var(--fM);background:var(--el);color:var(--tx);border:1px solid var(--line2);border-radius:10px;padding:10px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.save{flex:1 1 260px;min-width:0;align-items:flex-start}
+.save .dot{margin-top:.45em}
+.save.is-local{color:var(--warn)}
+.save.is-err{color:var(--err)}
+.iomsg{margin:0;font-size:12.5px;color:var(--tx2)}
+.iomsg.is-ok{color:var(--ok)} .iomsg.is-err{color:var(--err)}
+
+/* Antes de empezar */
+details.prep{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:18px}
+details.prep>summary{cursor:pointer;list-style:none;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+details.prep>summary::-webkit-details-marker{display:none}
+details.prep>summary h2{font-family:var(--fD);font-weight:700;font-size:24px;margin:0}
+.chev{color:var(--tx3);font-family:var(--fM);font-size:13px}
+details[open] .chev .c-open{display:none} details:not([open]) .chev .c-close{display:none}
+.prep-body{padding:0 18px 18px;display:grid;gap:18px}
+.prep h3{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin:0 0 8px;font-weight:700}
+.envs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.env{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg);display:grid;gap:6px;align-content:start;min-width:0}
+.env p{margin:0;font-size:13.5px;color:var(--tx2)}
+.tag{display:inline-flex;align-items:center;font:700 11px/1 var(--fM);letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border-radius:6px;border:1px solid currentColor;white-space:nowrap}
+.t-LOCAL{color:var(--acc)} .t-DEMO{color:var(--warn)} .t-RENDER{color:var(--pri)} .t-TODOS{color:var(--tx2)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);font-weight:700;background:var(--bg)}
+tr:last-child td{border-bottom:0}
+.tips{margin:0;padding-left:18px;display:grid;gap:6px;color:var(--tx2);font-size:14px}
+.tips b{color:var(--tx)}
+.tok{font:500 12.5px/1.3 var(--fM);color:var(--tx);background:var(--el);border:1px dashed var(--line2);border-radius:6px;padding:2px 6px;cursor:copy;overflow-wrap:anywhere;text-align:left}
+.tok:hover{border-color:var(--acc)}
+.tok.copied{border-style:solid;border-color:var(--ok);color:var(--ok)}
+
+/* Filtros */
+.filters{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;margin-bottom:8px;display:grid;gap:8px;border-bottom:1px solid var(--line)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chips .lbl{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);font-weight:700;margin-right:4px}
+.chip{font:600 12.5px/1 var(--fB);color:var(--tx2);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 11px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.chip .k{font-family:var(--fM);font-size:11px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.chip[aria-pressed="true"]{color:var(--tx);border-color:var(--tx2);background:var(--el)}
+.jump{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.jump a{font:600 12px/1 var(--fB);color:var(--tx2);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:6px 9px;white-space:nowrap;background:var(--card)}
+.jump a:hover{color:var(--tx);border-color:var(--line2)}
+.jump .p{font-family:var(--fM);font-size:11px;color:var(--tx3);margin-left:4px}
+
+/* Grupos y casos */
+.group{margin-top:28px;scroll-margin-top:120px}
+.ghead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:12px}
+.ghead h2{font-family:var(--fD);font-weight:700;font-size:28px;margin:0;line-height:1.1}
+.ghead .cu{font-family:var(--fM);font-size:12.5px;color:var(--pri)}
+.ghead .gsub{color:var(--tx3);font-size:13.5px}
+.ghead .gprog{margin-left:auto;font-family:var(--fM);font-size:12px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.cases{display:grid;gap:12px}
+.case{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:grid;gap:12px;min-width:0}
+.case[data-status="fail"]{border-color:color-mix(in srgb,var(--err) 55%,var(--line))}
+.case[data-status="ok"]{border-color:color-mix(in srgb,var(--ok) 40%,var(--line))}
+.case[data-status="retest"]{border-color:color-mix(in srgb,var(--warn) 50%,var(--line))}
+.chead{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+.cid{font:700 13px/1 var(--fM);color:var(--pri);letter-spacing:.02em}
+.chead h3{font-size:16.5px;font-weight:700;margin:0;flex:1 1 220px;min-width:0}
+.ctags{display:flex;gap:6px;flex-wrap:wrap}
+.pill{font:700 11px/1 var(--fB);letter-spacing:.04em;text-transform:uppercase;padding:5px 8px;border-radius:999px;background:var(--el);color:var(--tx3);white-space:nowrap}
+.pill.s-ok{background:var(--okS);color:var(--ok)} .pill.s-fail{background:var(--errS);color:var(--err)} .pill.s-retest{background:var(--warnS);color:var(--warn)}
+.cdata{margin:0;font-size:14px;color:var(--tx2)}
+.cdata b{color:var(--tx);font-weight:600}
+.cbody{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:14px}
+.cbody h4{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin:0 0 6px;font-weight:700}
+.steps{margin:0;padding-left:20px;display:grid;gap:5px;font-size:14px}
+.steps li::marker{font-family:var(--fM);color:var(--tx3);font-size:12px}
+.expect{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;min-width:0}
+.expect p{margin:0}
+.expect ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.known{display:flex;gap:10px;align-items:flex-start;background:var(--warnS);color:var(--tx);border-radius:10px;padding:10px 12px;font-size:13.5px}
+.known b{color:var(--warn)}
+.cfoot{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px 14px;align-items:start;border-top:1px solid var(--line);padding-top:12px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.sb{font:600 13px/1 var(--fB);color:var(--tx2);background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:9px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;min-height:38px}
+.sb .ic{font-family:var(--fM);font-weight:700}
+.sb:hover{color:var(--tx)}
+.sb.v-ok[aria-pressed="true"]{background:var(--okS);border-color:var(--ok);color:var(--ok)}
+.sb.v-fail[aria-pressed="true"]{background:var(--errS);border-color:var(--err);color:var(--err)}
+.sb.v-retest[aria-pressed="true"]{background:var(--warnS);border-color:var(--warn);color:var(--warn)}
+.notewrap{display:grid;gap:4px;min-width:0}
+.note{width:100%;min-height:38px;resize:vertical;font:14px/1.45 var(--fB);color:var(--tx);background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:8px 10px}
+.note::placeholder{color:var(--tx3)}
+.when{font-size:12px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.empty{color:var(--tx2);text-align:center;padding:40px 16px;border:1px dashed var(--line2);border-radius:14px;margin-top:24px}
+
+.summary>*,.prep-body>*,.filters>*,.group,.cases>*{min-width:0}
+@media (max-width:760px){
+  .filters{position:static}
+  .group{scroll-margin-top:16px}
+  .envs{grid-template-columns:minmax(0,1fr)}
+  .cbody{grid-template-columns:minmax(0,1fr)}
+  .cfoot{grid-template-columns:minmax(0,1fr)}
+  .counts{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="eyebrow"><span>PowerApp Web</span><span class="sep">/</span><span>Alumno · CU-U-16 a CU-U-20</span><span class="sep">/</span><span>Pruebas manuales</span></div>
+    <h1>Pruebas de RMs y calculadora</h1>
+    <p class="lede">Los récords del alumno: el listado agrupado por ejercicio, registrar, editar y eliminar un RM, y la calculadora que estima el 1RM sin guardarlo. Cada caso dice cómo probarlo y qué tenés que ver. Marcá el resultado y anotá lo que observes.</p>
+  </header>
+
+  <section class="summary" aria-label="Resumen">
+    <div class="counts">
+      <div class="count c-ok"><span class="n" id="n-ok">0</span><span class="l"><span class="dot"></span>Funciona</span></div>
+      <div class="count c-fail"><span class="n" id="n-fail">0</span><span class="l"><span class="dot"></span>Falla</span></div>
+      <div class="count c-retest"><span class="n" id="n-retest">0</span><span class="l"><span class="dot"></span>Re-testear</span></div>
+      <div class="count c-none"><span class="n" id="n-none">0</span><span class="l"><span class="dot"></span>Sin probar</span></div>
+    </div>
+    <div class="bar" role="img" id="bar" aria-label="Progreso"><span class="b-ok" id="b-ok"></span><span class="b-fail" id="b-fail"></span><span class="b-retest" id="b-retest"></span></div>
+    <div class="sumfoot">
+      <span class="save" id="save"><span class="dot"></span><span id="save-t">Conectando el guardado…</span></span>
+      <div class="actions">
+        <button type="button" class="btn" id="exp-res">Exportar resultados</button>
+        <button type="button" class="btn" id="imp-res">Importar resultados</button>
+        <button type="button" class="btn pri" id="copy-sum">Copiar resumen de fallas</button>
+        <input type="file" id="imp-file" accept=".json,application/json" hidden>
+      </div>
+    </div>
+    <div class="copyfall" id="copy-fall" hidden>
+      <label for="copy-fall-t" class="when">Tu navegador no dejó copiar automáticamente. El texto ya está seleccionado: copialo con Ctrl+C.</label>
+      <textarea id="copy-fall-t" readonly></textarea>
+    </div>
+    <p class="iomsg" id="io-msg" role="status" hidden></p>
+  </section>
+
+  <details class="prep" id="prep" open>
+    <summary><h2>Antes de empezar</h2><span class="chev"><span class="c-close">Ocultar</span><span class="c-open">Mostrar</span></span></summary>
+    <div class="prep-body">
+      <div>
+        <h3>Entornos</h3>
+        <div class="envs">
+          <div class="env"><span class="tag t-LOCAL">Local</span><p>Backend local en <code>localhost:3000</code> y el front con <code>npm run dev</code>. Hace falta para los casos con el servidor apagado.</p></div>
+          <div class="env"><span class="tag t-RENDER">Render</span><p><a href="https://powerapp-web.onrender.com" target="_blank" rel="noopener">powerapp-web.onrender.com</a> contra el backend de Render. Todo lo que crees queda en esa base.</p></div>
+          <div class="env"><span class="tag t-TODOS">Cualquiera</span><p>El caso da lo mismo en los dos. Con cuentas reales, los mocks no intervienen aunque estén prendidos.</p></div>
+        </div>
+      </div>
+      <div>
+        <h3>Cuentas y datos</h3>
+        <ul class="tips">
+          <li><b>Un alumno de prueba nuevo,</b> registrado desde <code>/registro</code>: <button type="button" class="tok" data-copy="QA">QA</button> <button type="button" class="tok" data-copy="RMs">RMs</button>, con un email tuyo con sufijo, por ejemplo <button type="button" class="tok" data-copy="tuemail+qa-rms@gmail.com">tuemail+qa-rms@gmail.com</button>. Arranca sin RMs.</li>
+          <li><b>Una cuenta real de entrenador</b> para LST-03. Las de demo no sirven: el backend rechaza su token.</li>
+          <li><b>Los RMs se borran de verdad</b> (es un borrado físico). FIN-01 deja al alumno de prueba sin RMs.</li>
+          <li><b>Ejercicios:</b> <button type="button" class="tok" data-copy="Sentadilla">Sentadilla</button> y <button type="button" class="tok" data-copy="Press de Banca Plano">Press de Banca Plano</button>, que están en el catálogo del seed. Si no, usá otros dos.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Cómo encararlo</h3>
+        <ul class="tips">
+          <li><b>Seguí el orden de la página.</b> ALT-02 registra los RMs que usan los casos de edición y borrado.</li>
+          <li><b>Dos pestañas</b> con la misma sesión para EDT-04 y DEL-03: en una abrís el RM y en la otra lo borrás.</li>
+          <li><b>DevTools › Network</b>, filtrado por <code>user_rm</code>, para ver qué requests salen, con qué body y qué código responden.</li>
+          <li><b>La cuenta la hace el backend</b> con la fórmula de Epley. Con 1 repetición el 1RM es el mismo peso: no se infla.</li>
+        </ul>
+      </div>
+    </div>
+  </details>
+
+  <div class="filters" id="filters">
+    <div class="chips" id="f-status" role="group" aria-label="Filtrar por resultado">
+      <span class="lbl">Resultado</span>
+    </div>
+    <div class="chips" id="f-env" role="group" aria-label="Filtrar por entorno">
+      <span class="lbl">Entorno</span>
+    </div>
+    <nav class="jump" id="jump" aria-label="Ir a un grupo"></nav>
+  </div>
+
+  <main id="groups"></main>
+  <p class="empty" id="empty" hidden>Ningún caso coincide con estos filtros.</p>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const PLAN_NAME = 'Pruebas de RMs y calculadora PowerApp';
+  const PAGE_ID = 'pruebas-rms-powerapp';
+  const DOCS = 'https://github.com/FranCarames/PowerApp-Docs/blob/main/Use%20Cases/';
+  const tok = (t) => `<button type="button" class="tok" data-copy="${t.replace(/"/g, '&quot;')}">${t}</button>`;
+  const ui = (t) => `<span class="ui">«${t}»</span>`;
+
+  const ENVS = { LOCAL: 'Local', RENDER: 'Render', TODOS: 'Cualquiera' };
+  const ENV_FILTERS = [['all', 'Todos'], ['LOCAL', 'Local'], ['RENDER', 'Render']];
+  const STATUSES = [
+    { v: 'ok', label: 'Funciona', ic: '✓' },
+    { v: 'fail', label: 'Falla', ic: '✕' },
+    { v: 'retest', label: 'Re-testear', ic: '↻' },
+  ];
+  const STATUS_LABEL = { ok: 'Funciona', fail: 'Falla', retest: 'Re-testear', none: 'Sin probar' };
+
+  const GROUPS = [
+    { id: 'lst', name: 'Mis RMs', cu: 'CU-U-19', file: 'usuario/CU-U-19-obtener-mis-rms.md' },
+    { id: 'alt', name: 'Registrar', cu: 'CU-U-17', file: 'usuario/CU-U-17-registrar-un-rm.md' },
+    { id: 'val', name: 'Validaciones', cu: 'CU-U-17', file: 'usuario/CU-U-17-registrar-un-rm.md', sub: 'Las mismas reglas al registrar y al editar' },
+    { id: 'edt', name: 'Editar', cu: 'CU-U-18', file: 'usuario/CU-U-18-editar-un-rm.md' },
+    { id: 'del', name: 'Eliminar', cu: 'CU-U-20', file: 'usuario/CU-U-20-eliminar-un-rm.md' },
+    { id: 'cal', name: 'Calculadora', cu: 'CU-U-16', file: 'usuario/CU-U-16-calcular-mis-rm-potenciales.md' },
+    { id: 'err', name: 'Errores y pantallas', cu: null, sub: 'Servidor caído, celular, escritorio y teclado' },
+    { id: 'fin', name: 'Limpieza', cu: null, sub: 'Dejar al alumno de prueba sin RMs' },
+  ];
+
+  const CASES = [
+    // ── Mis RMs ─────────────────────────────────────────────
+    { id: 'LST-01', g: 'lst', t: 'Sin RMs', env: ['TODOS'],
+      data: 'El alumno QA RMs, recién registrado.',
+      steps: ['Iniciá sesión con QA RMs.', 'En el celular, tocá la tab RMs. En escritorio, RMs en la barra lateral.'],
+      exp: `<p>Abre <code>/u/rms</code> con ${ui('Récords personales')} arriba, el título ${ui('Mis RMs')} y los botones ${ui('Registrar RM')} y ${ui('Calculadora')}. Debajo, ${ui('Registrados')} con ${ui('0 ejercicios')}, y ${ui('Todavía no registraste ningún RM')} con ${ui('Registrá el primero para seguir tu progreso.')} <code>GET /user_rm/user/{tu id}</code> responde 200 con una lista vacía. (CU-U-19, caminos alternativos)</p>` },
+    { id: 'LST-02', g: 'lst', t: 'Desde Mi cuenta', env: ['TODOS'],
+      steps: [`En Mi cuenta, tocá ${ui('Mis RMs')}.`],
+      exp: '<p>Lleva a <code>/u/rms</code>, y en el celular queda marcada la tab RMs.</p>' },
+    { id: 'LST-03', g: 'lst', t: 'Solo para el alumno', env: ['TODOS'],
+      steps: ['Como entrenador, escribí <code>/u/rms</code> en la barra.', 'Repetí con <code>/u/calculadora</code>.'],
+      exp: '<p>Las dos vuelven a <code>/c/alumnos</code>. Los RMs de un alumno los ve el entrenador desde su detalle, en otro plan.</p>' },
+
+    // ── Registrar ───────────────────────────────────────────
+    { id: 'ALT-01', g: 'alt', t: 'Registrar un RM', env: ['TODOS'],
+      data: `Ejercicio ${tok('Sentadilla')} · peso ${tok('100')} · repeticiones ${tok('5')} · fecha de hoy`,
+      steps: [`Tocá ${ui('Registrar RM')}.`, 'Elegí el ejercicio, poné peso y repeticiones, y dejá la fecha como viene.', `Tocá ${ui('Guardar RM')}.`, 'En Network, mirá el body de <code>POST /user_rm/create</code>.'],
+      exp: `<ul><li>El modal dice ${ui('Registrar RM')} y ${ui('Registrá el peso y las repeticiones de tu récord.')} La fecha viene con hoy.</li><li>Al guardar: ${ui('RM registrado')}, el modal se cierra y aparece el grupo ${ui('Sentadilla')} con ${ui('1 RM')}: ${ui('5 repeticiones')}, la fecha de hoy y ${ui('100 kg')}. (CU-U-17)</li><li>El request responde 201. El body lleva tu <code>user_id</code>, <code>weight: 100</code>, <code>reps: 5</code> y la fecha con el mediodía, <code>…T12:00:00</code>.</li></ul>` },
+    { id: 'ALT-02', g: 'alt', t: 'Varios RMs y su orden', env: ['TODOS'],
+      data: `${tok('Sentadilla')} 110 kg × 1, fecha de hace una semana · ${tok('Press de Banca Plano')} 80 kg × 5, hoy · Press de Banca Plano 60 kg × 10, ayer`,
+      steps: ['Registrá los tres RMs.', 'Recargá la página.'],
+      exp: `<ul><li>${ui('Registrados')} dice ${ui('2 ejercicios')}. Los grupos van por orden alfabético: primero Press de Banca Plano y después Sentadilla, cada uno con ${ui('2 RMs')}.</li><li>Dentro de cada grupo, del más reciente al más antiguo. La fila de 110 kg dice ${ui('1 repetición')}, en singular.</li><li>Cada RM muestra exactamente la fecha que elegiste, también después de recargar. (CU-U-19, paso 3)</li></ul>` },
+    { id: 'ALT-03', g: 'alt', t: 'Cancelar el alta', env: ['TODOS'],
+      steps: ['Abrí Registrar RM, completá todo y tocá Cancelar.', 'Repetí y cerrá con Escape; después, tocando fuera del modal.', 'Abrí Registrar RM otra vez.'],
+      exp: '<p>No se guarda nada y no sale ningún request. Al volver a abrirlo, el formulario arranca vacío, con la fecha de hoy.</p>' },
+    { id: 'ALT-04', g: 'alt', t: 'Doble envío', env: ['TODOS'],
+      steps: ['Completá un RM válido y hacé doble clic rápido en Guardar RM.', 'Si se creó, borralo.'],
+      exp: '<p>Sale un solo <code>POST /user_rm/create</code>, el botón muestra que está cargando y, mientras guarda, el modal no se cierra con Escape.</p>' },
+
+    // ── Validaciones ────────────────────────────────────────
+    { id: 'VAL-01', g: 'val', t: 'Campos vacíos', env: ['TODOS'],
+      steps: ['En Registrar RM, borrá la fecha y tocá Guardar RM sin completar nada.'],
+      exp: `<p>${ui('Elegí un ejercicio')}, ${ui('Ingresá el peso')}, ${ui('Ingresá las repeticiones')} y ${ui('Elegí la fecha')}. No sale ningún request. (CU-U-17, caminos alternativos)</p>` },
+    { id: 'VAL-02', g: 'val', t: 'Peso fuera de rango', env: ['TODOS'],
+      data: `Pesos ${tok('0')}, ${tok('80.555')} y ${tok('1000.5')}; después ${tok('82.5')}`,
+      steps: ['Con ejercicio, repeticiones y fecha válidos, probá cada peso y guardá.', 'Si el campo no te deja escribir el punto, usá coma y anotalo.'],
+      exp: `<p>0 y 80,555: ${ui('Ingresá un peso de 1 kg o más, con hasta dos decimales')}. 1000,5: ${ui('El peso no puede pasar de 1.000 kg')}. Mientras haya errores, no sale ningún request. Con 82,5 se guarda y la fila muestra ${ui('82,5 kg')}. Borrá ese RM.</p>` },
+    { id: 'VAL-03', g: 'val', t: 'Repeticiones fuera de rango', env: ['TODOS'],
+      data: `Repeticiones ${tok('0')}, ${tok('2.5')} y ${tok('101')}`,
+      steps: ['Con el resto válido, probá cada valor y guardá.'],
+      exp: `<p>${ui('Las repeticiones son un número entero, de 1 a 100')} en los tres, y no sale ningún request. (CU-U-17, caminos alternativos)</p>` },
+    { id: 'VAL-04', g: 'val', t: 'Fecha futura', env: ['TODOS'],
+      steps: ['Abrí el selector de fecha y fijate si deja elegir mañana.', 'Escribí a mano la fecha de mañana y guardá.'],
+      exp: `<p>El selector no ofrece días futuros. Escrita a mano: ${ui('La fecha no puede ser futura')} y no sale ningún request.</p>` },
+
+    // ── Editar ──────────────────────────────────────────────
+    { id: 'EDT-01', g: 'edt', t: 'Editar un RM', env: ['TODOS'],
+      steps: [`En el RM de Sentadilla de 100 kg, tocá el lápiz (${ui('Editar RM de Sentadilla')}).`, 'Cambiá el peso a 102.5 y las repeticiones a 4.', 'Guardá.'],
+      exp: `<p>El modal dice ${ui('Editar RM')}, con los datos cargados. El ejercicio está bloqueado, con ${ui('El ejercicio de un RM no se cambia: registrá uno nuevo.')} Al guardar: ${ui('RM actualizado')} y la fila muestra ${ui('4 repeticiones')} y ${ui('102,5 kg')}. <code>POST /user_rm/edit/{id}</code> responde 201. (CU-U-18)</p>` },
+    { id: 'EDT-02', g: 'edt', t: 'La fecha no se corre', env: ['TODOS'],
+      steps: ['Editá el RM de Sentadilla de hace una semana: cambiá solo el peso y guardá.', 'Repetilo otra vez.'],
+      exp: '<p>La fecha sigue siendo la misma después de cada edición: no retrocede un día.</p>' },
+    { id: 'EDT-03', g: 'edt', t: 'Validaciones al editar', env: ['TODOS'],
+      steps: ['Editá un RM, borrá el peso y guardá.', 'Poné 0 repeticiones y guardá.'],
+      exp: `<p>${ui('Ingresá el peso')} y ${ui('Las repeticiones son un número entero, de 1 a 100')}. No sale ningún request y el RM no cambia. (CU-U-18, caminos alternativos)</p>` },
+    { id: 'EDT-04', g: 'edt', t: 'Editar un RM que ya no existe', env: ['TODOS'],
+      steps: ['En la pestaña A, abrí la edición del RM de Press de Banca Plano de 60 kg y cambiá el peso, sin guardar.', 'En la pestaña B, eliminá ese RM.', 'En la pestaña A, guardá.', 'Cerrá el modal.'],
+      exp: `<p>Aviso rojo dentro del modal: ${ui('Ese RM ya no existe. Cerrá esta ventana: la lista se actualiza.')} Al cerrarlo, el RM ya no está en la lista. El request responde 404. (CU-U-18, caminos alternativos)</p>` },
+
+    // ── Eliminar ────────────────────────────────────────────
+    { id: 'DEL-01', g: 'del', t: 'Eliminar un RM', env: ['TODOS'],
+      steps: [`Tocá el tacho del RM de Press de Banca Plano de 80 kg (${ui('Eliminar RM de Press de Banca Plano')}).`, 'Leé el mensaje y confirmá.'],
+      exp: `<p>${ui('Eliminar RM')}: ${ui('¿Eliminar el RM de Press de Banca Plano (80 kg × 5, …)? No se puede deshacer.')}, con la fecha. Al tocar ${ui('Eliminar')}: ${ui('RM eliminado')}, el grupo desaparece y ${ui('Registrados')} pasa a ${ui('1 ejercicio')}. <code>DELETE /user_rm/{id}</code> responde 200. (CU-U-20)</p>` },
+    { id: 'DEL-02', g: 'del', t: 'Cancelar la eliminación', env: ['TODOS'],
+      steps: ['Tocá el tacho de un RM y después Cancelar.'],
+      exp: '<p>No cambia nada y no sale ningún request. (CU-U-20, caminos alternativos)</p>' },
+    { id: 'DEL-03', g: 'del', t: 'Eliminar uno que ya no existe', env: ['TODOS'],
+      steps: ['En la pestaña A, tocá el tacho del RM de Sentadilla de 110 kg y dejá el diálogo abierto.', 'En la pestaña B, eliminalo.', 'En la pestaña A, confirmá.'],
+      exp: `<p>${ui('Ese RM ya no existe. Actualizamos la lista.')}, el diálogo se cierra y el RM desaparece de la lista. El request responde 404. (CU-U-20, caminos alternativos)</p>` },
+
+    // ── Calculadora ─────────────────────────────────────────
+    { id: 'CAL-01', g: 'cal', t: 'Llegar a la calculadora', env: ['TODOS'],
+      steps: [`En Mis RMs, tocá ${ui('Calculadora')}.`, `Tocá ${ui('Volver')}.`],
+      exp: `<p>Abre <code>/u/calculadora</code> con ${ui('Estimá tu máximo')}, el título ${ui('Calculadora RM')} y el texto ${ui('Ingresá el peso que levantaste y las repeticiones para estimar tu repetición máxima. Es una estimación: no se guarda en tus RMs.')} La tarjeta ${ui('Tu 1RM estimado')} muestra «—» y ${ui('Fórmula de Epley')}, y debajo ${ui('Elegí un ejercicio e ingresá el peso y las repeticiones.')} En el celular sigue marcada la tab RMs. Volver lleva a <code>/u/rms</code>.</p>` },
+    { id: 'CAL-02', g: 'cal', t: 'Calcular el 1RM', env: ['TODOS'],
+      data: `${tok('Sentadilla')} · peso ${tok('100')} · repeticiones ${tok('5')}`,
+      steps: ['Elegí el ejercicio y escribí peso y repeticiones.', 'Esperá un momento sin tocar nada.'],
+      exp: `<ul><li>Calcula solo, sin botón: ${ui('Tu 1RM estimado')} ${ui('116,67 kg')}. (CU-U-16, pasos 2 y 3)</li><li>${ui('Tabla de 1RM a 12RM')} con 12 filas de porcentaje, peso y repeticiones: 1 rep 116,67 kg al 100 %, y 10 reps 87,5 kg al 75 %.</li><li>La fila de ${ui('5 reps')} está resaltada y dice 100 kg al 86 %: es el peso que ingresaste.</li><li>Sale un <code>POST /user_rm/potential</code> que responde 200.</li></ul>` },
+    { id: 'CAL-03', g: 'cal', t: 'Con una sola repetición', env: ['TODOS'],
+      steps: ['Cambiá a 120 kg y 1 repetición.'],
+      exp: `<p>${ui('120 kg')}: con una repetición, el 1RM es el mismo peso y no se infla. La fila de ${ui('1 rep')} queda resaltada, y la de 2 reps dice 112,5 kg al 94 %.</p>` },
+    { id: 'CAL-04', g: 'cal', t: 'No se guarda', env: ['TODOS'],
+      steps: ['Después de calcular, volvé a Mis RMs.'],
+      exp: '<p>No apareció ningún RM nuevo: el cálculo es una estimación y no se guarda. (CU-U-16, postcondición)</p>' },
+    { id: 'CAL-05', g: 'cal', t: 'Datos inválidos', env: ['TODOS'],
+      data: `Pesos ${tok('0')} y ${tok('1001')} · repeticiones ${tok('0')} y ${tok('101')}`,
+      steps: ['Con un cálculo a la vista, poné peso 0.', 'Probá el resto de los valores, de a uno.'],
+      exp: `<p>Peso 0: ${ui('Ingresá un peso mayor a cero, con hasta dos decimales')}. 1001: ${ui('El peso no puede pasar de 1.000 kg')}. Repeticiones 0 o 101: ${ui('Las repeticiones son un número entero, de 1 a 100')}. Mientras haya un error, no sale ningún request y el resultado vuelve a «—», sin mostrar el cálculo anterior. (CU-U-16, caminos alternativos)</p>` },
+    { id: 'CAL-06', g: 'cal', t: 'Más de 12 repeticiones', env: ['TODOS'],
+      steps: ['Poné 80 kg y 15 repeticiones.'],
+      exp: `<p>Calcula igual y bajo el campo aparece ${ui('Con más de 12 repeticiones la estimación pierde precisión.')} La tabla llega hasta 12 reps, así que ninguna fila queda resaltada.</p>` },
+    { id: 'CAL-07', g: 'cal', t: 'Un request por cálculo', env: ['TODOS'],
+      steps: ['Con Network abierto, escribí un peso de varias cifras de corrido.', 'Volvé a poner un peso y unas repeticiones que ya calculaste.'],
+      exp: '<p>Sale un solo request, cuando dejás de escribir. Con valores ya calculados no sale ninguno: el resultado aparece al instante.</p>' },
+    { id: 'CAL-08', g: 'cal', t: 'Sin ejercicio', env: ['TODOS'],
+      steps: ['Recargá la página y escribí peso y repeticiones sin elegir ejercicio.'],
+      exp: `<p>No calcula hasta que elegís un ejercicio. El backend lo pide para devolver su nombre, aunque la fórmula no lo usa; si te parece que debería calcular sin él, anotalo.</p>` },
+
+    // ── Errores y pantallas ─────────────────────────────────
+    { id: 'ERR-01', g: 'err', t: 'Servidor caído al cargar', env: ['LOCAL'],
+      steps: ['Apagá el backend local y recargá Mis RMs.', 'Recargá la calculadora.', `Prendelo y tocá ${ui('Reintentar')} en cada una.`],
+      exp: `<p>Mis RMs muestra ${ui('No pudimos cargar los datos')} con el motivo y Reintentar. En la calculadora, el selector queda en ${ui('Cargando ejercicios…')} y abajo aparece el mismo error. Con el backend prendido, las dos cargan.</p>` },
+    { id: 'ERR-02', g: 'err', t: 'Servidor caído al guardar', env: ['LOCAL'],
+      steps: ['Completá un RM válido.', 'Apagá el backend y guardá.', 'Prendelo y guardá otra vez.'],
+      exp: `<p>Aviso rojo dentro del modal, por ejemplo ${ui('No pudimos conectarnos con el servidor. Revisá tu conexión e intentá de nuevo.')} El modal sigue abierto con los datos y, con el backend prendido, se guarda.</p>` },
+    { id: 'ERR-03', g: 'err', t: 'Celular y escritorio', env: ['TODOS'],
+      steps: ['Recorré Mis RMs, el modal, el diálogo de eliminar y la calculadora en el celular, o en DevTools a 390 px.', 'Repetí en escritorio.'],
+      exp: '<ul><li>Sin scroll horizontal ni textos cortados; un nombre de ejercicio largo no rompe la fila.</li><li>En el celular, el peso abre el teclado decimal y las repeticiones el numérico, y el modal sale como hoja desde abajo.</li><li>En escritorio, los RMs de cada ejercicio van en dos columnas y el modal sale centrado.</li></ul>' },
+    { id: 'ERR-04', g: 'err', t: 'Teclado y lector de pantalla', env: ['TODOS'],
+      steps: ['Recorré Mis RMs y la calculadora solo con Tab y Enter.', 'Con un lector de pantalla, cambiá un dato de la calculadora.'],
+      exp: '<p>El foco siempre se ve. Los botones de cada fila se anuncian como «Editar RM de …» y «Eliminar RM de …», y los errores aparecen junto a su campo. El lector anuncia el resultado nuevo de la calculadora sin que tengas que buscarlo.</p>' },
+
+    // ── Limpieza ────────────────────────────────────────────
+    { id: 'FIN-01', g: 'fin', t: 'Dejar al alumno de prueba sin RMs', env: ['TODOS'],
+      steps: ['Como QA RMs, eliminá los RMs que queden.', 'Si no lo vas a usar más, desactivá su cuenta desde Usuarios, como admin.'],
+      exp: `<p>Mis RMs vuelve a ${ui('Todavía no registraste ningún RM')}.</p>` },
+  ];
+
+  // ── Estado ────────────────────────────────────────────────
+  const LOCAL_KEY = 'powerapp.pruebas-rms.v1';
+  const blank = () => ({ status: null, note: '', at: null });
+  const state = Object.fromEntries(CASES.map((c) => [c.id, blank()]));
+  let db = null;
+  let mode = 'connecting'; // connecting | db | local | error
+  let fStatus = 'all';
+  let fEnv = 'all';
+  const writing = new Set();
+  const dirty = new Set();
+  const pending = new Set();
+  const noteTimers = {};
+
+  const $ = (s, el = document) => el.querySelector(s);
+  const statusOf = (id) => state[id].status || 'none';
+
+  function fmtWhen(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+
+  // ── Render estático ──────────────────────────────────────
+  function caseHtml(c) {
+    const envs = c.env.map((e) => `<span class="tag t-${e}">${ENVS[e]}</span>`).join('');
+    const steps = c.steps.map((s) => `<li>${s}</li>`).join('');
+    const seg = STATUSES.map((s) => `<button type="button" class="sb v-${s.v}" data-v="${s.v}" aria-pressed="false"><span class="ic" aria-hidden="true">${s.ic}</span>${s.label}</button>`).join('');
+    return `<article class="case" id="case-${c.id}" data-id="${c.id}" data-status="none">
+      <div class="chead"><span class="cid">${c.id}</span><h3>${c.t}</h3><div class="ctags">${envs}<span class="pill" data-pill>Sin probar</span></div></div>
+      ${c.data ? `<p class="cdata"><b>Datos:</b> ${c.data}</p>` : ''}
+      <div class="cbody"><div><h4>Cómo probarlo</h4><ol class="steps">${steps}</ol></div><div class="expect"><h4>Qué tenés que ver</h4>${c.exp}</div></div>
+      ${c.known ? `<div class="known" role="note"><span><b>${c.kt || 'Hoy falla.'}</b> ${c.known}</span></div>` : ''}
+      <div class="cfoot">
+        <div class="seg" role="group" aria-label="Resultado de ${c.id}">${seg}</div>
+        <div class="notewrap">
+          <label class="when" for="note-${c.id}"><span data-when>Sin marcar</span></label>
+          <textarea class="note" id="note-${c.id}" rows="1" placeholder="Qué viste, si algo no coincide (opcional)"></textarea>
+        </div>
+      </div>
+    </article>`;
+  }
+
+  function renderStatic() {
+    const root = $('#groups');
+    root.innerHTML = GROUPS.map((g) => {
+      const cases = CASES.filter((c) => c.g === g.id);
+      const cu = g.cu ? `<a class="cu" href="${DOCS}${g.file}" target="_blank" rel="noopener">${g.cu}</a>` : '';
+      return `<section class="group" id="${g.id}" data-g="${g.id}">
+        <div class="ghead"><h2>${g.name}</h2>${cu}${g.sub ? `<span class="gsub">${g.sub}</span>` : ''}<span class="gprog" data-gprog></span></div>
+        <div class="cases">${cases.map(caseHtml).join('')}</div>
+      </section>`;
+    }).join('');
+
+    $('#jump').innerHTML = GROUPS.map((g) => `<a href="#${g.id}" data-jump="${g.id}">${g.name}<span class="p" data-jp></span></a>`).join('');
+
+    const st = $('#f-status');
+    [['all', 'Todos'], ['none', 'Sin probar'], ['fail', 'Falla'], ['retest', 'Re-testear'], ['ok', 'Funciona']].forEach(([v, l]) => {
+      st.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-fs="${v}" aria-pressed="${v === 'all'}">${l}<span class="k" data-k="${v}"></span></button>`);
+    });
+    const en = $('#f-env');
+    ENV_FILTERS.forEach(([v, l]) => {
+      en.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-fe="${v}" aria-pressed="${v === 'all'}">${l}</button>`);
+    });
+  }
+
+  // ── Render dinámico ──────────────────────────────────────
+  function updateCard(id) {
+    const card = document.getElementById('case-' + id);
+    if (!card) return;
+    const s = state[id];
+    const st = statusOf(id);
+    card.dataset.status = st;
+    card.querySelectorAll('.sb').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === s.status)));
+    const pill = card.querySelector('[data-pill]');
+    pill.textContent = STATUS_LABEL[st];
+    pill.className = 'pill' + (st === 'none' ? '' : ' s-' + st);
+    const ta = card.querySelector('.note');
+    if (document.activeElement !== ta && ta.value !== s.note) ta.value = s.note;
+    card.querySelector('[data-when]').textContent = s.at ? 'Actualizado ' + fmtWhen(s.at) : 'Sin marcar';
+  }
+
+  function visible(c) {
+    const st = statusOf(c.id);
+    if (fStatus !== 'all' && st !== fStatus) return false;
+    if (fEnv !== 'all' && !c.env.includes(fEnv) && !c.env.includes('TODOS')) return false;
+    return true;
+  }
+
+  function applyFilters() {
+    let any = false;
+    GROUPS.forEach((g) => {
+      let shown = 0;
+      CASES.filter((c) => c.g === g.id).forEach((c) => {
+        const v = visible(c);
+        document.getElementById('case-' + c.id).hidden = !v;
+        if (v) shown++;
+      });
+      document.getElementById(g.id).hidden = shown === 0;
+      if (shown) any = true;
+    });
+    $('#empty').hidden = any;
+  }
+
+  function updateSummary() {
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const total = CASES.length;
+    ['ok', 'fail', 'retest', 'none'].forEach((k) => { $('#n-' + k).textContent = n[k]; });
+    ['ok', 'fail', 'retest'].forEach((k) => { $('#b-' + k).style.width = (n[k] / total * 100) + '%'; });
+    $('#bar').setAttribute('aria-label', `${total - n.none} de ${total} casos probados: ${n.ok} funcionan, ${n.fail} fallan, ${n.retest} para re-testear`);
+    document.querySelectorAll('[data-k]').forEach((el) => {
+      const k = el.dataset.k;
+      el.textContent = k === 'all' ? total : n[k];
+    });
+    GROUPS.forEach((g) => {
+      const cs = CASES.filter((c) => c.g === g.id);
+      const done = cs.filter((c) => statusOf(c.id) !== 'none').length;
+      const fails = cs.filter((c) => statusOf(c.id) === 'fail').length;
+      const txt = `${done}/${cs.length} probados${fails ? ` · ${fails} con falla` : ''}`;
+      document.getElementById(g.id).querySelector('[data-gprog]').textContent = txt;
+      document.querySelector(`[data-jump="${g.id}"] [data-jp]`).textContent = `${done}/${cs.length}`;
+    });
+  }
+
+  function refreshAll() {
+    CASES.forEach((c) => updateCard(c.id));
+    updateSummary();
+    applyFilters();
+  }
+
+  function setSave(kind, text) {
+    const el = $('#save');
+    el.className = 'save' + (kind ? ' is-' + kind : '');
+    $('#save-t').textContent = text;
+  }
+
+  // ── Guardado ─────────────────────────────────────────────
+  function saveLocal() {
+    try { localStorage.setItem(LOCAL_KEY, JSON.stringify(state)); } catch { /* sin storage: queda en memoria */ }
+  }
+  function loadLocal() {
+    try {
+      const raw = localStorage.getItem(LOCAL_KEY);
+      if (!raw) return;
+      const v = JSON.parse(raw);
+      Object.keys(state).forEach((id) => { if (v && v[id]) state[id] = normalize(v[id]); });
+    } catch { /* ignorar */ }
+  }
+  function normalize(v) {
+    const okStatus = ['ok', 'fail', 'retest'].includes(v.status) ? v.status : null;
+    return { status: okStatus, note: typeof v.note === 'string' ? v.note : '', at: typeof v.at === 'string' ? v.at : null };
+  }
+
+  const DB_OK = 'Guardado en el artefacto: lo ves desde cualquier dispositivo.';
+  const LOCAL_ONLY = 'Solo en este navegador: no se ve desde otro dispositivo y se pierde si borrás los datos de navegación. Exportá los resultados a un JSON para conservarlos.';
+
+  // Siempre queda una copia en el navegador; en el artefacto, además, se sube.
+  async function persist(id) {
+    saveLocal();
+    if (mode !== 'db') return;
+    pending.add(id);
+    if (writing.has(id)) { dirty.add(id); return; }
+    writing.add(id);
+    setSave('db', 'Guardando…');
+    try {
+      do {
+        dirty.delete(id);
+        const s = state[id];
+        await db.doc('results/' + id).set({ status: s.status, note: s.note, at: s.at });
+      } while (dirty.has(id));
+      setSave('db', DB_OK);
+    } catch (e) {
+      setSave('err', 'No se pudo guardar el último cambio en el artefacto. Quedó en este navegador: volvé a marcarlo en un momento.');
+    } finally {
+      writing.delete(id);
+      pending.delete(id);
+    }
+  }
+
+  // Por cada caso gana el resultado más reciente, venga del navegador o del artefacto.
+  const isNewer = (a, b) => Boolean(a.at) && (!b.at || a.at > b.at);
+
+  async function uploadNewer() {
+    const remote = {};
+    try {
+      const snap = await db.collection('results').get();
+      snap.docs.forEach((d) => { const v = d.data(); if (v) remote[d.id] = normalize(v); });
+    } catch {
+      setSave('err', 'No se pudo comparar con el artefacto. Lo que marques queda en este navegador.');
+      return;
+    }
+    const ids = CASES.map((c) => c.id).filter((id) => {
+      const s = state[id];
+      if (!s.status && !s.note) return false;
+      return !remote[id] || isNewer(s, remote[id]);
+    });
+    if (!ids.length) { setSave('db', DB_OK); return; }
+    setSave('db', `Subiendo ${ids.length} resultados de este navegador al artefacto…`);
+    for (const id of ids) await persist(id);
+  }
+
+  async function initStore() {
+    let ns = null;
+    try {
+      ns = window.claude && typeof window.claude.use === 'function' ? await window.claude.use('db') : null;
+    } catch { ns = null; }
+    if (!ns) {
+      mode = 'local';
+      setSave('local', LOCAL_ONLY);
+      return;
+    }
+    db = ns;
+    mode = 'db';
+    setSave('db', 'Sincronizando…');
+    let synced = false;
+    db.collection('results').onSnapshot((snap) => {
+      snap.docs.forEach((d) => {
+        if (!state[d.id] || pending.has(d.id)) return;
+        const v = d.data();
+        if (!v) return;
+        const r = normalize(v);
+        if (!state[d.id].at || !isNewer(state[d.id], r)) state[d.id] = r;
+      });
+      refreshAll();
+      if (!synced) { synced = true; uploadNewer(); }
+      else if (!writing.size) setSave('db', DB_OK);
+    }, () => {
+      mode = 'local';
+      setSave('err', 'Se perdió la conexión con el artefacto. Lo que marques ahora queda solo en este navegador.');
+    });
+  }
+
+  // ── Eventos ──────────────────────────────────────────────
+  function copyText(text, onDone) {
+    const fallback = () => {
+      const box = $('#copy-fall');
+      const ta = $('#copy-fall-t');
+      ta.value = text;
+      box.hidden = false;
+      ta.focus();
+      ta.select();
+    };
+    try {
+      navigator.clipboard.writeText(text).then(onDone, fallback);
+    } catch { fallback(); }
+  }
+
+  function buildSummary() {
+    const today = new Date().toLocaleDateString('es-AR');
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const lines = [`${PLAN_NAME} · ${today}`, `Funciona ${n.ok} · Falla ${n.fail} · Re-testear ${n.retest} · Sin probar ${n.none}`];
+    [['fail', 'Falla'], ['retest', 'Re-testear']].forEach(([k, label]) => {
+      const cs = CASES.filter((c) => statusOf(c.id) === k);
+      if (!cs.length) return;
+      lines.push('', label);
+      cs.forEach((c) => {
+        const note = state[c.id].note.trim();
+        lines.push(`- ${c.id} ${c.t}${note ? ': ' + note.replace(/\s+/g, ' ') : ''}`);
+      });
+    });
+    if (!n.fail && !n.retest) lines.push('', 'Sin fallas ni casos para re-testear.');
+    return lines.join('\n');
+  }
+
+  // ── Exportar / importar resultados (JSON para versionar en el repo) ──
+  const PLAN_ID = PAGE_ID.replace(/-powerapp$/, '');
+  const EXPORT_VERSION = 1;
+  // Nombre listo para el repo: <N>-<plan>.resultados.json, con N = la tanda que sigue a las que lista Tests/README.md
+  // (ver loadFromRepo). Si no se pudo leer ese índice (file://, sin red) no se sabe N: se usa la fecha, que no pisa nada.
+  let nextRun = null;
+  const exportFileName = () => {
+    if (nextRun) return `${nextRun}-${PLAN_ID}.resultados.json`;
+    const d = new Date();
+    const p = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}-${PLAN_ID}.resultados.json`;
+  };
+
+  function buildExport() {
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const results = {};
+    CASES.forEach((c) => {
+      const s = state[c.id];
+      results[c.id] = { title: c.t, status: s.status, note: s.note, at: s.at };
+    });
+    return { plan: PLAN_ID, version: EXPORT_VERSION, exportedAt: new Date().toISOString(), summary: { total: CASES.length, ...n }, results };
+  }
+
+  function showIo(kind, text) {
+    const el = $('#io-msg');
+    el.className = 'iomsg' + (kind ? ' is-' + kind : '');
+    el.textContent = text;
+    el.hidden = false;
+  }
+
+  function exportResults() {
+    const file = exportFileName();
+    const blob = new Blob([JSON.stringify(buildExport(), null, 2) + '\n'], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    const folder = decodeURIComponent(location.pathname.split('/').slice(-2, -1)[0] || '');
+    const where = folder ? `Tests/${folder}/` : 'la carpeta de este plan en Tests/';
+    if (nextRun) {
+      const line = `  - [Tanda ${nextRun}](${encodeURIComponent(folder)}/${file})`;
+      showIo('ok', `Descargué ${file}. Guardalo en ${where} y, si querés que quede en el sitio, sumá esta línea bajo este plan en Tests/README.md: ${line.trim()}`);
+    } else {
+      showIo('ok', `Descargué ${file}. Guardalo en ${where} y, si querés que quede en el sitio, sumalo como sub-bullet bajo este plan en Tests/README.md.`);
+    }
+  }
+
+  // Combina por caso: gana el resultado con la fecha (at) más reciente, así no se pierde nada de lo marcado acá.
+  const stamp = (iso) => { const t = iso ? Date.parse(iso) : NaN; return Number.isNaN(t) ? -Infinity : t; };
+
+  // Devuelve un mensaje de error si el JSON no es un export de este plan, o null si está bien.
+  function checkResults(data) {
+    if (!data || typeof data !== 'object' || data.plan !== PLAN_ID || !data.results || typeof data.results !== 'object') {
+      return `Ese archivo no corresponde a este plan (esperaba plan «${PLAN_ID}»).`;
+    }
+    if (typeof data.version !== 'number' || data.version > EXPORT_VERSION) {
+      return 'El archivo es de una versión más nueva del plan y no sé leerlo.';
+    }
+    return null;
+  }
+
+  function mergeResults(data) {
+    const changed = [];
+    let newer = 0;
+    CASES.forEach((c) => {
+      const src = data.results[c.id];
+      if (!src || typeof src !== 'object') return;
+      const inc = normalize(src);
+      if (!inc.status && !inc.note) return;
+      const cur = state[c.id];
+      if (inc.status === cur.status && inc.note === cur.note && inc.at === cur.at) return;
+      if (stamp(inc.at) > stamp(cur.at)) { state[c.id] = inc; changed.push(c.id); } else newer++;
+    });
+    const unknown = Object.keys(data.results).filter((id) => !state[id]).length;
+    changed.forEach((id) => persist(id));
+    refreshAll();
+    return { changed: changed.length, newer, unknown };
+  }
+
+  async function importResults(file) {
+    let data;
+    try {
+      data = JSON.parse(await file.text());
+    } catch {
+      showIo('err', 'No pude leer el archivo: no es un JSON válido.');
+      return;
+    }
+    const bad = checkResults(data);
+    if (bad) { showIo('err', bad); return; }
+    const { changed, newer, unknown } = mergeResults(data);
+
+    const parts = [];
+    if (changed) {
+      const when = data.exportedAt ? fmtWhen(data.exportedAt) : '';
+      parts.push(`Importé ${changed} ${changed === 1 ? 'caso' : 'casos'}${when ? ' (exportado el ' + when + ')' : ''}.`);
+    } else if (newer) {
+      parts.push('No cambié nada: lo que tenés acá es más reciente que el archivo.');
+    } else {
+      parts.push('El archivo no trae nada nuevo: ya tenés esos resultados.');
+    }
+    if (changed && newer) parts.push(newer === 1 ? 'Dejé 1 caso que acá ya tenía un resultado más reciente.' : `Dejé ${newer} casos que acá ya tenían un resultado más reciente.`);
+    if (unknown) parts.push(unknown === 1 ? 'Ignoré 1 caso que ya no está en el plan.' : `Ignoré ${unknown} casos que ya no están en el plan.`);
+    showIo(changed ? 'ok' : '', parts.join(' '));
+  }
+
+  // ── Resultados guardados en el repo ──────────────────────
+  // Tests/README.md lista las tandas de cada plan (sub-bullets bajo el plan; la última es la más reciente).
+  // Al abrir el plan se busca su entrada, se baja ese JSON y se combina con lo local (gana la fecha más nueva).
+  function runsOf(md, readmeUrl, pageKey) {
+    let inFence = false;
+    let mine = false;
+    const runs = [];
+    md.split(/\r?\n/).forEach((line) => {
+      if (/^\s*```/.test(line)) { inFence = !inFence; return; }
+      if (inFence) return;
+      const plan = /^-\s+\[[^\]]+\]\(([^)]+)\)/.exec(line);
+      if (plan) {
+        const u = new URL(plan[1], readmeUrl);
+        mine = u.origin + u.pathname === pageKey;
+        return;
+      }
+      const run = /^\s+-\s+\[([^\]]+)\]\(([^)]+)\)/.exec(line);
+      if (run && mine) runs.push({ label: run[1], url: new URL(run[2], readmeUrl).href });
+    });
+    return runs;
+  }
+
+  // Número de la próxima tanda: el mayor entre la cantidad de tandas listadas y el prefijo numérico más alto
+  // de sus archivos (1-…, 2-…); los nombres con fecha (2026-…) no cuentan como número.
+  function nextRunNumber(runs) {
+    let max = runs.length;
+    runs.forEach((r) => {
+      const m = /^(\d{1,3})-/.exec(decodeURIComponent(r.url.split('/').pop() || ''));
+      if (m) max = Math.max(max, Number(m[1]));
+    });
+    return max + 1;
+  }
+
+  async function loadFromRepo() {
+    try {
+      const readmeUrl = new URL('../README.md', location.href).href;
+      const res = await fetch(readmeUrl, { cache: 'no-cache' });
+      if (!res.ok) return;
+      const runs = runsOf(await res.text(), readmeUrl, location.origin + location.pathname);
+      nextRun = nextRunNumber(runs);
+      const last = runs[runs.length - 1];
+      if (!last) return;
+      const r = await fetch(last.url, { cache: 'no-cache' });
+      if (!r.ok) return;
+      const data = await r.json();
+      if (checkResults(data)) return;
+      const { changed } = mergeResults(data);
+      if (changed) {
+        const when = data.exportedAt ? fmtWhen(data.exportedAt) : '';
+        showIo('ok', `Cargué ${changed} ${changed === 1 ? 'caso' : 'casos'} de «${last.label}», la última tanda guardada en el repo${when ? ' (exportada el ' + when + ')' : ''}.`);
+      }
+    } catch { /* sin README ni red (por ejemplo, abierto con file://): queda lo que haya en este navegador */ }
+  }
+
+  document.addEventListener('click', (e) => {
+    const sb = e.target.closest('.sb');
+    if (sb) {
+      const id = sb.closest('.case').dataset.id;
+      const s = state[id];
+      s.status = s.status === sb.dataset.v ? null : sb.dataset.v;
+      s.at = new Date().toISOString();
+      updateCard(id);
+      updateSummary();
+      persist(id);
+      return;
+    }
+    const fs = e.target.closest('[data-fs]');
+    if (fs) {
+      fStatus = fs.dataset.fs;
+      document.querySelectorAll('[data-fs]').forEach((b) => b.setAttribute('aria-pressed', String(b === fs)));
+      applyFilters();
+      return;
+    }
+    const fe = e.target.closest('[data-fe]');
+    if (fe) {
+      fEnv = fe.dataset.fe;
+      document.querySelectorAll('[data-fe]').forEach((b) => b.setAttribute('aria-pressed', String(b === fe)));
+      applyFilters();
+      return;
+    }
+    const t = e.target.closest('.tok');
+    if (t) {
+      copyText(t.dataset.copy, () => {
+        t.classList.add('copied');
+        setTimeout(() => t.classList.remove('copied'), 1200);
+      });
+      return;
+    }
+    if (e.target.closest('#exp-res')) { exportResults(); return; }
+    if (e.target.closest('#imp-res')) { $('#imp-file').click(); return; }
+    if (e.target.closest('#copy-sum')) {
+      const btn = $('#copy-sum');
+      copyText(buildSummary(), () => {
+        btn.textContent = 'Resumen copiado';
+        setTimeout(() => { btn.textContent = 'Copiar resumen de fallas'; }, 1600);
+      });
+    }
+  });
+
+  document.addEventListener('change', (e) => {
+    const inp = e.target.closest && e.target.closest('#imp-file');
+    if (!inp) return;
+    const file = inp.files && inp.files[0];
+    inp.value = '';
+    if (file) importResults(file);
+  });
+
+  document.addEventListener('input', (e) => {
+    const ta = e.target.closest('.note');
+    if (!ta) return;
+    const id = ta.closest('.case').dataset.id;
+    state[id].note = ta.value;
+    clearTimeout(noteTimers[id]);
+    noteTimers[id] = setTimeout(() => {
+      state[id].at = new Date().toISOString();
+      updateCard(id);
+      persist(id);
+    }, 700);
+  });
+  document.addEventListener('focusout', (e) => {
+    const ta = e.target.closest && e.target.closest('.note');
+    if (!ta) return;
+    const id = ta.closest('.case').dataset.id;
+    if (noteTimers[id]) {
+      clearTimeout(noteTimers[id]);
+      noteTimers[id] = null;
+      state[id].at = new Date().toISOString();
+      updateCard(id);
+      persist(id);
+    }
+  });
+
+  const prep = $('#prep');
+  try { if (localStorage.getItem(LOCAL_KEY + '.prep') === 'closed') prep.open = false; } catch { /* ignorar */ }
+  prep.addEventListener('toggle', () => {
+    try { localStorage.setItem(LOCAL_KEY + '.prep', prep.open ? 'open' : 'closed'); } catch { /* ignorar */ }
+  });
+
+  renderStatic();
+  loadLocal();
+  refreshAll();
+  initStore().then(loadFromRepo);
+})();
+</script>
+
+
+</body></html>
