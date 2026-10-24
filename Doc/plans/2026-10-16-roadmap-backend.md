@@ -77,7 +77,7 @@ Por qué difiere del Status:
 
 ### Esfuerzo y dependencias
 
-**Esfuerzo:** 39 tareas, **≈ 90 h netas** (≈ 88 h sin la opcional BE-22). Criterio:
+**Esfuerzo:** 40 tareas, **≈ 91 h netas** (≈ 89 h sin la opcional BE-22). Criterio:
 
 - Un desarrollador, horas netas.
 - Incluye la spec y el plan cuando corresponden, el código, el build, `Db Creator` y el Status de cada tarea.
@@ -89,7 +89,7 @@ Del 16/10 al 17/11 son ≈ 4,5 semanas, o sea **≈ 20 h por semana**.
 |---|---:|---:|
 | Funcional | 11 | 36,5 |
 | Contrato con el front | 7 | 13 |
-| Bug | 8 | 11 |
+| Bug | 9 | 12 |
 | Calidad | 5 | 10 |
 | Entorno | 3 | 8,5 |
 | Docs | 3 | 6 |
@@ -174,6 +174,7 @@ Prioridad (orden por defecto): **P1** bloquea al web o a la app iOS · **P2** CU
 | BE-37 | 5 | Limpieza de código muerto | Calidad | `entities/ParaValidar/`; `auth.service.ts:56` y `:181-293` | — | 1 h | No | P4 |
 | BE-38 | 5 | Specs de CU desactualizadas | Docs | CU-U-08, U-12, U-13, U-14, E-03 a E-07, E-13, A-17 | BE-09, BE-17, BE-27 | 3 h | — | P3 |
 | BE-39 | 5 | Docs de contexto: `CLAUDE.md` del backend y `Doc/app-ios/` | Docs | `CLAUDE.md`; `CLAUDE-ios.md`; `prompts.md`; `contexto-backend.md` | — | 1 h | — | P3 |
+| BE-40 | 4 | CU-U-06: el email deja de ser editable | Bug | CU-U-06 (24/10); Tests Mi cuenta DAT-04 y DAT-05 (fallan); `edit_user.dto.ts`; `users.service.ts:296-304` | coordinar con el web | 1 h | No | P2 |
 
 **Por fase:**
 
@@ -182,9 +183,9 @@ Prioridad (orden por defecto): **P1** bloquea al web o a la app iOS · **P2** CU
 | 1 | 11 |
 | 2 | 24 |
 | 3 | 23 |
-| 4 | 22,5 |
+| 4 | 23,5 |
 | 5 | 9,5 |
-| **Total** | **90** |
+| **Total** | **91** |
 
 ## 4. Fases e hitos
 
@@ -194,7 +195,7 @@ Prioridad (orden por defecto): **P1** bloquea al web o a la app iOS · **P2** CU
 | **2** | Bloque A: rutina puntual y ejecución | 24 | 20 al 27/10 | **H2:** flujo puntual de punta a punta, demostrable: asignar → ver → marcar → nota → historial |
 | ⏱ | **Fecha fija:** regenerar la base (BE-23) | 2 | ≈ 1/11 | Esquema del bloque A aplicado. Lo que cambie después entra por patch y por re-aplicar el `03`, que es idempotente |
 | **3** | Bloque B: asignar planificaciones | 21 | 28/10 al 5/11 | **H3:** los 74 CU con código |
-| **4** | Brechas de CU y deuda | 22,5 | 3 al 12/11, en paralelo con el final de la fase 3 | **H4:** ningún 🟡 y el Swagger completo, candidato a "terminado" |
+| **4** | Brechas de CU y deuda | 23,5 | 3 al 12/11, en paralelo con el final de la fase 3 | **H4:** ningún 🟡 y el Swagger completo, candidato a "terminado" |
 | **5** | Verificación y cierre | 9,5 | 12 al 17/11 | **H5:** criterios de §2 cumplidos y código congelado. Del 18 al 20/11 sólo arreglos; **entrega el 20/11** |
 
 ### Por qué este orden
@@ -460,6 +461,16 @@ BE-09 → BE-10 → BE-11 → BE-13 → BE-14 → BE-17 → BE-18 → BE-21 → 
   Regla para las fases 2 a 4: cada tarea deja su Swagger al día, y esta pasada cierra lo viejo.
 - **Acepta:** los tipos que el web genera desde `openapi.json` reemplazan los 15 de `pending.ts`.
 
+#### BE-40 · CU-U-06: el email no se edita
+- **Qué** (decisión del 24/10: el email es de sólo lectura "por ahora"; CU-U-06 ya está reescrito):
+  - Sacar `email` de `EditUserDto` (`edit_user.dto.ts`). El `ValidationPipe` global tiene `forbidNonWhitelisted` (`main.ts:24-28`), así que un body con `email` pasa a dar `400`. El formulario del web hoy lo manda: tiene que dejar de hacerlo **antes o a la vez** que se despliega esto.
+  - Sacar de `editUser` (`users.service.ts:296-304`) el bloque del email: el control de unicidad (`409`) y el `email_verified = false`.
+  - Ajustar `verify-write-paths.js` (cubre `editUser`) y el Swagger.
+  - Avisarle al web: el campo Email pasa a deshabilitado y `POST /users/edit` no lo manda.
+- **Acepta:** DAT-05 pasa (un email armado a mano no cambia nada y da `400`) y DAT-04 pasa del lado del backend. El `409` por email repetido deja de existir en la edición; el del registro (CU-U-01) no cambia.
+- **Riesgo:** no queda ninguna vía en la app para corregir un email mal escrito en el registro. El `coach_email` del entrenador es otro dato y se sigue editando por `promote_user` (CU-A-18).
+- **Inventario (§9):** U-06 queda en ✅ porque el corte es del 16/10, anterior a este cambio de spec. Con la spec nueva es un 🟡 hasta que se haga esta tarea.
+
 ### Fase 5 — Verificación y cierre
 
 #### BE-35 · Plan de pruebas Backend
@@ -517,6 +528,7 @@ BE-09 → BE-10 → BE-11 → BE-13 → BE-14 → BE-17 → BE-18 → BE-21 → 
 | Mail de U-04 | **Mail real por API HTTP** | BE-29 |
 | A-17/A-18 | **Se mantiene `promote_user`** para editar; se reescribe A-17 sin "ya es entrenador" | BE-27; el web pasa T37 |
 | Tests automáticos | **Ninguno** | BE-36; criterio 8 de §2 |
+| Email de U-06 (24/10) | **Es de sólo lectura por ahora**; se reescribió CU-U-06 | BE-40; el web deshabilita el campo |
 
 ### Bloque A (se resuelven en BE-09)
 
@@ -593,6 +605,7 @@ BE-09 → BE-10 → BE-11 → BE-13 → BE-14 → BE-17 → BE-18 → BE-21 → 
 | Reordenamiento masivo de `Routine_Asignation` | Spec del 4/9, §10: sólo si los `order` duplicados molestan en la práctica |
 | `last_order` para los vínculos de rutina apagados | Status 27/8: sólo si la posición del vínculo apagado llega a importar |
 | Login social, verificación de email y teléfono, nutrición, medidas y funciones sociales | "Correcciones al documento" (`Doc/um/`): post-MVP del proyecto |
+| Cambiar el email desde Mi cuenta | Decisión del 24/10: por ahora es de sólo lectura (CU-U-06). Volver a permitirlo se decide aparte |
 | Interfaz propia del Admin | No es del backend |
 
 ## 9. Anexo — Matriz CU → endpoint → estado verificado
@@ -625,7 +638,7 @@ La columna "Status" es la del 12/10.
 | U-03 | Cerrar sesión | `POST /users/logout` | ✅ | ✅ | |
 | U-04 | Recuperar contraseña | `POST /users/recover-password` | ✅ | 🟡 | No envía el mail; la temporal queda en los logs · BE-29 |
 | U-05 | Cambiar contraseña | `POST /users/change-password` | ✅ | ✅ | |
-| U-06 | Editar datos personales | `POST /users/edit` (más `GET /users/get/:id`) | ✅ | ✅ | `get/:id` no tiene check de dueño · BE-02 |
+| U-06 | Editar datos personales | `POST /users/edit` (más `GET /users/get/:id`) | ✅ | ✅ | `get/:id` no tiene check de dueño · BE-02. Desde el 24/10 el CU no permite editar el email y el DTO lo acepta · BE-40 |
 | U-07 | Historial de pagos | `GET /membership/payment/user/:id` | ✅ | ✅ ⚠ | Sin check de dueño ni orden por fecha · BE-02 |
 | U-08 | Mi planificación | `GET /planification/user/:id/active` | 🔵 | 🔵 | Llamada comentada: cuelga · BE-12, BE-20 |
 | U-09 | Ver detalle de rutina | `GET /routine/:id` (coach, admin) | 🔵 | 🟡 | Lógica completa; falta el rol `user` con el check · BE-13 |

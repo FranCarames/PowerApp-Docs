@@ -98,6 +98,7 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 14px;font-size:15px;color:var(--tp);outline:none;transition:border-color .15s,box-shadow .15s}
 .input:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(139,92,246,.2)}
 .input::placeholder{color:var(--tm)}
+.input:disabled{opacity:.6;cursor:not-allowed}
 select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%238892A8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px}
 textarea.input{resize:vertical;min-height:96px;line-height:1.5}
 .search{position:relative;margin-bottom:12px}
@@ -482,7 +483,7 @@ U('u-perfil',{t:'Mi cuenta',tab:'u-perfil',render:()=>`${pageHead('','Mi cuenta'
   <button class="btn btn-danger" style="margin-top:16px" data-go="login">${ic('logout',16)} Cerrar sesión</button>`});
 
 U('u-datos',{t:'Datos personales',tab:'u-perfil',back:'u-perfil',render:()=>`${pageHead('Mi cuenta','Datos personales')}<div class="narrow">
-  <div class="two">${field('Nombre','','Franco')}${field('Apellido','','Carames')}</div>${field('Email','type="email"','caramesfranco@gmail.com')}${field('Teléfono','type="tel"','+54 11 2345 6789')}
+  <div class="two">${field('Nombre','','Franco')}${field('Apellido','','Carames')}</div>${field('Email','type="email" disabled','caramesfranco@gmail.com')}${field('Teléfono','type="tel"','+54 11 2345 6789')}
   <button class="btn btn-pri" data-act="saved:Datos actualizados" data-go="u-perfil">Guardar cambios</button></div>`});
 
 U('u-pagos',{t:'Historial de pagos',tab:'u-perfil',back:'u-perfil',render:()=>`${pageHead('Mi cuenta','Historial de pagos')}

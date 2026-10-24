@@ -220,7 +220,7 @@ tr:last-child td{border-bottom:0}
         <h3>Cuentas y datos</h3>
         <ul class="tips">
           <li><b>Una cuenta real de cada rol:</b> alumno, entrenador y admin. Las de demo no sirven: el backend rechaza su token.</li>
-          <li><b>Un alumno de prueba nuevo,</b> registrado desde <code>/registro</code>: nombre <button type="button" class="tok" data-copy="QA">QA</button>, apellido <button type="button" class="tok" data-copy="Cuenta">Cuenta</button> y un email tuyo con sufijo, por ejemplo <button type="button" class="tok" data-copy="tuemail+qa-cuenta@gmail.com">tuemail+qa-cuenta@gmail.com</button>. Los casos de datos personales le cambian el nombre, el email y la foto.</li>
+          <li><b>Un alumno de prueba nuevo,</b> registrado desde <code>/registro</code>: nombre <button type="button" class="tok" data-copy="QA">QA</button>, apellido <button type="button" class="tok" data-copy="Cuenta">Cuenta</button> y un email tuyo con sufijo, por ejemplo <button type="button" class="tok" data-copy="tuemail+qa-cuenta@gmail.com">tuemail+qa-cuenta@gmail.com</button>. Los casos de datos personales le cambian el apellido, el teléfono y la foto.</li>
           <li><b>Los pagos no se pueden anular.</b> Registralos solo al alumno QA Cuenta: van a quedar en su historial.</li>
           <li><b>Si editás tus cuentas reales</b> (DAT-11), anotá antes el teléfono original. CIE-01 lo vuelve atrás.</li>
           <li><b>Dos roles a la vez:</b> ventana normal para el alumno y de incógnito para el entrenador.</li>
@@ -304,7 +304,7 @@ tr:last-child td{border-bottom:0}
     // ── Datos personales ────────────────────────────────────
     { id: 'DAT-01', g: 'dat', t: 'Datos precargados', env: ['TODOS'],
       steps: ['Como QA Cuenta, tocá Datos personales.', 'En Network, mirá el request que sale.'],
-      exp: `<ul><li>Abre <code>/cuenta/datos</code> con ${ui('Mi cuenta')} arriba, el título ${ui('Datos personales')} y ${ui('Volver')}.</li><li>Nombre, Apellido, Email y Teléfono (código de país y número) vienen con los datos del registro. ${ui('Foto de perfil (link)')} dice ${ui('Opcional. Pegá el link de una imagen.')}</li><li>Sale <code>GET /users/get/{tu id}</code> y responde 200. (CU-U-06, paso 1)</li></ul>` },
+      exp: `<ul><li>Abre <code>/cuenta/datos</code> con ${ui('Mi cuenta')} arriba, el título ${ui('Datos personales')} y ${ui('Volver')}.</li><li>Nombre, Apellido, Email y Teléfono (código de país y número) vienen con los datos del registro, pero el Email se ve deshabilitado: no se puede editar. ${ui('Foto de perfil (link)')} dice ${ui('Opcional. Pegá el link de una imagen.')}</li><li>Sale <code>GET /users/get/{tu id}</code> y responde 200. (CU-U-06, paso 1)</li></ul>` },
     { id: 'DAT-02', g: 'dat', t: 'Guardar cambios', env: ['TODOS'],
       data: `Apellido ${tok('Cuenta Editada')} · teléfono ${tok('1198765432')}`,
       steps: ['Cambiá el apellido y el teléfono.', `Tocá ${ui('Guardar cambios')}.`, 'Recargá Mi cuenta y volvé a abrir Datos personales.'],
@@ -312,13 +312,12 @@ tr:last-child td{border-bottom:0}
     { id: 'DAT-03', g: 'dat', t: 'El cambio llega al entrenador', env: ['TODOS'],
       steps: ['En incógnito, como entrenador, buscá «Editada» en Mis alumnos.'],
       exp: '<p>Aparece QA Cuenta Editada con el nombre nuevo.</p>' },
-    { id: 'DAT-04', g: 'dat', t: 'Cambiar el email', env: ['TODOS'],
-      data: `Email nuevo, con mayúsculas: ${tok('TuEmail+QA-Cuenta2@gmail.com')}`,
-      steps: ['Cambiá el email y guardá.', 'Volvé a abrir Datos personales.', 'Cerrá sesión e intentá entrar con el email anterior.', 'Entrá con el email nuevo, escrito en minúsculas.'],
-      exp: `<p>Se guarda y el campo muestra el email en minúsculas, porque el backend lo guarda así. El email anterior ya no entra (${ui('El email o la contraseña no son correctos.')}) y el nuevo sí. (CU-U-06, pasos 3 y 4)</p>` },
-    { id: 'DAT-05', g: 'dat', t: 'Email de otra cuenta', env: ['TODOS'],
-      steps: ['Poné el email de tu cuenta de entrenador y guardá.'],
-      exp: `<p>${ui('El email ya está en uso')} debajo del campo, con el foco ahí, y no sale de la pantalla. <code>POST /users/edit</code> responde 409. Nada se guarda. (CU-U-06, caminos alternativos)</p>` },
+    { id: 'DAT-04', g: 'dat', t: 'El email no se puede cambiar', env: ['TODOS'],
+      steps: ['En Datos personales, tocá el campo Email e intentá escribir.', 'Cambiá el apellido, guardá y volvé a abrir Datos personales.', 'Cerrá sesión e iniciá sesión con el email de siempre.'],
+      exp: '<p>El campo Email se ve, pero está deshabilitado y no deja escribir. Se guarda el apellido y el email sigue igual. El login con ese email funciona. (CU-U-06, alcance y paso 4)</p>' },
+    { id: 'DAT-05', g: 'dat', t: 'Mandar un email por la API', env: ['TODOS'],
+      steps: ['Con QA Cuenta, abrí Network, guardá un cambio cualquiera y copiá el <code>POST /users/edit</code> como fetch.', 'Pegalo en la consola agregando al body un email distinto (por ejemplo, el de tu cuenta de entrenador) y ejecutalo.', 'Volvé a abrir Datos personales.'],
+      exp: `<p>El email no cambia, ni siquiera con el pedido armado a mano: el backend no lo actualiza. Tampoco sale ${ui('El email ya está en uso')}. (CU-U-06, paso 4)</p>` },
     { id: 'DAT-06', g: 'dat', t: 'Poner y quitar la foto de perfil', env: ['TODOS'],
       data: `Link de una imagen: ${tok('https://picsum.photos/id/64/200/200')}`,
       steps: ['Pegá el link y guardá.', 'Mirá el avatar de Mi cuenta.', 'Volvé a Datos personales, borrá el link y guardá.'],
@@ -344,15 +343,12 @@ tr:last-child td{border-bottom:0}
 
     // ── Validaciones ────────────────────────────────────────
     { id: 'VAL-01', g: 'val', t: 'Campos vacíos', env: ['TODOS'],
-      steps: ['Borrá nombre, apellido, email, código de país y teléfono, y guardá.', 'Escribí solo espacios en el nombre y guardá.'],
-      exp: `<p>${ui('Ingresá tu nombre')}, ${ui('Ingresá tu apellido')} y ${ui('Ingresá tu email')}. Bajo Teléfono va un solo error, el del primero que falle: ${ui('Ingresá el código de país')} y, con el código puesto, ${ui('Ingresá tu teléfono')}. Solo espacios cuenta como vacío. No sale ningún request. (CU-U-06, caminos alternativos)</p>` },
-    { id: 'VAL-02', g: 'val', t: 'Email inválido', env: ['TODOS'],
-      steps: [`Escribí ${tok('juan@')} como email y guardá.`],
-      exp: `<p>${ui('Ingresá un email válido')} y no sale ningún request.</p>` },
+      steps: ['Borrá nombre, apellido, código de país y teléfono, y guardá.', 'Escribí solo espacios en el nombre y guardá.'],
+      exp: `<p>${ui('Ingresá tu nombre')} y ${ui('Ingresá tu apellido')}. Bajo Teléfono va un solo error, el del primero que falle: ${ui('Ingresá el código de país')} y, con el código puesto, ${ui('Ingresá tu teléfono')}. Solo espacios cuenta como vacío. No sale ningún request. (CU-U-06, caminos alternativos)</p>` },
     { id: 'VAL-03', g: 'val', t: 'Largos máximos', env: ['TODOS'],
-      data: `51 caracteres: ${tok(LONG_51)} · email de 51: ${tok('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@gmail.com')} · código de 11: ${tok('+5412345678')} · teléfono de 21: ${tok('123456789012345678901')} · link de 151: ${tok(LONG_LINK)}`,
-      steps: ['Pegá el texto de 51 en nombre y apellido, y el email de 51.', 'Pegá el código de 11. Después volvé a poner +54 y pegá el teléfono de 21.','Pegá el link de 151 en Foto de perfil y guardá.'],
-      exp: `<p>${ui('El nombre no puede tener más de 50 caracteres')}, lo mismo para el apellido y el email; ${ui('El código de país no puede tener más de 10 caracteres')}, ${ui('El teléfono no puede tener más de 20 caracteres')} y ${ui('El link no puede tener más de 150 caracteres')}. No sale ningún request.</p>` },
+      data: `51 caracteres: ${tok(LONG_51)} · código de 11: ${tok('+5412345678')} · teléfono de 21: ${tok('123456789012345678901')} · link de 151: ${tok(LONG_LINK)}`,
+      steps: ['Pegá el texto de 51 en nombre y apellido.', 'Pegá el código de 11. Después volvé a poner +54 y pegá el teléfono de 21.','Pegá el link de 151 en Foto de perfil y guardá.'],
+      exp: `<p>${ui('El nombre no puede tener más de 50 caracteres')}, lo mismo para el apellido; ${ui('El código de país no puede tener más de 10 caracteres')}, ${ui('El teléfono no puede tener más de 20 caracteres')} y ${ui('El link no puede tener más de 150 caracteres')}. No sale ningún request.</p>` },
     { id: 'VAL-04', g: 'val', t: 'Foto sin http', env: ['TODOS'],
       steps: [`Escribí ${tok('foto.png')} en Foto de perfil y guardá.`],
       exp: `<p>${ui('Ingresá un link válido, que empiece con http:// o https://')} y no sale ningún request.</p>` },
@@ -392,7 +388,7 @@ tr:last-child td{border-bottom:0}
       exp: `<p>Aviso rojo arriba del formulario, por ejemplo ${ui('No pudimos conectarnos con el servidor. Revisá tu conexión e intentá de nuevo.')}, y lo escrito se conserva. Con el backend prendido, se guarda.</p>` },
     { id: 'ERR-03', g: 'err', t: 'Celular y escritorio', env: ['TODOS'],
       steps: ['Recorré Mi cuenta, Datos personales e Historial de pagos en el celular, o en DevTools a 390 px.', 'Repetí en escritorio.'],
-      exp: '<ul><li>Sin scroll horizontal ni textos cortados; un email largo no rompe la pantalla.</li><li>En el celular, el email abre el teclado con @, el teléfono el numérico y la foto el de links.</li><li>En escritorio, el menú de Mi cuenta y la lista de pagos van en dos columnas, y Nombre y Apellido quedan lado a lado.</li></ul>' },
+      exp: '<ul><li>Sin scroll horizontal ni textos cortados; un email largo no rompe la pantalla.</li><li>En el celular, el teléfono abre el teclado numérico y la foto el de links.</li><li>En escritorio, el menú de Mi cuenta y la lista de pagos van en dos columnas, y Nombre y Apellido quedan lado a lado.</li></ul>' },
     { id: 'ERR-04', g: 'err', t: 'Teclado y lector de pantalla', env: ['TODOS'],
       steps: ['Recorré Mi cuenta y Datos personales solo con Tab y Enter.'],
       exp: '<p>El foco siempre se ve y cada fila del menú se abre con Enter. El código de país se anuncia como «Código de país» y los errores aparecen junto a su campo.</p>' },
