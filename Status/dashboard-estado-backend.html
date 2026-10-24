@@ -205,7 +205,7 @@
       <span><b>75</b> casos de uso</span>
       <span><b>9</b> módulos</span>
       <span>Fuente: <b>Use Cases/</b> (PowerApp-Docs) vs <b>power-app/src</b></span>
-      <span>Corte: <b>2026-10-22</b></span>
+      <span>Corte: <b>2026-10-24</b></span>
     </div>
   </header>
 
@@ -214,10 +214,10 @@
     <div class="sec-head"><h2>Panorama general</h2><span class="kicker">75 CU clasificados</span></div>
     <div class="tiles">
       <div class="tile done">
-        <div class="n">72</div><div class="lbl">Implementado</div><div class="pct">96% · cumple su spec</div>
+        <div class="n">73</div><div class="lbl">Implementado</div><div class="pct">97% · cumple su spec</div>
       </div>
       <div class="tile partial">
-        <div class="n">2</div><div class="lbl">Parcial</div><div class="pct">3% · un camino sin cumplir</div>
+        <div class="n">1</div><div class="lbl">Parcial</div><div class="pct">1% · un camino sin cumplir</div>
       </div>
       <div class="tile stub">
         <div class="n">0</div><div class="lbl">Andamiaje</div><div class="pct">0% · ruta que cuelga</div>
@@ -228,14 +228,14 @@
     </div>
 
     <div class="bar-block">
-      <div class="bar" role="img" aria-label="72 implementados, 2 parciales, 0 andamiaje, 0 no implementados y 1 sin backend, de 75">
-        <span class="s-done" style="width:96%"></span>
-        <span class="s-partial" style="width:2.67%"></span>
+      <div class="bar" role="img" aria-label="73 implementados, 1 parcial, 0 andamiaje, 0 no implementados y 1 sin backend, de 75">
+        <span class="s-done" style="width:97.33%"></span>
+        <span class="s-partial" style="width:1.33%"></span>
         <span class="s-client" style="width:1.33%"></span>
       </div>
       <div class="bar-cap">
-        <span><b>72 de los 74</b> CU con backend completos (97%) · <span class="warn">⚠</span> 2 con un defecto abierto (E-29, A-04)</span>
-        <span><b>2</b> pendientes (U-04 y A-17, parciales) · ninguno sin endpoint ni en andamiaje · 1 sin backend (U-14)</span>
+        <span><b>73 de los 74</b> CU con backend completos (99%) · <span class="warn">⚠</span> 1 con un defecto abierto (A-04)</span>
+        <span><b>1</b> pendiente (U-04, parcial) · ninguno sin endpoint ni en andamiaje · 1 sin backend (U-14)</span>
       </div>
     </div>
   </section>
@@ -275,15 +275,13 @@
 
       <div class="role-card">
         <h3>Admin <em>23 CU</em></h3>
-        <div class="role-pct" style="color:var(--done)">96%</div>
-        <div class="role-sub">22 de 23 · ejercicios, músculos, grupos y membresías cerrados; falta el camino «ya es entrenador» de A-17</div>
+        <div class="role-pct" style="color:var(--done)">100%</div>
+        <div class="role-sub">23 de 23 · ejercicios, músculos, grupos, entrenadores y membresías cerrados</div>
         <div class="mini-bar">
-          <span style="width:95.65%;background:var(--done)"></span>
-          <span style="width:4.35%;background:var(--partial)"></span>
+          <span style="width:100%;background:var(--done)"></span>
         </div>
         <div class="role-legend">
-          <i><span class="swatch" style="background:var(--done)"></span><b>22</b> impl.</i>
-          <i><span class="swatch" style="background:var(--partial)"></span><b>1</b> parc.</i>
+          <i><span class="swatch" style="background:var(--done)"></span><b>23</b> impl.</i>
         </div>
       </div>
 
@@ -292,27 +290,13 @@
 
   <!-- FINDINGS -->
   <section>
-    <div class="sec-head"><h2>Hallazgos estructurales</h2><span class="kicker">lo que explica los números</span></div>
+    <div class="sec-head"><h2>Hallazgos estructurales</h2><span class="kicker">ninguno abierto desde el 24/10</span></div>
     <div class="findings">
-      <div class="finding">
-        <div class="fi">02</div>
-        <div>
-          <h4>25/8, actualizado 18/10 — el registro de ejecución de la vía del plan: ningún endpoint lo escribe</h4>
-          <p>Las dos tablas de ejecución existen desde el 17/10 (BE-10): <code>Routine_Exercise_Finished</code> para las planificaciones y <code>Routine_Asign_Exercise_Finished</code> para las asignaciones individuales. <b>La vía individual quedó completa el 18/10:</b> el alumno marca, desmarca y anota (<b>U-12</b> y <b>U-13</b>, BE-14), lo lee en el detalle de su asignación (<b>U-09</b> y <b>U-10</b>, BE-13) y el entrenador lo ve en el historial (<b>E-06</b> y <b>E-07</b>, BE-16). <b>Sigue abierta la vía del plan:</b> ningún endpoint inserta en <code>Routine_Exercise_Finished</code>, así que un alumno con una planificación asignada no puede marcar nada ni tiene historial. Es del bloque B. Sigue vigente que la baja lógica de CU-E-23 nunca se probó en runtime: el "hecho" individual existe, pero falta correrlo contra una base con una asignación y datos que el seed no genera (BE-21, BE-35).</p>
-        </div>
-      </div>
-      <div class="finding">
-        <div class="fi">04</div>
-        <div>
-          <h4>25/8, actualizado 17/10 — <code>updated_at</code> no se actualiza solo, en ninguna tabla</h4>
-          <p>Las entidades declaran <code>@Column({ onUpdate: 'CURRENT_TIMESTAMP' })</code> en 18 archivos, y eso es <b>sintaxis de MySQL</b>: en Postgres no hace nada, el DDL no tiene triggers y ninguna entidad usa <code>@UpdateDateColumn</code>. <code>updated_at</code> queda <b>congelado en la fecha de alta</b>, salvo donde se setea a mano (<code>editCircuit</code>, <code>editRoutine</code> y algunos de <code>users</code>). <code>editPlanification</code>, por ejemplo, no lo setea. <b>Lo resuelve BE-30.</b></p>
-        </div>
-      </div>
       <div class="finding">
         <div class="fi">✅</div>
         <div>
           <h4>Cerrados — salieron de la lista</h4>
-          <p>Módulo <code>/auth</code> comentado <span class="muted">(resuelto 11/8)</span> · autorización manual sin Guards <span class="muted">(11/8)</span> · gestión de cuenta del usuario, U-05, U-06 y U-16 <span class="muted">(18/8)</span> · alumnos y membresías, E-01 a E-03 y E-26 a E-28 <span class="muted">(6/8 y 18/8)</span> · modelo de circuitos alineado con <code>Doc/</code> <span class="muted">(19/8)</span> · circuitos incompletos, cerrado 4 de 4 <span class="muted">(25/8)</span> · <b>01</b> planificaciones sin service <span class="muted">(31/8 y 4/9)</span> · <b>03</b> <code>Routine.routine_plan_id</code> obsoleta, borrada <span class="muted">(4/9)</span>. Los números 02 y 04 se conservan porque así los citan el changelog y el roadmap. El detalle queda en <b>Cambios recientes</b> del informe.</p>
+          <p>Módulo <code>/auth</code> comentado <span class="muted">(resuelto 11/8)</span> · autorización manual sin Guards <span class="muted">(11/8)</span> · gestión de cuenta del usuario, U-05, U-06 y U-16 <span class="muted">(18/8)</span> · alumnos y membresías, E-01 a E-03 y E-26 a E-28 <span class="muted">(6/8 y 18/8)</span> · modelo de circuitos alineado con <code>Doc/</code> <span class="muted">(19/8)</span> · circuitos incompletos, cerrado 4 de 4 <span class="muted">(25/8)</span> · <b>01</b> planificaciones sin service <span class="muted">(31/8 y 4/9)</span> · <b>03</b> <code>Routine.routine_plan_id</code> obsoleta, borrada <span class="muted">(4/9)</span> · <b>02</b> el registro de ejecución de la vía del plan, completo: se escribe desde BE-20c y se lee en el historial desde BE-20d <span class="muted">(23/10)</span> · <b>04</b> <code>updated_at</code> que no se actualizaba solo: las 20 entidades usan <code>@UpdateDateColumn</code> desde BE-30 y el DDL no cambió <span class="muted">(24/10)</span>. Sigue vigente que la baja lógica de CU-E-23 nunca se probó en runtime: el seed ya trae los datos para probarla (BE-21) y la corrida es BE-35. Los números se conservan porque así los citan el changelog y el roadmap. El detalle queda en <b>Cambios recientes</b> del informe.</p>
         </div>
       </div>
     </div>
@@ -329,9 +313,9 @@
         <tbody>
           <tr><td class="cu">1</td><td class="name">Seguridad y contrato inmediato <span class="muted">· BE-01 a BE-08</span></td><td class="endpoint">16 al 19/10</td><td><b>H1:</b> sin agujeros de seguridad conocidos, el web avisado de C2 y el Status con conteos reales</td><td><span class="chip done"><span class="cd"></span>Cerrada 17/10</span></td></tr>
           <tr><td class="cu">2</td><td class="name">Bloque A: rutina puntual y ejecución <span class="muted">· BE-09 a BE-16</span></td><td class="endpoint">20 al 27/10</td><td><b>H2:</b> el flujo puntual de punta a punta: asignar → ver → marcar → nota → historial</td><td><span class="chip done"><span class="cd"></span>Cerrada 18/10</span></td></tr>
-          <tr><td class="cu">⏱</td><td class="name">Regenerar la base de Render <span class="muted">· BE-23</span></td><td class="endpoint">≈ 1/11</td><td>Esquema del bloque A aplicado antes de que venza la base (≈ 2/11, sin verificar)</td><td><span class="muted">fecha fija</span></td></tr>
-          <tr><td class="cu">3</td><td class="name">Bloque B: asignar planificaciones <span class="muted">· BE-17 a BE-23</span></td><td class="endpoint">28/10 al 5/11</td><td><b>H3:</b> los 74 CU con backend tienen código</td><td><span class="chip partial"><span class="cd"></span>En curso</span> <span class="muted">BE-17, BE-18, BE-18b, BE-19, BE-20 y BE-20e (20 y 21/10)</span></td></tr>
-          <tr><td class="cu">4</td><td class="name">Brechas de CU y deuda <span class="muted">· BE-24 a BE-34</span></td><td class="endpoint">3 al 12/11</td><td><b>H4:</b> ningún parcial y el Swagger completo</td><td><span class="chip partial"><span class="cd"></span>En curso</span> <span class="muted">BE-24, BE-25 y BE-26 adelantadas (22/10)</span></td></tr>
+          <tr><td class="cu">⏱</td><td class="name">Regenerar la base de Render <span class="muted">· BE-23</span></td><td class="endpoint">30/10 al 1/11</td><td>La base nueva con el esquema y el seed completos, antes de que venza la vieja (≈ 2/11, sin verificar)</td><td><span class="muted">fecha fija · runbook listo (23/10): lo ejecuta el usuario</span></td></tr>
+          <tr><td class="cu">3</td><td class="name">Bloque B: asignar planificaciones <span class="muted">· BE-17 a BE-23</span></td><td class="endpoint">28/10 al 5/11</td><td><b>H3:</b> los 74 CU con backend tienen código</td><td><span class="chip partial"><span class="cd"></span>En curso</span> <span class="muted">BE-17, BE-18, BE-18b, BE-19, BE-20, BE-20e, BE-20b, BE-20c, BE-20d y BE-21 (20 a 23/10)</span></td></tr>
+          <tr><td class="cu">4</td><td class="name">Brechas de CU y deuda <span class="muted">· BE-24 a BE-34</span></td><td class="endpoint">3 al 12/11</td><td><b>H4:</b> ningún parcial y el Swagger completo</td><td><span class="chip partial"><span class="cd"></span>En curso</span> <span class="muted">BE-24, BE-25 y BE-26 adelantadas (22/10); BE-27, BE-28 y BE-30 (24/10)</span></td></tr>
           <tr><td class="cu">5</td><td class="name">Verificación y cierre <span class="muted">· BE-35 a BE-39</span></td><td class="endpoint">12 al 17/11</td><td><b>H5:</b> criterios de "backend terminado" cumplidos y código congelado</td><td></td></tr>
         </tbody>
       </table>
@@ -358,11 +342,11 @@
 
           <tr class="pkg"><td colspan="4"><span class="pkg-lbl">Mi entrenamiento</span></td></tr>
           <tr><td class="cu">CU-U-08</td><td class="name">Obtener mi planificación</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /routine/home/:userId <span class="muted">· el home en un solo pedido: week semanas desde el lunes de date, con las dos fuentes (BE-20e, 21/10) · </span><span class="verb">GET</span> /routine/assigned/:userId <span class="muted">· la parte individual, por día y con su progreso (18/10) · </span><span class="verb">GET</span> /routine/assigned-plan/:userId <span class="muted">· la parte del plan: las semanas de cada plan activo, sus rutinas sin día y con su progreso · tope de 520 semanas (BE-20, 21/10)</span></td></tr>
-          <tr><td class="cu">CU-U-09</td><td class="name">Ver detalle de rutina</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /routine/assign-user/:id <span class="muted">· el alumno lee la rutina por su asignación (403 si es de otro) · mismo árbol que GET /routine/:id, con lo dado de baja que completó y lo hecho en <code>finished</code> (18/10)</span></td></tr>
-          <tr><td class="cu">CU-U-10</td><td class="name">Ver detalle de un ejercicio</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">dentro del detalle de la asignación: ficha, series, nota del coach y, en <code>finished</code>, la nota del alumno (18/10) · </span><span class="verb">GET</span> /exercise/:id <span class="muted">sigue siendo el catálogo</span></td></tr>
+          <tr><td class="cu">CU-U-09</td><td class="name">Ver detalle de rutina</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /routine/assign-user/:id <span class="muted">· el alumno lee la rutina por su asignación (403 si es de otro) · mismo árbol que GET /routine/:id, con lo dado de baja que completó y lo hecho en <code>finished</code> (18/10) · </span><span class="verb">GET</span> /routine/assign-plan/:userPlanificationId/:routineAsignationId <span class="muted">· el detalle de una sesión del plan: el mismo árbol, con la asignación y la semana; se lee aunque esté quitada (BE-20b, 22/10)</span></td></tr>
+          <tr><td class="cu">CU-U-10</td><td class="name">Ver detalle de un ejercicio</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">dentro del detalle de la asignación o de la sesión del plan (BE-20b, 22/10): ficha, series, nota del coach y, en <code>finished</code>, la nota del alumno (18/10) · </span><span class="verb">GET</span> /exercise/:id <span class="muted">sigue siendo el catálogo</span></td></tr>
           <tr><td class="cu">CU-U-11</td><td class="name">Ver mis RMs de un ejercicio</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /user_rm/user/:idUser/exercise/:idExercise <span class="muted">· check de dueño (<code>@Owner</code> desde el 16/10)</span></td></tr>
-          <tr><td class="cu">CU-U-12</td><td class="name">Marcar serie como realizado</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /routine/assign-user/:id/finished <span class="muted">y </span><span class="verb">DELETE</span> …/finished/:routineExerciseId <span class="muted">· el hecho es por ejercicio (el tildado por serie es de la interfaz) · idempotentes · sólo el alumno dueño (403 si es de otro) · la vía del plan es del bloque B (18/10) · el alumno indica el día en que lo hizo (<code>finished_at</code>, obligatorio al marcar y corregible) (21/10)</span></td></tr>
-          <tr><td class="cu">CU-U-13</td><td class="name">Dejar una nota en el ejercicio</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">camino incluido de U-12: <code>user_note</code> va en el mismo </span><span class="verb">POST</span> …/finished <span class="muted">· hasta 100 caracteres; la cadena vacía la borra (18/10) · en la misma operación puede ir el día en que lo hizo (21/10)</span></td></tr>
+          <tr><td class="cu">CU-U-12</td><td class="name">Marcar serie como realizado</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /routine/assign-user/:id/finished <span class="muted">y </span><span class="verb">DELETE</span> …/finished/:routineExerciseId <span class="muted">· el hecho es por ejercicio (el tildado por serie es de la interfaz) · idempotentes · sólo el alumno dueño (403 si es de otro) · el alumno indica el día en que lo hizo (<code>finished_at</code>, obligatorio al marcar y corregible) (21/10) · </span><span class="verb">POST</span> /routine/assign-plan/:userPlanificationId/:routineAsignationId/finished <span class="muted">y </span><span class="verb">DELETE</span> …/finished/:routineExerciseId <span class="muted">· lo mismo por la vía del plan: la marca cuelga del par (asignación, rutina del plan); con la planificación quitada es 400 (también editar y desmarcar), y en una rutina que el coach quitó del plan no se marca nada nuevo, pero se puede editar y desmarcar lo hecho (BE-20c, 23/10)</span></td></tr>
+          <tr><td class="cu">CU-U-13</td><td class="name">Dejar una nota en el ejercicio</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="muted">camino incluido de U-12: <code>user_note</code> va en el mismo </span><span class="verb">POST</span> …/finished <span class="muted">· hasta 100 caracteres; la cadena vacía la borra (18/10) · en la misma operación puede ir el día en que lo hizo (21/10) · lo mismo en el </span><span class="verb">POST</span> …/assign-plan/…/finished <span class="muted">de la vía del plan, con el mismo tope de 100 caracteres (BE-20c, 23/10)</span></td></tr>
           <tr><td class="cu">CU-U-14</td><td class="name">Temporizador</td><td><span class="chip client"><span class="cd"></span>Sin backend</span></td><td class="endpoint"><span class="muted">por su spec es del cliente; el web lo tiene (T29)</span></td></tr>
           <tr><td class="cu">CU-U-15</td><td class="name">Consultar wiki de ejercicios</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /exercise/all</td></tr>
 
@@ -392,13 +376,13 @@
           <tr><td class="cu">CU-E-03</td><td class="name">Cerrar cuenta de alumno</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /users/set-active/:id <span class="muted">· baja lógica + login 403; el coach sólo sobre alumnos, nadie sobre sí mismo (16/10)</span></td></tr>
           <tr><td class="cu">CU-E-04</td><td class="name">Obtener RMs del alumno</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /user_rm/user/:id <span class="muted">· con <code>exercise_id</code> (17/10)</span></td></tr>
           <tr><td class="cu">CU-E-05</td><td class="name">Historial de pagos de alumno</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /membership/payment/user/:id</td></tr>
-          <tr><td class="cu">CU-E-06</td><td class="name">Historial de entrenamientos de alumno</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /routine/history/:userId <span class="muted">· las sesiones con al menos un ejercicio hecho, de la más nueva a la más vieja, con la prescripción, la fecha y la nota · sólo coach y admin · lo dado de baja aparece igual · la vía del plan es del bloque B (18/10) · cada ejercicio trae el día en que se hizo (<code>finished_at</code>) (21/10)</span></td></tr>
-          <tr><td class="cu">CU-E-07</td><td class="name">Historial de entrenamientos — filtro ejercicio</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /routine/history/:userId?exercise_id= <span class="muted">· sólo las sesiones donde se hizo ese ejercicio y, en cada una, sólo ese; <code>[]</code> si no hay (18/10) · cada ejercicio trae el día en que se hizo (<code>finished_at</code>) (21/10)</span></td></tr>
+          <tr><td class="cu">CU-E-06</td><td class="name">Historial de entrenamientos de alumno</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /routine/history/:userId <span class="muted">· las sesiones con al menos un ejercicio hecho, de la más nueva a la más vieja, con la prescripción, la fecha y la nota · sólo coach y admin · lo dado de baja aparece igual · cada ejercicio trae el día en que se hizo (<code>finished_at</code>) (21/10) · las sesiones del plan van en la misma lista, con <code>source: 'plan'</code>, sin <code>assignment_id</code> y con su semana, su plantilla y como fecha el día más viejo en que el alumno hizo algo (BE-20d, 23/10)</span></td></tr>
+          <tr><td class="cu">CU-E-07</td><td class="name">Historial de entrenamientos — filtro ejercicio</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /routine/history/:userId?exercise_id= <span class="muted">· sólo las sesiones donde se hizo ese ejercicio y, en cada una, sólo ese; <code>[]</code> si no hay (18/10) · cada ejercicio trae el día en que se hizo (<code>finished_at</code>) (21/10) · también filtra las sesiones del plan, y su fecha es el día en que hizo ese ejercicio (BE-20d, 23/10)</span></td></tr>
 
           <tr class="pkg"><td colspan="4"><span class="pkg-lbl">Administrar planificaciones</span></td></tr>
           <tr><td class="cu">CU-E-08</td><td class="name">Obtener planificaciones sistémicas</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /planification/all <span class="muted">· keyword/type/include_inactive + routine_count</span></td></tr>
           <tr><td class="cu">CU-E-09</td><td class="name">Crear planificación sistémica</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/create <span class="muted">· 201 con el detalle · <code>duration</code> en semanas, obligatoria (17/10)</span></td></tr>
-          <tr><td class="cu">CU-E-10</td><td class="name">Editar planificación sistémica</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/edit/:id <span class="muted">· 400 si está de baja · el opcional omitido borra · <code>duration</code> obligatoria; 400 si queda por debajo de una semana en uso (17/10)</span></td></tr>
+          <tr><td class="cu">CU-E-10</td><td class="name">Editar planificación sistémica</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/edit/:id <span class="muted">· 400 si está de baja · el opcional omitido borra · <code>duration</code> obligatoria; 400 si queda por debajo de una semana en uso (17/10) · <code>updated_at</code> nuevo al editar (24/10, BE-30)</span></td></tr>
           <tr><td class="cu">CU-E-11</td><td class="name">Eliminar planificación sistémica (lógico)</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/set-active/:id <span class="muted">· baja y reactivación</span></td></tr>
           <tr><td class="cu">CU-E-12</td><td class="name">Gestionar rutinas de una planificación</td><td><span class="muted">agrupador</span></td><td class="endpoint"><span class="muted">no se cuenta: agrupa a E-12a → E-12d</span></td></tr>
           <tr><td class="cu">CU-E-12a</td><td class="name">Asignar una rutina a planificación</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/routine/assign <span class="muted">· <code>week</code> obligatoria (≤ <code>duration</code> si es &gt; 0); order opcional, al final de esa semana si se omite (17/10)</span></td></tr>
@@ -427,7 +411,7 @@
           <tr><td class="cu">CU-E-26</td><td class="name">Obtener estado de membresías</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /membership/status/summary <span class="muted">· contadores derivados de expired_at</span></td></tr>
           <tr><td class="cu">CU-E-27</td><td class="name">Obtener alumnos por estado de membresía</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /membership/status/users?status= <span class="muted">· active / expiring_soon / expired / no_payments</span></td></tr>
           <tr><td class="cu">CU-E-28</td><td class="name">Obtener alumnos por tipo de membresía</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /membership/type/users?membership_id= <span class="muted">· sin el param, agrupa por tipo</span></td></tr>
-          <tr><td class="cu">CU-E-29</td><td class="name">Registrar pago de alumno</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /membership/payment/register <span class="muted">· <span class="warn">⚠</span> acepta un tipo dado de baja y un destinatario que no es alumno · BE-28</span></td></tr>
+          <tr><td class="cu">CU-E-29</td><td class="name">Registrar pago de alumno</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /membership/payment/register <span class="muted">· 404 si el alumno o el tipo no existen; 400 si el destinatario no es un alumno, su cuenta está cerrada o el tipo está dado de baja, en ese orden (BE-28, 24/10)</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -435,7 +419,7 @@
 
   <!-- DETAIL: ADMIN -->
   <section>
-    <div class="sec-head"><h2>Rol Admin</h2><span class="kicker">23 CU · 96% implementado</span></div>
+    <div class="sec-head"><h2>Rol Admin</h2><span class="kicker">23 CU · 100% implementado</span></div>
     <div class="table-scroll">
       <table>
         <thead>
@@ -465,7 +449,7 @@
 
           <tr class="pkg"><td colspan="4"><span class="pkg-lbl">Administrar entrenadores</span></td></tr>
           <tr><td class="cu">CU-A-16</td><td class="name">Obtener entrenadores</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /coach/all <span class="muted">· sólo admin; era público (16/10)</span></td></tr>
-          <tr><td class="cu">CU-A-17</td><td class="name">Convertir alumno a entrenador</td><td><span class="chip partial"><span class="cd"></span>Parcial</span></td><td class="endpoint"><span class="verb">POST</span> /coach/promote_user <span class="muted">· falta “ya es entrenador” y no es transaccional · BE-27</span></td></tr>
+          <tr><td class="cu">CU-A-17</td><td class="name">Convertir alumno a entrenador</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /coach/promote_user <span class="muted">· el rol y el Coach se escriben en una transacción · 409 si el email profesional o el CUIL son de otro entrenador · 400 si el usuario es un administrador · sobre un entrenador dado de baja lo reactiva y sobre uno activo edita sus datos (BE-27, 24/10)</span></td></tr>
           <tr><td class="cu">CU-A-18</td><td class="name">Editar datos de entrenador</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /coach/promote_user <span class="muted">· edita el coach existente; se mantiene así (16/10)</span></td></tr>
           <tr><td class="cu">CU-A-19</td><td class="name">Eliminar entrenador</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /coach/delete_coach/:id <span class="muted">· baja lógica</span></td></tr>
 
@@ -494,7 +478,7 @@
 
   <footer>
     <span>PowerApp Backend · auditoría de casos de uso</span>
-    <span>72 impl · 2 parc · 0 andam · 0 falta · 1 sin backend — de 75 · corte 2026-10-22</span>
+    <span>73 impl · 1 parc · 0 andam · 0 falta · 1 sin backend — de 75 · corte 2026-10-24</span>
   </footer>
 
 </div>

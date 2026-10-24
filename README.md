@@ -37,7 +37,7 @@ index.html   → Portada de GitHub Pages.
 - **Modelo de datos:** `Doc/PowerApp - Modelo DB.svg` / `.pdf`. Ante un conflicto con las entidades TypeORM del backend, manda este modelo.
 - **Especificaciones de CU:** `Use Cases/`. El índice `Use Cases/README.md` alimenta el visor.
 
-> **`Status/` es una copia.** La fuente de los archivos `*-backend` es la carpeta `Status/` del repo [PowerApp-Backend](https://github.com/FranCarames/PowerApp-Backend), y la de los `*-web` es la carpeta `Status/` del repo de la web (`PowerApp-Web`), porque el avance se actualiza junto con el código. Se sincroniza a mano: puede estar desactualizada respecto de su repo de origen.
+> **`Status/` es una copia.** La fuente de los archivos `*-backend` es la carpeta `Status/` del repo [PowerApp-Backend](https://github.com/FranCarames/PowerApp-Backend), y la de los `*-web` es la carpeta `Status/` del repo de la web (`PowerApp-Web`), porque el avance se actualiza junto con el código. Los `*-backend` se copian automáticamente cada vez que se actualiza el Status del backend; los `*-web` se sincronizan a mano, así que pueden estar desactualizados respecto de su repo de origen.
 
 ## Ver el sitio en local
 

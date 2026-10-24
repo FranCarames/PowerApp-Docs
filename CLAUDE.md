@@ -30,7 +30,7 @@ Hay dos pares de archivos, uno por cada código que se audita contra los CU:
 | `Status/estado-implementacion-backend.md` + `Status/dashboard-estado-backend.html` | carpeta `Status/` del repo del **backend** (`D:\Power App\Backend\PowerApp-Backend`) |
 | `Status/estado-implementacion-web.md` + `Status/dashboard-estado-web.html` | carpeta `Status/` del repo de la **web** (`D:\Power App\Web\PowerApp-Web`) |
 
-El usuario los copia a mano a este repo. **No editar `Status/` desde acá** salvo que el usuario lo pida: los cambios se pisarían en la próxima sincronización.
+**Los `*-backend` se sincronizan automáticamente (desde el 2026-10-24):** cada vez que se actualiza el Status del backend, ese mismo paso copia los dos archivos acá (`cp`, byte a byte) y los deja **sin stagear**; el usuario commitea cada repo. Los `*-web` los sigue copiando el usuario a mano. **No editar `Status/` desde acá** salvo que el usuario lo pida: los cambios se pisarían en la próxima sincronización.
 
 Los nombres de archivo están enlazados desde la portada (`index.html`, card "Estado de implementación" con un botón por par) y desde el `README.md`: si se renombran, actualizar ambos.
 

@@ -1,22 +1,22 @@
 # PowerApp Backend — Estado de implementación vs. Casos de Uso
 
-> **Corte:** 2026-10-22 · **Fuente:** `Use Cases/` del repo PowerApp-Docs (fuente de verdad de los CU) comparado contra `power-app/src`
+> **Corte:** 2026-10-24 · **Fuente:** `Use Cases/` del repo PowerApp-Docs (fuente de verdad de los CU) comparado contra `power-app/src`
 > **Método:** mapeo 1:1 de los 75 CU contra los `controller` y `service` del código, con el criterio del inventario del [roadmap del 16/10](https://github.com/FranCarames/PowerApp-Docs/blob/main/Doc/plans/2026-10-16-roadmap-backend.md) (§9): un CU es ✅ sólo si **todos los caminos de su spec** se cumplen.
 
 ## Resumen
 
 | Estado | CU | % | Significado |
 |---|---:|---:|---|
-| ✅ Implementado | 72 | 96% | El endpoint existe, ejecuta lógica real y cumple todos los caminos de su spec |
-| 🟡 Parcial | 2 | 3% | Un camino de la spec no se cumple, o la lógica existe sin la ruta o el rol que pide el CU |
+| ✅ Implementado | 73 | 97% | El endpoint existe, ejecuta lógica real y cumple todos los caminos de su spec |
+| 🟡 Parcial | 1 | 1% | Un camino de la spec no se cumple, o la lógica existe sin la ruta o el rol que pide el CU |
 | 🔵 Andamiaje | 0 | 0% | Ruta declarada sin lógica: con `@Res()`, **no responde** (cuelga) |
 | ⬜ No implementado | 0 | 0% | Sin endpoint |
 | — Sin backend | 1 | 1% | Por su spec es del cliente (CU-U-14) |
 | **Total** | **75** | | |
 
-**72 de los 74 CU con backend están completos (97%).** Faltan 2, los dos parciales (CU-U-04, BE-29, y CU-A-17, BE-27): ya no queda ninguno sin endpoint ni en andamiaje. Dos de los ✅ tienen un defecto abierto (⚠): CU-E-29 y CU-A-04.
+**73 de los 74 CU con backend están completos (99%).** Falta 1, parcial (CU-U-04, BE-29): ya no queda ninguno sin endpoint ni en andamiaje. Uno de los ✅ tiene un defecto abierto (⚠): CU-A-04.
 > **Nota (17/10):** los ✅ bajan de 63 (corte del 4/9) a 57 porque **cambió el criterio, no porque se rompiera algo**. El de antes daba ✅ a todo endpoint con lógica real; el del roadmap exige además que se cumpla cada camino de la spec. Por eso pasaron a 🟡 CU-U-04 (no envía el mail), CU-A-10 y CU-A-15 (borran en cascada en vez de impedirlo), CU-A-13 y CU-A-14 (no validan el nombre único) y CU-A-17 (falta "ya es entrenador"). Ver los cambios del 17/10.
-> **Base de datos:** la de Render se recreó el 3/10 con el esquema vigente (dato del Status web). Es free tier y **vence alrededor del 2/11** (*sin verificar*), así que hay que regenerarla antes (BE-23). **Desde el 17/10 el esquema del bloque A ya está en `Db Creator`** (BE-10): al regenerar con `01` → `02` → `03` no hace falta el patch `patches/2026-10-17-be-10.sql`, que es para una base viva.
+> **Base de datos:** la de Render se recreó el 3/10 con el esquema vigente (dato del Status web). Es free tier y **vence alrededor del 2/11** (*sin verificar*), así que hay que regenerarla antes (BE-23). **Desde el 17/10 el esquema del bloque A ya está en `Db Creator`** (BE-10): al regenerar con `01` → `02` → `03` no hace falta el patch `patches/2026-10-17-be-10.sql`, que es para una base viva. **Desde el 23/10 el `03` también trae la cadena de entrenamiento** (BE-21: circuitos, rutinas, planificaciones, asignaciones y ejecuciones, con un escenario por alumno): sobre la base actual alcanza con volver a aplicar el `03`, que es idempotente.
 
 ### Cobertura por rol
 
@@ -24,10 +24,245 @@
 |---|---:|---:|---:|---:|---:|---:|---:|
 | Usuario | 20 | 18 | 1 | 0 | 0 | 1 | 95% |
 | Entrenador | 32 | 32 | 0 | 0 | 0 | 0 | 100% |
-| Admin | 23 | 22 | 1 | 0 | 0 | 0 | 96% |
-| **Total** | **75** | **72** | **2** | **0** | **0** | **1** | **97%** |
+| Admin | 23 | 23 | 0 | 0 | 0 | 0 | 100% |
+| **Total** | **75** | **73** | **1** | **0** | **0** | **1** | **99%** |
 
 > **Nota (4/9):** `CU-E-12` es un CU **agrupador** y no se cuenta a sí mismo; cuentan sus cuatro operaciones anidadas (`CU-E-12a` a `CU-E-12d`). Por eso el total pasó de 72 a **75** sin que haya funcionalidad nueva respecto del corte anterior.
+
+## Cambios recientes (2026-10-24 · BE-30: `updated_at` automático en las 20 entidades · cierra el hallazgo 4)
+
+- **BE-30** (pedido del usuario del 24/10; tarea de calidad de la fase 4, sin CU nuevo). Plan: `Doc/plans/2026-10-24-be-30-updated-at-automatico-plan.md` (repo PowerApp-Docs). **Sin cambios de estado de CU: sigue en 73 ✅ · 1 🟡 · 0 🔵.** **No cambia el esquema ni `Db Creator`:** se regeneró con `py build_sql.py` y `01`, `02` y `03` quedaron **byte-idénticos** (la columna ya era `TIMESTAMPTZ NOT NULL DEFAULT NOW()` en las 20 tablas). **Cierra el hallazgo 4.**
+- **El defecto:** el `onUpdate: 'CURRENT_TIMESTAMP'` de las entidades es sintaxis de MySQL y en Postgres no hace nada, el DDL no tiene triggers y ninguna entidad usaba `@UpdateDateColumn`. Así que `updated_at` quedaba **congelado en la fecha de alta**, salvo en los métodos que lo setean a mano: `editPlanification`, `editExercise`, `editUserRm` y las bajas lógicas de rutina, circuito y planificación nunca lo movían.
+- **Ahora:** las **20 entidades** con `updated_at` lo declaran `@UpdateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })` (el mismo tipo y default que antes, y por eso el DDL no cambia; `created_at` no se toca). TypeORM agrega `"updated_at" = CURRENT_TIMESTAMP` a cada `UPDATE` de `save()` y de `update()`, y `save()` lo trae de vuelta con `RETURNING`, así que las respuestas ya traen el valor nuevo. **Aceptación cumplida:** `editPlanification` devuelve un `updated_at` nuevo (con el service real sobre el seed lo movió; antes no).
+- **Cómo se comporta TypeORM** (leído en su código, 0.3.27): `save()` **no escribe si no hay diferencias**, así que los caminos idempotentes siguen sin mover `updated_at`; si el pedido ya trae `updated_at`, TypeORM respeta el valor y **no lo duplica** (dos asignaciones a la misma columna las rechaza Postgres); y `repository.update()` **no pide `RETURNING`**, así que la entidad en memoria queda con el valor viejo. De esto salen las tres decisiones de abajo.
+- **Decisiones del 24/10, con el usuario** (cada una con su porqué, para que no se «corrija» en la dirección equivocada):
+  - **Las 20 entidades y no las 18 del roadmap.** `Membership` y `Membership_Payment` ni siquiera tenían el `onUpdate` (`Membership` lo seteaba a mano; el pago, nunca). Consecuencias: las bajas lógicas de rutina, circuito y planificación pasan a mover `updated_at`, y **el cron que vence los pagos mueve el `updated_at` del `Membership_Payment` que da de baja**.
+  - **`editRoutine` y `editCircuit` conservan el seteo manual** (`routine.updated_at = new Date()` y `circuit.updated_at = new Date()`). Por qué: editan los **hijos** (los circuitos de la rutina; los ejercicios y las series del circuito) y a veces dejan la cabecera igual, y como `save()` no escribe una fila sin cambios, sin el seteo esa edición dejaría de mover la fecha: un retroceso respecto de hoy. El comentario ya no habla de MySQL: dice esto. Las otras dos opciones eran un toque con el reloj de la base (`update(Entity, id, {})`, una consulta más) o sacarlo sin más.
+  - **Los tres `update()` que devuelven `updated_at` lo conservan en el `update()`:** marcar en la vía individual, marcar en la vía del plan y quitar o reincorporar el plan de un alumno (E-14). Por qué: `repository.update()` no refresca la entidad y la respuesta lo devuelve; pasarlo a mano evita releer la fila y no cambia ninguna respuesta. Las otras dos eran releer la fila (una consulta más por escritura) o un `UPDATE … RETURNING`.
+- **Decisiones del plan** (el usuario las revisa al aprobarlo):
+  - **Se sacan los seteos que `save()` ya cubre:** `users.service` (cuatro), `muscles.service` (dos), `membership.service` (dos) y `CoachService.savePromotion`. **Esto cumple lo que BE-27 dejó anotado** («`updated_at` del usuario y del `Coach` seteado a mano, lo cierra BE-30»).
+  - **Una edición que no cambia nada ya no mueve `updated_at`** (`editUser`, `setUserActive` al mismo estado, `editMuscle`, `editMembership` o `promote_user` con los mismos datos): antes el seteo manual siempre generaba una diferencia y escribía. Es lo que ya hacían los caminos idempotentes de marcar. **La excepción son `editRoutine` y `editCircuit`.**
+  - **Dos relojes:** casi todo usa el de la base (`CURRENT_TIMESTAMP`) y los cinco sitios de arriba usan el de la app (`new Date()`). Un desfase entre los dos podría dejar un `updated_at` automático un poco *antes* que uno forzado; nada depende de esa comparación.
+- **Verificación, sin levantar el server.** Hecho:
+  - Build en verde y `Db Creator` regenerado sin cambios (los `sha256` de `01`, `02` y `03` son iguales antes y después).
+  - **Tres scripts nuevos, escritos antes del código y corridos en rojo (78, 66 y 13 fallas), después en verde (302, 93 y 105 chequeos):** la metadata real de las 20 entidades con un `DataSource` sin conexión (`isUpdateDate`, `timestamptz`, default, sin `onUpdate`; el `UPDATE` con `CURRENT_TIMESTAMP` una sola vez y sin duplicarse si ya viene el valor); el texto del código (qué seteos manuales quedan, y que ningún comentario diga «sintaxis de MySQL»); y **los services reales escribiendo sobre el seed** (SQLite como base, con el SQL de TypeORM de Postgres): `editPlanification`, las bajas, `editUser`, `editMuscle`, `editMembership`, `promote_user` con la transacción real, `editRoutine`, las dos marcas, E-14 y el cron de pagos. En cada una `updated_at` se mueve, `created_at` no, **la respuesta trae el mismo valor que la base**, el `UPDATE` nombra la columna una sola vez y un pedido sin cambios no escribe.
+  - **Regresión:** los 27 scripts de BE-12 a BE-28, sin fallas. La única aserción que cambió fue la de BE-27 («`updated_at` se setea a mano»), que ya no corresponde.
+  - **Qué NO se verificó:** que un Postgres real ejecute el `UPDATE … RETURNING "updated_at"` (se vio el SQL y se ejecutó en SQLite); los `INSERT` (no corren en SQLite; se verificaron como SQL, con `updated_at` en `DEFAULT`); `editCircuit` de punta a punta (reemplaza las series con `INSERT`: se probó el mecanismo y que la línea siga en el código); el cron en su horario; y el runtime (BE-35).
+- **Para el web:** no cambia ningún contrato. Las respuestas ya traían `updated_at`; lo que cambia es que **ahora se mueve en las ediciones** (antes quedaba en la fecha de alta casi siempre). Si el web muestra «editado el…», va a mostrar fechas distintas de la de alta, que es lo correcto.
+- **Hallazgo 4, cerrado.** No quedan hallazgos estructurales abiertos.
+
+## Cambios recientes (2026-10-24 · BE-27 y BE-28: `promote_user` y el pago de alumno)
+
+- **BE-27 (CU-A-17) y BE-28 (CU-E-29), juntas** (pedido del usuario del 24/10; arreglos chicos de la fase 4, sin esquema). Plan: `Doc/plans/2026-10-24-be-27-y-be-28-bajas-rapidas-plan.md` (repo PowerApp-Docs). **A-17 pasa de 🟡 a ✅ y E-29 pierde su ⚠: 73 ✅ · 1 🟡 · 0 🔵; el Admin queda en 23 de 23.** Sólo falta CU-U-04 (BE-29, el mail). **No cambia el esquema ni `Db Creator`.**
+- **BE-27 · `POST /coach/promote_user`:**
+  - **El bug:** el rol del usuario se cambiaba **primero** y el `Coach` se guardaba después, sin transacción. Un `coach_email` o un CUIL repetidos hacían fallar el segundo paso con un `500` y dejaban a un alumno con `role = coach` y sin su registro `Coach`.
+  - **Ahora:** el rol y el `Coach` se escriben en una **transacción** (`QueryRunner` con la guarda del rollback): o quedan los dos, o ninguno. Un email o un CUIL de otro entrenador dan **`409`** (`Ya existe un entrenador con ese email profesional` o `…con ese CUIL`), antes de abrir la transacción; y si dos altas chocan al mismo tiempo, el `23505` de `uk_coach_email` o `uk_coach_cuil` se traduce al mismo `409` y la transacción se deshace.
+  - **Un administrador no se convierte en entrenador: `400`** (`No se puede convertir en entrenador a un administrador.`). Era lo que el roadmap sólo anotaba como riesgo: un admin que se promueve por error perdía su acceso.
+  - **Lo repetido se compara contra todos los entrenadores, también los dados de baja** (los únicos de la base no distinguen), y **el email y el CUIL del propio usuario no cuentan**: un entrenador dado de baja que vuelve, o uno activo que se edita (CU-A-18, que sigue resolviéndose con este endpoint por la decisión del 16/10), no choca consigo mismo.
+  - **La respuesta no cambia:** `200` con el usuario y su `coach`, sin contraseña.
+  - **`CU-A-17` reescrita** (repo PowerApp-Docs): sin el camino «ya es entrenador»; con la reactivación de un entrenador dado de baja, la edición de uno activo, el administrador, los repetidos y la atomicidad. `CU-A-18` suma el camino de los repetidos.
+- **BE-28 · `POST /membership/payment/register`:**
+  - **Antes:** aceptaba un tipo dado de baja y a cualquier destinatario (un entrenador, un admin); un tipo inexistente daba `400`.
+  - **Ahora:** primero la existencia, **`404`** si no existe el alumno o el tipo (el del tipo era `400`), y después los `400`, en este orden: `El destinatario del pago tiene que ser un alumno.`, `La cuenta del alumno está cerrada: no se puede registrar el pago.` y `El tipo de membresía está dado de baja.` El pago válido no cambia (`201`). **`CU-E-29` reescrita** con los cinco caminos nuevos y el orden de las comprobaciones.
+- **Decisiones del 24/10, con el usuario:**
+  - **Rechazar con `400` convertir a un administrador** (la otra opción era dejarlo como estaba, con el riesgo anotado).
+  - **Rechazar con `400` el pago a una cuenta cerrada,** regla que el roadmap no pedía. Choca con el diseño del web (PAG-08 y su aviso dicen que el pago a una cuenta cerrada *«se registra igual»*); **el usuario lo confirmó el 24/10 con el conflicto a la vista: se mantiene el `400` y el web se adapta.**
+- **Decisiones del plan** (el usuario las revisa al aprobarlo): el orden de las comprobaciones de `promote_user` (`404` → `400` → `409` del email → `409` del CUIL → la transacción), un solo repetido informado por vez, `updated_at` del usuario y del `Coach` seteado a mano (lo sacó BE-30 el mismo día: `savePromotion` ya no lo setea), y `CoachService` suma el `DataSource` sin tocar el módulo (es global).
+- **Verificación, sin levantar el server.** Hecho:
+  - Build en verde.
+  - **Tres scripts nuevos, escritos antes del código y corridos en rojo (28, 16 y 8 fallas), después en verde:** las reglas de `promote_user` (50 chequeos, con una **transacción falsa que restaura el estado al hacer rollback**, para probar la atomicidad: la carrera por el email y por el CUIL, un `23505` de otra constraint, un fallo al guardar el `Coach` y otro al guardar el usuario, y la conexión caída), las del pago (28) y los controllers con el Swagger y la inyección del `DataSource` (22).
+  - **Qué NO se verificó:** que el `23505` real de Postgres llegue con los nombres `uk_coach_email` y `uk_coach_cuil` (son los del DDL de `Db Creator`; con otro nombre una carrera daría `500` en vez de `409`, el camino normal no depende de eso), que Nest arranque con el módulo (se probó la inyección con un proveedor falso) y el runtime (BE-35).
+- **Para el web** (lo hace en su repo):
+  - **T37 (editar entrenador)** pasa a `POST /coach/promote_user`, que sobre un entrenador activo edita su email y su CUIL.
+  - **PAG-07** (un tipo dado de baja mientras tanto) ahora tiene un `400` real detrás, y el *«Hoy no cumple el CU»* del plan de pruebas queda viejo: re-correrlo.
+  - **PAG-08 (cuenta cerrada): el web se adapta (decidido).** Tiene que dejar de ofrecer a los alumnos cerrados para pagar (o mostrar el `400`) y corregir su aviso y el plan de pruebas.
+  - **El backend sólo bloquea al administrador;** el web bloquea además convertir a una cuenta inactiva (el aviso «Reactivala desde Usuarios…»). Por API todavía se puede convertir a una cuenta cerrada.
+
+## Cambios recientes (2026-10-23 · BE-23 preparada: la regeneración de la base de Render)
+
+- **BE-23 está preparada, no ejecutada.** Plan y runbook: `Doc/plans/2026-10-23-be-23-regenerar-la-base-de-render-plan.md` (repo PowerApp-Docs). Crear la instancia de Render y cargarla es una operación sobre la cuenta del usuario, así que **la ejecuta él**; desde acá se hizo todo lo que se puede comprobar sin Postgres. **No cambia código de la API ni de `Db Creator`**: la base se cambia por las variables `POSTGRES_*` del web service (el `ssl` ya está en `app.module.ts`). Falta que el usuario la corra y pase la **fecha de vencimiento nueva**, que acá todavía no existe.
+- **Decisiones del 23/10:**
+  - **BE-22 queda fuera de esta regeneración** (el usuario eligió que no entre). La base nueva sale con el `01` de hoy: es lo más corto y deja una sola cosa nueva que probar. `User_RM.exercise_id` y `Routine_Exercise.exercise_id` siguen en `CASCADE`, con el `409` del service (A-06) como barrera; si después se quiere, va con un patch sobre la base nueva.
+  - **Cuándo crearla: entre el 30/10 y el 1/11.** La base free dura 30 días (dato del proyecto) y la vieja vence ≈ 2/11 (*sin verificar*: hay que mirar la fecha real en el panel). Crearla hoy vence ≈ 22/11, con 2 días de margen sobre la entrega del 20/11; en esa ventana vence entre el 29/11 y el 1/12.
+  - **El apuntador es el último paso:** las variables del web service no se tocan hasta tener la base nueva cargada y verificada, así la vieja sigue sirviendo si algo falla.
+  - **Todo en una transacción** (DBeaver en commit manual): el `01` nunca se aplicó desde cero en un Postgres desde BE-10, BE-18, BE-24 y BE-25, y en Postgres el DDL es transaccional, así que un error se resuelve con un `ROLLBACK` y la base queda vacía. El runbook trae una consulta de verificación con el conteo esperado de las 20 tablas (`Exercised_Muscle` 734, `Exercise` 207, `Routine_Asignation` 27, etc.) y del esquema (20 tablas, 24 FK: 11 `RESTRICT` y 13 `CASCADE`), y una tabla de pruebas de humo por alumno.
+- **Qué se comprobó, sin Postgres:**
+  - **`preflight.py` (16 chequeos):** cada FK apunta a una tabla creada **antes** en el `01` (SQLite no lo exige y Postgres sí), índices y constraints con nombres únicos, el ENUM antes de su uso, nada suelto fuera de `CREATE TYPE/TABLE/INDEX`; y para el `02` y el `03`: tablas y columnas existentes, `NOT NULL` sin default presentes y padres antes que hijos.
+  - **`entities-vs-ddl.js` (254 chequeos):** la metadata real de TypeORM contra el esquema del `01`, tabla por tabla: columnas, nulabilidad, `ON DELETE` y únicos. **7 diferencias heredadas**, anteriores a estas tareas y sin efecto en la API (`synchronize` está en `false` y manda el DDL): `Coach.coach_email` y `Coach.cuil` son `NOT NULL` en la entidad y nulables en el DDL; `Coach.id` declara una FK a `User` que el DDL no crea; y `Membership_Payment.user_id`, `Membership_Payment.membership_id`, `User_RM.user_id` y `User_RM.exercise_id` no declaran `onDelete`. Alinearlas es una decisión de modelo.
+  - Lo ya comprobado en BE-21: regeneración byte-idéntica, y el seed funcionando con el service real en SQLite.
+  - **Qué NO se verificó:** que el `01` se aplique en un Postgres de verdad (lo cubre la corrida y, después, BE-35).
+- **Sin cambios de estado de CU** (72 ✅ · 2 🟡 · 0 🔵).
+
+## Cambios recientes (2026-10-23 · el seed de la cadena de entrenamiento)
+
+- **BE-21: el `03` trae ahora la cadena de entrenamiento.** Plan: `Doc/plans/2026-10-23-be-21-seed-de-la-cadena-de-entrenamiento-plan.md` (repo PowerApp-Docs). Hasta hoy el seed llegaba hasta `User_RM`: no había un solo circuito, rutina, planificación ni ejecución, así que **ninguno de los flujos de U-08 a E-07 se podía demostrar sin cargar datos a mano**. El roadmap hablaba de `User_Routine`, que ya no existe: lo reemplazan `Routine_Asignation_User` y las dos tablas de «hecho» (BE-10 y BE-18). **No cambia el esquema**: `01` y `02` quedan byte-idénticos y sólo cambia el `03`.
+- **El contenido** (el usuario aprobó el diseño completo el 23/10): 7 circuitos con ejercicios reales del catálogo y series, 6 rutinas, 4 plantillas (`Fuerza 4 semanas`, `Hipertrofia 6 semanas`, `Plan libre` con duración 0 y `Plan descontinuado`, de baja), 5 planes asignados, 7 rutinas individuales y las ejecuciones: 17 en la vía individual y 27 en la del plan. Un escenario por alumno:
+  - **Lucía:** «Fuerza» vigente desde el 19/10, con la semana 1 casi completa (notas y una marca en diferido), parte de la 2 y una individual el 24/10. Como ya tiene un plan vigente, asignarle otro da el `409` de solapamiento de E-13.
+  - **Mateo:** «Fuerza» vigente desde el 26/10 sin marcas, y una individual pasada, completa.
+  - **Sofía:** «Fuerza» **quitado** (E-14) con marcas de las semanas 1 y 2, y «Hipertrofia» vigente desde el 26/10.
+  - **Tomás:** «Hipertrofia» **futura** (desde el 30/11) y una individual futura sin marcas, que E-20 puede quitar.
+  - **Valentina:** **sin plan**; individuales: una hecha el 19/10, dos el mismo día (26/10) y una el 2/11.
+- **Tres casos borde de baja lógica**, los que BE-35 nunca pudo probar: un circuito apagado en «Full Body» con un ejercicio que Valentina completó, un ejercicio dado de baja (`Fondos en Paralelas`) con una marca de Lucía, y la rutina «Metabólico» quitada de la semana 2 del plan con una marca de Sofía.
+- **Decisiones del plan** (el usuario las revisa al aprobarlo):
+  - **Las fechas son fijas** (octubre a diciembre de 2026): el seed no puede saber qué día se aplica y la regeneración tiene que dar los mismos bytes. El home se navega mandando `date`.
+  - **Todo en `dynamic_data.py`**, como dice el roadmap; los `INSERT` los arma un helper genérico (`_insert`) de `build_sql.py`. El mapa de `CLAUDE.md` y el README de `Db Creator` quedaron al día.
+  - **`ON CONFLICT DO NOTHING` sin objetivo** en las once tablas nuevas: cubre el id y los únicos propios (`uk_rau_routine_user_date`, `uk_raef_asign_exercise`, `uk_ref_plan_asignation_exercise`), así que re-aplicar el `03` no falla aunque alguien ya haya marcado algo a mano.
+  - **Sobre la base viva alcanza con volver a aplicar el `03`** (BE-23): agrega la cadena sin tocar lo que ya haya, y no hace falta un patch porque el esquema no cambia.
+  - **El generador corta si una invariante no se cumple** (la rutina del plan es de la plantilla de la asignación, el ejercicio es de un circuito de la rutina, inicio lunes y fin domingo, `order` 1..N de los vínculos activos, `rpe` y `rir` excluyentes, etc.), y los ejercicios salen del catálogo por nombre.
+  - **Los usuarios y entrenadores que ya existían no se tocan**, y las contraseñas siguen siendo `pass123`.
+- **Verificación, sin levantar el server ni un Postgres.** Hecho:
+  - Build en verde. `Db Creator` regenerado en dos corridas limpias: **los tres `.sql` byte-idénticos entre sí y contra lo versionado**, y `01` y `02` sin cambios.
+  - **`verify_seed.py` (51 chequeos):** los tres `.sql` aplicados en un **SQLite en memoria con las claves foráneas activas**. Sin violaciones de FK, `NOT NULL` ni únicos; re-aplicar el `03` no duplica nada; ningún texto pasa el largo de su `VARCHAR`; las invariantes de dominio de arriba; los tres casos borde; y lo que se puede demostrar con cada alumno.
+  - **`verify-seed-services.js` (56 chequeos, 121 consultas):** el **service real** de la API ejecutando sus consultas sobre el seed. Se parcheó el `PostgresQueryRunner` de TypeORM para que corra en `node:sqlite` el SQL que arma el service; el query builder y la hidratación de entidades son los reales. Corre:
+    - **el home** de los cinco alumnos: el progreso de Lucía (semana 1: 6/6, 6/6 y 3/6, con los fondos de baja contados porque los hizo; semana 2: 2/6, 0/5 y 0/6), la individual del sábado que se suma al plan, el plan quitado de Sofía fuera del home, el plan futuro de Tomás que aparece el 30/11, y las dos sesiones del mismo día de Valentina;
+    - **el detalle** individual y del plan: el circuito apagado con sólo el burpee, los fondos de baja que se ven, la rutina quitada con algo hecho (200) y sin nada hecho (`404`), y el `403` de otro alumno;
+    - **el historial** de cada alumno, con y sin filtro: el orden mezclado de las dos fuentes, y las cuatro sesiones del plan quitado de Sofía;
+    - **los listados del coach:** las asignaciones de un alumno (con y sin `include_inactive`), las planificaciones, las rutinas y los circuitos, y los detalles de una planificación, de una rutina y de un circuito (tres niveles de relaciones).
+  - **Dos diferencias con Postgres que el arnés neutralizó:** SQLite ordena los `NULL` primero y Postgres al final (sin explicitarlo, el vínculo apagado salía primero en el detalle), y `timestamptz` tiene que volver como `Date`.
+  - **Qué NO se verificó:**
+    - que el `03` se aplique en un **Postgres**: es la primera vez que estas tablas reciben datos de prueba (lo cubre BE-23);
+    - las **escrituras** (marcar, desmarcar, asignar), que siguen verificadas sólo con repositorios falsos: las de TypeORM usan `DEFAULT` en los `VALUES` y no corren en SQLite;
+    - el comportamiento de las consultas en Postgres, como la collation de los nombres: BE-35.
+- **Sin cambios de estado de CU** (72 ✅ · 2 🟡 · 0 🔵): el seed no implementa nada, deja de ser un obstáculo para probarlo. **Hallazgo 2:** la rama de baja lógica de CU-E-23 sigue sin verificarse **en runtime**, pero ya hay con qué hacerlo (BE-35).
+- **Para BE-23 y BE-35:** regenerar la base de Render con `01` → `02` → `03`, o sólo el `03` sobre la actual. El plan de pruebas Backend se puede apoyar en estos escenarios en vez de armar datos a mano. Quedan en la fase 3 la opcional BE-22 y BE-23, que es la fecha fija (≈ 1/11).
+
+## Cambios recientes (2026-10-23 · bloque B: las sesiones del plan en el historial del entrenador · cierra la vía del plan)
+
+- **BE-20d: E-06 y E-07 por la vía de la planificación.** Plan: `Doc/plans/2026-10-23-be-20d-sesiones-del-plan-en-el-historial-plan.md` (repo PowerApp-Docs). El contrato ya estaba cerrado en §5.9 del bloque B, así que no hay spec propia: la nota de §5.9 anota lo que la spec no fijaba. **Con esta tarea la vía del plan queda completa de punta a punta:** asignar (E-13) → ver (U-08, U-09, U-10) → marcar y anotar (U-12, U-13) → historial (E-06, E-07). **Cierra el hallazgo 2.**
+- **El contrato:** `GET /routine/history/:userId?exercise_id=` (coach y admin, sin cambios de ruta ni de query). La lista suma las **sesiones del plan con al menos un ejercicio hecho**, mezcladas y ordenadas con las individuales. Cada sesión se distingue por `source`:
+  - **`'individual'`**, sin cambios: `{ source, assignment_id, date, routine: { id, name }, exercises }`.
+  - **`'plan'`**, nueva y **sin `assignment_id`**: `{ source, user_planification_id, routine_asignation_id, week, date, planification: { id, name }, routine: { id, name }, exercises }`. Una sesión del plan es el par (`User_Planification`, `Routine_Asignation`): la misma rutina del plan en dos asignaciones de una plantilla son dos sesiones.
+  - **`exercises`** tiene la misma forma y el mismo orden en las dos (el día en que lo hizo y, dentro del día, el orden en que lo marcó), con la prescripción actual en `sets` (D7).
+- **La fecha de una sesión del plan (D26):** la rutina del plan no tiene día, así que `date` es el `finished_at` **más viejo** de los ejercicios que se devuelven. Con `exercise_id` (E-07), como la consulta sólo trae ese ejercicio, es el día en que lo hizo.
+- **Lo dado de baja aparece igual:** la consulta no mira ningún `active`. Se ven las asignaciones quitadas (E-14), las plantillas dadas de baja (E-11) y las rutinas quitadas del plan (E-12c) si el alumno hizo algo en ellas.
+- **El orden:** día descendente, después nombre de rutina y después alta (de la asignación individual, o de la `User_Planification` y después de la `Routine_Asignation`).
+- **Decisión del 23/10, con el usuario: se renombra el DTO de la sesión individual.** `RoutineHistorySessionDto` pasa a `RoutineHistoryIndividualSessionDto` (la forma no cambia; `source` queda sólo `'individual'`) y se suma `RoutineHistoryPlanSessionDto`, con nombres simétricos. La respuesta se documenta en el Swagger como una **unión discriminada por `source`** (`oneOf` + `discriminator`). Se descartó conservar el nombre viejo para no obligar al web a cambiar el import: igual tiene que tipar la unión.
+- **Decisiones del plan** (el usuario las revisa al aprobarlo):
+  - **Se intercala, no se reordena todo.** Las individuales ya vienen ordenadas por la base y se conservan; las del plan se ordenan en el servidor (su día sale de los ejercicios) y las dos listas se intercalan con un merge. Por qué: si se reordenara todo en JavaScript, el orden de las individuales dependería de cómo compare los nombres JavaScript y no de la collation de la base. Así, **una respuesta sin sesiones del plan es idéntica a la de BE-16.**
+  - **El desempate entre las dos fuentes** compara el nombre con `localeCompare('es')`. Limitación conocida: si un nombre se ordena distinto en la collation de la base y en JavaScript (mayúsculas, tildes, símbolos), el cruce entre una individual y una del plan del mismo día puede salir en el otro orden. Sólo afecta al orden relativo entre las dos fuentes.
+  - **`planification.name` puede ser `null`** (la columna es opcional), como en el home del plan.
+  - **Dos consultas seguidas**, no en paralelo: así un error de cualquiera es un solo `500` con un solo log.
+- **Cómo se hizo:** `getTrainingHistory` sigue con su consulta individual y suma `findPlanHistoryEntries`, que parte de `Routine_Exercise_Finished`, une la asignación, su plantilla, la rutina del plan, la rutina, el ejercicio de rutina y el del catálogo, y trae las series con `LEFT JOIN`. El armado de cada ejercicio hecho pasó a `buildHistoryExercise`, compartido por las dos vías. `HistoryEntry`, `compareHistoryEntries` y `mergeHistoryEntries` viven arriba de la clase.
+- **Verificación, sin levantar el server.** Hecho:
+  - Build en verde.
+  - **Dos scripts nuevos sobre el código compilado, escritos antes del código y corridos en rojo (7 y 22 fallas), después en verde:** **el controller y su Swagger** (33 chequeos: la unión discriminada, las claves de las dos sesiones en orden, que la del plan no tenga `assignment_id`) y **las reglas** (64), con el `DataSource` sin conexión y el transformador real de TypeORM:
+    - los códigos (`404`, `200` con `[]`, y el `500` de cada una de las dos consultas);
+    - el SQL del plan, sin y con `exercise_id`, y sin ningún `active`;
+    - la sesión del plan con su forma exacta, la fecha más vieja aunque las filas no vengan en ese orden y el nombre `null`;
+    - que el par sea la sesión;
+    - el orden con las dos fuentes (día, nombre y alta) y que el de las individuales sea el de la base.
+  - **El script de BE-16, adaptado** sólo para que el servicio reciba el repositorio del plan y esa consulta devuelva vacío, dio los mismos 48 chequeos: **sin sesiones del plan, la respuesta individual no cambió.**
+  - **Regresión en verde:** la foto de BE-13 (idéntica), BE-12, BE-18b, BE-20, BE-20e, BE-20b, BE-20c y BE-18. Los scripts de los controllers no cambian de cantidad: el controller sigue teniendo 24 handlers.
+  - **Qué NO se verificó:**
+    - el SQL contra un Postgres (es la forma de la consulta individual, con los joins del plan);
+    - el runtime con marcas reales del plan: BE-35, con el seed de BE-21;
+    - el cruce de orden entre las dos fuentes con la collation real de Render.
+- **Sin cambios de estado: E-06 y E-07 ya estaban ✅ desde BE-16** (72 ✅ · 2 🟡 · 0 🔵). **Specs de CU reescritas** en `Use Cases/` (repo PowerApp-Docs): **E-06** (la sesión puede ser de la planificación; caminos nuevos: cada rutina del plan es una sesión y la fecha de una sesión del plan) y **E-07** (la fecha de una sesión del plan con el filtro). Nota en §5.9 de la spec del bloque B.
+- **Hallazgo 2, cerrado.** Se escribe desde BE-20c y se lee desde BE-20d. **Sigue vigente** que la baja lógica de CU-E-23 nunca se verificó en runtime: falta correrla contra una base con una asignación y marcas: el seed ya las trae desde BE-21 (el circuito apagado de «Full Body» y los fondos de baja), y la corrida es BE-35.
+- **Para el web y el iOS:** el historial pasa de una lista de un tipo a una **unión por `source`**. Hay que re-generar el tipo (`RoutineHistorySessionDto` ya no existe: es `RoutineHistoryIndividualSessionDto`) y discriminar por `source`. La sesión del plan se identifica por el par `user_planification_id` y `routine_asignation_id`, que son los dos ids del detalle (`GET /routine/assign-plan/:userPlanificationId/:routineAsignationId`), y trae `week` y la plantilla. Sigue vigente que `finished_at` de cada ejercicio es un día (`YYYY-MM-DD`), no un instante (BE-18). **Con esto se cierra el bloque B de código;** quedan BE-21 (el seed), la opcional BE-22 y BE-23 (regenerar la base antes del ~2/11).
+
+## Cambios recientes (2026-10-23 · bloque B: marcar, la nota y desmarcar en el plan)
+
+- **BE-20c: U-12 y U-13 por la vía de la planificación.** Plan: `Doc/plans/2026-10-23-be-20c-marcar-nota-y-desmarcar-en-el-plan-plan.md` (repo PowerApp-Docs). El contrato ya estaba cerrado en §5.4, §5.7 y §5.8 del bloque B, así que no hay spec propia: la nota de §5.7 anota tres detalles que la spec no fijaba. Es **la primera tarea que escribe `Routine_Exercise_Finished`**: hasta hoy un alumno con una planificación asignada podía verla (BE-20b) pero no marcar nada.
+- **El contrato** (sólo el rol `user`; el dueño se chequea en el service, porque el path no trae el id del alumno):
+  - `POST /routine/assign-plan/:userPlanificationId/:routineAsignationId/finished`, con el mismo body que la vía individual: `{ routine_exercise_id, finished_at?, user_note? }`.
+  - `DELETE /routine/assign-plan/:userPlanificationId/:routineAsignationId/finished/:routineExerciseId`.
+  - Las respuestas tienen la forma de la vía individual: `{ routine_exercise_id, user_note, finished_at, created_at, updated_at }` al marcar (`201` si creó la marca, `200` si ya estaba) y `{ routine_exercise_id, finished: false }` al desmarcar.
+- **Las validaciones, en este orden:**
+  1. `400` del DTO, si algún id no es un UUID.
+  2. `404` `Asignación no encontrada`.
+  3. `403` si la asignación es de otro alumno (va antes del segundo `404`, así un alumno no averigua qué hay en los planes de otro).
+  4. `404` `La rutina no pertenece a esta planificación.`
+  5. `400` `La planificación fue quitada: no se puede modificar.` (D24). Corta **antes de mirar la marca**, así que tampoco se corrige la nota ni el día de una marca ya hecha, ni se desmarca.
+  6. **Sólo al marcar algo que no estaba marcado:** `400` si falta `finished_at`; `400` si el ejercicio no es de la rutina; `400` si el ejercicio o su vínculo están sacados; `400` `La rutina fue quitada de la planificación: ya no se puede marcar.`
+- **Qué se puede hacer con lo ya marcado:** una marca existente se edita (nota y día) y se desmarca **aunque el coach haya sacado el ejercicio o quitado la rutina del plan**. Es la regla de D29 llevada a la escritura, y la misma que el ejercicio sacado de la rutina en la vía individual: lo que el alumno hizo forma parte de su historia. Lo que no se puede es marcar algo nuevo.
+- **Decisión del 23/10, con el usuario: el código común se comparte con la vía individual** (`readMarkInput`, que lee la nota y el día del body, y `diffFinishedChanges`, que calcula qué cambió en una marca existente), en lugar de copiar el cuerpo de `markExerciseFinished`. Por qué: una regla que cambia (el largo de la nota, qué cuenta como «viene») queda en un solo lugar y las dos vías no se desparejan. Cada vía conserva sus consultas, porque son tablas distintas (`Routine_Asign_Exercise_Finished` y `Routine_Exercise_Finished`). El costo es haber tocado una función ya commiteada; lo cubre la regresión de la vía individual.
+- **Decisiones del plan** (el usuario las revisa al aprobarlo):
+  - **El orden de las bajas al crear una marca** es el de las filas de §5.7: la pertenencia, después el ejercicio sacado, al final la rutina quitada del plan. Con la rutina quitada **y** el ejercicio sacado, el texto es el del ejercicio.
+  - **Los textos nuevos:** los dos `400` de arriba y los `500` `Error al marcar el ejercicio del plan.` y `Error al desmarcar el ejercicio del plan.` El `400` de «no pertenece» reutiliza el de la vía individual, como pide §5.7.
+  - **Se guardan los ids de las filas**, no los del path, que el iOS puede mandar en mayúscula.
+  - **Sin transacción:** es una sola escritura. La carrera de dos marcas simultáneas la cierra el único `uk_ref_plan_asignation_exercise`: se relee la fila y se sigue como «ya estaba marcado» (`200`). Un `23505` de otro único, o una relectura vacía, es `500`.
+  - **`PlanSessionFinishedParamsDto` extiende a `PlanSessionParamsDto`** (BE-20b) y suma el ejercicio. El body y las respuestas son los DTOs de la vía individual.
+- **Verificación, sin levantar el server.** Hecho:
+  - Build en verde.
+  - **Tres scripts nuevos sobre el código compilado, escritos antes del código y corridos en rojo (1, 13 y 62 fallas), después en verde:** **los params** (22 chequeos), **el controller y su Swagger** (101) y **las reglas** (185). Las reglas usan repositorios falsos con estado (único, orden, delete) y cubren:
+    - los códigos y su orden con el dueño, otro alumno y la rutina de otra plantilla;
+    - la asignación quitada, con la marca nueva, con una ya hecha y al desmarcar;
+    - el alta con y sin nota, con el día en diferido y sin ventana de fechas;
+    - el `200` idempotente, la corrección de la nota y del día en un solo `UPDATE`, y la carrera del único;
+    - los ejercicios sacados y la rutina quitada del plan;
+    - que la misma plantilla asignada dos veces tenga marcas independientes;
+    - desmarcar: idempotente, borra sólo esa fila y se puede desmarcar lo que el coach sacó;
+    - el cruce con el detalle de BE-20b sobre el mismo estado: marcar aparece en `finished`, desmarcar lo saca, y la rutina quitada con algo hecho se ve mientras haya algo hecho.
+  - **La vía individual no cambió de comportamiento** con el refactor: la foto de BE-13 (el detalle individual en ocho escenarios y `GET /routine/:id`), sacada antes de tocar el código, dio idéntica; y sus reglas (130) y su controller (43) dieron igual.
+  - **Regresión en verde:** BE-12 (24, 27 y 58), BE-18b (86), BE-20 (92, 99 y 113), BE-20e (96, 31, 80 y 58), BE-20b (15, 78 y 152) y BE-18 (47, 130, 48 y 43). Los scripts de los controllers suman cuatro chequeos cada uno porque recorren todos los handlers: ahora son 24.
+  - **Qué NO se verificó:**
+    - el SQL contra un Postgres (las escrituras son un `findOne`, un `save`, un `update` y un `delete` por columnas de la entidad, sin consultas armadas a mano);
+    - el runtime con marcas reales del plan, que es BE-35 con el seed de BE-21.
+- **Sin cambios de estado: U-12 y U-13 ya estaban ✅ desde BE-14** (72 ✅ · 2 🟡 · 0 🔵). **Specs de CU reescritas** en `Use Cases/` (repo PowerApp-Docs): **U-12** (la asignación puede ser de la planificación; caminos nuevos: la rutina no pertenece a la planificación, la planificación quitada y la rutina quitada del plan) y **U-13** (la planificación quitada y la rutina quitada del plan). Nota en §5.7 de la spec del bloque B.
+- **Hallazgo 2:** queda abierto sólo en la **lectura del entrenador**. Con esta tarea el alumno ya escribe el «hecho» de la vía del plan; falta que el historial (E-06 y E-07) muestre las sesiones `source: 'plan'`, que es **BE-20d**.
+- **Para el web y el iOS:** las pantallas de la rutina del plan reutilizan lo de la vía individual (B3 y B4). Cambian sólo las rutas, que llevan los dos ids de la sesión (el par que da cada rutina de un grupo del home), y el comportamiento con `user_planification.active: false`: **no se ofrece marcar, anotar ni desmarcar**, porque el `400` es seguro. Con una rutina quitada del plan (`active: false` en la sesión), se puede editar y desmarcar lo hecho, pero no marcar un ejercicio nuevo. Sigue BE-20d (las sesiones del plan en el historial del entrenador).
+
+## Cambios recientes (2026-10-22 · bloque B: el detalle de una sesión del plan)
+
+- **BE-20b: el detalle de una sesión del plan** (U-09 y U-10 por la vía de la planificación). Spec: `Doc/specs/2026-10-22-detalle-de-una-sesion-del-plan-design.md`; plan: `Doc/plans/2026-10-22-be-20b-detalle-de-una-sesion-del-plan-plan.md` (repo PowerApp-Docs). Una sesión del plan es el par (`User_Planification`, `Routine_Asignation`): una rutina de una semana del plan, para ese alumno. Es lo que abre cada rutina de un grupo del home, y el equivalente de `GET /routine/assign-user/:id` (BE-13) en la vía de la planificación.
+- **El contrato** (§5.4 y §5.6 de la spec del bloque B, revisados en la spec del detalle): `GET /routine/assign-plan/:userPlanificationId/:routineAsignationId`. Roles: user (el dueño, chequeado en el service, porque el path no trae el id del alumno), coach y admin. Validaciones, en este orden:
+  1. `400` del DTO, si algún id no es un UUID.
+  2. `404` `Asignación no encontrada`.
+  3. `403` si, con el rol `user`, la asignación es de otro alumno. Va antes del segundo `404`, así un alumno no averigua qué hay en los planes de otro.
+  4. `404` `La rutina no pertenece a esta planificación.` si no existe o es de otra plantilla.
+  5. `404` `La rutina fue quitada de la planificación.` si el coach la quitó del plan y el alumno no hizo nada en ella en esta asignación.
+- **La respuesta (`200`):** `{ user_planification: { id, start_date, end_date, coach_note, planification: { id, name, duration, active }, active }, routine_asignation_id, week, week_start, week_end, order, active, routine, finished }`.
+  - `routine` es el árbol de `GET /routine/:id`, armado con los mismos builders.
+  - `finished` tiene la forma de la vía individual.
+  - Se lee también con la asignación quitada (D24).
+  - Una plantilla o una rutina dadas de baja se ven con su `active: false`.
+  - Una semana posterior al fin se abre igual (D5).
+- **Decisiones del 22/10, con el usuario (D37 a D39 de la spec del detalle):**
+  - **D37: la respuesta trae el bloque `user_planification` del home más su `active`, y la semana con `week_start` y `week_end`.** §5.6 traía sólo el id, y le faltaban dos cosas:
+    - **Si la asignación estaba quitada** (D24): el cliente se enteraba recién con el `400` de marcar.
+    - **El `active` de la plantilla,** que §5.4 promete como dato informativo.
+
+    Así la pantalla se arma sola, venga de donde venga el cliente (el home, un link o el historial del coach), y el front reutiliza el tipo del bloque del home.
+  - **D38: una rutina quitada del plan sin nada hecho da `404` para todos los roles, con su propio texto.** Es el "para el alumno no existe" de D29. El coach y el admin ven lo mismo que el alumno, como en el detalle individual. Reusar el texto de "no pertenece" engañaría: la rutina sí es del plan.
+  - **D39: las validaciones de §5.4 se escriben una sola vez** (`findPlanSession`), para el detalle y para marcar y desmarcar (BE-20c). El `403` sale cuando el rol es `user`. Para el detalle es exactamente §5.4, y marcar y desmarcar sólo admiten ese rol.
+- **Cómo se hizo:**
+  - **`getPlanSessionDetail`** valida con `findPlanSession`, lee las marcas de la sesión (por los ids de las filas, no por los del path), aplica D38 y arma el árbol con `findRoutineDetail`, `buildAssignmentVisibility` y `buildRoutineDetailResponse`, los de BE-13.
+  - **`buildRoutineDetailResponse` suma `onlyCompleted`,** para la rutina quitada del plan. La arma como si todos sus vínculos estuvieran dados de baja, así coincide con el `total` del home (`finished = total`).
+  - **Los tipos de `buildAssignmentVisibility`, `buildFinishedResponse` e `isAssignmentOwner` se abrieron a las dos vías,** con uniones de las entidades.
+  - **El detalle individual y `GET /routine/:id` responden igual que antes:** lo prueba una foto de sus respuestas, sacada antes de tocar el código.
+- **Decisiones del plan** (el usuario las aprobó con él):
+  - **El bloque `user_planification` sale de un builder nuevo, `buildPlanUserPlanificationResponse`,** que usa también el home del plan. Así son iguales por construcción, como D36.
+  - **`active` va al final del bloque,** porque el DTO hereda del bloque del home y lo suma.
+  - **`planWeekBounds` recorta también el lunes al 9999-12-31.** Una plantilla sin duración fija acepta semanas hasta la INTEGER_MAX, y el detalle abre cualquier semana por su ruta. Sin el recorte, desde la semana ~416.000 el lunes salía mal formado, y desde la ~14 millones, un `500`. Al home no le cambia nada.
+  - **Textos:** el `500` dice `Error al obtener la rutina del plan.`, y cada id tiene su mensaje en el DTO.
+  - **U-10 suma un camino:** con la planificación quitada, sólo se ofrece ver los RMs.
+- **Verificación, sin levantar el server.** Hecho:
+  - Build en verde.
+  - **El código se probó antes de aprobar el plan** en una copia de `HEAD` en el scratchpad, compilada con `tsc` y con `node_modules` enlazado, y se aplicó tal cual. Un script comprueba que el repo tiene exactamente el cambio probado: el `HEAD` más las ediciones del plan da cada archivo.
+  - **Tres scripts nuevos sobre el código compilado,** escritos antes del código, corridos **en rojo** (1, 9 y 42 fallas) y después en verde:
+    - **los params** (15 chequeos);
+    - **el controller y su Swagger** (74);
+    - **las reglas** (152). Usan las consultas reales sin base y cubren:
+      - los códigos y su orden, con los tres roles;
+      - el SQL de las tres consultas y la hidratación;
+      - la forma, y el bloque idéntico al del home;
+      - la asignación quitada y las bajas;
+      - las semanas fuera del plan;
+      - y doce escenarios de visibilidad en los que el árbol coincide con el `total` del home.
+  - **La foto del detalle individual y de `GET /routine/:id`** dio idéntica (19 respuestas).
+  - **Regresión en verde:** BE-12 (24, 27 y 58), BE-18b (86), BE-20 (92, 95 y 113), BE-20e (96, 31, 76 y 58) y BE-18 (47, 130, 48 y 43). Los dos controllers suman dos chequeos porque recorren todos los handlers.
+  - **Qué NO se verificó:**
+    - el SQL contra un Postgres;
+    - el detalle con marcas reales del plan: nada escribe `Routine_Exercise_Finished` hasta BE-20c;
+    - el runtime (BE-35, con el seed de BE-21).
+- **Sin cambios de estado: U-09 y U-10 ya estaban ✅ desde BE-13.**
+  - **Specs de CU reescritas** en `Use Cases/` (repo PowerApp-Docs):
+    - **U-09:** la asignación puede ser una sesión del plan. Caminos nuevos: la rutina no es de la planificación, el coach quitó la rutina del plan, el coach quitó la planificación, y la planificación dada de baja.
+    - **U-10:** el ejercicio puede ser de una sesión del plan. Con la planificación quitada, sólo se ven los RMs.
+  - **Nota en la spec del bloque B** (§5.6).
+  - **Para el web y el iOS:** la pantalla de la rutina del plan reutiliza el árbol y el cruce por `routine_exercise_id` de la vía individual. La cabecera sale de `user_planification` y de la semana. Con `user_planification.active: false`, no se ofrece marcar ni anotar.
+  - **Sigue BE-20c** (marcar, la nota y desmarcar en el plan), que arranca con `findPlanSession` y los params hechos.
 
 ## Cambios recientes (2026-10-22 · catálogo de músculos: bajas con integridad y nombre de grupo único)
 
@@ -117,7 +352,7 @@
 - **Decisión del 21/10, con el usuario:** **reincorporar sólo valida que la asignación exista y que esté quitada.** No mira si la plantilla sigue activa ni si la cuenta del alumno sigue abierta, aunque E-13 rechaza las dos cosas. Por qué: reincorporar deshace una baja, igual que D23 no vuelve a chequear el solapamiento. Una plantilla dada de baja no saca lo ya asignado (E-11) y cerrar la cuenta (E-03) tampoco apaga sus planes, así que la asignación reincorporada queda igual que si nunca se hubiera quitado.
 - **Decisiones del plan** (el usuario las aprobó con él):
   - **Los textos que la spec no fija:** el `404` es `Asignación no encontrada`, el mismo que §5.4 fija para una `User_Planification` que no existe (un solo texto para lo mismo); los `500` son `Error al actualizar el estado de la planificación del alumno.` y `Error al obtener las planificaciones del alumno.`
-  - **E-14 escribe con un solo `UPDATE` de `active` y `updated_at`**, y `updated_at` se setea a mano. Por qué: el `onUpdate` de las entidades no hace nada en Postgres (hallazgo 4), y así la respuesta trae el momento del cambio; es el patrón de marcar en BE-14. Sin transacción: es una escritura. **Carrera aceptada:** dos bajas simultáneas de la misma asignación responden `200` las dos (la segunda, en vez del `400`); el estado final es el mismo.
+  - **E-14 escribe con un solo `UPDATE` de `active` y `updated_at`**, y `updated_at` se setea a mano. Por qué: el `onUpdate` de las entidades no hacía nada en Postgres (hallazgo 4), y así la respuesta trae el momento del cambio; es el patrón de marcar en BE-14 (**BE-30 lo conservó**: `update()` no refresca la entidad). Sin transacción: es una escritura. **Carrera aceptada:** dos bajas simultáneas de la misma asignación responden `200` las dos (la segunda, en vez del `400`); el estado final es el mismo.
   - **El query del listado es un DTO nuevo, sólo con `include_inactive`** (con la misma transformación que `GetPlanificationsQueryDto`). Por qué no ese: aceptaría `keyword` y `type` sin usarlos; con el nuevo, mandarlos da `400`. El path usa `AssignedRoutinesParamsDto`, el de los otros listados por alumno.
   - **El listado no mira el rol ni la cuenta del usuario**, sólo que exista (§5.3), igual que `GET /routine/assigned/:userId`. Trae también las asignaciones de una plantilla dada de baja, con su `planification.active: false`.
   - **La consulta de solapamiento de E-13 comparte la base con E-14 y el listado** (la cabecera mínima de la plantilla, el filtro por alumno y el orden), **con el mismo SQL**: lo confirmó la regresión de BE-18b.
@@ -229,7 +464,7 @@
 - **La carrera de dos marcas simultáneas se resuelve con el único** `uk_raef_asign_exercise`: las dos pasan la lectura, la segunda choca en el `INSERT`, y el service **relee la fila y sigue como "ya estaba marcado"** (aplica la nota si vino) → `200`. Se mira el nombre del único para no disfrazar otro error (mismo helper que BE-11). Sin transacción: cada endpoint es una sola escritura.
 - **Se marca por ejercicio, no por serie (aviso al web).** El web espera marcar por serie (B3). La spec ya lo resolvió el 25/8: el hecho es **por ejercicio** y el tildado serie por serie es de la interfaz. B3 tiene que adaptar lo que esperaba.
 - **Cambio en una entidad que no cambia el esquema.** `RoutineAsignExerciseFinished.user_note` pasa de `string` a `string | null` con `type: 'varchar'` explícito (el patrón de `Routine.coach_note`), porque borrar la nota la pone en `null` y TypeScript no lo dejaba. **La columna es la misma:** `VARCHAR(100)` nullable, igual que en `ddl.py` y en el `01`; se comprobó con la metadata y contra el `01`, así que `Db Creator` no se tocó. La gemela de la vía del plan (`RoutineExerciseFinished`) queda como está hasta el bloque B.
-- **`updated_at` se setea a mano al editar la nota** (el `onUpdate` de las entidades es sintaxis de MySQL; hallazgo 4, lo resuelve BE-30), y la nota sólo se escribe si cambia: repetir el mismo pedido no mueve `updated_at`. El `UPDATE` es explícito (`update()`, no `save()`), así que se puede leer como SQL.
+- **`updated_at` se setea a mano al editar la nota** (el `onUpdate` de las entidades es sintaxis de MySQL; hallazgo 4), y la nota sólo se escribe si cambia: repetir el mismo pedido no mueve `updated_at`. El `UPDATE` es explícito (`update()`, no `save()`), así que se puede leer como SQL. **BE-30 (24/10) lo conservó a propósito:** `update()` no refresca la entidad y la respuesta devuelve `updated_at`.
 - **BE-13 pasó a usar los mismos helpers** (el chequeo de dueño y el armado de `finished`), sin cambiar lo que devuelve: sus 46 chequeos siguen en verde.
 - **Revisado y sin cambios:** `editCircuit` ya consulta las dos tablas de hecho desde BE-10, y `deleteExercise` (A-06) bloquea con `409` ante **cualquier** fila de `Routine_Exercise`, así que un ejercicio marcado nunca llega al `CASCADE`.
 - **Hallazgo 2 reescrito, no cerrado.** Ya no es cierto que "nada escribe" el registro: desde hoy la **vía individual** se escribe. Siguen abiertos el historial del entrenador (E-06 y E-07, BE-16) y **toda la vía del plan**.
@@ -692,10 +927,9 @@ Alineación de las entidades con el modelo vigente de `Doc/` (spec: `Doc/specs/2
 
 ## Hallazgos estructurales
 
-> Lista de **hallazgos abiertos**, con el número que les dan el changelog y el roadmap (por eso faltan el 1 y el 3). Los que se cerraron salieron de acá y quedan registrados en *Cambios recientes*: módulo `/auth` comentado (resuelto 11/8), autorización manual sin Guards (11/8), gestión de cuenta del usuario — U-05, U-06, U-16 (18/8), alumnos y membresías — E-01→E-03, E-26→E-28 (6/8 y 18/8), circuitos incompletos (cerrado 25/8, 4 de 4), **1 · planificaciones sin service** (cerrado el 31/8 y el 4/9, con E-08→E-12d) y **3 · `Routine.routine_plan_id` obsoleta** (la columna se borró el 4/9).
+> Lista de **hallazgos abiertos**, con el número que les dan el changelog y el roadmap (por eso faltan el 1, el 2, el 3 y el 4). **Desde el 24/10 no queda ninguno abierto.** Los que se cerraron salieron de acá y quedan registrados en *Cambios recientes*: módulo `/auth` comentado (resuelto 11/8), autorización manual sin Guards (11/8), gestión de cuenta del usuario — U-05, U-06, U-16 (18/8), alumnos y membresías — E-01→E-03, E-26→E-28 (6/8 y 18/8), circuitos incompletos (cerrado 25/8, 4 de 4), **1 · planificaciones sin service** (cerrado el 31/8 y el 4/9, con E-08→E-12d), **3 · `Routine.routine_plan_id` obsoleta** (la columna se borró el 4/9) y **2 · el registro de ejecución de la vía del plan** (completo el 23/10: se escribe desde BE-20c y se lee en el historial desde BE-20d; sigue vigente que la baja lógica de CU-E-23 nunca se verificó en runtime, BE-21 y BE-35) y **4 · `updated_at` no se actualizaba solo** (cerrado el 24/10 con BE-30: `@UpdateDateColumn` en las 20 entidades; ver *Cambios recientes* del 24/10).
 
-- **2 · El registro de ejecución de la vía del plan: ningún endpoint lo escribe** *(25/8; actualizado 18/10)*. Las dos tablas de ejecución existen desde el 17/10 (BE-10): `Routine_Exercise_Finished` para las planificaciones y `Routine_Asign_Exercise_Finished` para las asignaciones individuales. **La vía individual quedó completa el 18/10:** el alumno marca, desmarca y anota (**U-12** y **U-13**, BE-14), lo lee en el detalle de su asignación (**U-09** y **U-10**, BE-13) y el entrenador lo ve en el historial (**E-06** y **E-07**, BE-16). **Sigue abierta la vía del plan:** ningún endpoint inserta en `Routine_Exercise_Finished`, así que un alumno con una planificación asignada no puede marcar nada ni tiene historial. Es del bloque B (marcar dentro de una planificación, con la validación de que la `Routine_Asignation` sea del mismo plan, y las sesiones `source: 'plan'` del historial). **Consecuencia que sigue vigente:** la rama de baja lógica de CU-E-23 nunca se verificó en runtime; el "hecho" individual existe, pero falta correrlo contra una base con una asignación y datos que el seed no genera (BE-21 y BE-35).
-- **4 · `updated_at` no se actualiza solo, en ninguna tabla** *(25/8; actualizado 17/10)*. Las entidades declaran `@Column({ onUpdate: 'CURRENT_TIMESTAMP' })` en 18 archivos, y eso es **sintaxis de MySQL**: en Postgres no hace nada, el DDL no tiene triggers y ninguna entidad usa `@UpdateDateColumn`. Así que `updated_at` queda **congelado en la fecha de alta**, salvo en los métodos que lo setean a mano (`editCircuit`, `editRoutine` y algunos de `users`). `editPlanification`, por ejemplo, no lo setea. **Lo resuelve BE-30**, con `@UpdateDateColumn` en todas las entidades.
+- *(sin hallazgos abiertos)*
 
 ---
 
@@ -707,9 +941,9 @@ Alineación de las entidades con el modelo vigente de `Doc/` (spec: `Doc/specs/2
 |---|---|---|---|---|---|
 | **1** | Seguridad y contrato inmediato | BE-01 a BE-08 | 16 al 19/10 | **H1:** sin agujeros de seguridad conocidos, el web avisado de C2 y el Status con conteos reales | ✅ cerrada el 17/10 |
 | **2** | Bloque A: rutina puntual y ejecución | BE-09 a BE-16 | 20 al 27/10 | **H2:** el flujo puntual de punta a punta: asignar → ver → marcar → nota → historial | ✅ cerrada el 18/10 (BE-10 y BE-10b el 17/10; BE-11 a BE-16 el 18/10) |
-| ⏱ | Regenerar la base de Render | BE-23 | ≈ 1/11 | Esquema del bloque A aplicado, antes de que venza la base | fecha fija |
-| **3** | Bloque B: asignar planificaciones | BE-17 a BE-23 | 28/10 al 5/11 | **H3:** los 74 CU con backend tienen código | en curso: BE-17, BE-18, BE-18b, BE-19 y BE-20 hechas (20 y 21/10) |
-| **4** | Brechas de CU y deuda | BE-24 a BE-34 | 3 al 12/11 | **H4:** ningún 🟡 y el Swagger completo | en curso: BE-24, BE-25 y BE-26 adelantadas (22/10), con dos de las FK de BE-22 |
+| ⏱ | Regenerar la base de Render | BE-23 | 30/10 al 1/11 | La base nueva con el esquema y el seed completos, antes de que venza la vieja (≈ 2/11) | **runbook listo (23/10); lo ejecuta el usuario** |
+| **3** | Bloque B: asignar planificaciones | BE-17 a BE-23 | 28/10 al 5/11 | **H3:** los 74 CU con backend tienen código | en curso: BE-17, BE-18, BE-18b, BE-19, BE-20, BE-20e, BE-20b, BE-20c, BE-20d y BE-21 hechas (20 a 23/10) |
+| **4** | Brechas de CU y deuda | BE-24 a BE-34 | 3 al 12/11 | **H4:** ningún 🟡 y el Swagger completo | en curso: BE-24, BE-25 y BE-26 adelantadas (22/10), con dos de las FK de BE-22; BE-27, BE-28 y BE-30 (24/10) |
 | **5** | Verificación y cierre | BE-35 a BE-39 | 12 al 17/11 | **H5:** criterios de "backend terminado" cumplidos y código congelado | |
 
 > **Dependencias del usuario:** el diagrama de `Doc/` actualizado antes de BE-10 (el modelo manda), la fecha real de vencimiento de la base de Render (BE-23), la cuenta del proveedor de mail (BE-29) y la corrida del plan de pruebas (BE-35).
@@ -733,11 +967,11 @@ Alineación de las entidades con el modelo vigente de `Doc/` (spec: `Doc/specs/2
 | CU | Caso de uso | Estado | Endpoint / nota |
 |---|---|---|---|
 | CU-U-08 | Obtener mi planificación | ✅ Implementado | `GET /routine/home/:userId?date=&week=` · **el home en un solo pedido**: `week` semanas enteras (1 a 8) desde el lunes de la semana de `date` (hoy en Argentina si no viene), cada una con las dos fuentes (BE-20e, 21/10) · `GET /routine/assigned/:userId?from=&to=` · la parte **individual** del home, por día y con su progreso (18/10) · `GET /routine/assigned-plan/:userId?from=&to=` · la parte **del plan**: las semanas de cada asignación activa que caen en el rango, sus rutinas sin día y con su progreso; una rutina quitada del plan sólo si el alumno hizo algo · tope de 520 semanas (BE-20, 21/10) |
-| CU-U-09 | Ver detalle de rutina | ✅ Implementado | `GET /routine/assign-user/:id` · el alumno lee la rutina **por su asignación** (`403` si es de otro; coach y admin, la de cualquiera) · mismo árbol que `GET /routine/:id`, con lo dado de baja que completó y lo hecho en `finished` (18/10) · el detalle de una asignación del plan es del bloque B |
-| CU-U-10 | Ver detalle de un ejercicio | ✅ Implementado | Se resuelve dentro del detalle de la asignación (`GET /routine/assign-user/:id`): ficha del ejercicio, series ordenadas, nota del coach y, en `finished`, la nota del alumno · `GET /exercise/:id` sigue siendo la ficha de catálogo (18/10) |
+| CU-U-09 | Ver detalle de rutina | ✅ Implementado | `GET /routine/assign-user/:id` · el alumno lee la rutina **por su asignación** (`403` si es de otro; coach y admin, la de cualquiera) · mismo árbol que `GET /routine/:id`, con lo dado de baja que completó y lo hecho en `finished` (18/10) · `GET /routine/assign-plan/:userPlanificationId/:routineAsignationId` · el detalle de una **sesión del plan**: el mismo árbol, con la asignación, su plantilla y la semana; se lee aunque la planificación esté quitada, y de una rutina quitada del plan se ve sólo lo completado (BE-20b, 22/10) |
+| CU-U-10 | Ver detalle de un ejercicio | ✅ Implementado | Se resuelve dentro del detalle de la asignación (`GET /routine/assign-user/:id`) o de la sesión del plan (`GET /routine/assign-plan/:userPlanificationId/:routineAsignationId`, BE-20b): ficha del ejercicio, series ordenadas, nota del coach y, en `finished`, la nota del alumno · `GET /exercise/:id` sigue siendo la ficha de catálogo (18/10) |
 | CU-U-11 | Ver mis RMs de un ejercicio | ✅ Implementado | `GET /user_rm/user/:idUser/exercise/:idExercise` · check de dueño para rol `user` (`@Owner`, ids en minúscula desde el 16/10), orden por fecha DESC |
-| CU-U-12 | Marcar serie como realizado | ✅ Implementado | `POST /routine/assign-user/:id/finished` y `DELETE …/finished/:routineExerciseId` · el hecho es **por ejercicio** (el tildado por serie es de la interfaz) · idempotentes · sólo el alumno dueño (`403` si es de otro) · marcar un ejercicio que el coach sacó es `400`, pero se puede desmarcar y editar su nota (18/10) · el alumno indica el día en que lo hizo (`finished_at`, obligatorio al marcar y corregible) (21/10) · la vía del plan es del bloque B |
-| CU-U-13 | Dejar una nota en el ejercicio | ✅ Implementado | Es un camino incluido de U-12 (D3): `user_note` va en el mismo `POST …/finished`, hasta 100 caracteres, y la cadena vacía la borra · la nota vive en la fila del hecho, así que sólo se anota un ejercicio realizado (o se marca y anota en una sola llamada) (18/10) · en la misma operación puede ir el día en que lo hizo (21/10) |
+| CU-U-12 | Marcar serie como realizado | ✅ Implementado | `POST /routine/assign-user/:id/finished` y `DELETE …/finished/:routineExerciseId` · el hecho es **por ejercicio** (el tildado por serie es de la interfaz) · idempotentes · sólo el alumno dueño (`403` si es de otro) · marcar un ejercicio que el coach sacó es `400`, pero se puede desmarcar y editar su nota (18/10) · el alumno indica el día en que lo hizo (`finished_at`, obligatorio al marcar y corregible) (21/10) · `POST /routine/assign-plan/:userPlanificationId/:routineAsignationId/finished` y `DELETE …/finished/:routineExerciseId` · lo mismo por la **vía del plan**: la marca cuelga del par (asignación, rutina del plan); con la planificación quitada es `400` (también editar y desmarcar), y en una rutina que el coach quitó del plan no se marca nada nuevo, pero se puede editar y desmarcar lo hecho (BE-20c, 23/10) |
+| CU-U-13 | Dejar una nota en el ejercicio | ✅ Implementado | Es un camino incluido de U-12 (D3): `user_note` va en el mismo `POST …/finished`, hasta 100 caracteres, y la cadena vacía la borra · la nota vive en la fila del hecho, así que sólo se anota un ejercicio realizado (o se marca y anota en una sola llamada) (18/10) · en la misma operación puede ir el día en que lo hizo (21/10) · lo mismo en el `POST …/assign-plan/…/finished` de la vía del plan, con el mismo tope de 100 caracteres (BE-20c, 23/10) |
 | CU-U-14 | Temporizador | — Sin backend | por su spec es del cliente; el web lo tiene (T29) |
 | CU-U-15 | Consultar wiki de ejercicios | ✅ Implementado | `GET /exercise/all` |
 
@@ -762,15 +996,15 @@ Alineación de las entidades con el modelo vigente de `Doc/` (spec: `Doc/specs/2
 | CU-E-03 | Cerrar cuenta de alumno | ✅ Implementado | `POST /users/set-active/:id` · baja lógica `{ active }` + bloqueo de login (403); el coach sólo sobre alumnos y nadie sobre sí mismo (16/10) |
 | CU-E-04 | Obtener RMs del alumno | ✅ Implementado | `GET /user_rm/user/:id` · mismo endpoint que U-19; el `@Owner` no limita a coach ni a admin; con `exercise_id` (17/10) |
 | CU-E-05 | Historial de pagos de alumno | ✅ Implementado | `GET /membership/payment/user/:id` |
-| CU-E-06 | Historial de entrenamientos de alumno | ✅ Implementado | `GET /routine/history/:userId` · las sesiones con al menos un ejercicio hecho, de la más nueva a la más vieja, con la prescripción, la fecha y la nota del alumno · sólo coach y admin · lo dado de baja aparece igual (18/10) · cada ejercicio trae el día en que se hizo (`finished_at`) (21/10) · el historial de la vía del plan es del bloque B |
-| CU-E-07 | Historial entrenamientos — filtro ejercicio | ✅ Implementado | `GET /routine/history/:userId?exercise_id=` · sólo las sesiones donde se hizo ese ejercicio (del catálogo) y, en cada una, sólo ese · `[]` si no hay coincidencias (18/10) · cada ejercicio trae el día en que se hizo (`finished_at`) (21/10) |
+| CU-E-06 | Historial de entrenamientos de alumno | ✅ Implementado | `GET /routine/history/:userId` · las sesiones con al menos un ejercicio hecho, de la más nueva a la más vieja, con la prescripción, la fecha y la nota del alumno · sólo coach y admin · lo dado de baja aparece igual (18/10) · cada ejercicio trae el día en que se hizo (`finished_at`) (21/10) · las sesiones del plan van en la misma lista, con `source: 'plan'`, sin `assignment_id` y con su semana, su plantilla y como fecha el día más viejo en que el alumno hizo algo (BE-20d, 23/10) |
+| CU-E-07 | Historial entrenamientos — filtro ejercicio | ✅ Implementado | `GET /routine/history/:userId?exercise_id=` · sólo las sesiones donde se hizo ese ejercicio (del catálogo) y, en cada una, sólo ese · `[]` si no hay coincidencias (18/10) · cada ejercicio trae el día en que se hizo (`finished_at`) (21/10) · también filtra las sesiones del plan, y su fecha es el día en que hizo ese ejercicio (BE-20d, 23/10) |
 
 ### Administrar planificaciones
 | CU | Caso de uso | Estado | Endpoint / nota |
 |---|---|---|---|
 | CU-E-08 | Obtener planificaciones sistémicas | ✅ Implementado | `GET /planification/all` · keyword/type/include_inactive + routine_count |
 | CU-E-09 | Crear planificación sistémica | ✅ Implementado | `POST /planification/create` · 201 con el detalle · `duration` en semanas, obligatoria (17/10) |
-| CU-E-10 | Editar planificación sistémica | ✅ Implementado | `POST /planification/edit/:id` · 400 si está de baja · el opcional omitido borra · `duration` obligatoria; 400 si queda por debajo de una semana en uso (17/10) |
+| CU-E-10 | Editar planificación sistémica | ✅ Implementado | `POST /planification/edit/:id` · 400 si está de baja · el opcional omitido borra · `duration` obligatoria; 400 si queda por debajo de una semana en uso (17/10) · `updated_at` nuevo al editar (24/10, BE-30) |
 | CU-E-11 | Eliminar planificación sistémica (lógico) | ✅ Implementado | `POST /planification/set-active/:id` · baja y reactivación |
 | CU-E-12 | Gestionar rutinas de una planificación | — *agrupador* | no se cuenta: agrupa a E-12a → E-12d |
 | CU-E-12a | Asignar una rutina a planificación | ✅ Implementado | `POST /planification/routine/assign` · `week` obligatoria (≤ `duration` si es > 0); `order` opcional, al final **de esa semana** si se omite (17/10) |
@@ -805,11 +1039,11 @@ Alineación de las entidades con el modelo vigente de `Doc/` (spec: `Doc/specs/2
 | CU-E-26 | Obtener estado de membresías | ✅ Implementado | `GET /membership/status/summary` · contadores derivados de `expired_at` |
 | CU-E-27 | Obtener alumnos por estado de membresía | ✅ Implementado | `GET /membership/status/users?status=` · active / expiring_soon / expired / no_payments |
 | CU-E-28 | Obtener alumnos por tipo de membresía | ✅ Implementado | `GET /membership/type/users?membership_id=` · sin el param, agrupa por tipo |
-| CU-E-29 | Registrar pago de alumno | ✅ Implementado | `POST /membership/payment/register` · ⚠ acepta un tipo dado de baja y un destinatario que no es alumno · BE-28 |
+| CU-E-29 | Registrar pago de alumno | ✅ Implementado | `POST /membership/payment/register` · `404` si el alumno o el tipo no existen; `400` si el destinatario no es un alumno, su cuenta está cerrada o el tipo está dado de baja (en ese orden) (BE-28, 24/10) |
 
 ---
 
-## Detalle — Rol Admin (23 CU · 96%)
+## Detalle — Rol Admin (23 CU · 100%)
 
 ### Administrar ejercicios
 | CU | Caso de uso | Estado | Endpoint / nota |
@@ -842,7 +1076,7 @@ Alineación de las entidades con el modelo vigente de `Doc/` (spec: `Doc/specs/2
 | CU | Caso de uso | Estado | Endpoint / nota |
 |---|---|---|---|
 | CU-A-16 | Obtener entrenadores | ✅ Implementado | `GET /coach/all` · sólo admin; era público y exponía el CUIL (16/10) |
-| CU-A-17 | Convertir alumno a entrenador | 🟡 Parcial | `POST /coach/promote_user` · falta el camino "ya es entrenador" (hoy pisa email y CUIL) y no es transaccional; por la decisión del 16/10 se reescribe la spec y se arregla · BE-27 |
+| CU-A-17 | Convertir alumno a entrenador | ✅ Implementado | `POST /coach/promote_user` · el rol y el `Coach` se escriben en una **transacción**; `409` si el email profesional o el CUIL son de otro entrenador; `400` si el usuario es un administrador; sobre un entrenador dado de baja lo reactiva y sobre uno activo edita sus datos (BE-27, 24/10) |
 | CU-A-18 | Editar datos de entrenador | ✅ Implementado | `POST /coach/promote_user` · si el user ya es coach, actualiza `coach_email`, `cuil`, `active`; se mantiene así (decisión del 16/10) |
 | CU-A-19 | Eliminar entrenador | ✅ Implementado | `POST /coach/delete_coach/:id` · baja lógica (`active: false`) |
 
