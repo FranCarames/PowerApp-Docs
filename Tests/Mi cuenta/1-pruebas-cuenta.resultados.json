@@ -1,0 +1,200 @@
+{
+  "plan": "pruebas-cuenta",
+  "version": 1,
+  "exportedAt": "2026-10-24T21:08:19.479Z",
+  "summary": {
+    "total": 31,
+    "ok": 27,
+    "fail": 4,
+    "retest": 0,
+    "none": 0
+  },
+  "results": {
+    "CTA-01": {
+      "title": "Mi cuenta del alumno",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T20:55:27.541Z"
+    },
+    "CTA-02": {
+      "title": "El menú del alumno",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T20:55:42.897Z"
+    },
+    "CTA-03": {
+      "title": "Mi cuenta del entrenador",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T20:56:34.671Z"
+    },
+    "CTA-04": {
+      "title": "Mi cuenta del admin",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T20:56:49.636Z"
+    },
+    "DAT-01": {
+      "title": "Datos precargados",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T20:57:13.391Z"
+    },
+    "DAT-02": {
+      "title": "Guardar cambios",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T20:58:29.865Z"
+    },
+    "DAT-03": {
+      "title": "El cambio llega al entrenador",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T20:59:06.282Z"
+    },
+    "DAT-04": {
+      "title": "Cambiar el email",
+      "status": "fail",
+      "note": "No se deberia poder cambiar el mail por ahora",
+      "at": "2026-10-24T20:59:57.943Z"
+    },
+    "DAT-05": {
+      "title": "Email de otra cuenta",
+      "status": "fail",
+      "note": "No se deberia poder cambiar el mail por ahora",
+      "at": "2026-10-24T21:00:03.108Z"
+    },
+    "DAT-06": {
+      "title": "Poner y quitar la foto de perfil",
+      "status": "fail",
+      "note": " La foto no se puede quitar: el front no manda el campo vacío porque el backend lo valida como link y no tiene forma de borrarlo, así que queda la anterior y el link reaparece al volver. Marcalo Falla; el arreglo empieza en el backend (aceptar un valor vacío en EditUserDto) y sigue en el front.",
+      "at": "2026-10-24T21:00:49.225Z"
+    },
+    "DAT-07": {
+      "title": "Un link que no es una imagen",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T21:01:53.159Z"
+    },
+    "DAT-08": {
+      "title": "Un link que el backend no acepta",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T21:02:07.172Z"
+    },
+    "DAT-09": {
+      "title": "Doble envío",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T21:02:09.610Z"
+    },
+    "DAT-10": {
+      "title": "Volver sin guardar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T21:02:15.447Z"
+    },
+    "DAT-11": {
+      "title": "Entrenador y admin",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T21:08:15.234Z"
+    },
+    "VAL-01": {
+      "title": "Campos vacíos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T21:02:54.280Z"
+    },
+    "VAL-02": {
+      "title": "Email inválido",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T21:03:00.606Z"
+    },
+    "VAL-03": {
+      "title": "Largos máximos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T21:03:02.677Z"
+    },
+    "VAL-04": {
+      "title": "Foto sin http",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T21:03:10.827Z"
+    },
+    "VAL-05": {
+      "title": "Teléfono con letras",
+      "status": "fail",
+      "note": "el front no me indica ningun error",
+      "at": "2026-10-24T21:03:46.865Z"
+    },
+    "PAG-01": {
+      "title": "Sin pagos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T21:03:58.200Z"
+    },
+    "PAG-02": {
+      "title": "Un pago que vence pronto",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T21:04:41.278Z"
+    },
+    "PAG-03": {
+      "title": "Un segundo pago",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T21:05:08.628Z"
+    },
+    "PAG-04": {
+      "title": "La tarjeta sigue al vencimiento más lejano",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T21:05:42.583Z"
+    },
+    "PAG-05": {
+      "title": "Membresía vencida",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T21:07:37.608Z"
+    },
+    "PAG-06": {
+      "title": "Solo para el alumno",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T21:06:19.967Z"
+    },
+    "ERR-01": {
+      "title": "Servidor caído al cargar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T21:06:29.881Z"
+    },
+    "ERR-02": {
+      "title": "Servidor caído al guardar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T21:06:31.000Z"
+    },
+    "ERR-03": {
+      "title": "Celular y escritorio",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T21:06:45.248Z"
+    },
+    "ERR-04": {
+      "title": "Teclado y lector de pantalla",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T21:07:04.568Z"
+    },
+    "CIE-01": {
+      "title": "Dejar las cuentas como estaban",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T21:07:08.788Z"
+    }
+  }
+}

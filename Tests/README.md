@@ -57,7 +57,12 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 1](Circuitos/1-pruebas-circuitos.resultados.json)
 - [Pruebas del panel y la navegación](Panel%20y%20navegacion/Pruebas%20del%20panel%20y%20la%20navegaci%C3%B3n.html) — El marco de la app: el panel del Admin, «Más», el inicio del Entrenador y del alumno con su tab bar y barra lateral, qué rol entra a qué ruta, las direcciones que no existen, el aviso de servidor dormido y la sesión que se cierra sola (sin CU).
 - [Pruebas de mi cuenta](Mi%20cuenta/Pruebas%20de%20mi%20cuenta.html) — Mi cuenta con los tres roles: la pantalla de cada uno, los datos personales con sus validaciones y el historial de pagos del alumno (CU-U-06 y CU-U-07).
+  - [Tanda 1](Mi%20cuenta/1-pruebas-cuenta.resultados.json)
 - [Pruebas de wiki y temporizador](Wiki%20y%20temporizador/Pruebas%20de%20wiki%20y%20temporizador.html) — Herramientas del alumno: la biblioteca de ejercicios con búsqueda, filtro por grupo muscular y ficha de cada ejercicio, y el temporizador de descanso entre series (CU-U-14 y CU-U-15).
+  - [Tanda 1](Wiki%20y%20temporizador/1-pruebas-wiki-timer.resultados.json)
 - [Pruebas de RMs y calculadora](RMs%20y%20calculadora/Pruebas%20de%20RMs%20y%20calculadora.html) — Los récords del alumno: listado agrupado por ejercicio, registrar, editar y eliminar un RM, y la calculadora que estima el 1RM sin guardarlo (CU-U-16 a CU-U-20).
+  - [Tanda 1](RMs%20y%20calculadora/1-pruebas-rms.resultados.json)
 - [Pruebas del detalle del alumno](Detalle%20del%20alumno/Pruebas%20del%20detalle%20del%20alumno.html) — La ficha de un alumno desde el Entrenador: sus datos, sus RMs, su historial de pagos y su historial de entrenamientos con el filtro por ejercicio (CU-E-04 a CU-E-07).
+  - [Tanda 1](Detalle%20del%20alumno/1-pruebas-detalle-alumno.resultados.json)
 - [Pruebas de membresías del entrenador](Membresias%20del%20entrenador/Pruebas%20de%20membres%C3%ADas%20del%20entrenador.html) — El control de membresías del Entrenador: contadores por estado, alumnos filtrados por estado y por tipo, y el registro de un pago (CU-E-25 a CU-E-29).
+  - [Tanda 1](Membresias%20del%20entrenador/1-pruebas-membresias-entrenador.resultados.json)
