@@ -251,6 +251,11 @@ Respuesta: `{ routine_exercise_id, user_note, finished_at, created_at, updated_a
 
 ### 5.9 Historial — `GET /routine/history/:userId?exercise_id=` (E-06, E-07)
 
+> **23/10:** implementado en BE-20d ([plan](../plans/2026-10-23-be-20d-sesiones-del-plan-en-el-historial-plan.md)), sin cambios al contrato. Lo que la spec no fijaba:
+> - **Swagger:** la respuesta se documenta como una unión discriminada por `source` de dos DTOs, y el usuario eligió **renombrar** `RoutineHistorySessionDto` a `RoutineHistoryIndividualSessionDto` (la forma no cambia) y sumar `RoutineHistoryPlanSessionDto`. El `name` de la plantilla puede ser `null`.
+> - **El orden:** las individuales siguen en el orden que les da la base y las del plan se ordenan en el servidor (su día sale de los ejercicios). Las dos listas se intercalan **sin reordenar las individuales entre sí**; el desempate entre una individual y una del plan compara el nombre con `localeCompare('es')`, y con el mismo nombre, el alta (de la asignación, o de la `User_Planification` y después de la `Routine_Asignation`).
+> - **La sesión del plan es el par `(User_Planification, Routine_Asignation)`:** la misma rutina del plan en dos asignaciones de una plantilla son dos sesiones.
+
 El endpoint de BE-16 suma las **sesiones del plan con al menos un ejercicio hecho**, en la misma lista y ordenadas con las individuales: por `date` descendente, después por nombre de rutina y después por alta (de la asignación individual, o de la `User_Planification` y la `Routine_Asignation`).
 
 Cada sesión es de uno de dos tipos, según `source`:

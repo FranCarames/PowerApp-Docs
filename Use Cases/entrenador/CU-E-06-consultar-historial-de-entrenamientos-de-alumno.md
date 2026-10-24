@@ -5,7 +5,7 @@
 
 ## Descripción breve
 
-Muestra el historial de entrenamientos de un alumno: las sesiones en las que marcó al menos un ejercicio como realizado, de la más reciente a la más antigua, con los ejercicios que hizo y el día en que hizo cada uno, la prescripción del entrenador, la fecha de la sesión y la nota que el alumno dejó. El sistema no registra la carga real que usó el alumno: lo que muestra de cada serie es lo prescrito.
+Muestra el historial de entrenamientos de un alumno: las sesiones en las que marcó al menos un ejercicio como realizado, de la más reciente a la más antigua, con los ejercicios que hizo y el día en que hizo cada uno, la prescripción del entrenador, la fecha de la sesión y la nota que el alumno dejó. Una sesión es una rutina asignada para un día o una rutina de su planificación (la de una semana del plan); las dos se muestran juntas, en una sola lista, y cada sesión indica de cuál de las dos es. El sistema no registra la carga real que usó el alumno: lo que muestra de cada serie es lo prescrito.
 
 ## Actores involucrados
 
@@ -16,7 +16,7 @@ Muestra el historial de entrenamientos de un alumno: las sesiones en las que mar
 
 **Cubre:**
 
-- Lectura de las sesiones del alumno con al menos un ejercicio realizado, y de esos ejercicios con sus series prescritas y la nota del alumno.
+- Lectura de las sesiones del alumno con al menos un ejercicio realizado, ya sean de una asignación individual o de su planificación, y de esos ejercicios con sus series prescritas y la nota del alumno.
 
 **Fuera de alcance:**
 
@@ -53,10 +53,20 @@ Muestra el historial de entrenamientos de un alumno: las sesiones en las que mar
 
 ### En el paso 2 — Lo dado de baja que el alumno hizo
 
-1. El entrenador dio de baja la rutina, sacó un circuito o sacó un ejercicio después de que el alumno lo hizo.
+1. El entrenador dio de baja la rutina, sacó un circuito o sacó un ejercicio después de que el alumno lo hizo; o quitó la rutina del plan o la planificación al alumno.
 2. El sistema lo muestra igual: si el alumno lo realizó, forma parte de su historial.
+
+### En el paso 2 — Cada rutina del plan es una sesión
+
+1. El alumno hizo ejercicios de más de una rutina de su planificación, o de la misma rutina del plan en dos asignaciones de la misma plantilla.
+2. El sistema presenta cada rutina del plan de cada asignación como una sesión separada.
 
 ### En el paso 3 — Dos sesiones el mismo día
 
 1. El alumno tuvo más de una rutina asignada el mismo día.
-2. El sistema las presenta como sesiones separadas, ordenadas por el nombre de la rutina.
+2. El sistema las presenta como sesiones separadas, ordenadas por el nombre de la rutina y, si el nombre coincide, por el orden en que se dieron de alta.
+
+### En el paso 3 — La fecha de una sesión del plan
+
+1. La rutina de una planificación no tiene un día propio: es de una semana del plan.
+2. El sistema toma como fecha de la sesión el día más viejo en que el alumno hizo alguno de los ejercicios que muestra, y la ubica con ese día entre las demás sesiones.

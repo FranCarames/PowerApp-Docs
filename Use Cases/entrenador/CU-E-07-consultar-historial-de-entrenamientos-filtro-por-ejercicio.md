@@ -5,7 +5,7 @@
 
 ## Descripción breve
 
-Variante de «Consultar historial de entrenamientos de alumno» que acota el historial a un ejercicio puntual del catálogo: sólo las sesiones donde el alumno lo hizo y, en cada una, únicamente ese ejercicio, con su prescripción, la fecha y la nota del alumno.
+Variante de «Consultar historial de entrenamientos de alumno» que acota el historial a un ejercicio puntual del catálogo: sólo las sesiones donde el alumno lo hizo (de una asignación individual o de su planificación) y, en cada una, únicamente ese ejercicio, con su prescripción, la fecha y la nota del alumno.
 
 ## Actores involucrados
 
@@ -48,6 +48,11 @@ Variante de «Consultar historial de entrenamientos de alumno» que acota el his
 
 1. El alumno no entrenó ese ejercicio.
 2. El sistema muestra un estado vacío.
+
+### En el paso 3 — La fecha de una sesión del plan
+
+1. La sesión es una rutina de la planificación del alumno, que no tiene un día propio.
+2. El sistema toma como fecha de la sesión el día en que el alumno hizo ese ejercicio (el más viejo, si lo hizo más de una vez en la sesión).
 
 ### En el paso 2 — El ejercicio aparece más de una vez en una sesión
 

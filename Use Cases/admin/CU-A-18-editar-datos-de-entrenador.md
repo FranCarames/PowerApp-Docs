@@ -48,3 +48,8 @@ Modifica los datos profesionales de un entrenador (registro Coach).
 
 1. Datos profesionales inválidos.
 2. El sistema marca el error y no persiste.
+
+### En el paso 2 — Email profesional o CUIL repetidos
+
+1. El coach_email o el cuil ya pertenecen a otro entrenador (también a uno dado de baja).
+2. El sistema informa cuál está repetido y no persiste. Su email y su CUIL actuales no cuentan como repetidos.
