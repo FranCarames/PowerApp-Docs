@@ -1,0 +1,1034 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Pruebas de planificaciones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: una columna de trabajo (máx. 980px). Resumen arriba, barra de filtros fija, casos agrupados por CU. Paleta de PowerApp, dark-first. */
+:root{
+  --bg:#0B0D16; --card:#13161F; --el:#1B1F2E; --line:#232739; --line2:#2E3347;
+  --tx:#F5F1EB; --tx2:#A3ACC2; --tx3:#6B7390;
+  --pri:#FF6B3D; --priS:rgba(232,69,10,.14); --acc:#A78BFA; --accS:rgba(139,92,246,.16);
+  --ok:#3DD47A; --okS:rgba(34,197,94,.14); --warn:#F5B23D; --warnS:rgba(245,158,11,.14); --err:#F26464; --errS:rgba(239,68,68,.14);
+  --none:#6B7390;
+  --fD:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --fB:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --fM:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#F2F3F7; --card:#FFFFFF; --el:#E8EAF1; --line:#D9DCE6; --line2:#C8CCDA;
+    --tx:#141826; --tx2:#47506A; --tx3:#687089;
+    --pri:#C23A07; --priS:rgba(232,69,10,.10); --acc:#6A3FDB; --accS:rgba(139,92,246,.12);
+    --ok:#157A3C; --okS:rgba(34,197,94,.13); --warn:#A25A06; --warnS:rgba(245,158,11,.16); --err:#C42525; --errS:rgba(239,68,68,.11);
+    --none:#8A91A8;
+    color-scheme:light;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#F2F3F7; --card:#FFFFFF; --el:#E8EAF1; --line:#D9DCE6; --line2:#C8CCDA;
+  --tx:#141826; --tx2:#47506A; --tx3:#687089;
+  --pri:#C23A07; --priS:rgba(232,69,10,.10); --acc:#6A3FDB; --accS:rgba(139,92,246,.12);
+  --ok:#157A3C; --okS:rgba(34,197,94,.13); --warn:#A25A06; --warnS:rgba(245,158,11,.16); --err:#C42525; --errS:rgba(239,68,68,.11);
+  --none:#8A91A8;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--tx);font-family:var(--fB);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding-inline:20px;padding-block:28px 72px}
+code,.mono{font-family:var(--fM);font-size:.86em}
+code{background:var(--el);border:1px solid var(--line);border-radius:5px;padding:1px 5px;overflow-wrap:anywhere}
+.ui{color:var(--tx);font-weight:600}
+a{color:var(--acc)}
+a:focus-visible,button:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+h1,h2,h3{text-wrap:balance}
+
+/* Encabezado */
+.mast{display:grid;gap:6px;margin-bottom:22px}
+.eyebrow{font-family:var(--fM);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--pri);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.eyebrow .sep{color:var(--tx3)}
+h1{font-family:var(--fD);font-weight:800;font-size:clamp(34px,6vw,52px);line-height:1;letter-spacing:-.01em;margin:4px 0 0}
+.lede{color:var(--tx2);max-width:66ch;margin:6px 0 0}
+
+/* Resumen */
+.summary{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:14px;margin-bottom:18px}
+.counts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.count{display:grid;gap:2px}
+.count .n{font-family:var(--fD);font-size:34px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.count .l{font-size:12.5px;color:var(--tx2);display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;flex:none}
+.c-ok .n{color:var(--ok)} .c-ok .dot{background:var(--ok)}
+.c-fail .n{color:var(--err)} .c-fail .dot{background:var(--err)}
+.c-retest .n{color:var(--warn)} .c-retest .dot{background:var(--warn)}
+.c-none .n{color:var(--tx2)} .c-none .dot{background:var(--none)}
+.bar{display:flex;height:10px;border-radius:6px;overflow:hidden;background:var(--el)}
+.bar span{height:100%;transition:width .3s ease}
+.bar .b-ok{background:var(--ok)} .bar .b-fail{background:var(--err)} .bar .b-retest{background:var(--warn)}
+.sumfoot{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.save{font-size:12.5px;color:var(--tx3);display:flex;align-items:center;gap:7px}
+.save .dot{background:var(--tx3)}
+.save.is-db .dot{background:var(--ok)} .save.is-err .dot{background:var(--err)} .save.is-local .dot{background:var(--warn)}
+.btn{font:600 13.5px/1 var(--fB);color:var(--tx);background:var(--el);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{border-color:var(--tx3)}
+.btn.pri{background:var(--priS);border-color:var(--pri);color:var(--pri)}
+.copyfall{display:grid;gap:8px}
+.copyfall textarea{width:100%;min-height:140px;font:13px/1.5 var(--fM);background:var(--el);color:var(--tx);border:1px solid var(--line2);border-radius:10px;padding:10px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.save{flex:1 1 260px;min-width:0;align-items:flex-start}
+.save .dot{margin-top:.45em}
+.save.is-local{color:var(--warn)}
+.save.is-err{color:var(--err)}
+.iomsg{margin:0;font-size:12.5px;color:var(--tx2)}
+.iomsg.is-ok{color:var(--ok)} .iomsg.is-err{color:var(--err)}
+
+/* Antes de empezar */
+details.prep{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:18px}
+details.prep>summary{cursor:pointer;list-style:none;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+details.prep>summary::-webkit-details-marker{display:none}
+details.prep>summary h2{font-family:var(--fD);font-weight:700;font-size:24px;margin:0}
+.chev{color:var(--tx3);font-family:var(--fM);font-size:13px}
+details[open] .chev .c-open{display:none} details:not([open]) .chev .c-close{display:none}
+.prep-body{padding:0 18px 18px;display:grid;gap:18px}
+.prep h3{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin:0 0 8px;font-weight:700}
+.envs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.env{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg);display:grid;gap:6px;align-content:start;min-width:0}
+.env p{margin:0;font-size:13.5px;color:var(--tx2)}
+.tag{display:inline-flex;align-items:center;font:700 11px/1 var(--fM);letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border-radius:6px;border:1px solid currentColor;white-space:nowrap}
+.t-LOCAL{color:var(--acc)} .t-DEMO{color:var(--warn)} .t-RENDER{color:var(--pri)} .t-TODOS{color:var(--tx2)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);font-weight:700;background:var(--bg)}
+tr:last-child td{border-bottom:0}
+.tips{margin:0;padding-left:18px;display:grid;gap:6px;color:var(--tx2);font-size:14px}
+.tips b{color:var(--tx)}
+.tok{font:500 12.5px/1.3 var(--fM);color:var(--tx);background:var(--el);border:1px dashed var(--line2);border-radius:6px;padding:2px 6px;cursor:copy;overflow-wrap:anywhere;text-align:left}
+.tok:hover{border-color:var(--acc)}
+.tok.copied{border-style:solid;border-color:var(--ok);color:var(--ok)}
+
+/* Filtros */
+.filters{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;margin-bottom:8px;display:grid;gap:8px;border-bottom:1px solid var(--line)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chips .lbl{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);font-weight:700;margin-right:4px}
+.chip{font:600 12.5px/1 var(--fB);color:var(--tx2);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 11px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.chip .k{font-family:var(--fM);font-size:11px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.chip[aria-pressed="true"]{color:var(--tx);border-color:var(--tx2);background:var(--el)}
+.jump{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.jump a{font:600 12px/1 var(--fB);color:var(--tx2);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:6px 9px;white-space:nowrap;background:var(--card)}
+.jump a:hover{color:var(--tx);border-color:var(--line2)}
+.jump .p{font-family:var(--fM);font-size:11px;color:var(--tx3);margin-left:4px}
+
+/* Grupos y casos */
+.group{margin-top:28px;scroll-margin-top:120px}
+.ghead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:12px}
+.ghead h2{font-family:var(--fD);font-weight:700;font-size:28px;margin:0;line-height:1.1}
+.ghead .cu{font-family:var(--fM);font-size:12.5px;color:var(--pri)}
+.ghead .gsub{color:var(--tx3);font-size:13.5px}
+.ghead .gprog{margin-left:auto;font-family:var(--fM);font-size:12px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.cases{display:grid;gap:12px}
+.case{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:grid;gap:12px;min-width:0}
+.case[data-status="fail"]{border-color:color-mix(in srgb,var(--err) 55%,var(--line))}
+.case[data-status="ok"]{border-color:color-mix(in srgb,var(--ok) 40%,var(--line))}
+.case[data-status="retest"]{border-color:color-mix(in srgb,var(--warn) 50%,var(--line))}
+.chead{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+.cid{font:700 13px/1 var(--fM);color:var(--pri);letter-spacing:.02em}
+.chead h3{font-size:16.5px;font-weight:700;margin:0;flex:1 1 220px;min-width:0}
+.ctags{display:flex;gap:6px;flex-wrap:wrap}
+.pill{font:700 11px/1 var(--fB);letter-spacing:.04em;text-transform:uppercase;padding:5px 8px;border-radius:999px;background:var(--el);color:var(--tx3);white-space:nowrap}
+.pill.s-ok{background:var(--okS);color:var(--ok)} .pill.s-fail{background:var(--errS);color:var(--err)} .pill.s-retest{background:var(--warnS);color:var(--warn)}
+.cdata{margin:0;font-size:14px;color:var(--tx2)}
+.cdata b{color:var(--tx);font-weight:600}
+.cbody{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:14px}
+.cbody h4{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin:0 0 6px;font-weight:700}
+.steps{margin:0;padding-left:20px;display:grid;gap:5px;font-size:14px}
+.steps li::marker{font-family:var(--fM);color:var(--tx3);font-size:12px}
+.expect{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;min-width:0}
+.expect p{margin:0}
+.expect ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.known{display:flex;gap:10px;align-items:flex-start;background:var(--warnS);color:var(--tx);border-radius:10px;padding:10px 12px;font-size:13.5px}
+.known b{color:var(--warn)}
+.cfoot{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px 14px;align-items:start;border-top:1px solid var(--line);padding-top:12px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.sb{font:600 13px/1 var(--fB);color:var(--tx2);background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:9px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;min-height:38px}
+.sb .ic{font-family:var(--fM);font-weight:700}
+.sb:hover{color:var(--tx)}
+.sb.v-ok[aria-pressed="true"]{background:var(--okS);border-color:var(--ok);color:var(--ok)}
+.sb.v-fail[aria-pressed="true"]{background:var(--errS);border-color:var(--err);color:var(--err)}
+.sb.v-retest[aria-pressed="true"]{background:var(--warnS);border-color:var(--warn);color:var(--warn)}
+.notewrap{display:grid;gap:4px;min-width:0}
+.note{width:100%;min-height:38px;resize:vertical;font:14px/1.45 var(--fB);color:var(--tx);background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:8px 10px}
+.note::placeholder{color:var(--tx3)}
+.when{font-size:12px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.empty{color:var(--tx2);text-align:center;padding:40px 16px;border:1px dashed var(--line2);border-radius:14px;margin-top:24px}
+
+.summary>*,.prep-body>*,.filters>*,.group,.cases>*{min-width:0}
+@media (max-width:760px){
+  .filters{position:static}
+  .group{scroll-margin-top:16px}
+  .envs{grid-template-columns:minmax(0,1fr)}
+  .cbody{grid-template-columns:minmax(0,1fr)}
+  .cfoot{grid-template-columns:minmax(0,1fr)}
+  .counts{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="eyebrow"><span>PowerApp Web</span><span class="sep">/</span><span>Admin y Entrenador · CU-E-08 a CU-E-14</span><span class="sep">/</span><span>Pruebas manuales</span></div>
+    <h1>Pruebas de planificaciones</h1>
+    <p class="lede">Las planificaciones sistémicas desde el Admin y el Entrenador: listado y filtros, alta y edición de la cabecera, las rutinas por semana (agregar, quitar y reincorporar, de a una o en lote), la baja lógica, y la asignación a un alumno con sus fechas, el aviso de solapamiento y la baja de esa asignación. Cada caso dice cómo probarlo y qué tenés que ver. Marcá el resultado y anotá lo que observes.</p>
+  </header>
+
+  <section class="summary" aria-label="Resumen">
+    <div class="counts">
+      <div class="count c-ok"><span class="n" id="n-ok">0</span><span class="l"><span class="dot"></span>Funciona</span></div>
+      <div class="count c-fail"><span class="n" id="n-fail">0</span><span class="l"><span class="dot"></span>Falla</span></div>
+      <div class="count c-retest"><span class="n" id="n-retest">0</span><span class="l"><span class="dot"></span>Re-testear</span></div>
+      <div class="count c-none"><span class="n" id="n-none">0</span><span class="l"><span class="dot"></span>Sin probar</span></div>
+    </div>
+    <div class="bar" role="img" id="bar" aria-label="Progreso"><span class="b-ok" id="b-ok"></span><span class="b-fail" id="b-fail"></span><span class="b-retest" id="b-retest"></span></div>
+    <div class="sumfoot">
+      <span class="save" id="save"><span class="dot"></span><span id="save-t">Conectando el guardado…</span></span>
+      <div class="actions">
+        <button type="button" class="btn" id="exp-res">Exportar resultados</button>
+        <button type="button" class="btn" id="imp-res">Importar resultados</button>
+        <button type="button" class="btn pri" id="copy-sum">Copiar resumen de fallas</button>
+        <input type="file" id="imp-file" accept=".json,application/json" hidden>
+      </div>
+    </div>
+    <div class="copyfall" id="copy-fall" hidden>
+      <label for="copy-fall-t" class="when">Tu navegador no dejó copiar automáticamente. El texto ya está seleccionado: copialo con Ctrl+C.</label>
+      <textarea id="copy-fall-t" readonly></textarea>
+    </div>
+    <p class="iomsg" id="io-msg" role="status" hidden></p>
+  </section>
+
+  <details class="prep" id="prep" open>
+    <summary><h2>Antes de empezar</h2><span class="chev"><span class="c-close">Ocultar</span><span class="c-open">Mostrar</span></span></summary>
+    <div class="prep-body">
+      <div>
+        <h3>Entornos</h3>
+        <div class="envs">
+          <div class="env"><span class="tag t-LOCAL">Local</span><p>Backend local en <code>localhost:3000</code> y el front con <code>npm run dev</code>. Hace falta para los casos con el servidor apagado.</p></div>
+          <div class="env"><span class="tag t-RENDER">Render</span><p><a href="https://powerapp-web.onrender.com" target="_blank" rel="noopener">powerapp-web.onrender.com</a> contra el backend de Render. Todo lo que crees queda en esa base.</p></div>
+          <div class="env"><span class="tag t-TODOS">Cualquiera</span><p>El caso da lo mismo en los dos. Desde T44 el front no tiene mocks: todo va al backend real.</p></div>
+        </div>
+      </div>
+      <div>
+        <h3>Cuentas y datos</h3>
+        <ul class="tips">
+          <li><b>Una cuenta admin real y una de entrenador.</b> Las de demo ya no existen. Asignar a un alumno (CU-E-13) es solo del Entrenador.</li>
+          <li><b>Un alumno de prueba nuevo,</b> registrado desde <code>/registro</code>: <button type="button" class="tok" data-copy="QA">QA</button> <button type="button" class="tok" data-copy="Plan">Plan</button>, con un email tuyo con sufijo, por ejemplo <button type="button" class="tok" data-copy="tuemail+qa-plan@gmail.com">tuemail+qa-plan@gmail.com</button>. Sirve también para «Pruebas del plan del alumno».</li>
+          <li><b>Tres rutinas propias, antes de CRE-01:</b> desde Rutinas, creá <button type="button" class="tok" data-copy="QA Rutina P1">QA Rutina P1</button>, <button type="button" class="tok" data-copy="QA Rutina P2">QA Rutina P2</button> y <button type="button" class="tok" data-copy="QA Rutina P3">QA Rutina P3</button>, cada una con un circuito cualquiera.</li>
+          <li><b>Planificaciones:</b> <button type="button" class="tok" data-copy="QA Plan A">QA Plan A</button> (4 semanas), <button type="button" class="tok" data-copy="QA Plan B">QA Plan B</button> (sin duración fija) y <button type="button" class="tok" data-copy="QA Plan C">QA Plan C</button> (sin rutinas). Si el seed trajo otras, no las toques.</li>
+          <li><b>Nada se borra:</b> planificaciones, rutinas del plan y asignaciones son bajas lógicas. FIN-01 deja todo lo de prueba dado de baja.</li>
+          <li><b>Dos roles a la vez:</b> ventana normal para el admin o el entrenador y de incógnito para el alumno.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Cómo encararlo</h3>
+        <ul class="tips">
+          <li><b>Seguí el orden de la página.</b> Los casos arman QA Plan A de a poco: las semanas y posiciones que esperan dependen de los anteriores.</li>
+          <li><b>Las rutinas del plan se guardan al instante,</b> cada acción con su request. «Guardar planificación» guarda solo la cabecera.</li>
+          <li><b>DevTools › Network</b>, filtrado por <code>planification</code>, para ver qué requests salen, con qué body y qué código responden.</li>
+          <li><b>Dos pestañas</b> para los casos que cambian algo por detrás: en una dejás la pantalla abierta y en la otra hacés el cambio.</li>
+          <li><b>Lo que hoy falla</b> está marcado con un aviso amarillo: una rutina quitada solo se reincorpora sin salir de la pantalla, el aviso de rutina dada de baja no dice cuál es, la confirmación de asignar no dice las fechas ni el plan, cambiar la duración no mueve el fin de las asignaciones, se pueden quitar rutinas de un plan dado de baja y un enlace con un id que no es un UUID muestra un error genérico. El aviso de la rutina dada de baja, la confirmación de asignar y el enlace los arregla el PR #70 (T51), que todavía no está en <code>develop</code>.</li>
+          <li><b>Sin pantalla para provocarlos:</b> el 403 de un entrenador sin registro (CU-E-13), una rutina o un vínculo que ya no existe (CU-E-12b a CU-E-12d), ids repetidos o de varios planes en un lote (CU-E-12d) y semana o posición al quitar (CU-E-12c). La web nunca los manda; se prueban por Swagger.</li>
+        </ul>
+      </div>
+    </div>
+  </details>
+
+  <div class="filters" id="filters">
+    <div class="chips" id="f-status" role="group" aria-label="Filtrar por resultado">
+      <span class="lbl">Resultado</span>
+    </div>
+    <div class="chips" id="f-env" role="group" aria-label="Filtrar por entorno">
+      <span class="lbl">Entorno</span>
+    </div>
+    <nav class="jump" id="jump" aria-label="Ir a un grupo"></nav>
+  </div>
+
+  <main id="groups"></main>
+  <p class="empty" id="empty" hidden>Ningún caso coincide con estos filtros.</p>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const PLAN_NAME = 'Pruebas de planificaciones PowerApp';
+  const PAGE_ID = 'pruebas-planificaciones-powerapp';
+  const DOCS = 'https://github.com/FranCarames/PowerApp-Docs/blob/main/Use%20Cases/';
+  const tok = (t) => `<button type="button" class="tok" data-copy="${t.replace(/"/g, '&quot;')}">${t}</button>`;
+  const ui = (t) => `<span class="ui">«${t}»</span>`;
+
+  const ENVS = { LOCAL: 'Local', RENDER: 'Render', TODOS: 'Cualquiera' };
+  const ENV_FILTERS = [['all', 'Todos'], ['LOCAL', 'Local'], ['RENDER', 'Render']];
+  const STATUSES = [
+    { v: 'ok', label: 'Funciona', ic: '✓' },
+    { v: 'fail', label: 'Falla', ic: '✕' },
+    { v: 'retest', label: 'Re-testear', ic: '↻' },
+  ];
+  const STATUS_LABEL = { ok: 'Funciona', fail: 'Falla', retest: 'Re-testear', none: 'Sin probar' };
+
+  const GROUPS = [
+    { id: 'lst', name: 'Llegar a Planificaciones', cu: 'CU-E-08', file: 'entrenador/CU-E-08-obtener-planificaciones-sistemicas.md' },
+    { id: 'cre', name: 'Crear', cu: 'CU-E-09', file: 'entrenador/CU-E-09-crear-planificacion-sistemica.md' },
+    { id: 'add', name: 'Agregar rutinas', cu: 'CU-E-12a y CU-E-12b', file: 'entrenador/CU-E-12-gestionar-rutinas-de-planificacion-sistemica.md', sub: 'De a una o en lote, por semana' },
+    { id: 'edt', name: 'Editar la cabecera', cu: 'CU-E-10', file: 'entrenador/CU-E-10-editar-planificacion-sistemica.md' },
+    { id: 'qui', name: 'Quitar y reincorporar rutinas', cu: 'CU-E-12c y CU-E-12d', file: 'entrenador/CU-E-12c-quitar-rutina-de-planificacion.md' },
+    { id: 'baj', name: 'Eliminar y reactivar', cu: 'CU-E-11', file: 'entrenador/CU-E-11-eliminar-planificacion-sistemica.md' },
+    { id: 'fil', name: 'Tarjetas y filtros', cu: 'CU-E-08', file: 'entrenador/CU-E-08-obtener-planificaciones-sistemicas.md' },
+    { id: 'coa', name: 'Desde el Entrenador', cu: null, sub: 'La misma pantalla en /c/planes' },
+    { id: 'asg', name: 'Asignar a un alumno', cu: 'CU-E-13', file: 'entrenador/CU-E-13-asignar-planificacion-a-alumno.md' },
+    { id: 'alu', name: 'Quitar o reincorporar al alumno', cu: 'CU-E-14', file: 'entrenador/CU-E-14-eliminar-planificacion-a-alumno.md' },
+    { id: 'err', name: 'Errores y pantallas', cu: null, sub: 'Servidor caído, celular, escritorio y teclado' },
+    { id: 'fin', name: 'Limpieza', cu: null, sub: 'Dejar las planificaciones, rutinas y asignaciones de prueba fuera de uso' },
+  ];
+
+  const CASES = [
+    // ── Llegar a Planificaciones ────────────────────────────
+    { id: 'LST-01', g: 'lst', t: 'Llegar a Planificaciones', env: ['TODOS'],
+      data: 'Tu cuenta real de admin.',
+      steps: [`En el Panel, anotá el número de la tarjeta ${ui('Planificaciones')} y tocala.`, `En el celular, entrá desde ${ui('Más')} › ${ui('Planificaciones')}. En escritorio, desde la barra lateral › Entrenamiento › Planificaciones.`, 'En Network, mirá qué request sale.'],
+      exp: `<p>Todos llevan a <code>/a/planes</code> con ${ui('Sistémicas')} arriba, el título ${ui('Planificaciones')}, el buscador ${ui('Buscar planificación')}, el chip ${ui('Incluir inactivas')} apagado y el botón flotante ${ui('Crear planificación')}. Sale <code>GET /planification/all?include_inactive=true</code>. El número del panel (${ui('N planes sistémicos')}) es la cantidad de planificaciones vigentes. (CU-E-08)</p>` },
+    { id: 'LST-02', g: 'lst', t: 'Sin planificaciones', env: ['TODOS'],
+      data: 'Una base donde nadie creó planificaciones. Si ya hay (el seed puede traer), marcá Re-testear.',
+      steps: ['Abrí Planificaciones.'],
+      exp: `<p>${ui('Todavía no hay planificaciones')}, ${ui('Creá la primera para armar el plan de tus alumnos.')} y el botón ${ui('Crear planificación')}. (CU-E-08, caminos alternativos)</p>` },
+
+    // ── Crear ───────────────────────────────────────────────
+    { id: 'CRE-01', g: 'cre', t: 'Crear una planificación', env: ['TODOS'],
+      data: `Nombre ${tok('QA Plan A')} · notas ${tok('Plan de prueba QA')} · tipo Fuerza · 4 semanas · 3 rutinas previstas`,
+      steps: [`Tocá ${ui('Crear planificación')} y mirá cómo arranca el formulario.`, 'Completá los datos. La duración y las rutinas se cambian con los botones del campo o escribiendo el número.', `Tocá ${ui('Guardar planificación')} y mirá el body en Network.`],
+      exp: `<ul><li>Abre <code>/a/planes/nuevo</code> con ${ui('Nueva')} arriba y el título ${ui('Planificación')}: ${ui('Nombre del plan')}, ${ui('Notas del entrenador')} (${ui('Opcional. Objetivos y observaciones.')}), ${ui('Tipo de plan')} con los chips ${ui('Fuerza')} (marcado), ${ui('Hipertrofia')} y ${ui('Resistencia')} y el campo ${ui('Otro tipo')}, ${ui('Duración (semanas)')} en 8 y ${ui('Rutinas previstas')} vacío. Abajo: ${ui('Cuando la crees vas a poder agregarle sus rutinas, semana por semana.')}</li><li>Al guardar: ${ui('Planificación creada')} y se abre su editor en <code>/a/planes/{id}</code>, con ${ui('Editar')} arriba. <code>POST /planification/create</code> responde 201 con <code>duration: 4</code>, <code>number_of_routines: 3</code> y <code>type: "Fuerza"</code>. (CU-E-09)</li><li>Debajo de la cabecera: ${ui('Rutinas del plan')} con ${ui('0 de 3 rutinas')}, ${ui('Los cambios de esta sección se aplican al instante, sin pasar por “Guardar planificación”. El plan dura 4 semanas: las rutinas van de la semana 1 a la 4.')} y ${ui('El plan todavía no tiene rutinas. Agregalas por semana.')}</li></ul>` },
+    { id: 'CRE-02', g: 'cre', t: 'Validaciones', env: ['TODOS'],
+      steps: ['En una planificación nueva, borrá la duración y guardá con todo lo demás vacío.', `Escribí ${tok('abc')} y después ${tok('1,5')} en la duración y guardá.`, 'Poné 0 en las rutinas previstas y guardá.', 'Pegá un texto largo en el nombre, las notas y el otro tipo.'],
+      exp: `<ul><li>${ui('Poné un nombre a la planificación')}, ${ui('Indicá la duración en semanas (0 si no tiene duración fija)')} y ${ui('Indicá cuántas rutinas va a tener el plan')}. (CU-E-09, caminos alternativos)</li><li>Con abc o 1,5: ${ui('Poné un número entero de semanas, de 0 en adelante')}. Con 0 rutinas: ${ui('Poné un número entero de rutinas, de 1 en adelante')}. (CU-E-09, duración inválida)</li><li>El nombre se corta en 50 caracteres, las notas en 1000 y el tipo en 30. No sale ningún request.</li></ul>` },
+    { id: 'CRE-03', g: 'cre', t: 'Tipo propio y sin duración fija', env: ['TODOS'],
+      data: `Nombre ${tok('QA Plan B')} · tipo ${tok('movilidad')} · 0 semanas · 2 rutinas previstas`,
+      steps: [`Creá QA Plan B escribiendo el tipo en ${ui('Otro tipo')} y con la duración en 0.`, 'Mirá el body en Network y la sección de rutinas.'],
+      exp: `<p>Al escribir el tipo, el chip Fuerza se desmarca. Se crea con <code>duration: 0</code> y <code>type: "movilidad"</code>. La sección dice ${ui('El plan no tiene duración fija: las rutinas pueden ir en cualquier semana.')} (CU-E-09: 0 es sin duración fija)</p>` },
+    { id: 'CRE-04', g: 'cre', t: 'Volver sin guardar', env: ['TODOS'],
+      steps: [`En una planificación nueva, escribí un nombre y tocá ${ui('Volver')}.`],
+      exp: '<p>Vuelve a la lista y no se creó nada.</p>' },
+
+    // ── Agregar rutinas ─────────────────────────────────────
+    { id: 'ADD-01', g: 'add', t: 'Agregar una rutina', env: ['TODOS'],
+      steps: [`En QA Plan A, tocá ${ui('Agregar rutinas')}.`, 'Buscá QA Rutina P1 y elegila. Dejá la semana en 1 y la posición vacía.', 'Agregala y mirá el body en Network.'],
+      exp: `<ul><li>${ui('Agregar rutinas')} trae ${ui('Semana')} (${ui('El plan dura 4 semanas.')}), el buscador ${ui('Buscar rutina')} y solo las rutinas activas, cada una con ${ui('N circuitos')} y su nota. (CU-E-12a, paso 2)</li><li>Al elegirla: el chip ${ui('1. QA Rutina P1 ✕')}, la marca ${ui('Elegida')}, el campo ${ui('Posición en la semana (opcional)')} y el botón ${ui('Agregar 1 rutina')}.</li><li>Al agregar: ${ui('1 rutina agregada a la semana 1')}, aparece ${ui('Semana 1')} con ${ui('1 rutina')} y la fila ${ui('Posición 1')}, y arriba ${ui('1 de 3 rutinas')}. <code>POST /planification/routine/assign</code> responde 201, sin <code>order</code>. (CU-E-12a, sin posición indicada)</li></ul>` },
+    { id: 'ADD-02', g: 'add', t: 'Varias en lote, con una repetida', env: ['TODOS'],
+      steps: ['Abrí Agregar rutinas y poné la semana en 2.', 'Elegí, en este orden, QA Rutina P2, QA Rutina P1 y QA Rutina P2 otra vez.', 'Agregalas y mirá el body.'],
+      exp: `<p>Los chips quedan numerados en ese orden y P2 dice ${ui('Elegida ×2')}. No hay campo de posición: ${ui('Se agregan al final de la semana, una detrás de otra, en el orden en que las elegiste.')} El botón dice ${ui('Agregar 3 rutinas')}. Al agregar: ${ui('3 rutinas agregadas a la semana 2')}, y la semana 2 queda P2 (posición 1), P1 (2) y P2 (3). <code>POST /planification/routine/assign-bulk</code> lleva los tres ids en ese orden. (CU-E-12b, la misma rutina más de una vez)</p>` },
+    { id: 'ADD-03', g: 'add', t: 'Una posición ya ocupada', env: ['TODOS'],
+      steps: [`En la cabecera de Semana 2, tocá ${ui('Agregar')}.`, 'Elegí QA Rutina P1, poné la posición 1 y agregala.'],
+      exp: `<p>El selector abre con la semana 2. Después, la semana 2 tiene dos rutinas con ${ui('Posición 1')}: primero P2, que se agregó antes, y después P1. Nadie se corre de lugar. (CU-E-12a, posición ya ocupada)</p>` },
+    { id: 'ADD-04', g: 'add', t: 'Semana y posición inválidas', env: ['TODOS'],
+      steps: ['Abrí Agregar rutinas y elegí QA Rutina P3.', 'Probá la semana vacía, 0 y 5, y agregá cada vez.', `Con la semana en 4, escribí ${tok('abc')} en la posición y agregá.`, 'Borrá la posición y agregá.'],
+      exp: `<p>${ui('Indicá la semana')}, ${ui('Poné un número entero de semana, de 1 en adelante')} y ${ui('El plan dura 4 semanas: la semana va de 1 a 4')}; ${ui('Aumentar Semana')} se apaga en 4. Con abc: ${ui('Poné un número entero de posición, de 1 en adelante')}. Ninguno manda request (CU-E-12a, semana inválida). Al final: ${ui('1 rutina agregada a la semana 4')}.</p>` },
+    { id: 'ADD-05', g: 'add', t: 'Plan sin duración fija', env: ['TODOS'],
+      steps: ['En QA Plan B, agregá QA Rutina P1 a la semana 40.'],
+      exp: `<p>La semana dice ${ui('El plan no tiene duración fija: va cualquier semana.')} y la acepta: aparece ${ui('Semana 40')}. (CU-E-12, reglas comunes)</p>` },
+    { id: 'ADD-06', g: 'add', t: 'Selección vacía, sacar y el máximo', env: ['TODOS'],
+      steps: ['Abrí Agregar rutinas en QA Plan A sin elegir nada.', 'Elegí dos rutinas, tocá el chip de la primera y después Cancelar.', 'Opcional: abrilo de nuevo y tocá la misma rutina hasta llegar a 50 elegidas.'],
+      exp: `<p>Sin elegir, el botón dice ${ui('Elegí una rutina')} y está apagado. Tocar un chip la saca de la selección. Cancelar cierra sin request. A las 50: ${ui('Llegaste al máximo de 50 rutinas por vez.')} y no suma más. (CU-E-12b, selección vacía o demasiado grande)</p>` },
+    { id: 'ADD-07', g: 'add', t: 'Una rutina que dan de baja mientras la elegís', env: ['TODOS'],
+      steps: ['En la pestaña A, abrí Agregar rutinas en QA Plan A y elegí QA Rutina P2, sin agregar.', 'En la pestaña B, eliminá QA Rutina P2 desde Rutinas.', 'En la pestaña A, agregá.', 'Cerrá el selector, volvé a la pestaña B y reactivá QA Rutina P2.'],
+      exp: `<p>No se agrega nada y el selector informa cuál rutina está dada de baja, por nombre. (CU-E-12a y CU-E-12b, la rutina está dada de baja)</p><p>Si recargás QA Plan A mientras P2 está de baja, sus filas en la semana 2 siguen y muestran ${ui('Rutina inactiva')}.</p>`,
+      kt: 'Hoy no cumple el CU.', known: 'El selector muestra «Alguna de las rutinas está dada de baja y no se puede agregar. Sacala de la selección e intentá de nuevo.», sin el nombre. El backend sí lo manda («La rutina \'QA Rutina P2\' está dada de baja…»). Marcalo Falla si no ves el nombre. Lo arregla el PR #70 (T51), que todavía no está en <code>develop</code>.' },
+    { id: 'ADD-08', g: 'add', t: 'Agregar a una planificación dada de baja', env: ['TODOS'],
+      steps: ['En la pestaña A, abrí QA Plan A.', 'En la pestaña B, eliminala.', 'En la pestaña A, agregá QA Rutina P3 a la semana 3.', 'Reactivala desde la pestaña B al terminar.'],
+      exp: `<p>${ui('La planificación está dada de baja y no se puede cambiar. Reactivala primero.')} No se agrega nada. (CU-E-12a, la planificación está dada de baja)</p>` },
+
+    // ── Editar la cabecera ──────────────────────────────────
+    { id: 'EDT-01', g: 'edt', t: 'Editar la cabecera', env: ['TODOS'],
+      steps: [`En QA Plan A, cambiá las notas a ${tok('Plan de prueba QA editado')} y elegí Hipertrofia.`, 'Guardá y mirá el body.', 'Volvé a abrirla.'],
+      exp: `<p>${ui('Planificación guardada')} y vuelve a la lista. <code>POST /planification/edit/{id}</code> responde 200 y, al volver, están las notas y el tipo nuevos. Las rutinas siguen igual. (CU-E-10)</p>` },
+    { id: 'EDT-02', g: 'edt', t: 'Vaciar notas y tipo', env: ['TODOS'],
+      steps: ['Borrá las notas, desmarcá Hipertrofia y guardá.', 'Mirá el body y abrila de nuevo.', 'Volvé a poner Fuerza y la nota, y guardá.'],
+      exp: '<p>El body no lleva <code>description</code> ni <code>type</code>, y al abrirla los dos están vacíos. La tarjeta de la lista muestra solo «4 semanas».</p>' },
+    { id: 'EDT-03', g: 'edt', t: 'Achicar la duración', env: ['TODOS'],
+      steps: ['En QA Plan A, que tiene una rutina en la semana 4, poné 3 semanas y guardá.', 'Poné 0 y guardá.', 'Abrila de nuevo y dejala en 4.'],
+      exp: `<p>Con 3: ${ui('El plan tiene rutinas en la semana 4: la duración no puede ser menor.')} en el campo, sin request (CU-E-10, duración menor que la semana más alta en uso). Con 0 se guarda: sin duración fija no hay límite.</p>` },
+    { id: 'EDT-04', g: 'edt', t: 'Link a una planificación que no existe', env: ['TODOS'],
+      steps: ['Abrí <code>/a/planes/</code> seguido del id de QA Plan A con el último carácter cambiado.', 'Abrí <code>/a/planes/abc</code>.'],
+      exp: `<p>En los dos: ${ui('No encontramos la planificación')} y ${ui('No hay ninguna planificación con ese enlace. Volvé a la lista.')}, sin Reintentar. (CU-E-10, planificación inexistente)</p>`,
+      kt: 'Hoy falla.', known: 'Con <code>abc</code> el backend responde 400 (el id no es un UUID) y el editor solo reconoce el 404: muestra «No pudimos cargar los datos» con Reintentar. Con el id cambiado anda bien. Marcalo Falla si ves eso. Lo arregla el PR #70 (T51), que todavía no está en <code>develop</code>.' },
+    { id: 'EDT-05', g: 'edt', t: 'Guardar una planificación dada de baja en otra pestaña', env: ['TODOS'],
+      steps: ['En la pestaña A, abrí QA Plan A y cambiá las notas, sin guardar.', 'En la pestaña B, eliminala.', 'En la pestaña A, guardá.', 'Reactivala al terminar.'],
+      exp: `<p>Aviso rojo: ${ui('La planificación está dada de baja y no se puede cambiar. Reactivala primero.')}</p>` },
+    { id: 'EDT-06', g: 'edt', t: 'Volver sin guardar', env: ['TODOS'],
+      steps: ['Cambiá el nombre de QA Plan A, tocá Volver y abrila de nuevo.'],
+      exp: '<p>Vuelve a la lista sin guardar; el nombre sigue igual.</p>' },
+
+    // ── Quitar y reincorporar rutinas ───────────────────────
+    { id: 'QUI-01', g: 'qui', t: 'Quitar una rutina', env: ['TODOS'],
+      steps: [`En QA Plan A, tocá ${ui('Quitar QA Rutina P1 de la semana 1')} y después Cancelar.`, 'Tocalo de nuevo, leé el mensaje y confirmá.', 'Mirá el body en Network y las demás rutinas.'],
+      exp: `<ul><li>${ui('Quitar rutina del plan')}: ${ui('QA Rutina P1 sale de la semana 1 del plan. Es una baja lógica: conserva su lugar y los alumnos que ya la entrenaron conservan su historial. Mientras no cierres esta pantalla, la podés reincorporar desde “Quitadas del plan”.')} Cancelar no cambia nada. (CU-E-12c)</li><li>Al confirmar: ${ui('Rutina quitada del plan')}, el contador baja y aparece ${ui('Quitadas del plan')} con la fila ${ui('Semana 1 · Posición 1')} y ${ui('Reincorporar')}. <code>POST /planification/routine/set-active/{id}</code> con <code>active: false</code>. Las demás conservan su posición. (CU-E-12c, el resto del plan no se renumera)</li></ul>` },
+    { id: 'QUI-02', g: 'qui', t: 'Reincorporar a su lugar', env: ['TODOS'],
+      steps: ['En Quitadas del plan, tocá Reincorporar.', 'Dejá «A su lugar» y confirmá.'],
+      exp: `<p>${ui('Reincorporar rutina')} con el nombre, ${ui('A su lugar')} y ${ui('Elegir lugar')}, y ${ui('Vuelve a la semana 1, en la posición 1.')} Al confirmar: ${ui('Rutina reincorporada al plan')} y vuelve a la semana 1, posición 1. El body lleva solo <code>active: true</code>. (CU-E-12c, reincorporar la rutina)</p>` },
+    { id: 'QUI-03', g: 'qui', t: 'Reincorporar a otro lugar', env: ['TODOS'],
+      steps: ['Quitá QA Rutina P1 de la semana 2 (la de posición 2).', 'Reincorporala con «Elegir lugar», semana 3 y la posición vacía.'],
+      exp: '<p>Va al final de la semana 3: aparece «Semana 3» con P1 en la posición 1. El body lleva <code>week: 3</code> y no <code>order</code>. (CU-E-12c: con semana y sin posición, va al final de esa semana)</p>' },
+    { id: 'QUI-04', g: 'qui', t: 'Quitar varias', env: ['TODOS'],
+      steps: [`Tocá ${ui('Elegir varias para quitar')}.`, 'Elegí las dos QA Rutina P2 de la semana 2.', 'Tocá Quitar, cancelá, y después confirmá.'],
+      exp: `<p>Las filas pasan a marcarse, abajo están ${ui('Cancelar')} y ${ui('Quitar')} (apagado hasta elegir; después ${ui('Quitar (2)')}). ${ui('Quitar 2 rutinas del plan')} avisa que es una baja lógica. Al confirmar: ${ui('2 rutinas quitadas del plan')}. <code>POST /planification/routine/set-active-bulk</code> con los dos ids y <code>active: false</code>. (CU-E-12d)</p>` },
+    { id: 'QUI-05', g: 'qui', t: 'Reincorporar todas', env: ['TODOS'],
+      steps: [`Tocá ${ui('Reincorporar todas a su lugar')} y confirmá.`],
+      exp: `<p>${ui('Reincorporar rutinas')}: ${ui('Las 2 rutinas quitadas vuelven al plan, cada una a su semana y su posición de antes. Si la duración del plan se achicó y alguna quedó en una semana que ya no existe, no vuelve ninguna: en ese caso reincorporalas de a una.')} Al confirmar: ${ui('2 rutinas reincorporadas al plan')}, cada una a su lugar. (CU-E-12d, reincorporar en bloque)</p>` },
+    { id: 'QUI-06', g: 'qui', t: 'Reincorporar a una semana que ya no existe', env: ['TODOS'],
+      steps: ['En la pestaña A, con Elegir varias, quitá QA Rutina P3 (semana 4) y una P2 de la semana 2.', 'En la pestaña B, abrí QA Plan A, poné 3 semanas y guardá.', 'En la pestaña A, tocá Reincorporar todas a su lugar y confirmá.', 'Reincorporá la P2 sola, a su lugar.', 'Reincorporá P3: si te pide la semana, elegí la 3; si no, probá «A su lugar» y después la semana 3.'],
+      exp: `<ul><li>Todas a su lugar: ${ui('Alguna rutina quedó en la semana 4, que la duración del plan ya no cubre. Reincorporalas de a una, eligiendo una semana válida.')} y no vuelve ninguna. (CU-E-12d, algún vínculo queda fuera de la duración)</li><li>P2 vuelve a su lugar.</li><li>P3: si la pantalla ya tomó la duración nueva, avisa ${ui('Estaba en la semana 4, pero el plan ahora dura 3 semanas. Elegí en qué semana vuelve.')}; si no, «A su lugar» responde ${ui('La semana 4 supera la duración del plan. Elegí una semana válida.')} Con la semana 3, vuelve. (CU-E-12c, reincorporar a una semana que ya no existe)</li></ul>` },
+    { id: 'QUI-07', g: 'qui', t: 'Reincorporar después de salir', env: ['TODOS'],
+      steps: ['En QA Plan B, quitá QA Rutina P1 de la semana 40.', 'Tocá Volver y abrí QA Plan B de nuevo.', 'Agregá QA Rutina P1 a la semana 40 otra vez.'],
+      exp: '<p>Al volver a abrirla, la rutina quitada se puede reincorporar a su lugar. (CU-E-12c, reincorporar la rutina)</p>',
+      kt: 'Hoy no cumple el CU.', known: '«Quitadas del plan» se pierde al salir: el detalle del plan (<code>GET /planification/{id}</code>) trae solo las rutinas vigentes y ningún endpoint lista las quitadas. La única salida es agregarla de nuevo, que crea otro vínculo. Hace falta un <code>include_inactive</code> en el backend y mostrarlas en el front. Marcalo Falla.' },
+    { id: 'QUI-08', g: 'qui', t: 'Quitar de una planificación dada de baja', env: ['TODOS'],
+      steps: ['En la pestaña A, abrí QA Plan A.', 'En la pestaña B, eliminala.', 'En la pestaña A, quitá QA Rutina P1 de la semana 3.', 'Reactivala desde la pestaña B y, si P1 se quitó, reincorporala a su lugar desde la pestaña A.'],
+      exp: `<p>No se quita: ${ui('La planificación está dada de baja y no se puede cambiar. Reactivala primero.')} (CU-E-12, regla común 4: la planificación tiene que estar activa)</p>`,
+      kt: 'Hoy no cumple el CU.', known: 'El backend no revisa que la planificación esté activa al quitar o reincorporar rutinas (<code>routine/set-active</code> y <code>set-active-bulk</code>): responde 200 y la quita. Lo corrige el backend. Marcalo Falla si ves «Rutina quitada del plan».' },
+
+    // ── Eliminar y reactivar ────────────────────────────────
+    { id: 'BAJ-01', g: 'baj', t: 'Eliminar una planificación', env: ['TODOS'],
+      steps: [`En QA Plan B, tocá ${ui('Eliminar planificación')}.`, 'Leé el mensaje y confirmá.'],
+      exp: `<p>${ui('Eliminar planificación')}: ${ui('QA Plan B deja de ofrecerse como plantilla para asignaciones nuevas. No se quita a los alumnos que ya la tienen asignada ni se pierde su historial. Es una baja lógica: la podés reactivar cuando quieras.')} Al confirmar: ${ui('Planificación eliminada')}, vuelve a la lista y QA Plan B ya no está. (CU-E-11 y su camino de planificación en uso)</p>` },
+    { id: 'BAJ-02', g: 'baj', t: 'Cancelar', env: ['TODOS'],
+      steps: ['En QA Plan A, tocá Eliminar planificación y después Cancelar.'],
+      exp: '<p>No cambia nada y no sale ningún request. (CU-E-11, cancela la confirmación)</p>' },
+    { id: 'BAJ-03', g: 'baj', t: 'Una planificación inactiva', env: ['TODOS'],
+      steps: [`Prendé ${ui('Incluir inactivas')} y abrí QA Plan B.`],
+      exp: `<p>${ui('Planificación inactiva: no se puede editar ni cambiarle las rutinas, y no se ofrece para asignaciones nuevas. Reactivala para poder cambiarla.')} Los campos, ${ui('Agregar')}, ${ui('Agregar rutinas')} y la cruz de cada rutina están apagados, y abajo está ${ui('Reactivar planificación')}.</p>` },
+    { id: 'BAJ-04', g: 'baj', t: 'Reactivar', env: ['TODOS'],
+      steps: ['Tocá Reactivar planificación.'],
+      exp: `<p>No pide confirmación: ${ui('Planificación reactivada')}, la pantalla queda en el plan y todo se habilita.</p>` },
+    { id: 'BAJ-05', g: 'baj', t: 'El panel cuenta solo las vigentes', env: ['TODOS'],
+      steps: ['Eliminá QA Plan B y mirá la tarjeta Planificaciones del Panel.', 'Reactivala y volvé a mirar.'],
+      exp: '<p>El número baja uno y vuelve a subir.</p>' },
+
+    // ── Tarjetas y filtros ──────────────────────────────────
+    { id: 'FIL-01', g: 'fil', t: 'Las tarjetas', env: ['TODOS'],
+      steps: ['Recorré la lista con QA Plan A y QA Plan B.', 'Pasá el mouse por la píldora de rutinas.'],
+      exp: `<p>QA Plan A: ${ui('3 semanas · Fuerza')}, sus notas en hasta dos líneas y ${ui('N de 3 rutinas')} con lo que tiene vigente (verde solo si coincide con las previstas). QA Plan B: ${ui('Sin duración fija · Movilidad')}. La píldora explica ${ui('N rutinas asignadas de M previstas')}. Tocar cualquier parte de la tarjeta abre el editor.</p>` },
+    { id: 'FIL-02', g: 'fil', t: 'Chips de tipo', env: ['TODOS'],
+      steps: ['Mirá los chips arriba de la lista.', 'Tocá Movilidad y recargá la página.', 'Tocá Todos.'],
+      exp: `<p>Hay ${ui('Todos')} y un chip por cada tipo que tengan las planificaciones visibles, por orden alfabético (${ui('Fuerza')}, ${ui('Movilidad')}…). Movilidad deja solo QA Plan B, queda en la dirección (<code>?tipo=movilidad</code>) y sigue al recargar.</p>` },
+    { id: 'FIL-03', g: 'fil', t: 'Incluir inactivas', env: ['TODOS'],
+      steps: ['Eliminá QA Plan B.', 'Prendé Incluir inactivas y recargá la página.', 'Reactivala al terminar.'],
+      exp: `<p>Apagado se ven solo las vigentes (CU-E-08). Prendido, las inactivas van al final, apagadas y con ${ui('Inactiva')}. El chip queda en la dirección (<code>?inactivas=1</code>) y sigue al recargar.</p>` },
+    { id: 'FIL-04', g: 'fil', t: 'Buscar', env: ['TODOS'],
+      steps: [`Buscá ${tok('prueba')}, que está en las notas de QA Plan A.`, 'Con QA Plan B dada de baja y el chip apagado, buscá QA Plan B.', `Buscá ${tok('zzz')}.`],
+      exp: `<p>La búsqueda mira el nombre y las notas, sin acentos. QA Plan B no aparece: ${ui('No encontramos planificaciones activas con ese filtro. Activá “Incluir inactivas” para ver también las dadas de baja.')} Con zzz: ${ui('Sin coincidencias')} y ${ui('No encontramos planificaciones con ese filtro.')}</p>` },
+
+    // ── Desde el Entrenador ─────────────────────────────────
+    { id: 'COA-01', g: 'coa', t: 'La pantalla del entrenador', env: ['TODOS'],
+      data: 'Tu cuenta real de entrenador.',
+      steps: ['Como entrenador, abrí la tab Planes.', 'Mirá el pie de cada tarjeta, con Incluir inactivas prendido.', 'Tocá el nombre de QA Plan A.', 'Como admin, mirá las mismas tarjetas.'],
+      exp: `<p>El mismo listado en <code>/c/planes</code>. Cada planificación vigente tiene ${ui('Asignar')} (se anuncia ${ui('Asignar QA Plan A a alumnos')}); las inactivas no. Tocar la tarjeta abre <code>/c/planes/{id}</code> con el mismo editor. El admin no tiene Asignar: asignar es solo del entrenador (CU-E-13).</p>` },
+    { id: 'COA-02', g: 'coa', t: 'Cambios entre roles', env: ['TODOS'],
+      steps: ['Como entrenador, cambiá las notas de QA Plan A y guardá.', 'Como admin, recargá esa planificación.'],
+      exp: '<p>El admin ve el cambio: los dos roles editan las mismas planificaciones.</p>' },
+
+    // ── Asignar a un alumno ─────────────────────────────────
+    { id: 'ASG-01', g: 'asg', t: 'Asignar desde la planificación', env: ['TODOS'],
+      data: 'El alumno QA Plan, con la cuenta abierta.',
+      steps: ['Como entrenador, tocá Asignar en QA Plan A.', 'Buscá al alumno por nombre o email y elegilo.', 'Dejá el inicio en hoy, el fin vacío y la nota vacía. Leé el texto debajo de las fechas.', `Tocá ${ui('Asignar planificación')} y mirá el body en Network.`],
+      exp: `<ul><li>Abre <code>/c/planes/{id}/asignar</code> con ${ui('Planificación · QA Plan A')} arriba y el título ${ui('Asignar a un alumno')}. Muestra la planificación (${ui('3 semanas · Fuerza')} y sus rutinas), el buscador ${ui('Buscar alumno por nombre o email')} (solo cuentas abiertas) y ${ui('Elegí un alumno para indicar las fechas.')}</li><li>Al elegirlo: su fila con ${ui('Cambiar')}, ${ui('Fecha de inicio')} en hoy, ${ui('Fecha de fin (opcional)')} y ${ui('Sin fecha de fin, termina el domingo …, al cerrar la semana 3 del plan. La semana 1 es la de lunes a domingo que contiene el inicio.')} Contando esta semana como la 1, es el domingo de la semana 3. ${ui('Nota del coach')} dice ${ui('Opcional. La ve el alumno.')}</li><li>Al asignar: ${ui('Planificación asignada · QA Plan')} y vuelve a <code>/c/planes</code>. <code>POST /planification/user/assign</code> responde 201 sin <code>end_date</code> y con <code>confirm_overlap: false</code>. (CU-E-13, pasos 1 a 6)</li></ul>` },
+    { id: 'ASG-02', g: 'asg', t: 'Lo que confirma', env: ['TODOS'],
+      steps: ['Mirá el aviso que apareció al asignar en ASG-01.'],
+      exp: '<p>Confirma la asignación con sus fechas y el nombre de la planificación. (CU-E-13, paso 7)</p>',
+      kt: 'Hoy no cumple el CU.', known: 'El aviso dice «Planificación asignada · QA Plan»: el nombre del alumno, sin las fechas ni la planificación. Marcalo Falla. Lo arregla el PR #70 (T51), que todavía no está en <code>develop</code>.' },
+    { id: 'ASG-03', g: 'asg', t: 'El alumno la ve en su inicio', env: ['TODOS'],
+      steps: ['En incógnito, entrá como QA Plan y abrí el inicio.', 'Pasá a la semana siguiente con el selector de semanas.'],
+      exp: '<p>Está QA Plan A con QA Rutina P1 en esta semana (la semana 1 del plan) y las rutinas de la semana 2 en la siguiente. (CU-E-13, postcondiciones)</p>' },
+    { id: 'ASG-04', g: 'asg', t: 'Validar las fechas', env: ['TODOS'],
+      steps: ['Abrí Asignar en QA Plan A y elegí a QA Plan.', 'Borrá el inicio y asigná.', 'Poné un fin anterior al inicio y asigná.', 'Pegá un texto largo en la nota.', 'Tocá Cambiar y elegí al mismo alumno.'],
+      exp: `<p>${ui('Elegí el día de inicio')} y ${ui('El fin no puede ser anterior al inicio')}, sin request (CU-E-13, el fin es anterior al inicio). La nota se corta en 100 caracteres. Con Cambiar vuelve el buscador y, al elegir, el formulario arranca de cero.</p>` },
+    { id: 'ASG-05', g: 'asg', t: 'Solapamiento', env: ['TODOS'],
+      steps: ['Asignale QA Plan A a QA Plan otra vez, con el inicio en hoy y el fin vacío.', 'Cambiá el inicio a mañana y después volvé a hoy.', 'Asigná de nuevo.', `Tocá ${ui('Asignar igual')} y mirá el body.`],
+      exp: `<ul><li>Responde 409 y aparece ${ui('El alumno ya tiene una planificación en esas fechas. Podés ajustar las fechas, quitar la anterior o asignarla igual: las dos conviven y el alumno ve las dos en su home.')} con la tarjeta de la que se pisa (${ui('Vigente')}, sus fechas y ${ui('Quitar')}). El botón pasa a ${ui('Asignar igual')}. (CU-E-13, paso 5)</li><li>Al cambiar una fecha, el aviso se va y el botón vuelve a Asignar planificación; al volver a hoy no reaparece hasta que asignás de nuevo.</li><li>Asignar igual manda <code>confirm_overlap: true</code>, responde 201 y las dos conviven.</li></ul>` },
+    { id: 'ASG-06', g: 'asg', t: 'Quitar desde el aviso', env: ['TODOS'],
+      steps: ['Asignale QA Plan A a QA Plan una tercera vez, con las mismas fechas.', 'En el aviso, quitá una de las dos: cancelá y después confirmá.', 'Quitá la otra.', 'Asigná.'],
+      exp: `<p>El aviso dice ${ui('El alumno ya tiene 2 planificaciones en esas fechas. Podés ajustar las fechas, quitar las anteriores o asignarla igual: las dos conviven y el alumno ve las dos en su home.')} Quitar pide ${ui('Quitar planificación')}: ${ui('QA Plan A deja de verse en el home de QA Plan, que ya no puede marcar ni anotar en ella. Es una baja lógica: lo que entrenó se conserva y la podés reincorporar desde su detalle.')} Al confirmar: ${ui('Planificación quitada')} y sale del aviso. Con las dos quitadas, el aviso se va, el botón vuelve a Asignar planificación y se asigna sin aviso.</p>` },
+    { id: 'ASG-07', g: 'asg', t: 'Asignar desde el alumno, en el futuro', env: ['TODOS'],
+      steps: [`Abrí el detalle de QA Plan y tocá ${ui('Planificaciones')} (${ui('Asignar o quitar')}).`, `Tocá ${ui('Asignar planificación')}.`, 'Buscá planificaciones y elegí QA Plan A.', 'Poné un inicio dentro de dos meses y un fin un miércoles, cinco semanas después. Asigná.'],
+      exp: `<ul><li>El modal ${ui('Planificaciones')} dice ${ui('Las de QA Plan, de la más nueva a la más vieja.')} El botón lleva a <code>/c/alumnos/{id}/asignar</code> con el nombre del alumno arriba y el título ${ui('Asignar planificación')}.</li><li>El selector (${ui('Buscar planificación')}) ofrece solo las activas con al menos una rutina. Sin elegir: ${ui('Elegí una planificación para indicar las fechas.')}</li><li>Acepta el inicio futuro y el fin que no coincide con la duración ni cae en domingo (CU-E-13, caminos alternativos). Vuelve al detalle del alumno.</li></ul>` },
+    { id: 'ASG-08', g: 'asg', t: 'Plan sin duración fija, en el pasado', env: ['TODOS'],
+      steps: ['Tocá Asignar en QA Plan B y elegí a QA Plan.', 'Asigná sin fin.', 'Poné un inicio hace tres meses y un fin hace dos meses, y asigná.'],
+      exp: `<p>El campo dice ${ui('Fecha de fin')}, sin «(opcional)», y debajo ${ui('Este plan no tiene duración fija: indicá hasta cuándo dura. La semana 1 es la de lunes a domingo que contiene el inicio.')} Sin fin: ${ui('Este plan no tiene duración fija: indicá hasta cuándo dura')}, sin request (CU-E-13, la planificación no tiene duración fija). Con fechas pasadas la acepta (CU-E-13, el inicio es pasado o futuro).</p>` },
+    { id: 'ASG-09', g: 'asg', t: 'Planificación sin rutinas, dada de baja o inexistente', env: ['TODOS'],
+      data: `Creá ${tok('QA Plan C')}: 1 semana, 1 rutina prevista, sin agregarle rutinas.`,
+      steps: ['Tocá Asignar en QA Plan C.', 'En el detalle de QA Plan, abrí Planificaciones › Asignar planificación y buscá QA Plan C.', 'Eliminá QA Plan C y abrí su <code>/c/planes/{id}/asignar</code> (el id está en la dirección del editor).', 'Abrí <code>/c/planes/abc/asignar</code>.'],
+      exp: `<ul><li>Sin rutinas: ${ui('Esta planificación no tiene rutinas vigentes. Agregale alguna desde su editor para poder asignarla.')} con ${ui('Abrir editor')} y sin buscador de alumnos. Desde el alumno, el selector no la ofrece.</li><li>Dada de baja: ${ui('Esta planificación está dada de baja: no se ofrece para asignaciones nuevas. Reactivala desde su editor para asignarla.')} (CU-E-13, la planificación está dada de baja o no tiene rutinas)</li><li>Con abc: ${ui('No encontramos la planificación')} y ${ui('No hay ninguna planificación con ese enlace. Volvé a la lista.')} (CU-E-13, la planificación no existe)</li></ul>` },
+    { id: 'ASG-10', g: 'asg', t: 'Destinatario que no es alumno o con la cuenta cerrada', env: ['TODOS'],
+      steps: ['Abrí <code>/c/alumnos/{id}/asignar</code> con el id de tu cuenta de entrenador: es el que va en <code>GET /users/get/{id}</code> al abrir tus Datos personales.', `En el detalle de QA Plan, tocá ${ui('Cerrar cuenta del alumno')} y confirmá.`, 'Abrí sus Planificaciones y su <code>/c/alumnos/{id}/asignar</code>.', 'Desde Asignar en QA Plan A, buscalo.', 'Reactivá la cuenta al terminar.'],
+      exp: `<ul><li>Con el entrenador: ${ui('No encontramos al alumno')} y ${ui('No hay ningún alumno con ese enlace. Volvé a la lista.')}</li><li>Con la cuenta cerrada, el modal dice ${ui('La cuenta está inactiva: reactivala para asignarle una planificación.')} y no tiene Asignar planificación. La pantalla de asignar dice ${ui('La cuenta está inactiva: no se le puede asignar una planificación. Reactivala desde su detalle.')}, sin selector. Desde el plan, el buscador no lo ofrece. (CU-E-13, el destinatario no es un alumno o su cuenta está cerrada)</li></ul>` },
+    { id: 'ASG-11', g: 'asg', t: 'Cambiar la duración con alumnos asignados', env: ['TODOS'],
+      steps: ['En las Planificaciones de QA Plan, anotá el fin de la QA Plan A vigente (la de ASG-06, sin fin elegido).', 'Como entrenador, poné 4 semanas en QA Plan A y guardá.', 'Volvé a abrir las Planificaciones de QA Plan.', 'Dejá QA Plan A en 3 semanas.'],
+      exp: `<p>El campo avisa ${ui('0 si el plan no tiene duración fija. Si la cambiás, se mueve el fin de las asignaciones de todos los alumnos que lo tienen.')} y el fin de la asignación pasa al domingo de la semana 4. (CU-E-10, consecuencia en las asignaciones)</p>`,
+      kt: 'Hoy no cumple el CU.', known: 'Desde D17 (BE-18, 21/10) el backend guarda el fin al asignar, así que cambiar la duración ya no lo mueve. El CU-E-10 y el texto del campo siguen diciendo que sí. Hay que decidir cuál vale y corregir el otro. Marcalo Falla si el fin no cambia.' },
+
+    // ── Quitar o reincorporar al alumno ─────────────────────
+    { id: 'ALU-01', g: 'alu', t: 'Las planificaciones del alumno', env: ['TODOS'],
+      steps: ['Abrí las Planificaciones de QA Plan.', `Prendé ${ui('Incluir quitadas')}.`, 'Mirá el request en Network.'],
+      exp: `<p>Cada tarjeta tiene el nombre, su estado (${ui('Vigente')}, ${ui('Próxima')} o ${ui('Terminada')}), las fechas como «1 Nov 2026 → 22 Nov 2026» y la nota si tiene. Van de la más nueva a la más vieja. Con el chip, suman las dos de ASG-06 apagadas, con ${ui('Quitada')} y ${ui('Reincorporar')}. Sale <code>GET /planification/user/{id}?include_inactive=true</code>. (CU-E-14, paso 1)</p>` },
+    { id: 'ALU-02', g: 'alu', t: 'Quitar', env: ['TODOS'],
+      steps: ['En la QA Plan A vigente, tocá Quitar y cancelá.', 'Tocá Quitar de nuevo y confirmá.', 'Como QA Plan, recargá el inicio.'],
+      exp: `<p>${ui('Quitar planificación')}: ${ui('QA Plan A deja de verse en el home de QA Plan, que ya no puede marcar ni anotar en ella. Es una baja lógica: lo que entrenó se conserva y la podés reincorporar cuando quieras.')} Cancelar no cambia nada. Al confirmar: ${ui('Planificación quitada')}, <code>POST /planification/user/set-active/{id}</code> con <code>active: false</code>, y el alumno ya no la ve en su inicio. (CU-E-14)</p>` },
+    { id: 'ALU-03', g: 'alu', t: 'Reincorporar sin revisar el solapamiento', env: ['TODOS'],
+      steps: ['Con Incluir quitadas, tocá Reincorporar en la que quitaste en ALU-02.', 'Reincorporá también una de ASG-06, que tiene las mismas fechas.', 'Como QA Plan, recargá el inicio.'],
+      exp: `<p>No pide confirmación: ${ui('Planificación reincorporada')}, con sus mismas fechas. La segunda vuelve sin aviso de solapamiento y el alumno ve las dos. (CU-E-14, reincorporar la planificación)</p>` },
+    { id: 'ALU-04', g: 'alu', t: 'Ya quitada o ya activa en otra pestaña', env: ['TODOS'],
+      steps: ['Abrí las Planificaciones de QA Plan en dos pestañas.', 'Quitá la misma en las dos.', 'Reincorporala en las dos, con Incluir quitadas.'],
+      exp: `<p>La segunda pestaña avisa ${ui('Esa planificación ya estaba quitada.')} y después ${ui('Esa planificación ya estaba activa.')}, y la lista se pone al día. (CU-E-14, caminos alternativos)</p>` },
+    { id: 'ALU-05', g: 'alu', t: 'Sin planificaciones', env: ['TODOS'],
+      data: 'Otro alumno sin planificaciones, por ejemplo QA Detalle.',
+      steps: ['Abrí sus Planificaciones.'],
+      exp: `<p>${ui('Sin planificaciones')} y ${ui('Todavía no le asignaste ninguna planificación.')}, sin el chip Incluir quitadas.</p>` },
+
+    // ── Errores y pantallas ─────────────────────────────────
+    { id: 'ERR-01', g: 'err', t: 'Servidor caído al cargar', env: ['LOCAL'],
+      steps: ['Apagá el backend local y recargá Planificaciones, el editor de QA Plan A, su pantalla de asignar y el modal Planificaciones de QA Plan.', 'Prendelo y tocá Reintentar.'],
+      exp: `<p>Cada una muestra ${ui('No pudimos cargar los datos')} con Reintentar, y con el backend prendido cargan.</p>` },
+    { id: 'ERR-02', g: 'err', t: 'Servidor caído al guardar', env: ['LOCAL'],
+      steps: ['Con el backend apagado, guardá la cabecera de QA Plan A.', 'Agregá una rutina desde el selector.', 'Quitá una rutina y asigná QA Plan A a QA Plan.', 'Prendelo y repetí.'],
+      exp: '<p>La cabecera y la asignación muestran un aviso rojo y conservan lo escrito. El selector muestra el aviso adentro y queda abierto con la selección. Quitar muestra un aviso abajo. Con el backend prendido, todo funciona.</p>' },
+    { id: 'ERR-03', g: 'err', t: 'Celular y escritorio', env: ['TODOS'],
+      steps: ['Recorré el listado, el editor con varias semanas, los dos modales de rutinas, la pantalla de asignar y el modal del alumno en el celular, o en DevTools a 390 px.', 'Repetí en escritorio.'],
+      exp: '<ul><li>Sin scroll horizontal ni textos cortados; la píldora y Asignar entran en el pie de la tarjeta.</li><li>Los modales salen como hoja desde abajo en el celular y centrados en escritorio.</li><li>En escritorio, las planificaciones van en dos columnas.</li></ul>' },
+    { id: 'ERR-04', g: 'err', t: 'Teclado y lector de pantalla', env: ['TODOS'],
+      steps: ['Recorré la lista del entrenador y el editor solo con Tab y Enter.'],
+      exp: '<p>Enter sobre la tarjeta abre el editor y el aro de foco rodea la tarjeta; Asignar se alcanza aparte. Los botones de cada rutina se anuncian con su nombre y semana, y los errores aparecen junto a su campo.</p>' },
+
+    // ── Limpieza ────────────────────────────────────────────
+    { id: 'FIN-01', g: 'fin', t: 'Dejar lo de prueba fuera de uso', env: ['TODOS'],
+      steps: ['En las Planificaciones de QA Plan, quitá todas las activas.', 'Renombrá QA Plan A, B y C con «QA (no usar)» adelante y eliminalas.', 'En Rutinas, eliminá QA Rutina P1, P2 y P3.', `Con los chips apagados, buscá ${tok('QA')} en Planificaciones y en Rutinas.`],
+      exp: `<p>Las dos búsquedas vuelven vacías y el modal del alumno dice ${ui('No tiene planificaciones activas')} y ${ui('Las que se quitaron se ven con “Incluir quitadas”.')} Lo de prueba queda solo entre lo inactivo.</p>` },
+  ];
+
+  // ── Estado ────────────────────────────────────────────────
+  const LOCAL_KEY = 'powerapp.pruebas-planificaciones.v1';
+  const blank = () => ({ status: null, note: '', at: null });
+  const state = Object.fromEntries(CASES.map((c) => [c.id, blank()]));
+  let db = null;
+  let mode = 'connecting'; // connecting | db | local | error
+  let fStatus = 'all';
+  let fEnv = 'all';
+  const writing = new Set();
+  const dirty = new Set();
+  const pending = new Set();
+  const noteTimers = {};
+
+  const $ = (s, el = document) => el.querySelector(s);
+  const statusOf = (id) => state[id].status || 'none';
+
+  function fmtWhen(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+
+  // ── Render estático ──────────────────────────────────────
+  function caseHtml(c) {
+    const envs = c.env.map((e) => `<span class="tag t-${e}">${ENVS[e]}</span>`).join('');
+    const steps = c.steps.map((s) => `<li>${s}</li>`).join('');
+    const seg = STATUSES.map((s) => `<button type="button" class="sb v-${s.v}" data-v="${s.v}" aria-pressed="false"><span class="ic" aria-hidden="true">${s.ic}</span>${s.label}</button>`).join('');
+    return `<article class="case" id="case-${c.id}" data-id="${c.id}" data-status="none">
+      <div class="chead"><span class="cid">${c.id}</span><h3>${c.t}</h3><div class="ctags">${envs}<span class="pill" data-pill>Sin probar</span></div></div>
+      ${c.data ? `<p class="cdata"><b>Datos:</b> ${c.data}</p>` : ''}
+      <div class="cbody"><div><h4>Cómo probarlo</h4><ol class="steps">${steps}</ol></div><div class="expect"><h4>Qué tenés que ver</h4>${c.exp}</div></div>
+      ${c.known ? `<div class="known" role="note"><span><b>${c.kt || 'Hoy falla.'}</b> ${c.known}</span></div>` : ''}
+      <div class="cfoot">
+        <div class="seg" role="group" aria-label="Resultado de ${c.id}">${seg}</div>
+        <div class="notewrap">
+          <label class="when" for="note-${c.id}"><span data-when>Sin marcar</span></label>
+          <textarea class="note" id="note-${c.id}" rows="1" placeholder="Qué viste, si algo no coincide (opcional)"></textarea>
+        </div>
+      </div>
+    </article>`;
+  }
+
+  function renderStatic() {
+    const root = $('#groups');
+    root.innerHTML = GROUPS.map((g) => {
+      const cases = CASES.filter((c) => c.g === g.id);
+      const cu = g.cu ? `<a class="cu" href="${DOCS}${g.file}" target="_blank" rel="noopener">${g.cu}</a>` : '';
+      return `<section class="group" id="${g.id}" data-g="${g.id}">
+        <div class="ghead"><h2>${g.name}</h2>${cu}${g.sub ? `<span class="gsub">${g.sub}</span>` : ''}<span class="gprog" data-gprog></span></div>
+        <div class="cases">${cases.map(caseHtml).join('')}</div>
+      </section>`;
+    }).join('');
+
+    $('#jump').innerHTML = GROUPS.map((g) => `<a href="#${g.id}" data-jump="${g.id}">${g.name}<span class="p" data-jp></span></a>`).join('');
+
+    const st = $('#f-status');
+    [['all', 'Todos'], ['none', 'Sin probar'], ['fail', 'Falla'], ['retest', 'Re-testear'], ['ok', 'Funciona']].forEach(([v, l]) => {
+      st.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-fs="${v}" aria-pressed="${v === 'all'}">${l}<span class="k" data-k="${v}"></span></button>`);
+    });
+    const en = $('#f-env');
+    ENV_FILTERS.forEach(([v, l]) => {
+      en.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-fe="${v}" aria-pressed="${v === 'all'}">${l}</button>`);
+    });
+  }
+
+  // ── Render dinámico ──────────────────────────────────────
+  function updateCard(id) {
+    const card = document.getElementById('case-' + id);
+    if (!card) return;
+    const s = state[id];
+    const st = statusOf(id);
+    card.dataset.status = st;
+    card.querySelectorAll('.sb').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === s.status)));
+    const pill = card.querySelector('[data-pill]');
+    pill.textContent = STATUS_LABEL[st];
+    pill.className = 'pill' + (st === 'none' ? '' : ' s-' + st);
+    const ta = card.querySelector('.note');
+    if (document.activeElement !== ta && ta.value !== s.note) ta.value = s.note;
+    card.querySelector('[data-when]').textContent = s.at ? 'Actualizado ' + fmtWhen(s.at) : 'Sin marcar';
+  }
+
+  function visible(c) {
+    const st = statusOf(c.id);
+    if (fStatus !== 'all' && st !== fStatus) return false;
+    if (fEnv !== 'all' && !c.env.includes(fEnv) && !c.env.includes('TODOS')) return false;
+    return true;
+  }
+
+  function applyFilters() {
+    let any = false;
+    GROUPS.forEach((g) => {
+      let shown = 0;
+      CASES.filter((c) => c.g === g.id).forEach((c) => {
+        const v = visible(c);
+        document.getElementById('case-' + c.id).hidden = !v;
+        if (v) shown++;
+      });
+      document.getElementById(g.id).hidden = shown === 0;
+      if (shown) any = true;
+    });
+    $('#empty').hidden = any;
+  }
+
+  function updateSummary() {
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const total = CASES.length;
+    ['ok', 'fail', 'retest', 'none'].forEach((k) => { $('#n-' + k).textContent = n[k]; });
+    ['ok', 'fail', 'retest'].forEach((k) => { $('#b-' + k).style.width = (n[k] / total * 100) + '%'; });
+    $('#bar').setAttribute('aria-label', `${total - n.none} de ${total} casos probados: ${n.ok} funcionan, ${n.fail} fallan, ${n.retest} para re-testear`);
+    document.querySelectorAll('[data-k]').forEach((el) => {
+      const k = el.dataset.k;
+      el.textContent = k === 'all' ? total : n[k];
+    });
+    GROUPS.forEach((g) => {
+      const cs = CASES.filter((c) => c.g === g.id);
+      const done = cs.filter((c) => statusOf(c.id) !== 'none').length;
+      const fails = cs.filter((c) => statusOf(c.id) === 'fail').length;
+      const txt = `${done}/${cs.length} probados${fails ? ` · ${fails} con falla` : ''}`;
+      document.getElementById(g.id).querySelector('[data-gprog]').textContent = txt;
+      document.querySelector(`[data-jump="${g.id}"] [data-jp]`).textContent = `${done}/${cs.length}`;
+    });
+  }
+
+  function refreshAll() {
+    CASES.forEach((c) => updateCard(c.id));
+    updateSummary();
+    applyFilters();
+  }
+
+  function setSave(kind, text) {
+    const el = $('#save');
+    el.className = 'save' + (kind ? ' is-' + kind : '');
+    $('#save-t').textContent = text;
+  }
+
+  // ── Guardado ─────────────────────────────────────────────
+  function saveLocal() {
+    try { localStorage.setItem(LOCAL_KEY, JSON.stringify(state)); } catch { /* sin storage: queda en memoria */ }
+  }
+  function loadLocal() {
+    try {
+      const raw = localStorage.getItem(LOCAL_KEY);
+      if (!raw) return;
+      const v = JSON.parse(raw);
+      Object.keys(state).forEach((id) => { if (v && v[id]) state[id] = normalize(v[id]); });
+    } catch { /* ignorar */ }
+  }
+  function normalize(v) {
+    const okStatus = ['ok', 'fail', 'retest'].includes(v.status) ? v.status : null;
+    return { status: okStatus, note: typeof v.note === 'string' ? v.note : '', at: typeof v.at === 'string' ? v.at : null };
+  }
+
+  const DB_OK = 'Guardado en el artefacto: lo ves desde cualquier dispositivo.';
+  const LOCAL_ONLY = 'Solo en este navegador: no se ve desde otro dispositivo y se pierde si borrás los datos de navegación. Exportá los resultados a un JSON para conservarlos.';
+
+  // Siempre queda una copia en el navegador; en el artefacto, además, se sube.
+  async function persist(id) {
+    saveLocal();
+    if (mode !== 'db') return;
+    pending.add(id);
+    if (writing.has(id)) { dirty.add(id); return; }
+    writing.add(id);
+    setSave('db', 'Guardando…');
+    try {
+      do {
+        dirty.delete(id);
+        const s = state[id];
+        await db.doc('results/' + id).set({ status: s.status, note: s.note, at: s.at });
+      } while (dirty.has(id));
+      setSave('db', DB_OK);
+    } catch (e) {
+      setSave('err', 'No se pudo guardar el último cambio en el artefacto. Quedó en este navegador: volvé a marcarlo en un momento.');
+    } finally {
+      writing.delete(id);
+      pending.delete(id);
+    }
+  }
+
+  // Por cada caso gana el resultado más reciente, venga del navegador o del artefacto.
+  const isNewer = (a, b) => Boolean(a.at) && (!b.at || a.at > b.at);
+
+  async function uploadNewer() {
+    const remote = {};
+    try {
+      const snap = await db.collection('results').get();
+      snap.docs.forEach((d) => { const v = d.data(); if (v) remote[d.id] = normalize(v); });
+    } catch {
+      setSave('err', 'No se pudo comparar con el artefacto. Lo que marques queda en este navegador.');
+      return;
+    }
+    const ids = CASES.map((c) => c.id).filter((id) => {
+      const s = state[id];
+      if (!s.status && !s.note) return false;
+      return !remote[id] || isNewer(s, remote[id]);
+    });
+    if (!ids.length) { setSave('db', DB_OK); return; }
+    setSave('db', `Subiendo ${ids.length} resultados de este navegador al artefacto…`);
+    for (const id of ids) await persist(id);
+  }
+
+  async function initStore() {
+    let ns = null;
+    try {
+      ns = window.claude && typeof window.claude.use === 'function' ? await window.claude.use('db') : null;
+    } catch { ns = null; }
+    if (!ns) {
+      mode = 'local';
+      setSave('local', LOCAL_ONLY);
+      return;
+    }
+    db = ns;
+    mode = 'db';
+    setSave('db', 'Sincronizando…');
+    let synced = false;
+    db.collection('results').onSnapshot((snap) => {
+      snap.docs.forEach((d) => {
+        if (!state[d.id] || pending.has(d.id)) return;
+        const v = d.data();
+        if (!v) return;
+        const r = normalize(v);
+        if (!state[d.id].at || !isNewer(state[d.id], r)) state[d.id] = r;
+      });
+      refreshAll();
+      if (!synced) { synced = true; uploadNewer(); }
+      else if (!writing.size) setSave('db', DB_OK);
+    }, () => {
+      mode = 'local';
+      setSave('err', 'Se perdió la conexión con el artefacto. Lo que marques ahora queda solo en este navegador.');
+    });
+  }
+
+  // ── Eventos ──────────────────────────────────────────────
+  function copyText(text, onDone) {
+    const fallback = () => {
+      const box = $('#copy-fall');
+      const ta = $('#copy-fall-t');
+      ta.value = text;
+      box.hidden = false;
+      ta.focus();
+      ta.select();
+    };
+    try {
+      navigator.clipboard.writeText(text).then(onDone, fallback);
+    } catch { fallback(); }
+  }
+
+  function buildSummary() {
+    const today = new Date().toLocaleDateString('es-AR');
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const lines = [`${PLAN_NAME} · ${today}`, `Funciona ${n.ok} · Falla ${n.fail} · Re-testear ${n.retest} · Sin probar ${n.none}`];
+    [['fail', 'Falla'], ['retest', 'Re-testear']].forEach(([k, label]) => {
+      const cs = CASES.filter((c) => statusOf(c.id) === k);
+      if (!cs.length) return;
+      lines.push('', label);
+      cs.forEach((c) => {
+        const note = state[c.id].note.trim();
+        lines.push(`- ${c.id} ${c.t}${note ? ': ' + note.replace(/\s+/g, ' ') : ''}`);
+      });
+    });
+    if (!n.fail && !n.retest) lines.push('', 'Sin fallas ni casos para re-testear.');
+    return lines.join('\n');
+  }
+
+  // ── Exportar / importar resultados (JSON para versionar en el repo) ──
+  const PLAN_ID = PAGE_ID.replace(/-powerapp$/, '');
+  const EXPORT_VERSION = 1;
+  // Nombre listo para el repo: <N>-<plan>.resultados.json, con N = la tanda que sigue a las que lista Tests/README.md
+  // (ver loadFromRepo). Si no se pudo leer ese índice (file://, sin red) no se sabe N: se usa la fecha, que no pisa nada.
+  let nextRun = null;
+  const exportFileName = () => {
+    if (nextRun) return `${nextRun}-${PLAN_ID}.resultados.json`;
+    const d = new Date();
+    const p = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}-${PLAN_ID}.resultados.json`;
+  };
+
+  function buildExport() {
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const results = {};
+    CASES.forEach((c) => {
+      const s = state[c.id];
+      results[c.id] = { title: c.t, status: s.status, note: s.note, at: s.at };
+    });
+    return { plan: PLAN_ID, version: EXPORT_VERSION, exportedAt: new Date().toISOString(), summary: { total: CASES.length, ...n }, results };
+  }
+
+  function showIo(kind, text) {
+    const el = $('#io-msg');
+    el.className = 'iomsg' + (kind ? ' is-' + kind : '');
+    el.textContent = text;
+    el.hidden = false;
+  }
+
+  function exportResults() {
+    const file = exportFileName();
+    const blob = new Blob([JSON.stringify(buildExport(), null, 2) + '\n'], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    const folder = decodeURIComponent(location.pathname.split('/').slice(-2, -1)[0] || '');
+    const where = folder ? `Tests/${folder}/` : 'la carpeta de este plan en Tests/';
+    if (nextRun) {
+      const line = `  - [Tanda ${nextRun}](${encodeURIComponent(folder)}/${file})`;
+      showIo('ok', `Descargué ${file}. Guardalo en ${where} y, si querés que quede en el sitio, sumá esta línea bajo este plan en Tests/README.md: ${line.trim()}`);
+    } else {
+      showIo('ok', `Descargué ${file}. Guardalo en ${where} y, si querés que quede en el sitio, sumalo como sub-bullet bajo este plan en Tests/README.md.`);
+    }
+  }
+
+  // Combina por caso: gana el resultado con la fecha (at) más reciente, así no se pierde nada de lo marcado acá.
+  const stamp = (iso) => { const t = iso ? Date.parse(iso) : NaN; return Number.isNaN(t) ? -Infinity : t; };
+
+  // Devuelve un mensaje de error si el JSON no es un export de este plan, o null si está bien.
+  function checkResults(data) {
+    if (!data || typeof data !== 'object' || data.plan !== PLAN_ID || !data.results || typeof data.results !== 'object') {
+      return `Ese archivo no corresponde a este plan (esperaba plan «${PLAN_ID}»).`;
+    }
+    if (typeof data.version !== 'number' || data.version > EXPORT_VERSION) {
+      return 'El archivo es de una versión más nueva del plan y no sé leerlo.';
+    }
+    return null;
+  }
+
+  function mergeResults(data) {
+    const changed = [];
+    let newer = 0;
+    CASES.forEach((c) => {
+      const src = data.results[c.id];
+      if (!src || typeof src !== 'object') return;
+      const inc = normalize(src);
+      if (!inc.status && !inc.note) return;
+      const cur = state[c.id];
+      if (inc.status === cur.status && inc.note === cur.note && inc.at === cur.at) return;
+      if (stamp(inc.at) > stamp(cur.at)) { state[c.id] = inc; changed.push(c.id); } else newer++;
+    });
+    const unknown = Object.keys(data.results).filter((id) => !state[id]).length;
+    changed.forEach((id) => persist(id));
+    refreshAll();
+    return { changed: changed.length, newer, unknown };
+  }
+
+  async function importResults(file) {
+    let data;
+    try {
+      data = JSON.parse(await file.text());
+    } catch {
+      showIo('err', 'No pude leer el archivo: no es un JSON válido.');
+      return;
+    }
+    const bad = checkResults(data);
+    if (bad) { showIo('err', bad); return; }
+    const { changed, newer, unknown } = mergeResults(data);
+
+    const parts = [];
+    if (changed) {
+      const when = data.exportedAt ? fmtWhen(data.exportedAt) : '';
+      parts.push(`Importé ${changed} ${changed === 1 ? 'caso' : 'casos'}${when ? ' (exportado el ' + when + ')' : ''}.`);
+    } else if (newer) {
+      parts.push('No cambié nada: lo que tenés acá es más reciente que el archivo.');
+    } else {
+      parts.push('El archivo no trae nada nuevo: ya tenés esos resultados.');
+    }
+    if (changed && newer) parts.push(newer === 1 ? 'Dejé 1 caso que acá ya tenía un resultado más reciente.' : `Dejé ${newer} casos que acá ya tenían un resultado más reciente.`);
+    if (unknown) parts.push(unknown === 1 ? 'Ignoré 1 caso que ya no está en el plan.' : `Ignoré ${unknown} casos que ya no están en el plan.`);
+    showIo(changed ? 'ok' : '', parts.join(' '));
+  }
+
+  // ── Resultados guardados en el repo ──────────────────────
+  // Tests/README.md lista las tandas de cada plan (sub-bullets bajo el plan; la última es la más reciente).
+  // Al abrir el plan se busca su entrada, se baja ese JSON y se combina con lo local (gana la fecha más nueva).
+  function runsOf(md, readmeUrl, pageKey) {
+    let inFence = false;
+    let mine = false;
+    const runs = [];
+    md.split(/\r?\n/).forEach((line) => {
+      if (/^\s*```/.test(line)) { inFence = !inFence; return; }
+      if (inFence) return;
+      const plan = /^-\s+\[[^\]]+\]\(([^)]+)\)/.exec(line);
+      if (plan) {
+        const u = new URL(plan[1], readmeUrl);
+        mine = u.origin + u.pathname === pageKey;
+        return;
+      }
+      const run = /^\s+-\s+\[([^\]]+)\]\(([^)]+)\)/.exec(line);
+      if (run && mine) runs.push({ label: run[1], url: new URL(run[2], readmeUrl).href });
+    });
+    return runs;
+  }
+
+  // Número de la próxima tanda: el mayor entre la cantidad de tandas listadas y el prefijo numérico más alto
+  // de sus archivos (1-…, 2-…); los nombres con fecha (2026-…) no cuentan como número.
+  function nextRunNumber(runs) {
+    let max = runs.length;
+    runs.forEach((r) => {
+      const m = /^(\d{1,3})-/.exec(decodeURIComponent(r.url.split('/').pop() || ''));
+      if (m) max = Math.max(max, Number(m[1]));
+    });
+    return max + 1;
+  }
+
+  async function loadFromRepo() {
+    try {
+      const readmeUrl = new URL('../README.md', location.href).href;
+      const res = await fetch(readmeUrl, { cache: 'no-cache' });
+      if (!res.ok) return;
+      const runs = runsOf(await res.text(), readmeUrl, location.origin + location.pathname);
+      nextRun = nextRunNumber(runs);
+      const last = runs[runs.length - 1];
+      if (!last) return;
+      const r = await fetch(last.url, { cache: 'no-cache' });
+      if (!r.ok) return;
+      const data = await r.json();
+      if (checkResults(data)) return;
+      const { changed } = mergeResults(data);
+      if (changed) {
+        const when = data.exportedAt ? fmtWhen(data.exportedAt) : '';
+        showIo('ok', `Cargué ${changed} ${changed === 1 ? 'caso' : 'casos'} de «${last.label}», la última tanda guardada en el repo${when ? ' (exportada el ' + when + ')' : ''}.`);
+      }
+    } catch { /* sin README ni red (por ejemplo, abierto con file://): queda lo que haya en este navegador */ }
+  }
+
+  document.addEventListener('click', (e) => {
+    const sb = e.target.closest('.sb');
+    if (sb) {
+      const id = sb.closest('.case').dataset.id;
+      const s = state[id];
+      s.status = s.status === sb.dataset.v ? null : sb.dataset.v;
+      s.at = new Date().toISOString();
+      updateCard(id);
+      updateSummary();
+      persist(id);
+      return;
+    }
+    const fs = e.target.closest('[data-fs]');
+    if (fs) {
+      fStatus = fs.dataset.fs;
+      document.querySelectorAll('[data-fs]').forEach((b) => b.setAttribute('aria-pressed', String(b === fs)));
+      applyFilters();
+      return;
+    }
+    const fe = e.target.closest('[data-fe]');
+    if (fe) {
+      fEnv = fe.dataset.fe;
+      document.querySelectorAll('[data-fe]').forEach((b) => b.setAttribute('aria-pressed', String(b === fe)));
+      applyFilters();
+      return;
+    }
+    const t = e.target.closest('.tok');
+    if (t) {
+      copyText(t.dataset.copy, () => {
+        t.classList.add('copied');
+        setTimeout(() => t.classList.remove('copied'), 1200);
+      });
+      return;
+    }
+    if (e.target.closest('#exp-res')) { exportResults(); return; }
+    if (e.target.closest('#imp-res')) { $('#imp-file').click(); return; }
+    if (e.target.closest('#copy-sum')) {
+      const btn = $('#copy-sum');
+      copyText(buildSummary(), () => {
+        btn.textContent = 'Resumen copiado';
+        setTimeout(() => { btn.textContent = 'Copiar resumen de fallas'; }, 1600);
+      });
+    }
+  });
+
+  document.addEventListener('change', (e) => {
+    const inp = e.target.closest && e.target.closest('#imp-file');
+    if (!inp) return;
+    const file = inp.files && inp.files[0];
+    inp.value = '';
+    if (file) importResults(file);
+  });
+
+  document.addEventListener('input', (e) => {
+    const ta = e.target.closest('.note');
+    if (!ta) return;
+    const id = ta.closest('.case').dataset.id;
+    state[id].note = ta.value;
+    clearTimeout(noteTimers[id]);
+    noteTimers[id] = setTimeout(() => {
+      state[id].at = new Date().toISOString();
+      updateCard(id);
+      persist(id);
+    }, 700);
+  });
+  document.addEventListener('focusout', (e) => {
+    const ta = e.target.closest && e.target.closest('.note');
+    if (!ta) return;
+    const id = ta.closest('.case').dataset.id;
+    if (noteTimers[id]) {
+      clearTimeout(noteTimers[id]);
+      noteTimers[id] = null;
+      state[id].at = new Date().toISOString();
+      updateCard(id);
+      persist(id);
+    }
+  });
+
+  const prep = $('#prep');
+  try { if (localStorage.getItem(LOCAL_KEY + '.prep') === 'closed') prep.open = false; } catch { /* ignorar */ }
+  prep.addEventListener('toggle', () => {
+    try { localStorage.setItem(LOCAL_KEY + '.prep', prep.open ? 'open' : 'closed'); } catch { /* ignorar */ }
+  });
+
+  renderStatic();
+  loadLocal();
+  refreshAll();
+  initStore().then(loadFromRepo);
+})();
+</script>
+
+
+</body></html>

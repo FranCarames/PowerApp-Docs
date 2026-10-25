@@ -219,7 +219,7 @@ tr:last-child td{border-bottom:0}
       <div>
         <h3>Cuentas y datos</h3>
         <ul class="tips">
-          <li><b>Una cuenta real de entrenador y una de admin.</b> El admin solo hace falta en PAG-07. Las de demo no sirven: el backend rechaza su token.</li>
+          <li><b>Una cuenta real de entrenador y una de admin.</b> El admin solo hace falta en PAG-07; PAG-09 usa dos pestañas. Las de demo no sirven: el backend rechaza su token.</li>
           <li><b>Un alumno de prueba nuevo,</b> registrado desde <code>/registro</code>: <button type="button" class="tok" data-copy="QA">QA</button> <button type="button" class="tok" data-copy="Membresías">Membresías</button>, con un email tuyo con sufijo, por ejemplo <button type="button" class="tok" data-copy="tuemail+qa-membresias-coach@gmail.com">tuemail+qa-membresias-coach@gmail.com</button>. Arranca en «Sin pagos».</li>
           <li><b>Los pagos no se pueden anular.</b> Registralos solo a QA Membresías: van a quedar en su historial y en los contadores.</li>
           <li><b>Tipos del seed:</b> «Membresia Diaria» (1 día) y «Membresia Mensual» (30 días). Si no están activos, usá otro de 7 días o menos y otro de más de 7.</li>
@@ -233,7 +233,7 @@ tr:last-child td{border-bottom:0}
           <li><b>Anotá los cuatro contadores al empezar</b> (CNT-01): varios casos los comparan.</li>
           <li><b>Ya están en «Pruebas de membresías»</b> del Admin: que Registrar pago ofrezca solo los tipos activos, el aviso de que el pago no suma los días que quedaban y el tipo «(dado de baja)» en el selector. Acá no se repiten.</li>
           <li><b>DevTools › Network</b>, filtrado por <code>membership</code>, para ver qué requests salen y qué código responden.</li>
-          <li><b>Lo que hoy no cumple el caso de uso</b> está marcado con un aviso amarillo: TIP-04 (no hay vista agrupada por tipo, es del front) y PAG-07 (se registra un pago con un tipo dado de baja, es del backend, BE-28).</li>
+          <li><b>Lo que hoy no cumple el caso de uso</b> está marcado con un aviso amarillo: TIP-04 (no hay vista agrupada por tipo, es del front).</li>
         </ul>
       </div>
     </div>
@@ -365,13 +365,15 @@ tr:last-child td{border-bottom:0}
       exp: `<p>Con el entrenador: ${ui('… no es un alumno: solo se registran pagos de alumnos.')} Con abc: ${ui('No encontramos al alumno que elegiste.')} En los dos queda el buscador para elegir otro alumno y no se puede confirmar nada. (CU-E-29, caminos alternativos)</p>` },
     { id: 'PAG-07', g: 'pag', t: 'Un tipo dado de baja mientras tanto', env: ['TODOS'],
       data: `Como admin, creá el tipo ${tok('QA Tipo baja')}, de ${tok('48')} días y precio ${tok('1000')}. Si ya hay un tipo de 48 días, usá otra duración libre.`,
-      steps: ['Como entrenador, recargá Registrar pago, elegí a QA Membresías y QA Tipo baja, sin confirmar.', 'En incógnito, como admin, dale de baja a QA Tipo baja.', 'Como entrenador, tocá Confirmar pago.'],
-      exp: '<p>El pago no se registra y aparece un aviso de que el tipo ya no es válido, por ejemplo «Ese tipo de membresía ya no existe. Elegí otro.» (CU-E-29, caminos alternativos)</p>',
-      kt: 'Hoy no cumple el CU.', known: 'El backend no mira si el tipo está activo (BE-28) y el front solo lo filtra al cargar la lista, así que el pago se registra con un tipo dado de baja. Marcalo Falla; el arreglo es del backend, en BE-28.' },
+      steps: ['Como entrenador, recargá Registrar pago, elegí a QA Membresías y QA Tipo baja, sin confirmar.', 'En incógnito, como admin, dale de baja a QA Tipo baja.', 'Como entrenador, tocá Confirmar pago.', 'Recargá Registrar pago y desplegá los tipos.'],
+      exp: `<p>El pago no se registra: ${ui('Ese tipo de membresía está dado de baja. Elegí otro.')} y el backend responde 400 (CU-E-29, el tipo de membresía está dado de baja). Al recargar, QA Tipo baja ya no se ofrece.</p>` },
     { id: 'PAG-08', g: 'pag', t: 'Un alumno con la cuenta cerrada', env: ['TODOS'],
       data: 'El alumno de EST-06, con la cuenta cerrada.',
-      steps: ['En Registrar pago, buscalo y elegilo. No confirmes.'],
-      exp: `<p>En la lista lleva la píldora ${ui('Inactivo')}. Al elegirlo aparece ${ui('La cuenta está inactiva. El pago se registra igual, pero no va a poder ingresar hasta que la reactives.')}</p>` },
+      steps: ['En Registrar pago, buscalo.', 'En Membresías, tocá Registrar pago en su tarjeta.', 'Abrí su ficha desde Mis alumnos.'],
+      exp: `<ul><li>El buscador no lo ofrece: solo cuentas abiertas.</li><li>Desde su tarjeta abre <code>/c/pago?alumno={id}</code> con ${ui('… tiene la cuenta cerrada: no se puede registrar el pago. Reactivala desde su detalle.')} y sin formulario. (CU-E-29, la cuenta del alumno está cerrada)</li><li>Su ficha no tiene ${ui('Registrar pago')}.</li></ul>` },
+    { id: 'PAG-09', g: 'pag', t: 'La cuenta se cierra mientras cargás el pago', env: ['TODOS'],
+      steps: ['En la pestaña A, en Registrar pago, elegí a QA Membresías y un tipo, sin confirmar.', 'En la pestaña B, cerrá la cuenta de QA Membresías desde su ficha.', 'En la pestaña A, tocá Confirmar pago.', 'Reactivá la cuenta al terminar.'],
+      exp: `<p>El pago no se registra: ${ui('La cuenta del alumno está cerrada: no se puede registrar el pago. Reactivala desde su detalle.')} El backend responde 400. (CU-E-29, la cuenta del alumno está cerrada)</p>` },
 
     // ── Errores y pantallas ─────────────────────────────────
     { id: 'ERR-01', g: 'err', t: 'Servidor caído al cargar', env: ['LOCAL'],

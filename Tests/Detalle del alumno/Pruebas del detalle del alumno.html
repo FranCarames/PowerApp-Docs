@@ -178,7 +178,7 @@ tr:last-child td{border-bottom:0}
   <header class="mast">
     <div class="eyebrow"><span>PowerApp Web</span><span class="sep">/</span><span>Entrenador · CU-E-04 a CU-E-07</span><span class="sep">/</span><span>Pruebas manuales</span></div>
     <h1>Pruebas del detalle del alumno</h1>
-    <p class="lede">La ficha de un alumno desde el Entrenador, en <code>/c/alumnos/:id</code>: sus datos, sus RMs, su historial de pagos y su historial de entrenamientos. Cada caso dice cómo probarlo y qué tenés que ver. Marcá el resultado y anotá lo que observes.</p>
+    <p class="lede">La ficha de un alumno desde el Entrenador, en <code>/c/alumnos/:id</code>: sus datos, sus RMs, su historial de pagos y su historial de entrenamientos, con las sesiones del plan y las rutinas puntuales y el filtro por ejercicio. Cada caso dice cómo probarlo y qué tenés que ver. Marcá el resultado y anotá lo que observes.</p>
   </header>
 
   <section class="summary" aria-label="Resumen">
@@ -222,17 +222,17 @@ tr:last-child td{border-bottom:0}
           <li><b>Una cuenta real de entrenador.</b> Las de demo no sirven: el backend rechaza su token.</li>
           <li><b>Un alumno de prueba nuevo,</b> registrado desde <code>/registro</code>: <button type="button" class="tok" data-copy="QA">QA</button> <button type="button" class="tok" data-copy="Detalle">Detalle</button>, con un email tuyo con sufijo, por ejemplo <button type="button" class="tok" data-copy="tuemail+qa-detalle@gmail.com">tuemail+qa-detalle@gmail.com</button>. Arranca sin RMs ni pagos, y en RMS-03 carga dos RMs desde su cuenta.</li>
           <li><b>Los pagos no se pueden anular.</b> PAG-03 registra uno: hacelo solo al alumno QA Detalle.</li>
-          <li><b>Para FCH-02 y el historial,</b> un alumno con una planificación asignada y con ejercicios marcados como hechos. Desde la web todavía no se puede: se cargan por Swagger con <code>POST /planification/user/assign</code> y <code>POST /routine/assign-user/{id}/finished</code>.</li>
+          <li><b>Para FCH-02 y el historial,</b> una planificación activa con al menos dos rutinas en la semana 1 (sirve QA Plan Alumno de «Pruebas del plan del alumno» o una del seed) y una rutina vigente para la rutina puntual. Todo se asigna desde la web y el alumno marca desde su cuenta.</li>
           <li><b>Dos roles a la vez:</b> ventana normal para el entrenador y de incógnito para el alumno.</li>
         </ul>
       </div>
       <div>
         <h3>Cómo encararlo</h3>
         <ul class="tips">
-          <li><b>Seguí el orden de la página.</b> QA Detalle arranca vacío y los casos le van sumando RMs y un pago.</li>
-          <li><b>DevTools › Network</b>, filtrado por <code>user_rm</code>, <code>payment</code> o <code>planification</code>, para ver qué requests salen y qué código responden.</li>
+          <li><b>Seguí el orden de la página.</b> QA Detalle arranca vacío y los casos le van sumando RMs, pagos, una planificación y lo que entrena.</li>
+          <li><b>DevTools › Network</b>, filtrado por <code>user_rm</code>, <code>payment</code>, <code>planification</code> o <code>history</code>, para ver qué requests salen y qué código responden.</li>
           <li><b>Cerrar la cuenta desde el Admin</b> ya está en «Pruebas de usuarios y entrenadores». Acá se prueba el botón propio del Entrenador (FCH-04).</li>
-          <li><b>Lo que hoy falla</b> está marcado con un aviso amarillo: el historial de entrenamientos (CU-E-06 y CU-E-07) todavía no tiene pantalla (T43) y la planificación vigente no aparece en la ficha. Los dos arreglos son del front: el backend ya tiene los endpoints.</li>
+          <li><b>Planificaciones y Rutinas puntuales</b> se usan acá solo para tener datos: asignar y quitar se prueba en «Pruebas de planificaciones» y «Pruebas de rutinas».</li>
         </ul>
       </div>
     </div>
@@ -286,18 +286,17 @@ tr:last-child td{border-bottom:0}
     { id: 'FCH-01', g: 'fch', t: 'Abrir la ficha de un alumno', env: ['TODOS'],
       data: 'El alumno QA Detalle, recién registrado.',
       steps: [`Como entrenador, en Mis alumnos, buscá ${tok('QA Detalle')} y tocá su fila.`],
-      exp: `<ul><li>Abre <code>/c/alumnos/{id}</code> con ${ui('Alumno')} arriba, su nombre como título y ${ui('Volver')}, que lleva a <code>/c/alumnos</code>.</li><li>El avatar, la píldora ${ui('Activo')} y ${ui('Alumno desde …')} con el mes y el año del alta.</li><li>Una tarjeta con ${ui('Email')} y ${ui('Membresía')}: ${ui('Sin membresía')}.</li><li>Las filas ${ui('RMs del alumno')}, ${ui('Historial de entrenamientos')}, ${ui('Historial de pagos')} y ${ui('Registrar pago')}, y el botón ${ui('Cerrar cuenta del alumno')}.</li></ul>` },
+      exp: `<ul><li>Abre <code>/c/alumnos/{id}</code> con ${ui('Alumno')} arriba, su nombre como título y ${ui('Volver')}, que lleva a <code>/c/alumnos</code>.</li><li>El avatar, la píldora ${ui('Activo')} y ${ui('Alumno desde …')} con el mes y el año del alta.</li><li>Una tarjeta con ${ui('Email')} y ${ui('Membresía')}: ${ui('Sin membresía')}.</li><li>Las filas ${ui('RMs del alumno')}, ${ui('Historial de entrenamientos')}, ${ui('Planificaciones')}, ${ui('Rutinas puntuales')} (las dos con ${ui('Asignar o quitar')}), ${ui('Historial de pagos')} y ${ui('Registrar pago')}, y el botón ${ui('Cerrar cuenta del alumno')}. Sin planificación vigente, la tarjeta no tiene la fila Planificación.</li></ul>` },
     { id: 'FCH-02', g: 'fch', t: 'Planificación vigente', env: ['TODOS'],
-      data: 'Un alumno con una planificación asignada y vigente (ver Antes de empezar).',
-      steps: ['Abrí su ficha.', 'En Network, mirá el request de <code>planification</code>.'],
-      exp: `<p>La tarjeta suma ${ui('Planificación')} con el tipo y ${ui('vigente hasta …')}, por ejemplo «Fuerza · vigente hasta 12 Dic 2026».</p>`,
-      kt: 'Hoy falla.', known: 'La fila no aparece: el front pide <code>GET /planification/user/{id}/active</code>, que el backend reemplazó por <code>GET /planification/user/:userId</code> (BE-19), y responde 404. Marcalo Falla; el arreglo es del front. Afecta también al detalle de Usuarios del Admin.' },
+      data: 'Una planificación activa con al menos dos rutinas en la semana 1 (ver Antes de empezar).',
+      steps: [`En la ficha de QA Detalle, tocá ${ui('Planificaciones')} › ${ui('Asignar planificación')} y asignale esa planificación desde hoy.`, 'Volvé a su ficha y mirá el request de <code>planification</code> en Network.'],
+      exp: `<p>La tarjeta suma ${ui('Planificación')} con el nombre del plan y ${ui('vigente hasta …')}, por ejemplo «Fuerza 5×5 · vigente hasta 22 Nov 2026». Sale <code>GET /planification/user/{id}</code>. Asignar y quitar planificaciones se prueba en «Pruebas de planificaciones».</p>` },
     { id: 'FCH-03', g: 'fch', t: 'Link a un alumno que no existe', env: ['TODOS'],
       steps: ['Abrí <code>/c/alumnos/abc</code>.', 'Abrí <code>/c/alumnos/</code> seguido del id de tu cuenta de entrenador (sale de <code>powerapp.session</code> en Local Storage).'],
       exp: `<p>En los dos: ${ui('No encontramos al alumno')} y ${ui('No hay ningún alumno con ese enlace. Volvé a la lista.')}, sin botón Reintentar. Un entrenador o un admin no se muestran en esta pantalla. (CU-E-06, caminos alternativos)</p>` },
     { id: 'FCH-04', g: 'fch', t: 'Cerrar y reactivar la cuenta', env: ['TODOS'],
       steps: [`En la ficha de QA Detalle, tocá ${ui('Cerrar cuenta del alumno')}, leé el mensaje y confirmá.`, 'Volvé a abrir su ficha.', `Tocá ${ui('Reactivar cuenta')}.`],
-      exp: `<p>${ui('Cerrar cuenta')}: ${ui('QA Detalle va a dejar de tener acceso a la app. Es una baja lógica: sus datos y sus pagos se conservan y podés reactivar la cuenta cuando quieras.')} Al confirmar: ${ui('Cuenta cerrada')} y vuelve a Mis alumnos. La ficha muestra ${ui('Inactivo')}, el avatar gris y el botón ${ui('Reactivar cuenta')}, que no pide confirmación: ${ui('Cuenta reactivada')}.</p>` },
+      exp: `<p>${ui('Cerrar cuenta')}: ${ui('QA Detalle va a dejar de tener acceso a la app. Es una baja lógica: sus datos y sus pagos se conservan y podés reactivar la cuenta cuando quieras.')} Al confirmar: ${ui('Cuenta cerrada')} y vuelve a Mis alumnos. La ficha muestra ${ui('Inactivo')}, el avatar gris, ya no tiene ${ui('Registrar pago')} (a una cuenta cerrada no se le registran pagos, CU-E-29) y abajo está ${ui('Reactivar cuenta')}, que no pide confirmación: ${ui('Cuenta reactivada')} y vuelve Registrar pago.</p>` },
 
     // ── RMs del alumno ──────────────────────────────────────
     { id: 'RMS-01', g: 'rms', t: 'Sin RMs', env: ['TODOS'],
@@ -331,30 +330,37 @@ tr:last-child td{border-bottom:0}
       exp: '<p>Los mismos pagos, con los mismos nombres, fechas y precios que ve el entrenador.</p>' },
 
     // ── Historial de entrenamientos ─────────────────────────
-    { id: 'HIS-01', g: 'his', t: 'Abrir el historial de entrenamientos', env: ['TODOS'],
-      data: 'Un alumno con ejercicios marcados como hechos (ver Antes de empezar).',
-      steps: [`En su ficha, tocá ${ui('Historial de entrenamientos')}.`],
-      exp: '<p>Se abre su historial: las sesiones con al menos un ejercicio hecho, de la más reciente a la más antigua. De cada ejercicio, el día en que lo hizo, la prescripción (series, repeticiones y peso) y la nota del alumno. (CU-E-06, pasos 1 a 3)</p>',
-      kt: 'Hoy falla.', known: 'La fila dice «Próximamente» y no abre nada: falta la pantalla del historial (T43, en el prototipo es un modal). El backend ya responde <code>GET /routine/history/:userId</code> (BE-16). Marcalo Falla.' },
-    { id: 'HIS-02', g: 'his', t: 'Sin historial', env: ['TODOS'],
-      steps: ['En la ficha de QA Detalle, que no entrenó, tocá Historial de entrenamientos.'],
-      exp: '<p>Un estado vacío que dice que el alumno todavía no registra entrenamientos. (CU-E-06, caminos alternativos)</p>',
-      kt: 'Hoy falla.', known: 'Misma causa que HIS-01: no hay pantalla de historial (T43). Marcalo Falla.' },
-    { id: 'HIS-03', g: 'his', t: 'Lo que el entrenador dio de baja', env: ['TODOS'],
-      data: 'Un ejercicio que el alumno marcó como hecho y que después se sacó de su rutina o de su circuito.',
-      steps: ['Abrí el historial de ese alumno.'],
-      exp: '<p>El ejercicio aparece igual: si el alumno lo hizo, es parte de su historial. (CU-E-06, caminos alternativos)</p>',
-      kt: 'Hoy falla.', known: 'Misma causa que HIS-01: no hay pantalla de historial (T43). Marcalo Falla.' },
+    { id: 'HIS-01', g: 'his', t: 'Sin historial', env: ['TODOS'],
+      steps: [`En la ficha de QA Detalle, que todavía no marcó nada, tocá ${ui('Historial de entrenamientos')}.`, 'Mirá el request en Network.'],
+      exp: `<p>El modal ${ui('Historial de entrenamientos')} dice ${ui('Sesiones de QA Detalle, de la más reciente a la más antigua.')}, con ${ui('Todavía no registra entrenamientos')} y ${ui('Cuando el alumno marque ejercicios como hechos, sus sesiones van a aparecer acá.')}, sin filtro, y el botón ${ui('Cerrar')}. Sale <code>GET /routine/history/{id}</code>. (CU-E-06, sin historial)</p>` },
+    { id: 'HIS-02', g: 'his', t: 'Las sesiones', env: ['TODOS'],
+      data: 'Como entrenador: a QA Detalle, una rutina puntual para hoy (Rutinas puntuales › Asignar rutina). Como QA Detalle, en su inicio: en la rutina A de la semana 1 del plan, marcá un ejercicio hecho hoy con la nota «Me costó» y otro con «Lo hice otro día» en anteayer; en la rutina B, uno hoy; en la rutina puntual, uno hoy.',
+      steps: ['Cargá los datos.', 'Como entrenador, abrí el Historial de entrenamientos de QA Detalle.'],
+      exp: `<ul><li>Arriba: ${ui('Las series son las que prescribió el entrenador en la rutina, tal como está hoy: la app no registra el peso ni las repeticiones que hizo el alumno.')} y el selector ${ui('Filtrar por ejercicio')} en ${ui('Todos los ejercicios')}.</li><li>Tres sesiones, de la más reciente a la más antigua. Cada una con el nombre de la rutina, la fecha y, las del plan, su nombre y ${ui('Plan · Semana 1')}; la puntual, ${ui('Individual')}.</li><li>Debajo de cada ejercicio hecho, ${ui('Prescripto')} con sus bloques (como ${ui('3×8 · 60 kg')}) y, si dejó una, ${ui('Nota del alumno')} con el texto: «Me costó». Solo están los ejercicios hechos, no los pendientes. (CU-E-06, pasos 1 a 3)</li></ul>` },
+    { id: 'HIS-03', g: 'his', t: 'La fecha de una sesión del plan', env: ['TODOS'],
+      steps: ['Mirá la sesión de la rutina A.'],
+      exp: `<p>Tiene la fecha de anteayer: una rutina del plan no tiene día propio y toma el día más viejo en que hizo alguno de sus ejercicios. Por eso va última. El ejercicio que hizo hoy aclara ${ui('Hecho el …')} con la fecha de hoy; el de anteayer no lo aclara. (CU-E-06, la fecha de una sesión del plan)</p>` },
+    { id: 'HIS-04', g: 'his', t: 'Dos sesiones el mismo día', env: ['TODOS'],
+      steps: ['Mirá las dos sesiones de hoy: la rutina B y la puntual.'],
+      exp: '<p>Son dos sesiones separadas, ordenadas por el nombre de la rutina. Cada rutina del plan es una sesión aparte: la A y la B no se juntan aunque sean de la misma semana. (CU-E-06, dos sesiones el mismo día y cada rutina del plan es una sesión)</p>' },
+    { id: 'HIS-05', g: 'his', t: 'La misma rutina en dos asignaciones', env: ['TODOS'],
+      steps: ['Opcional: asignale a QA Detalle la misma planificación otra vez desde hoy, con «Asignar igual».', 'Como QA Detalle, marcá un ejercicio de la rutina A en esa segunda tarjeta del plan.', 'Abrí el historial.'],
+      exp: '<p>La rutina A aparece dos veces, una por cada asignación, cada una con lo suyo. (CU-E-06, cada rutina del plan es una sesión) Quitá esa segunda asignación al terminar.</p>' },
+    { id: 'HIS-06', g: 'his', t: 'Lo que el entrenador dio de baja', env: ['TODOS'],
+      steps: [`En la ficha, abrí ${ui('Planificaciones')} y quitale a QA Detalle la planificación.`, 'Eliminá la rutina de la rutina puntual desde Rutinas.', 'Abrí el historial.', 'Reincorporá la planificación y reactivá la rutina.'],
+      exp: '<p>Están las mismas sesiones y los mismos ejercicios: lo que el alumno hizo es parte de su historial aunque después le quiten el plan o den de baja la rutina. (CU-E-06, lo dado de baja que el alumno hizo)</p>' },
 
     // ── Filtro por ejercicio ────────────────────────────────
-    { id: 'FIL-01', g: 'fil', t: 'Filtrar el historial por ejercicio', env: ['TODOS'],
-      steps: ['En el historial del alumno de HIS-01, elegí un ejercicio que haya hecho.'],
-      exp: '<p>Quedan solo las sesiones donde hizo ese ejercicio y, en cada una, solo ese ejercicio, con el día, la prescripción y su nota. (CU-E-07, pasos 1 a 3)</p>',
-      kt: 'Hoy falla.', known: 'No hay pantalla ni filtro (T43). El backend ya filtra con <code>GET /routine/history/:userId?exercise_id=</code>. Marcalo Falla.' },
+    { id: 'FIL-01', g: 'fil', t: 'Filtrar por un ejercicio que hizo', env: ['TODOS'],
+      steps: [`Desplegá ${ui('Filtrar por ejercicio')}.`, 'Elegí el ejercicio de la rutina A que marcaste hoy con nota y mirá el request.', `Volvé a ${ui('Todos los ejercicios')}.`],
+      exp: `<ul><li>Arriba están ${ui('Los que hizo el alumno')} y, después, ${ui('Otros del catálogo')}.</li><li>Queda solo la sesión de la rutina A y, en ella, solo ese ejercicio, con su prescripción y ${ui('Nota del alumno')}. La sesión toma el día en que hizo ese ejercicio: hoy, no anteayer. Sale <code>GET /routine/history/{id}?exercise_id=…</code>. (CU-E-07, pasos 1 a 3, y la fecha de una sesión del plan)</li><li>Con Todos los ejercicios vuelve la lista completa.</li></ul>` },
     { id: 'FIL-02', g: 'fil', t: 'Un ejercicio que no entrenó', env: ['TODOS'],
-      steps: ['Filtrá por un ejercicio que el alumno nunca hizo.'],
-      exp: '<p>Un estado vacío que dice que no hay registros de ese ejercicio. (CU-E-07, caminos alternativos)</p>',
-      kt: 'Hoy falla.', known: 'Misma causa que FIL-01: no hay pantalla ni filtro (T43). Marcalo Falla.' },
+      steps: ['Elegí un ejercicio de Otros del catálogo.'],
+      exp: `<p>${ui('Sin registros para este ejercicio')} y ${ui('El alumno no hizo … en ninguna sesión.')} con el nombre del ejercicio. El selector queda a la vista para elegir otro. (CU-E-07, sin registros para el ejercicio)</p>` },
+    { id: 'FIL-03', g: 'fil', t: 'El mismo ejercicio dos veces en una sesión', env: ['TODOS'],
+      data: 'Una rutina con el mismo ejercicio del catálogo en dos circuitos distintos, asignada a QA Detalle. Si no tenés una, marcá Re-testear.',
+      steps: ['Como QA Detalle, marcá ese ejercicio en los dos circuitos, en días distintos.', 'Filtrá el historial por ese ejercicio.'],
+      exp: '<p>La sesión muestra los dos, por el día en que los hizo; en el mismo día, en el orden en que los marcó. (CU-E-07, el ejercicio aparece más de una vez en una sesión)</p>' },
 
     // ── Errores y pantallas ─────────────────────────────────
     { id: 'ERR-01', g: 'err', t: 'Servidor caído al abrir la ficha', env: ['LOCAL'],
@@ -364,16 +370,16 @@ tr:last-child td{border-bottom:0}
       steps: ['Abrí la ficha de QA Detalle y, ya cargada, apagá el backend.', 'Esperá 30 segundos y abrí RMs del alumno.', 'Prendelo y tocá Reintentar dentro del modal.'],
       exp: `<p>Después de unos segundos, el modal muestra ${ui('No pudimos cargar los datos')} con Reintentar dentro, y la ficha queda atrás sin romperse. Con el backend prendido, Reintentar trae los RMs.</p>` },
     { id: 'ERR-03', g: 'err', t: 'Celular y escritorio', env: ['TODOS'],
-      steps: ['Recorré la ficha y los dos modales en el celular, o en DevTools a 390 px.', 'Repetí en escritorio.'],
+      steps: ['Recorré la ficha y los modales (RMs, historial de entrenamientos y de pagos) en el celular, o en DevTools a 390 px.', 'Repetí en escritorio.'],
       exp: '<ul><li>Sin scroll horizontal ni textos cortados; un email largo no rompe la tarjeta.</li><li>En el celular, los modales salen como hoja desde abajo y, con muchos RMs, se desplazan por dentro.</li><li>En escritorio, las filas de accesos van en dos columnas y los modales salen centrados.</li></ul>' },
     { id: 'ERR-04', g: 'err', t: 'Teclado y lector de pantalla', env: ['TODOS'],
-      steps: ['Recorré la ficha solo con Tab y Enter, y abrí los dos modales.'],
-      exp: '<p>El foco siempre se ve y queda dentro del modal mientras está abierto; al cerrarlo vuelve a la ficha. La fila «Próximamente» no se puede activar.</p>' },
+      steps: ['Recorré la ficha solo con Tab y Enter, y abrí los modales.'],
+      exp: '<p>El foco siempre se ve y queda dentro del modal mientras está abierto; al cerrarlo vuelve a la ficha. En el historial, el selector de ejercicio se usa con las flechas.</p>' },
 
     // ── Cierre ──────────────────────────────────────────────
     { id: 'CIE-01', g: 'cie', t: 'Dejar al alumno de prueba como estaba', env: ['TODOS'],
-      steps: ['Como QA Detalle, eliminá sus RMs desde Mis RMs.', 'Si cerraste otra cuenta durante las pruebas, reactivala.', 'Si no vas a usar más a QA Detalle, cerrá su cuenta desde su ficha.'],
-      exp: '<p>QA Detalle queda sin RMs. Sus pagos quedan, porque el backend no permite borrarlos.</p>' },
+      steps: ['Como QA Detalle, eliminá sus RMs desde Mis RMs.', 'En su ficha, quitale la planificación desde Planificaciones.', 'Si cerraste otra cuenta durante las pruebas, reactivala.', 'Si no vas a usar más a QA Detalle, cerrá su cuenta desde su ficha.'],
+      exp: '<p>QA Detalle queda sin RMs ni planificación vigente. Sus pagos, su rutina puntual entrenada y su historial quedan: el backend no permite borrarlos.</p>' },
   ];
 
   // ── Estado ────────────────────────────────────────────────

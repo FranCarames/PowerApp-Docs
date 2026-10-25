@@ -231,7 +231,6 @@ tr:last-child td{border-bottom:0}
           <li><b>Ya están en «Pruebas de acceso»</b> y acá no se repiten: rutas sin sesión, «/», el rol equivocado en el inicio de otro rol, <code>/cualquier-cosa</code>, la sesión vencida al abrir Datos personales y la cuenta cerrada con la sesión abierta (NAV-01 a NAV-07, OUT-03, OUT-04 y LOG-13). El catálogo y cómo se llega a cada sección están en el plan de cada sección.</li>
           <li><b>DevTools › Network</b> sirve para tres cosas: ver los requests, bloquear uno (clic derecho › <i>Block request URL</i>) y simular un servidor lento (<i>Throttling</i> › <i>Add custom profile</i> con 5000 ms de latencia).</li>
           <li><b>Local Storage</b> (DevTools › Application) guarda la sesión en <code>powerapp.session</code>. SES-01 le cambia el token.</li>
-          <li><b>Lo que hoy falla</b> está marcado con un aviso amarillo: el inicio del alumno sigue en construcción (T38).</li>
         </ul>
       </div>
     </div>
@@ -325,15 +324,14 @@ tr:last-child td{border-bottom:0}
       steps: [`Con Todos, bajá hasta el final y tocá ${ui('Cargar más')} hasta que no aparezca más.`],
       exp: '<p>Se suman de a 20, sin repetidos, hasta llegar al Total del contador. Si hay 20 o menos, el botón no aparece.</p>' },
     { id: 'COA-04', g: 'coa', t: 'La tab bar y la barra lateral del Entrenador', env: ['TODOS'],
-      steps: ['A 390 px, recorré las tabs Alumnos, Planes, Rutinas y Perfil.', 'En Rutinas, tocá el segmento Circuitos y abrí un circuito.', 'A más de 960 px, recorré la barra lateral.'],
-      exp: `<ul><li>Planes y el segmento Rutinas muestran ${ui('Sección en construcción')} y ${ui('Esta sección se habilita cuando el backend de rutinas y planificaciones esté completo.')} Su contenido se prueba en sus planes, cuando estén.</li><li>En <code>/c/circuitos</code> y en un circuito sigue marcada la tab Rutinas. En Membresías y en Registrar pago, Alumnos.</li><li>La barra lateral tiene Alumnos, Planes, Rutinas y Perfil, y ${ui('Organización')} con Membresías. Abajo, ${ui('Entrenador')} bajo tu nombre.</li></ul>` },
+      steps: ['A 390 px, recorré las tabs Alumnos, Planes, Rutinas y Perfil.', 'Abrí una planificación y su Asignar, y una rutina y su Asignar a alumno.', 'En Rutinas, tocá el segmento Circuitos y abrí un circuito.', 'Abrí el detalle de un alumno y, desde Planificaciones o Rutinas puntuales, su pantalla de asignar.', 'A más de 960 px, recorré la barra lateral.'],
+      exp: `<ul><li>Planes muestra las planificaciones y el segmento Rutinas, las rutinas: su contenido se prueba en «Pruebas de planificaciones» y «Pruebas de rutinas». En una planificación o una rutina, y en sus pantallas de asignar, sigue marcada su tab.</li><li>En <code>/c/circuitos</code> y en un circuito sigue marcada la tab Rutinas. En Membresías, en Registrar pago, en el detalle de un alumno y en sus pantallas de asignar, Alumnos.</li><li>La barra lateral tiene Alumnos, Planes, Rutinas y Perfil, y ${ui('Organización')} con Membresías. Abajo, ${ui('Entrenador')} bajo tu nombre.</li></ul>` },
 
     // ── Inicio del alumno ───────────────────────────────────
     { id: 'ALU-01', g: 'alu', t: 'Tu plan', env: ['TODOS'],
-      data: 'Tu cuenta real de alumno, con una planificación asignada.',
+      data: 'Tu cuenta real de alumno.',
       steps: ['Iniciá sesión como alumno.'],
-      exp: `<p>Abre <code>/u/plan</code> con ${ui('Hola, …')} y tu nombre arriba, el título ${ui('Tu plan')} y la semana de su planificación, con las rutinas de cada día y su avance. (CU-U-08)</p>`,
-      kt: 'Hoy falla.', known: 'Muestra «Pantalla en construcción» y «El home semanal se arma en la tarea T38.»: falta el home semanal (T38). El backend ya lo responde con <code>GET /routine/home/:userId</code> (BE-20e). Marcalo Falla; el detalle se prueba en «Pruebas del plan del alumno», cuando exista.' },
+      exp: `<p>Abre <code>/u/plan</code> con ${ui('Hola, …')} y tu nombre arriba, el título ${ui('Tu plan')}, el botón ${ui('Biblioteca de ejercicios')} y ${ui('Rutinas de la semana')} con ${ui('Esta semana')}: tus rutinas de la semana o, si no tenés nada asignado, ${ui('Sin rutinas esta semana')}. El resto se prueba en «Pruebas del plan del alumno». (CU-U-08)</p>` },
     { id: 'ALU-02', g: 'alu', t: 'La tab bar y la barra lateral del alumno', env: ['TODOS'],
       steps: ['A 390 px, recorré las tabs.', 'Abrí la calculadora, la biblioteca y Datos personales.', 'A más de 960 px, recorré la barra lateral.'],
       exp: `<p>Las tabs son Rutina, RMs, Timer y Perfil. En la calculadora queda marcada RMs; en la biblioteca, Rutina; y en Datos personales, Perfil. La barra lateral tiene las mismas cuatro entradas, sin grupos, y ${ui('Alumno')} bajo tu nombre.</p>` },

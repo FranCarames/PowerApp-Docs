@@ -1,0 +1,973 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Pruebas del plan del alumno</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: una columna de trabajo (máx. 980px). Resumen arriba, barra de filtros fija, casos agrupados por CU. Paleta de PowerApp, dark-first. */
+:root{
+  --bg:#0B0D16; --card:#13161F; --el:#1B1F2E; --line:#232739; --line2:#2E3347;
+  --tx:#F5F1EB; --tx2:#A3ACC2; --tx3:#6B7390;
+  --pri:#FF6B3D; --priS:rgba(232,69,10,.14); --acc:#A78BFA; --accS:rgba(139,92,246,.16);
+  --ok:#3DD47A; --okS:rgba(34,197,94,.14); --warn:#F5B23D; --warnS:rgba(245,158,11,.14); --err:#F26464; --errS:rgba(239,68,68,.14);
+  --none:#6B7390;
+  --fD:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --fB:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --fM:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#F2F3F7; --card:#FFFFFF; --el:#E8EAF1; --line:#D9DCE6; --line2:#C8CCDA;
+    --tx:#141826; --tx2:#47506A; --tx3:#687089;
+    --pri:#C23A07; --priS:rgba(232,69,10,.10); --acc:#6A3FDB; --accS:rgba(139,92,246,.12);
+    --ok:#157A3C; --okS:rgba(34,197,94,.13); --warn:#A25A06; --warnS:rgba(245,158,11,.16); --err:#C42525; --errS:rgba(239,68,68,.11);
+    --none:#8A91A8;
+    color-scheme:light;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#F2F3F7; --card:#FFFFFF; --el:#E8EAF1; --line:#D9DCE6; --line2:#C8CCDA;
+  --tx:#141826; --tx2:#47506A; --tx3:#687089;
+  --pri:#C23A07; --priS:rgba(232,69,10,.10); --acc:#6A3FDB; --accS:rgba(139,92,246,.12);
+  --ok:#157A3C; --okS:rgba(34,197,94,.13); --warn:#A25A06; --warnS:rgba(245,158,11,.16); --err:#C42525; --errS:rgba(239,68,68,.11);
+  --none:#8A91A8;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--tx);font-family:var(--fB);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding-inline:20px;padding-block:28px 72px}
+code,.mono{font-family:var(--fM);font-size:.86em}
+code{background:var(--el);border:1px solid var(--line);border-radius:5px;padding:1px 5px;overflow-wrap:anywhere}
+.ui{color:var(--tx);font-weight:600}
+a{color:var(--acc)}
+a:focus-visible,button:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+h1,h2,h3{text-wrap:balance}
+
+/* Encabezado */
+.mast{display:grid;gap:6px;margin-bottom:22px}
+.eyebrow{font-family:var(--fM);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--pri);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.eyebrow .sep{color:var(--tx3)}
+h1{font-family:var(--fD);font-weight:800;font-size:clamp(34px,6vw,52px);line-height:1;letter-spacing:-.01em;margin:4px 0 0}
+.lede{color:var(--tx2);max-width:66ch;margin:6px 0 0}
+
+/* Resumen */
+.summary{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:14px;margin-bottom:18px}
+.counts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.count{display:grid;gap:2px}
+.count .n{font-family:var(--fD);font-size:34px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.count .l{font-size:12.5px;color:var(--tx2);display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;flex:none}
+.c-ok .n{color:var(--ok)} .c-ok .dot{background:var(--ok)}
+.c-fail .n{color:var(--err)} .c-fail .dot{background:var(--err)}
+.c-retest .n{color:var(--warn)} .c-retest .dot{background:var(--warn)}
+.c-none .n{color:var(--tx2)} .c-none .dot{background:var(--none)}
+.bar{display:flex;height:10px;border-radius:6px;overflow:hidden;background:var(--el)}
+.bar span{height:100%;transition:width .3s ease}
+.bar .b-ok{background:var(--ok)} .bar .b-fail{background:var(--err)} .bar .b-retest{background:var(--warn)}
+.sumfoot{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.save{font-size:12.5px;color:var(--tx3);display:flex;align-items:center;gap:7px}
+.save .dot{background:var(--tx3)}
+.save.is-db .dot{background:var(--ok)} .save.is-err .dot{background:var(--err)} .save.is-local .dot{background:var(--warn)}
+.btn{font:600 13.5px/1 var(--fB);color:var(--tx);background:var(--el);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{border-color:var(--tx3)}
+.btn.pri{background:var(--priS);border-color:var(--pri);color:var(--pri)}
+.copyfall{display:grid;gap:8px}
+.copyfall textarea{width:100%;min-height:140px;font:13px/1.5 var(--fM);background:var(--el);color:var(--tx);border:1px solid var(--line2);border-radius:10px;padding:10px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.save{flex:1 1 260px;min-width:0;align-items:flex-start}
+.save .dot{margin-top:.45em}
+.save.is-local{color:var(--warn)}
+.save.is-err{color:var(--err)}
+.iomsg{margin:0;font-size:12.5px;color:var(--tx2)}
+.iomsg.is-ok{color:var(--ok)} .iomsg.is-err{color:var(--err)}
+
+/* Antes de empezar */
+details.prep{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:18px}
+details.prep>summary{cursor:pointer;list-style:none;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+details.prep>summary::-webkit-details-marker{display:none}
+details.prep>summary h2{font-family:var(--fD);font-weight:700;font-size:24px;margin:0}
+.chev{color:var(--tx3);font-family:var(--fM);font-size:13px}
+details[open] .chev .c-open{display:none} details:not([open]) .chev .c-close{display:none}
+.prep-body{padding:0 18px 18px;display:grid;gap:18px}
+.prep h3{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin:0 0 8px;font-weight:700}
+.envs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.env{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg);display:grid;gap:6px;align-content:start;min-width:0}
+.env p{margin:0;font-size:13.5px;color:var(--tx2)}
+.tag{display:inline-flex;align-items:center;font:700 11px/1 var(--fM);letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border-radius:6px;border:1px solid currentColor;white-space:nowrap}
+.t-LOCAL{color:var(--acc)} .t-DEMO{color:var(--warn)} .t-RENDER{color:var(--pri)} .t-TODOS{color:var(--tx2)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);font-weight:700;background:var(--bg)}
+tr:last-child td{border-bottom:0}
+.tips{margin:0;padding-left:18px;display:grid;gap:6px;color:var(--tx2);font-size:14px}
+.tips b{color:var(--tx)}
+.tok{font:500 12.5px/1.3 var(--fM);color:var(--tx);background:var(--el);border:1px dashed var(--line2);border-radius:6px;padding:2px 6px;cursor:copy;overflow-wrap:anywhere;text-align:left}
+.tok:hover{border-color:var(--acc)}
+.tok.copied{border-style:solid;border-color:var(--ok);color:var(--ok)}
+
+/* Filtros */
+.filters{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;margin-bottom:8px;display:grid;gap:8px;border-bottom:1px solid var(--line)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chips .lbl{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);font-weight:700;margin-right:4px}
+.chip{font:600 12.5px/1 var(--fB);color:var(--tx2);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 11px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.chip .k{font-family:var(--fM);font-size:11px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.chip[aria-pressed="true"]{color:var(--tx);border-color:var(--tx2);background:var(--el)}
+.jump{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.jump a{font:600 12px/1 var(--fB);color:var(--tx2);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:6px 9px;white-space:nowrap;background:var(--card)}
+.jump a:hover{color:var(--tx);border-color:var(--line2)}
+.jump .p{font-family:var(--fM);font-size:11px;color:var(--tx3);margin-left:4px}
+
+/* Grupos y casos */
+.group{margin-top:28px;scroll-margin-top:120px}
+.ghead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:12px}
+.ghead h2{font-family:var(--fD);font-weight:700;font-size:28px;margin:0;line-height:1.1}
+.ghead .cu{font-family:var(--fM);font-size:12.5px;color:var(--pri)}
+.ghead .gsub{color:var(--tx3);font-size:13.5px}
+.ghead .gprog{margin-left:auto;font-family:var(--fM);font-size:12px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.cases{display:grid;gap:12px}
+.case{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:grid;gap:12px;min-width:0}
+.case[data-status="fail"]{border-color:color-mix(in srgb,var(--err) 55%,var(--line))}
+.case[data-status="ok"]{border-color:color-mix(in srgb,var(--ok) 40%,var(--line))}
+.case[data-status="retest"]{border-color:color-mix(in srgb,var(--warn) 50%,var(--line))}
+.chead{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+.cid{font:700 13px/1 var(--fM);color:var(--pri);letter-spacing:.02em}
+.chead h3{font-size:16.5px;font-weight:700;margin:0;flex:1 1 220px;min-width:0}
+.ctags{display:flex;gap:6px;flex-wrap:wrap}
+.pill{font:700 11px/1 var(--fB);letter-spacing:.04em;text-transform:uppercase;padding:5px 8px;border-radius:999px;background:var(--el);color:var(--tx3);white-space:nowrap}
+.pill.s-ok{background:var(--okS);color:var(--ok)} .pill.s-fail{background:var(--errS);color:var(--err)} .pill.s-retest{background:var(--warnS);color:var(--warn)}
+.cdata{margin:0;font-size:14px;color:var(--tx2)}
+.cdata b{color:var(--tx);font-weight:600}
+.cbody{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:14px}
+.cbody h4{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin:0 0 6px;font-weight:700}
+.steps{margin:0;padding-left:20px;display:grid;gap:5px;font-size:14px}
+.steps li::marker{font-family:var(--fM);color:var(--tx3);font-size:12px}
+.expect{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;min-width:0}
+.expect p{margin:0}
+.expect ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.known{display:flex;gap:10px;align-items:flex-start;background:var(--warnS);color:var(--tx);border-radius:10px;padding:10px 12px;font-size:13.5px}
+.known b{color:var(--warn)}
+.cfoot{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px 14px;align-items:start;border-top:1px solid var(--line);padding-top:12px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.sb{font:600 13px/1 var(--fB);color:var(--tx2);background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:9px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;min-height:38px}
+.sb .ic{font-family:var(--fM);font-weight:700}
+.sb:hover{color:var(--tx)}
+.sb.v-ok[aria-pressed="true"]{background:var(--okS);border-color:var(--ok);color:var(--ok)}
+.sb.v-fail[aria-pressed="true"]{background:var(--errS);border-color:var(--err);color:var(--err)}
+.sb.v-retest[aria-pressed="true"]{background:var(--warnS);border-color:var(--warn);color:var(--warn)}
+.notewrap{display:grid;gap:4px;min-width:0}
+.note{width:100%;min-height:38px;resize:vertical;font:14px/1.45 var(--fB);color:var(--tx);background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:8px 10px}
+.note::placeholder{color:var(--tx3)}
+.when{font-size:12px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.empty{color:var(--tx2);text-align:center;padding:40px 16px;border:1px dashed var(--line2);border-radius:14px;margin-top:24px}
+
+.summary>*,.prep-body>*,.filters>*,.group,.cases>*{min-width:0}
+@media (max-width:760px){
+  .filters{position:static}
+  .group{scroll-margin-top:16px}
+  .envs{grid-template-columns:minmax(0,1fr)}
+  .cbody{grid-template-columns:minmax(0,1fr)}
+  .cfoot{grid-template-columns:minmax(0,1fr)}
+  .counts{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="eyebrow"><span>PowerApp Web</span><span class="sep">/</span><span>Usuario · CU-U-08 a CU-U-13</span><span class="sep">/</span><span>Pruebas manuales</span></div>
+    <h1>Pruebas del plan del alumno</h1>
+    <p class="lede">Lo que ve y hace el alumno con su entrenamiento: el inicio semana por semana, el detalle de cada rutina y de cada ejercicio, sus RMs del ejercicio, marcar y desmarcar lo que hizo y dejar una nota, y cómo se ve todo cuando el entrenador cambia algo. Cada caso dice cómo probarlo y qué tenés que ver. Marcá el resultado y anotá lo que observes.</p>
+  </header>
+
+  <section class="summary" aria-label="Resumen">
+    <div class="counts">
+      <div class="count c-ok"><span class="n" id="n-ok">0</span><span class="l"><span class="dot"></span>Funciona</span></div>
+      <div class="count c-fail"><span class="n" id="n-fail">0</span><span class="l"><span class="dot"></span>Falla</span></div>
+      <div class="count c-retest"><span class="n" id="n-retest">0</span><span class="l"><span class="dot"></span>Re-testear</span></div>
+      <div class="count c-none"><span class="n" id="n-none">0</span><span class="l"><span class="dot"></span>Sin probar</span></div>
+    </div>
+    <div class="bar" role="img" id="bar" aria-label="Progreso"><span class="b-ok" id="b-ok"></span><span class="b-fail" id="b-fail"></span><span class="b-retest" id="b-retest"></span></div>
+    <div class="sumfoot">
+      <span class="save" id="save"><span class="dot"></span><span id="save-t">Conectando el guardado…</span></span>
+      <div class="actions">
+        <button type="button" class="btn" id="exp-res">Exportar resultados</button>
+        <button type="button" class="btn" id="imp-res">Importar resultados</button>
+        <button type="button" class="btn pri" id="copy-sum">Copiar resumen de fallas</button>
+        <input type="file" id="imp-file" accept=".json,application/json" hidden>
+      </div>
+    </div>
+    <div class="copyfall" id="copy-fall" hidden>
+      <label for="copy-fall-t" class="when">Tu navegador no dejó copiar automáticamente. El texto ya está seleccionado: copialo con Ctrl+C.</label>
+      <textarea id="copy-fall-t" readonly></textarea>
+    </div>
+    <p class="iomsg" id="io-msg" role="status" hidden></p>
+  </section>
+
+  <details class="prep" id="prep" open>
+    <summary><h2>Antes de empezar</h2><span class="chev"><span class="c-close">Ocultar</span><span class="c-open">Mostrar</span></span></summary>
+    <div class="prep-body">
+      <div>
+        <h3>Entornos</h3>
+        <div class="envs">
+          <div class="env"><span class="tag t-LOCAL">Local</span><p>Backend local en <code>localhost:3000</code> y el front con <code>npm run dev</code>. Hace falta para los casos con el servidor apagado.</p></div>
+          <div class="env"><span class="tag t-RENDER">Render</span><p><a href="https://powerapp-web.onrender.com" target="_blank" rel="noopener">powerapp-web.onrender.com</a> contra el backend de Render. Si marcar dentro del plan responde 404, Render todavía no tiene BE-20c: hacé esos casos en Local.</p></div>
+          <div class="env"><span class="tag t-TODOS">Cualquiera</span><p>El caso da lo mismo en los dos. Desde T44 el front no tiene mocks: todo va al backend real.</p></div>
+        </div>
+      </div>
+      <div>
+        <h3>Cuentas y datos</h3>
+        <ul class="tips">
+          <li><b>Una cuenta real de entrenador</b> para el grupo «Preparar el plan» y los cambios del entrenador. Las de demo ya no existen.</li>
+          <li><b>Un alumno de prueba nuevo,</b> registrado desde <code>/registro</code>: <button type="button" class="tok" data-copy="QA">QA</button> <button type="button" class="tok" data-copy="Alumno">Alumno</button>, con un email tuyo con sufijo, por ejemplo <button type="button" class="tok" data-copy="tuemail+qa-alumno@gmail.com">tuemail+qa-alumno@gmail.com</button>. Arranca sin planes, rutinas ni RMs.</li>
+          <li><b>Otro alumno cualquiera</b> (por ejemplo QA Detalle o QA Plan) para RUT-03.</li>
+          <li><b>Lo que arma el entrenador, con el prefijo «QA»:</b> los circuitos <button type="button" class="tok" data-copy="QA Circuito U">QA Circuito U</button> y <button type="button" class="tok" data-copy="QA Circuito U2">QA Circuito U2</button>, las rutinas <button type="button" class="tok" data-copy="QA Rutina U1">QA Rutina U1</button> y <button type="button" class="tok" data-copy="QA Rutina U2">QA Rutina U2</button> y la planificación <button type="button" class="tok" data-copy="QA Plan Alumno">QA Plan Alumno</button>.</li>
+          <li><b>Las rutinas individuales</b> (grupo «Rutinas individuales») las asigna el entrenador desde el detalle del alumno › Rutinas puntuales. Asignar y quitar se prueba en «Pruebas de rutinas».</li>
+          <li><b>Dos roles a la vez:</b> ventana normal para el entrenador y de incógnito para el alumno.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Cómo encararlo</h3>
+        <ul class="tips">
+          <li><b>Seguí el orden de la página.</b> Las marcas y los progresos que esperan los casos dependen de lo que hicieron los anteriores.</li>
+          <li><b>«Esta semana» es la semana 1 del plan:</b> PRE-03 lo asigna con inicio hoy. Los días que dicen los casos (hoy, ayer) son los de cuando probás.</li>
+          <li><b>DevTools › Network</b>, filtrado por <code>routine</code>, para ver qué requests salen y qué código responden.</li>
+          <li><b>Tildar series no guarda nada:</b> es una ayuda de la pantalla. Lo que queda registrado es «Marcar hecho», por ejercicio (CU-U-12).</li>
+          <li><b>Lo que hoy falla</b> está marcado con un aviso amarillo: un circuito que el entrenador saca de la rutina se muestra como «Circuito null» (CAM-04) y una rutina que no es de la planificación no lo aclara (RUT-04). Los dos los arregla el PR #70 (T51), que todavía no está en <code>develop</code>.</li>
+        </ul>
+      </div>
+    </div>
+  </details>
+
+  <div class="filters" id="filters">
+    <div class="chips" id="f-status" role="group" aria-label="Filtrar por resultado">
+      <span class="lbl">Resultado</span>
+    </div>
+    <div class="chips" id="f-env" role="group" aria-label="Filtrar por entorno">
+      <span class="lbl">Entorno</span>
+    </div>
+    <nav class="jump" id="jump" aria-label="Ir a un grupo"></nav>
+  </div>
+
+  <main id="groups"></main>
+  <p class="empty" id="empty" hidden>Ningún caso coincide con estos filtros.</p>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const PLAN_NAME = 'Pruebas del plan del alumno PowerApp';
+  const PAGE_ID = 'pruebas-plan-alumno-powerapp';
+  const DOCS = 'https://github.com/FranCarames/PowerApp-Docs/blob/main/Use%20Cases/';
+  const tok = (t) => `<button type="button" class="tok" data-copy="${t.replace(/"/g, '&quot;')}">${t}</button>`;
+  const ui = (t) => `<span class="ui">«${t}»</span>`;
+
+  const ENVS = { LOCAL: 'Local', RENDER: 'Render', TODOS: 'Cualquiera' };
+  const ENV_FILTERS = [['all', 'Todos'], ['LOCAL', 'Local'], ['RENDER', 'Render']];
+  const STATUSES = [
+    { v: 'ok', label: 'Funciona', ic: '✓' },
+    { v: 'fail', label: 'Falla', ic: '✕' },
+    { v: 'retest', label: 'Re-testear', ic: '↻' },
+  ];
+  const STATUS_LABEL = { ok: 'Funciona', fail: 'Falla', retest: 'Re-testear', none: 'Sin probar' };
+
+  const GROUPS = [
+    { id: 'pre', name: 'Preparar el plan', cu: null, sub: 'Lo arma el entrenador: dos circuitos, dos rutinas y una planificación' },
+    { id: 'hom', name: 'Inicio y semanas', cu: 'CU-U-08', file: 'usuario/CU-U-08-obtener-mi-planificacion.md' },
+    { id: 'rut', name: 'Detalle de la rutina', cu: 'CU-U-09', file: 'usuario/CU-U-09-ver-detalle-de-rutina.md' },
+    { id: 'eje', name: 'Detalle del ejercicio', cu: 'CU-U-10', file: 'usuario/CU-U-10-ver-detalle-de-un-ejercicio.md' },
+    { id: 'rms', name: 'Mis RMs del ejercicio', cu: 'CU-U-11', file: 'usuario/CU-U-11-ver-mis-rms-de-un-ejercicio.md' },
+    { id: 'mar', name: 'Marcar y desmarcar', cu: 'CU-U-12', file: 'usuario/CU-U-12-marcar-serie-como-realizado.md' },
+    { id: 'not', name: 'Notas', cu: 'CU-U-13', file: 'usuario/CU-U-13-dejar-una-nota-en-el-ejercicio.md' },
+    { id: 'ind', name: 'Rutinas individuales', cu: 'CU-U-08 y CU-U-09', file: 'usuario/CU-U-08-obtener-mi-planificacion.md', sub: 'Las rutinas puntuales que el entrenador asigna para un día' },
+    { id: 'cam', name: 'Cambios del entrenador', cu: 'CU-U-08 a CU-U-13', file: 'usuario/CU-U-09-ver-detalle-de-rutina.md', sub: 'Bajas, rutinas, circuitos y ejercicios quitados, y el plan quitado' },
+    { id: 'err', name: 'Errores y pantallas', cu: null, sub: 'Servidor caído, celular, escritorio y teclado' },
+    { id: 'fin', name: 'Cierre', cu: null, sub: 'Dejar el plan, las rutinas y los RMs de prueba fuera de uso' },
+  ];
+
+  const CASES = [
+    // ── Preparar el plan ────────────────────────────────────
+    { id: 'PRE-01', g: 'pre', t: 'Dos circuitos', env: ['TODOS'],
+      data: 'Tu cuenta real de entrenador.',
+      steps: [`Creá ${tok('QA Circuito U')} con dos ejercicios del catálogo: E1 con un bloque de 3 series de 8 reps con 60 kg y la nota del entrenador ${tok('Bajá lento')}; E2 con un bloque de 1 serie AMRAP.`, `Creá ${tok('QA Circuito U2')} con un ejercicio, E3, con un bloque de 2 series de 10 reps.`, 'Anotá qué ejercicios elegiste como E1, E2 y E3.'],
+      exp: '<p>Los dos circuitos quedan activos. Los casos siguientes llaman E1, E2 y E3 a esos ejercicios.</p>' },
+    { id: 'PRE-02', g: 'pre', t: 'Dos rutinas', env: ['TODOS'],
+      steps: [`Creá ${tok('QA Rutina U1')} con la nota ${tok('Calentá antes')} y los circuitos QA Circuito U y QA Circuito U2, en ese orden.`, `Creá ${tok('QA Rutina U2')} con QA Circuito U2.`],
+      exp: '<p>Las dos rutinas quedan activas.</p>' },
+    { id: 'PRE-03', g: 'pre', t: 'La planificación, asignada', env: ['TODOS'],
+      steps: [`Creá ${tok('QA Plan Alumno')}: 2 semanas, 3 rutinas previstas.`, 'Agregale QA Rutina U1 y QA Rutina U2 a la semana 1, en ese orden, y QA Rutina U1 a la semana 2.', `Tocá Asignar y elegí a QA Alumno: inicio hoy, fin el domingo de dentro de dos semanas (la semana 3, una más que la duración) y la nota ${tok('Arrancá suave')}.`],
+      exp: '<p>Se asigna con ese fin. QA Alumno queda con un plan de tres semanas de calendario: dos con rutinas y una vacía.</p>' },
+
+    // ── Inicio y semanas ────────────────────────────────────
+    { id: 'HOM-01', g: 'hom', t: 'El inicio', env: ['TODOS'],
+      data: 'QA Alumno, en incógnito.',
+      steps: ['Entrá como QA Alumno.', 'Mirá el inicio y el request en Network.'],
+      exp: `<ul><li>Abre <code>/u/plan</code> con ${ui('Hola, QA 👋')}, el título ${ui('Tu plan')}, el botón ${ui('Biblioteca de ejercicios')} y ${ui('Rutinas de la semana')} con ${ui('Esta semana')} y su rango de días.</li><li>La tarjeta de ${ui('QA Plan Alumno')} dice ${ui('Semana 1 de 2 · 0 de 4 ejercicios')}, ${ui('0%')} con su barra y ${ui('Tu entrenador: Arrancá suave')}. Debajo, ${ui('A')} QA Rutina U1 (${ui('0 de 3 ejercicios')}) y ${ui('B')} QA Rutina U2 (${ui('0 de 1 ejercicio')}), sin día.</li><li>Sale <code>GET /routine/home/{userId}?date=&lt;lunes&gt;&amp;week=1</code>. Aunque el plan arrancó hoy, la semana muestra todas sus rutinas. (CU-U-08)</li></ul>` },
+    { id: 'HOM-02', g: 'hom', t: 'Moverse de semana', env: ['TODOS'],
+      steps: [`Tocá ${ui('Semana siguiente')} tres veces, mirando cada semana.`, 'Recargá la página.', `Tocá ${ui('Volver a esta semana')}.`, `Tocá ${ui('Semana anterior')}.`],
+      exp: `<ul><li>${ui('Próxima semana')}: ${ui('Semana 2 de 2 · 0 de 3 ejercicios')} y solo ${ui('A')} QA Rutina U1. La dirección lleva <code>?semana=&lt;lunes&gt;</code> y aparece ${ui('Volver a esta semana')}.</li><li>${ui('En 2 semanas')}: ${ui('Semana 3 · Sin ejercicios')} (hasta que entre el PR #70, «Semana 3 de 2») y ${ui('Esta semana del plan no tiene rutinas.')} (CU-U-08, una semana del plan sin rutinas). ${ui('En 3 semanas')}: ${ui('Sin rutinas esta semana')} y ${ui('Todavía no tenés entrenamiento asignado para estos días. Probá con otra semana o consultale a tu entrenador.')} (CU-U-08, una semana sin nada)</li><li>Al recargar sigue en la misma semana. Volver a esta semana vuelve a la actual y limpia la dirección. ${ui('Semana pasada')}, antes del inicio, está vacía. (CU-U-08, el alumno se mueve a otras semanas)</li></ul>` },
+    { id: 'HOM-03', g: 'hom', t: 'Semana en la dirección', env: ['TODOS'],
+      steps: ['Abrí <code>/u/plan?semana=abc</code>.', 'Abrí <code>/u/plan?semana=</code> con el miércoles de la próxima semana (<code>AAAA-MM-DD</code>).'],
+      exp: '<p>Con abc muestra esta semana, sin error. Con el miércoles muestra la próxima semana entera, de lunes a domingo. La web nunca le manda al backend un día inválido.</p>' },
+    { id: 'HOM-04', g: 'hom', t: 'Volver conserva la semana', env: ['TODOS'],
+      steps: ['En la próxima semana, abrí A.', 'Tocá Volver.'],
+      exp: '<p>Vuelve al inicio en la próxima semana, no en la actual.</p>' },
+
+    // ── Detalle de la rutina ────────────────────────────────
+    { id: 'RUT-01', g: 'rut', t: 'Abrir una rutina del plan', env: ['TODOS'],
+      steps: ['En esta semana, tocá A.', 'Mirá la pantalla y el request en Network.'],
+      exp: `<ul><li>Abre <code>/u/rutina/plan/{asignación}/{rutina del plan}</code> con ${ui('QA Plan Alumno · Semana 1 de 2')} arriba y el título ${ui('QA Rutina U1')}. Sale <code>GET /routine/assign-plan/{…}/{…}</code>.</li><li>Tres números: ${ui('3')} ${ui('ejercicios')}, ${ui('6')} ${ui('series')} y ${ui('0/3')} ${ui('hechos')}. Después ${ui('Nota del plan: Arrancá suave')} y ${ui('Nota de tu entrenador: Calentá antes')}.</li><li>${ui('Circuito 1 · QA Circuito U')} con su tipo, y E1 (${ui('3×8 · 60 kg')}) y E2 (${ui('1×AMRAP')}, o ${ui('1×N+')} si le pusiste un objetivo); ${ui('Circuito 2 · QA Circuito U2')} con E3 (${ui('2×10')}). Cada ejercicio con su foto o ícono y una flecha. (CU-U-09)</li></ul>` },
+    { id: 'RUT-02', g: 'rut', t: 'Abrir por enlace directo', env: ['TODOS'],
+      steps: ['Copiá la dirección de la rutina A y abrila en otra pestaña de incógnito.', 'Tocá Volver.'],
+      exp: '<p>La rutina carga igual. Volver lleva al inicio en esta semana.</p>' },
+    { id: 'RUT-03', g: 'rut', t: 'La rutina de otro alumno', env: ['TODOS'],
+      data: 'Otro alumno de prueba, en otra ventana de incógnito o después de cerrar sesión.',
+      steps: ['Entrá como el otro alumno y abrí la dirección de la rutina A de QA Alumno.'],
+      exp: `<p>${ui('Esta rutina no es tuya')} y ${ui('Solo podés ver las rutinas que te asignaron a vos.')}, sin Reintentar. El backend responde 403. (CU-U-09, asignación de otro alumno)</p>` },
+    { id: 'RUT-04', g: 'rut', t: 'Un enlace roto', env: ['TODOS'],
+      steps: ['Como QA Alumno, cambiá el último carácter del id de la rutina del plan en la dirección.', 'Abrí <code>/u/rutina/plan/abc/abc</code>.'],
+      exp: `<p>Los dos dicen ${ui('No encontramos la rutina')}, sin Reintentar. El primero aclara ${ui('Esa rutina no es de tu planificación. Volvé al inicio y abrila desde ahí.')} (CU-U-09, la rutina no es de la planificación); el de abc, ${ui('Puede que tu entrenador la haya cambiado. Volvé al inicio y buscala de nuevo.')}</p>`,
+      kt: 'Hoy no cumple el CU.', known: 'Hoy el primero también dice «Puede que tu entrenador la haya cambiado…»: no aclara que la rutina no es de la planificación, aunque el backend lo dice. Lo arregla el PR #70 (T51), que todavía no está en <code>develop</code>. Marcalo Falla si no ves el texto.' },
+
+    // ── Detalle del ejercicio ───────────────────────────────
+    { id: 'EJE-01', g: 'eje', t: 'Abrir un ejercicio', env: ['TODOS'],
+      steps: ['En la rutina A, tocá E1.', 'Recorré la pantalla de arriba abajo.'],
+      exp: `<ul><li>Arriba: ${ui('Circuito 1 · QA Circuito U')}, el nombre de E1 y su cabecera con la imagen y los músculos.</li><li>Dos recuadros: ${ui('Sin RM')} con ${ui('Registrar RM')}, y ${ui('3×8')} con ${ui('Series objetivo')}.</li><li>${ui('Mis series')} con ${ui('0 de 3 hechas')}: ${ui('Serie 1')}, ${ui('Serie 2')} y ${ui('Serie 3')}, cada una con ${ui('8 reps · 60 kg')} y ${ui('Normal')}. Después ${ui('Temporizador de descanso')} y ${ui('Nota de tu entrenador: Bajá lento')}.</li><li>${ui('Tu registro')} con ${ui('Dejar nota')}, ${ui('Marcar hecho')} y ${ui('Lo hice otro día')}. Al costado o debajo, ${ui('Mis RMs')} y lo que el ejercicio tenga del catálogo (${ui('Descripción')}, tips, ${ui('Video')}). (CU-U-10)</li></ul>` },
+    { id: 'EJE-02', g: 'eje', t: 'Un ejercicio AMRAP', env: ['TODOS'],
+      steps: ['Volvé a la rutina y abrí E2.'],
+      exp: `<p>${ui('Series objetivo')} dice ${ui('1×AMRAP')} y la única serie, ${ui('Máximas reps')} con ${ui('AMRAP')} (con un objetivo N: ${ui('1×N+')} y ${ui('N+ reps')}). (CU-U-10, paso 3)</p>` },
+    { id: 'EJE-03', g: 'eje', t: 'Tildar series', env: ['TODOS'],
+      steps: ['En E1, tocá Serie 1 y Serie 2.', 'Volvé a la rutina y entrá de nuevo a E1.', 'Recargá la página.'],
+      exp: `<p>Cada serie se tilda y la siguiente queda resaltada; arriba dice ${ui('2 de 3 hechas')}. Al volver a entrar siguen tildadas. Al recargar se pierden, y la rutina sigue con ${ui('0/3')} ${ui('hechos')}: tildar no guarda nada, no sale ningún request. (CU-U-12: el tildado serie por serie es de la interfaz)</p>` },
+    { id: 'EJE-04', g: 'eje', t: 'Temporizador y ejercicio que no está', env: ['TODOS'],
+      steps: ['En E1, tocá Temporizador de descanso y volvé con Atrás.', 'Cambiá el último carácter del id del ejercicio en la dirección.'],
+      exp: `<p>El botón abre <code>/u/timer</code> y Atrás vuelve al ejercicio. Con el id cambiado: ${ui('No encontramos el ejercicio')} y ${ui('Puede que tu entrenador lo haya sacado de la rutina. Volvé a la rutina y buscalo de nuevo.')}</p>` },
+
+    // ── Mis RMs del ejercicio ───────────────────────────────
+    { id: 'RMS-01', g: 'rms', t: 'Sin RMs de este ejercicio', env: ['TODOS'],
+      steps: ['En E1, mirá Mis RMs.'],
+      exp: `<p>${ui('Todavía no tenés RMs de este ejercicio')}, ${ui('Registrá el primero para tenerlo a mano mientras entrenás.')} y el botón ${ui('Registrar RM')}. (CU-U-11, sin RMs registrados)</p>` },
+    { id: 'RMS-02', g: 'rms', t: 'Registrar y ver los RMs', env: ['TODOS'],
+      steps: ['Tocá Registrar RM: 90 kg, 3 repeticiones, con fecha de la semana pasada.', 'Registrá otro: 100 kg, 1 repetición, hoy.', 'Registrá uno de otro ejercicio desde Mis RMs y volvé a E1.'],
+      exp: `<p>${ui('Registrar RM')} abre con E1 ya elegido; cada uno confirma ${ui('RM registrado')}. ${ui('Mis RMs')} dice ${ui('2 registrados')}: primero ${ui('100 kg')} (${ui('1 repetición · …')}) y después ${ui('90 kg')} (${ui('3 repeticiones · …')}). El de otro ejercicio no aparece. ${ui('Tu RM actual')} muestra ${ui('100 kg')} con ${ui('1 rep · …')}. (CU-U-11)</p>` },
+
+    // ── Marcar y desmarcar ──────────────────────────────────
+    { id: 'MAR-01', g: 'mar', t: 'Marcar hecho', env: ['TODOS'],
+      steps: [`En E1, tocá ${ui('Marcar hecho')} y mirá el body.`, 'Volvé a la rutina y después al inicio.'],
+      exp: `<ul><li>${ui('Ejercicio marcado como hecho')}. ${ui('Tu registro')} muestra ${ui('Hecho')} y ${ui('Lo hiciste el …')} con hoy; las tres series quedan tildadas (${ui('3 de 3 hechas')}). Los botones pasan a ${ui('Dejar nota')}, ${ui('Desmarcar')} y ${ui('Cambiar el día')}.</li><li><code>POST /routine/assign-plan/{…}/{…}/finished</code> con el ejercicio y el día de hoy. (CU-U-12)</li><li>En la rutina, E1 se apaga con ${ui('Hecho')} y ${ui('Hecho el …')}, y arriba ${ui('1/3')}. En el inicio, A dice ${ui('1 de 3 ejercicios')} y la tarjeta ${ui('1 de 4 ejercicios')} con ${ui('25%')}.</li></ul>` },
+    { id: 'MAR-02', g: 'mar', t: 'Marcar otro día', env: ['TODOS'],
+      steps: [`En E2, tocá ${ui('Lo hice otro día')}.`, 'Borrá el día y guardá.', 'Elegí ayer y guardá.'],
+      exp: `<p>${ui('Marcar como hecho')}: ${ui('Indicá el día en que lo hiciste y, si querés, dejá una nota. Al guardar, el ejercicio queda hecho.')}, con ${ui('Día en que lo hiciste')} en hoy (no deja elegir días futuros), ${ui('Tu nota')} con ${ui('0/100 caracteres')} y ${ui('Guardar y marcar')}. Sin día: ${ui('Elegí el día')}. Con ayer: ${ui('Ejercicio marcado como hecho')} y ${ui('Lo hiciste el …')} con la fecha de ayer. (CU-U-12, marcar en diferido)</p>` },
+    { id: 'MAR-03', g: 'mar', t: 'Corregir el día', env: ['TODOS'],
+      steps: [`En E2, tocá ${ui('Cambiar el día')}, elegí anteayer y guardá.`, 'Volvé a la rutina.'],
+      exp: `<p>${ui('Tu registro')}: ${ui('Corregí el día en que lo hiciste o editá tu nota.')} con el día de ayer cargado y ${ui('Guardar')}. Al guardar: ${ui('Registro actualizado')} con la fecha nueva. La rutina sigue en ${ui('2/3')}: no se duplicó. (CU-U-12, corregir el día)</p>` },
+    { id: 'MAR-04', g: 'mar', t: 'Desmarcar', env: ['TODOS'],
+      steps: ['En E1, que no tiene nota, tocá Desmarcar.', 'Mirá el request y la rutina.'],
+      exp: `<p>No pide confirmación: ${ui('Ejercicio desmarcado')}, las series vuelven a ${ui('0 de 3 hechas')} y aparece Marcar hecho. Sale <code>DELETE /routine/assign-plan/{…}/{…}/finished/{ejercicio}</code>. La rutina vuelve a ${ui('1/3')}. (CU-U-12, desmarcar el ejercicio)</p>` },
+    { id: 'MAR-05', g: 'mar', t: 'Otra semana es otra rutina', env: ['TODOS'],
+      steps: ['Pasá a la próxima semana y abrí A (QA Rutina U1 de la semana 2).', 'Marcá E3.', 'Volvé a esta semana y abrí A.'],
+      exp: '<p>En la semana 2, E2 no está hecho: las marcas son de cada rutina del plan. Marcar E3 de una semana futura se acepta (CU-U-12, marcar fuera de fecha). En la semana 1, E3 sigue sin marcar.</p>' },
+    { id: 'MAR-06', g: 'mar', t: 'Marcar dos veces', env: ['TODOS'],
+      steps: ['Abrí E1 de la semana 1 en dos pestañas.', 'Tocá Marcar hecho en las dos.', 'Tocá Desmarcar en las dos.'],
+      exp: '<p>Las dos responden bien y no queda ningún registro duplicado: la rutina queda en «2/3» después de marcar y en «1/3» después de desmarcar. (CU-U-12, marcado repetido)</p>' },
+    { id: 'MAR-07', g: 'mar', t: 'La misma planificación dos veces', env: ['TODOS'],
+      steps: ['Como entrenador, asignale QA Plan Alumno a QA Alumno otra vez, desde hoy, con Asignar igual.', 'Como QA Alumno, recargá el inicio.', 'Como entrenador, quitá la más nueva desde las Planificaciones de QA Alumno.'],
+      exp: '<p>El inicio muestra dos tarjetas de QA Plan Alumno: la primera con lo que ya marcaste y la segunda en 0. Cada asignación tiene sus propias marcas (CU-U-08, dos planificaciones en la misma semana, y CU-U-12). Al quitarla, desaparece la segunda.</p>' },
+
+    // ── Notas ───────────────────────────────────────────────
+    { id: 'NOT-01', g: 'not', t: 'Nota en un ejercicio sin marcar', env: ['TODOS'],
+      steps: [`En E1 de la semana 1, sin marcar, tocá ${ui('Dejar nota')}.`, `Escribí ${tok('Me costó la última serie')} y tocá Guardar y marcar.`, 'Volvé a la rutina.'],
+      exp: `<p>Abre ${ui('Marcar como hecho')}; el contador avanza. Al guardar: ${ui('Ejercicio marcado como hecho')}, la nota aparece en Tu registro y el botón pasa a ${ui('Editar nota')}. En la rutina, E1 muestra ${ui('“Me costó la última serie”')}. (CU-U-13, ejercicio todavía sin marcar)</p>` },
+    { id: 'NOT-02', g: 'not', t: 'Editar la nota y guardar sin cambios', env: ['TODOS'],
+      steps: [`Tocá ${ui('Editar nota')}, cambiala a ${tok('Bien la técnica')} y guardá.`, 'Abrila otra vez y guardá sin cambiar nada.'],
+      exp: `<p>${ui('Registro actualizado')} con la nota nueva y el mismo día. Guardar igual responde bien y no cambia nada. (CU-U-13 y su camino sin cambios en la nota)</p>` },
+    { id: 'NOT-03', g: 'not', t: 'Nota demasiado larga', env: ['TODOS'],
+      steps: ['En Editar nota, pegá un texto de 120 caracteres.'],
+      exp: `<p>Se corta en 100 y el contador dice ${ui('100/100 caracteres')}. (CU-U-13, nota demasiado larga)</p>` },
+    { id: 'NOT-04', g: 'not', t: 'Vaciar la nota', env: ['TODOS'],
+      steps: ['En Editar nota, borrá todo y guardá.'],
+      exp: `<p>${ui('Registro actualizado')}: la nota desaparece, el ejercicio sigue ${ui('Hecho')} y el botón vuelve a ${ui('Dejar nota')}. (CU-U-13, nota vacía)</p>` },
+    { id: 'NOT-05', g: 'not', t: 'Desmarcar con nota', env: ['TODOS'],
+      steps: ['Dejale otra nota a E1.', 'Tocá Desmarcar, cancelá, y tocalo de nuevo y confirmá.'],
+      exp: `<p>${ui('Desmarcar el ejercicio')}: ${ui('Se borra también la nota que dejaste. ¿Querés desmarcarlo?')} Cancelar no cambia nada. Al confirmar: ${ui('Ejercicio desmarcado')} y la nota se va con el registro. (CU-U-13, desmarcar el ejercicio)</p>` },
+
+    // ── Rutinas individuales ────────────────────────────────
+    { id: 'IND-01', g: 'ind', t: 'Una rutina individual junto al plan', env: ['TODOS'],
+      steps: ['Como entrenador, en el detalle de QA Alumno, abrí Rutinas puntuales › Asignar rutina y asignale QA Rutina U2 para hoy.', 'Como QA Alumno, recargá el inicio.'],
+      exp: `<p>Debajo del plan aparece ${ui('Rutinas individuales')} con QA Rutina U2: el día abreviado (por ejemplo «Lun 26 Oct»), ${ui('0 de 1 ejercicio')} y ${ui('Hoy')}. (CU-U-08, con plan y con rutinas individuales)</p>` },
+    { id: 'IND-02', g: 'ind', t: 'Abrirla y marcarla', env: ['TODOS'],
+      steps: ['Abrí la rutina individual.', 'Abrí E3 y marcalo hecho.', 'Volvé al inicio.'],
+      exp: `<p>Abre <code>/u/rutina/{id}</code> con el día arriba y sin nota del plan. Marcar sale por <code>POST /routine/assign-user/{id}/finished</code>. En el inicio, la fila queda apagada con ${ui('Hecha')} y ${ui('1 de 1 ejercicio')}. (CU-U-09 y CU-U-12 por la vía individual)</p>` },
+    { id: 'IND-03', g: 'ind', t: 'Una semana solo con individuales', env: ['TODOS'],
+      steps: ['Como entrenador, asignale a QA Alumno QA Rutina U2 para el lunes de dentro de cuatro semanas (después del plan), desde sus Rutinas puntuales.', 'Como QA Alumno, avanzá hasta esa semana.'],
+      exp: '<p>Esa semana muestra solo la rutina individual, sin la tarjeta del plan y sin el título «Rutinas individuales». (CU-U-08, sin plan esa semana pero con rutinas individuales)</p>' },
+
+    // ── Cambios del entrenador ──────────────────────────────
+    { id: 'CAM-01', g: 'cam', t: 'Rutina o planificación dadas de baja', env: ['TODOS'],
+      steps: ['Como entrenador, eliminá QA Rutina U2 y QA Plan Alumno.', 'Como QA Alumno, recargá el inicio y abrí B.', 'Abrí E3 en B y marcalo hecho.', 'Como entrenador, reactivá las dos.'],
+      exp: `<p>En el inicio, la tarjeta del plan muestra ${ui('Dada de baja')} y la fila de B suma ${ui('Dada de baja')}. En B: ${ui('Esta planificación fue dada de baja, pero podés seguir entrenando.')} y ${ui('Esta rutina fue dada de baja, pero podés seguir entrenándola.')}, y marcar funciona. (CU-U-08 y CU-U-09, dadas de baja después de asignarlas)</p>` },
+    { id: 'CAM-02', g: 'cam', t: 'Rutina quitada del plan, con algo hecho', env: ['TODOS'],
+      steps: ['Como entrenador, abrí QA Plan Alumno y quitá QA Rutina U1 de la semana 1. Dejá el editor abierto.', 'Como QA Alumno, recargá el inicio y abrí A.', 'Abrí E2 y editá su nota.'],
+      exp: `<ul><li>En el inicio, A queda apagada con ${ui('Quitada')} y ${ui('Quitada del plan · 1 ejercicio hecho')}. (CU-U-08, el entrenador quitó una rutina del plan)</li><li>En la rutina: ${ui('Tu entrenador quitó esta rutina del plan. Ves solo los ejercicios que ya hiciste.')} y solo E2, el que estaba hecho. E1 y E3 no aparecen como pendientes. (CU-U-09, el entrenador quitó la rutina del plan)</li><li>La nota de E2 se puede editar: ${ui('Registro actualizado')}. (CU-U-13, el entrenador sacó el ejercicio de la rutina)</li></ul>` },
+    { id: 'CAM-03', g: 'cam', t: 'Desmarcar lo último de una rutina quitada', env: ['TODOS'],
+      steps: ['En E2 de la rutina quitada, tocá Desmarcar (confirmá si pregunta).', 'Recargá la rutina y el inicio.', 'Como entrenador, reincorporá QA Rutina U1 a su lugar desde el editor que dejaste abierto.'],
+      exp: `<p>Desmarcar se acepta (CU-U-12, desmarcar en una rutina quitada del plan). Sin nada hecho, la rutina muestra ${ui('No encontramos la rutina')} y ${ui('Tu entrenador la quitó del plan y no hiciste nada en ella.')}, y el inicio ya no la muestra (CU-U-09 y CU-U-08). Al reincorporarla vuelve a aparecer como A.</p>` },
+    { id: 'CAM-04', g: 'cam', t: 'Circuito sacado de la rutina, con algo hecho', env: ['TODOS'],
+      steps: ['Como QA Alumno, marcá E3 en A de la semana 1.', 'Como entrenador, sacá QA Circuito U2 de QA Rutina U1 y guardala.', 'Como QA Alumno, recargá la rutina A y el inicio.'],
+      exp: '<p>El circuito sigue en la rutina, al final, como «Sacado de la rutina · QA Circuito U2», con E3, el ejercicio hecho, y nada más (CU-U-09, un circuito fue dado de baja). El encabezado de E3 dice lo mismo. Los números siguen contando E3 y en el inicio A dice «1 de 3 ejercicios» (CU-U-08, un ejercicio fue dado de baja).</p>',
+      kt: 'Hoy falla.', known: 'El backend manda ese circuito con <code>order: null</code> (lo saca de la rutina sin posición) y el contrato dice que el orden siempre es un número. Hoy la pantalla arma «Circuito null · QA Circuito U2» y lo pone primero, y el ejercicio dice lo mismo arriba. Lo arregla el PR #70 (T51), que todavía no está en <code>develop</code>; el contrato lo tiene que corregir el backend. Marcalo Falla si lo ves.' },
+    { id: 'CAM-05', g: 'cam', t: 'Marcar mientras quitan la rutina', env: ['TODOS'],
+      steps: ['Como QA Alumno, en A de la semana 1, desmarcá E3 (el del circuito sacado) y abrí E1 sin marcarlo.', 'Como entrenador, quitá QA Rutina U1 de la semana 1. Dejá el editor abierto.', 'Como QA Alumno, tocá Marcar hecho.', 'Como entrenador, reincorporala a su lugar.'],
+      exp: `<p>Aviso: ${ui('No pudimos guardarlo. Puede que tu entrenador haya cambiado la rutina o te haya quitado la planificación: actualizamos la pantalla.')} La marca se revierte y la pantalla pasa a ${ui('No encontramos la rutina')} con ${ui('Tu entrenador la quitó del plan y no hiciste nada en ella.')} El backend responde 400. (CU-U-12, el entrenador quitó la rutina del plan)</p>` },
+    { id: 'CAM-06', g: 'cam', t: 'Plan quitado al alumno', env: ['TODOS'],
+      steps: ['Como QA Alumno, marcá E1 en A de la semana 1 y dejá abierto E2.', 'Como entrenador, quitá QA Plan Alumno desde las Planificaciones de QA Alumno.', 'Como QA Alumno, tocá Marcar hecho en E2.', 'Volvé a la rutina, abrí E1 y recargá el inicio.'],
+      exp: `<ul><li>Marcar E2 falla con el mismo aviso y la pantalla se actualiza. (CU-U-12, la planificación fue quitada)</li><li>La rutina dice ${ui('Tu entrenador te quitó esta planificación. Podés ver lo que hiciste, pero ya no se puede marcar ni anotar.')} y conserva E1 hecho. (CU-U-09, el entrenador quitó la planificación)</li><li>En E1 no hay botones: ${ui('Tu entrenador te quitó esta planificación: ya no se puede marcar ni anotar. Podés seguir viendo tus RMs.')} Las series no se tildan y Mis RMs sigue. (CU-U-10, paso 4, y CU-U-13)</li><li>El inicio ya no muestra el plan. (CU-U-08, planificación quitada al alumno)</li></ul>` },
+    { id: 'CAM-07', g: 'cam', t: 'Reincorporar el plan', env: ['TODOS'],
+      steps: ['Como entrenador, reincorporá QA Plan Alumno desde las Planificaciones de QA Alumno.', 'Como QA Alumno, recargá el inicio y abrí E1.'],
+      exp: '<p>El plan vuelve al inicio con lo que ya estaba marcado, y E1 vuelve a tener sus botones.</p>' },
+    { id: 'CAM-08', g: 'cam', t: 'Ejercicio sacado de un circuito, con algo hecho', env: ['TODOS'],
+      steps: ['Como entrenador, editá QA Circuito U: sacale E1 y E2, agregale otro ejercicio del catálogo, E4, con un bloque de 3 series de 10 reps, y guardalo aceptando el aviso.', 'Como QA Alumno, recargá A de la semana 1 y abrí E1.', 'Recargá el inicio.'],
+      exp: '<ul><li>En A, QA Circuito U muestra E1, que estaba hecho, y E4, pendiente. E2, que el alumno no hizo, ya no aparece. (CU-U-09, paso 4: un ejercicio fue dado de baja)</li><li>E1 se abre con su registro y sus RMs.</li><li>En el inicio, A sigue contando E1 como hecho y suma E4 como pendiente. (CU-U-08, un ejercicio fue dado de baja)</li></ul>' },
+
+    // ── Errores y pantallas ─────────────────────────────────
+    { id: 'ERR-01', g: 'err', t: 'Servidor caído', env: ['LOCAL'],
+      steps: ['Apagá el backend local y recargá el inicio, una rutina y un ejercicio.', 'Prendelo y tocá Reintentar.', 'Con un ejercicio abierto, apagalo de nuevo y tocá Marcar hecho.'],
+      exp: `<p>Cada pantalla muestra ${ui('No pudimos cargar los datos')} con Reintentar, y con el backend prendido carga. Al marcar, el ejercicio se ve hecho un instante, vuelve a como estaba y aparece un aviso de error. (CU-U-12, error de persistencia)</p>` },
+    { id: 'ERR-02', g: 'err', t: 'Celular y escritorio', env: ['TODOS'],
+      steps: ['Recorré el inicio, una rutina, un ejercicio y el modal de Tu registro en el celular, o en DevTools a 390 px.', 'Repetí en escritorio.'],
+      exp: '<ul><li>Sin scroll horizontal ni textos cortados; el selector de semana entra junto al título.</li><li>En escritorio, las rutinas del inicio y los ejercicios van en dos columnas, y el ejercicio pone Mis RMs y el catálogo a la derecha.</li><li>El modal sale como hoja desde abajo en el celular y centrado en escritorio.</li></ul>' },
+    { id: 'ERR-03', g: 'err', t: 'Teclado y lector de pantalla', env: ['TODOS'],
+      steps: ['Recorré el inicio, la rutina y el ejercicio solo con Tab y Enter.'],
+      exp: '<p>El foco siempre se ve. El selector se anuncia como «Semana anterior» y «Semana siguiente» y lee la semana nueva al cambiar. Cada serie es un botón que dice si está tildada.</p>' },
+
+    // ── Cierre ──────────────────────────────────────────────
+    { id: 'FIN-01', g: 'fin', t: 'Dejar lo de prueba fuera de uso', env: ['TODOS'],
+      steps: ['Como entrenador, quitá QA Plan Alumno desde las Planificaciones de QA Alumno.', 'Renombrá QA Plan Alumno con «QA (no usar)» adelante y eliminala.', 'Eliminá QA Rutina U1 y U2, y desactivá QA Circuito U y U2.', 'En las Rutinas puntuales de QA Alumno, quitá la de IND-03. La de IND-01 tiene E3 hecho: desmarcalo antes como QA Alumno y después quitala.', 'Como QA Alumno, borrá los RMs de RMS-02 desde Mis RMs.'],
+      exp: `<p>El inicio de QA Alumno queda en ${ui('Sin rutinas esta semana')} en todas las semanas y Mis RMs, vacío. Lo de prueba queda solo entre lo inactivo.</p>` },
+  ];
+
+  // ── Estado ────────────────────────────────────────────────
+  const LOCAL_KEY = 'powerapp.pruebas-plan-alumno.v1';
+  const blank = () => ({ status: null, note: '', at: null });
+  const state = Object.fromEntries(CASES.map((c) => [c.id, blank()]));
+  let db = null;
+  let mode = 'connecting'; // connecting | db | local | error
+  let fStatus = 'all';
+  let fEnv = 'all';
+  const writing = new Set();
+  const dirty = new Set();
+  const pending = new Set();
+  const noteTimers = {};
+
+  const $ = (s, el = document) => el.querySelector(s);
+  const statusOf = (id) => state[id].status || 'none';
+
+  function fmtWhen(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+
+  // ── Render estático ──────────────────────────────────────
+  function caseHtml(c) {
+    const envs = c.env.map((e) => `<span class="tag t-${e}">${ENVS[e]}</span>`).join('');
+    const steps = c.steps.map((s) => `<li>${s}</li>`).join('');
+    const seg = STATUSES.map((s) => `<button type="button" class="sb v-${s.v}" data-v="${s.v}" aria-pressed="false"><span class="ic" aria-hidden="true">${s.ic}</span>${s.label}</button>`).join('');
+    return `<article class="case" id="case-${c.id}" data-id="${c.id}" data-status="none">
+      <div class="chead"><span class="cid">${c.id}</span><h3>${c.t}</h3><div class="ctags">${envs}<span class="pill" data-pill>Sin probar</span></div></div>
+      ${c.data ? `<p class="cdata"><b>Datos:</b> ${c.data}</p>` : ''}
+      <div class="cbody"><div><h4>Cómo probarlo</h4><ol class="steps">${steps}</ol></div><div class="expect"><h4>Qué tenés que ver</h4>${c.exp}</div></div>
+      ${c.known ? `<div class="known" role="note"><span><b>${c.kt || 'Hoy falla.'}</b> ${c.known}</span></div>` : ''}
+      <div class="cfoot">
+        <div class="seg" role="group" aria-label="Resultado de ${c.id}">${seg}</div>
+        <div class="notewrap">
+          <label class="when" for="note-${c.id}"><span data-when>Sin marcar</span></label>
+          <textarea class="note" id="note-${c.id}" rows="1" placeholder="Qué viste, si algo no coincide (opcional)"></textarea>
+        </div>
+      </div>
+    </article>`;
+  }
+
+  function renderStatic() {
+    const root = $('#groups');
+    root.innerHTML = GROUPS.map((g) => {
+      const cases = CASES.filter((c) => c.g === g.id);
+      const cu = g.cu ? `<a class="cu" href="${DOCS}${g.file}" target="_blank" rel="noopener">${g.cu}</a>` : '';
+      return `<section class="group" id="${g.id}" data-g="${g.id}">
+        <div class="ghead"><h2>${g.name}</h2>${cu}${g.sub ? `<span class="gsub">${g.sub}</span>` : ''}<span class="gprog" data-gprog></span></div>
+        <div class="cases">${cases.map(caseHtml).join('')}</div>
+      </section>`;
+    }).join('');
+
+    $('#jump').innerHTML = GROUPS.map((g) => `<a href="#${g.id}" data-jump="${g.id}">${g.name}<span class="p" data-jp></span></a>`).join('');
+
+    const st = $('#f-status');
+    [['all', 'Todos'], ['none', 'Sin probar'], ['fail', 'Falla'], ['retest', 'Re-testear'], ['ok', 'Funciona']].forEach(([v, l]) => {
+      st.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-fs="${v}" aria-pressed="${v === 'all'}">${l}<span class="k" data-k="${v}"></span></button>`);
+    });
+    const en = $('#f-env');
+    ENV_FILTERS.forEach(([v, l]) => {
+      en.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-fe="${v}" aria-pressed="${v === 'all'}">${l}</button>`);
+    });
+  }
+
+  // ── Render dinámico ──────────────────────────────────────
+  function updateCard(id) {
+    const card = document.getElementById('case-' + id);
+    if (!card) return;
+    const s = state[id];
+    const st = statusOf(id);
+    card.dataset.status = st;
+    card.querySelectorAll('.sb').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === s.status)));
+    const pill = card.querySelector('[data-pill]');
+    pill.textContent = STATUS_LABEL[st];
+    pill.className = 'pill' + (st === 'none' ? '' : ' s-' + st);
+    const ta = card.querySelector('.note');
+    if (document.activeElement !== ta && ta.value !== s.note) ta.value = s.note;
+    card.querySelector('[data-when]').textContent = s.at ? 'Actualizado ' + fmtWhen(s.at) : 'Sin marcar';
+  }
+
+  function visible(c) {
+    const st = statusOf(c.id);
+    if (fStatus !== 'all' && st !== fStatus) return false;
+    if (fEnv !== 'all' && !c.env.includes(fEnv) && !c.env.includes('TODOS')) return false;
+    return true;
+  }
+
+  function applyFilters() {
+    let any = false;
+    GROUPS.forEach((g) => {
+      let shown = 0;
+      CASES.filter((c) => c.g === g.id).forEach((c) => {
+        const v = visible(c);
+        document.getElementById('case-' + c.id).hidden = !v;
+        if (v) shown++;
+      });
+      document.getElementById(g.id).hidden = shown === 0;
+      if (shown) any = true;
+    });
+    $('#empty').hidden = any;
+  }
+
+  function updateSummary() {
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const total = CASES.length;
+    ['ok', 'fail', 'retest', 'none'].forEach((k) => { $('#n-' + k).textContent = n[k]; });
+    ['ok', 'fail', 'retest'].forEach((k) => { $('#b-' + k).style.width = (n[k] / total * 100) + '%'; });
+    $('#bar').setAttribute('aria-label', `${total - n.none} de ${total} casos probados: ${n.ok} funcionan, ${n.fail} fallan, ${n.retest} para re-testear`);
+    document.querySelectorAll('[data-k]').forEach((el) => {
+      const k = el.dataset.k;
+      el.textContent = k === 'all' ? total : n[k];
+    });
+    GROUPS.forEach((g) => {
+      const cs = CASES.filter((c) => c.g === g.id);
+      const done = cs.filter((c) => statusOf(c.id) !== 'none').length;
+      const fails = cs.filter((c) => statusOf(c.id) === 'fail').length;
+      const txt = `${done}/${cs.length} probados${fails ? ` · ${fails} con falla` : ''}`;
+      document.getElementById(g.id).querySelector('[data-gprog]').textContent = txt;
+      document.querySelector(`[data-jump="${g.id}"] [data-jp]`).textContent = `${done}/${cs.length}`;
+    });
+  }
+
+  function refreshAll() {
+    CASES.forEach((c) => updateCard(c.id));
+    updateSummary();
+    applyFilters();
+  }
+
+  function setSave(kind, text) {
+    const el = $('#save');
+    el.className = 'save' + (kind ? ' is-' + kind : '');
+    $('#save-t').textContent = text;
+  }
+
+  // ── Guardado ─────────────────────────────────────────────
+  function saveLocal() {
+    try { localStorage.setItem(LOCAL_KEY, JSON.stringify(state)); } catch { /* sin storage: queda en memoria */ }
+  }
+  function loadLocal() {
+    try {
+      const raw = localStorage.getItem(LOCAL_KEY);
+      if (!raw) return;
+      const v = JSON.parse(raw);
+      Object.keys(state).forEach((id) => { if (v && v[id]) state[id] = normalize(v[id]); });
+    } catch { /* ignorar */ }
+  }
+  function normalize(v) {
+    const okStatus = ['ok', 'fail', 'retest'].includes(v.status) ? v.status : null;
+    return { status: okStatus, note: typeof v.note === 'string' ? v.note : '', at: typeof v.at === 'string' ? v.at : null };
+  }
+
+  const DB_OK = 'Guardado en el artefacto: lo ves desde cualquier dispositivo.';
+  const LOCAL_ONLY = 'Solo en este navegador: no se ve desde otro dispositivo y se pierde si borrás los datos de navegación. Exportá los resultados a un JSON para conservarlos.';
+
+  // Siempre queda una copia en el navegador; en el artefacto, además, se sube.
+  async function persist(id) {
+    saveLocal();
+    if (mode !== 'db') return;
+    pending.add(id);
+    if (writing.has(id)) { dirty.add(id); return; }
+    writing.add(id);
+    setSave('db', 'Guardando…');
+    try {
+      do {
+        dirty.delete(id);
+        const s = state[id];
+        await db.doc('results/' + id).set({ status: s.status, note: s.note, at: s.at });
+      } while (dirty.has(id));
+      setSave('db', DB_OK);
+    } catch (e) {
+      setSave('err', 'No se pudo guardar el último cambio en el artefacto. Quedó en este navegador: volvé a marcarlo en un momento.');
+    } finally {
+      writing.delete(id);
+      pending.delete(id);
+    }
+  }
+
+  // Por cada caso gana el resultado más reciente, venga del navegador o del artefacto.
+  const isNewer = (a, b) => Boolean(a.at) && (!b.at || a.at > b.at);
+
+  async function uploadNewer() {
+    const remote = {};
+    try {
+      const snap = await db.collection('results').get();
+      snap.docs.forEach((d) => { const v = d.data(); if (v) remote[d.id] = normalize(v); });
+    } catch {
+      setSave('err', 'No se pudo comparar con el artefacto. Lo que marques queda en este navegador.');
+      return;
+    }
+    const ids = CASES.map((c) => c.id).filter((id) => {
+      const s = state[id];
+      if (!s.status && !s.note) return false;
+      return !remote[id] || isNewer(s, remote[id]);
+    });
+    if (!ids.length) { setSave('db', DB_OK); return; }
+    setSave('db', `Subiendo ${ids.length} resultados de este navegador al artefacto…`);
+    for (const id of ids) await persist(id);
+  }
+
+  async function initStore() {
+    let ns = null;
+    try {
+      ns = window.claude && typeof window.claude.use === 'function' ? await window.claude.use('db') : null;
+    } catch { ns = null; }
+    if (!ns) {
+      mode = 'local';
+      setSave('local', LOCAL_ONLY);
+      return;
+    }
+    db = ns;
+    mode = 'db';
+    setSave('db', 'Sincronizando…');
+    let synced = false;
+    db.collection('results').onSnapshot((snap) => {
+      snap.docs.forEach((d) => {
+        if (!state[d.id] || pending.has(d.id)) return;
+        const v = d.data();
+        if (!v) return;
+        const r = normalize(v);
+        if (!state[d.id].at || !isNewer(state[d.id], r)) state[d.id] = r;
+      });
+      refreshAll();
+      if (!synced) { synced = true; uploadNewer(); }
+      else if (!writing.size) setSave('db', DB_OK);
+    }, () => {
+      mode = 'local';
+      setSave('err', 'Se perdió la conexión con el artefacto. Lo que marques ahora queda solo en este navegador.');
+    });
+  }
+
+  // ── Eventos ──────────────────────────────────────────────
+  function copyText(text, onDone) {
+    const fallback = () => {
+      const box = $('#copy-fall');
+      const ta = $('#copy-fall-t');
+      ta.value = text;
+      box.hidden = false;
+      ta.focus();
+      ta.select();
+    };
+    try {
+      navigator.clipboard.writeText(text).then(onDone, fallback);
+    } catch { fallback(); }
+  }
+
+  function buildSummary() {
+    const today = new Date().toLocaleDateString('es-AR');
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const lines = [`${PLAN_NAME} · ${today}`, `Funciona ${n.ok} · Falla ${n.fail} · Re-testear ${n.retest} · Sin probar ${n.none}`];
+    [['fail', 'Falla'], ['retest', 'Re-testear']].forEach(([k, label]) => {
+      const cs = CASES.filter((c) => statusOf(c.id) === k);
+      if (!cs.length) return;
+      lines.push('', label);
+      cs.forEach((c) => {
+        const note = state[c.id].note.trim();
+        lines.push(`- ${c.id} ${c.t}${note ? ': ' + note.replace(/\s+/g, ' ') : ''}`);
+      });
+    });
+    if (!n.fail && !n.retest) lines.push('', 'Sin fallas ni casos para re-testear.');
+    return lines.join('\n');
+  }
+
+  // ── Exportar / importar resultados (JSON para versionar en el repo) ──
+  const PLAN_ID = PAGE_ID.replace(/-powerapp$/, '');
+  const EXPORT_VERSION = 1;
+  // Nombre listo para el repo: <N>-<plan>.resultados.json, con N = la tanda que sigue a las que lista Tests/README.md
+  // (ver loadFromRepo). Si no se pudo leer ese índice (file://, sin red) no se sabe N: se usa la fecha, que no pisa nada.
+  let nextRun = null;
+  const exportFileName = () => {
+    if (nextRun) return `${nextRun}-${PLAN_ID}.resultados.json`;
+    const d = new Date();
+    const p = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}-${PLAN_ID}.resultados.json`;
+  };
+
+  function buildExport() {
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const results = {};
+    CASES.forEach((c) => {
+      const s = state[c.id];
+      results[c.id] = { title: c.t, status: s.status, note: s.note, at: s.at };
+    });
+    return { plan: PLAN_ID, version: EXPORT_VERSION, exportedAt: new Date().toISOString(), summary: { total: CASES.length, ...n }, results };
+  }
+
+  function showIo(kind, text) {
+    const el = $('#io-msg');
+    el.className = 'iomsg' + (kind ? ' is-' + kind : '');
+    el.textContent = text;
+    el.hidden = false;
+  }
+
+  function exportResults() {
+    const file = exportFileName();
+    const blob = new Blob([JSON.stringify(buildExport(), null, 2) + '\n'], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    const folder = decodeURIComponent(location.pathname.split('/').slice(-2, -1)[0] || '');
+    const where = folder ? `Tests/${folder}/` : 'la carpeta de este plan en Tests/';
+    if (nextRun) {
+      const line = `  - [Tanda ${nextRun}](${encodeURIComponent(folder)}/${file})`;
+      showIo('ok', `Descargué ${file}. Guardalo en ${where} y, si querés que quede en el sitio, sumá esta línea bajo este plan en Tests/README.md: ${line.trim()}`);
+    } else {
+      showIo('ok', `Descargué ${file}. Guardalo en ${where} y, si querés que quede en el sitio, sumalo como sub-bullet bajo este plan en Tests/README.md.`);
+    }
+  }
+
+  // Combina por caso: gana el resultado con la fecha (at) más reciente, así no se pierde nada de lo marcado acá.
+  const stamp = (iso) => { const t = iso ? Date.parse(iso) : NaN; return Number.isNaN(t) ? -Infinity : t; };
+
+  // Devuelve un mensaje de error si el JSON no es un export de este plan, o null si está bien.
+  function checkResults(data) {
+    if (!data || typeof data !== 'object' || data.plan !== PLAN_ID || !data.results || typeof data.results !== 'object') {
+      return `Ese archivo no corresponde a este plan (esperaba plan «${PLAN_ID}»).`;
+    }
+    if (typeof data.version !== 'number' || data.version > EXPORT_VERSION) {
+      return 'El archivo es de una versión más nueva del plan y no sé leerlo.';
+    }
+    return null;
+  }
+
+  function mergeResults(data) {
+    const changed = [];
+    let newer = 0;
+    CASES.forEach((c) => {
+      const src = data.results[c.id];
+      if (!src || typeof src !== 'object') return;
+      const inc = normalize(src);
+      if (!inc.status && !inc.note) return;
+      const cur = state[c.id];
+      if (inc.status === cur.status && inc.note === cur.note && inc.at === cur.at) return;
+      if (stamp(inc.at) > stamp(cur.at)) { state[c.id] = inc; changed.push(c.id); } else newer++;
+    });
+    const unknown = Object.keys(data.results).filter((id) => !state[id]).length;
+    changed.forEach((id) => persist(id));
+    refreshAll();
+    return { changed: changed.length, newer, unknown };
+  }
+
+  async function importResults(file) {
+    let data;
+    try {
+      data = JSON.parse(await file.text());
+    } catch {
+      showIo('err', 'No pude leer el archivo: no es un JSON válido.');
+      return;
+    }
+    const bad = checkResults(data);
+    if (bad) { showIo('err', bad); return; }
+    const { changed, newer, unknown } = mergeResults(data);
+
+    const parts = [];
+    if (changed) {
+      const when = data.exportedAt ? fmtWhen(data.exportedAt) : '';
+      parts.push(`Importé ${changed} ${changed === 1 ? 'caso' : 'casos'}${when ? ' (exportado el ' + when + ')' : ''}.`);
+    } else if (newer) {
+      parts.push('No cambié nada: lo que tenés acá es más reciente que el archivo.');
+    } else {
+      parts.push('El archivo no trae nada nuevo: ya tenés esos resultados.');
+    }
+    if (changed && newer) parts.push(newer === 1 ? 'Dejé 1 caso que acá ya tenía un resultado más reciente.' : `Dejé ${newer} casos que acá ya tenían un resultado más reciente.`);
+    if (unknown) parts.push(unknown === 1 ? 'Ignoré 1 caso que ya no está en el plan.' : `Ignoré ${unknown} casos que ya no están en el plan.`);
+    showIo(changed ? 'ok' : '', parts.join(' '));
+  }
+
+  // ── Resultados guardados en el repo ──────────────────────
+  // Tests/README.md lista las tandas de cada plan (sub-bullets bajo el plan; la última es la más reciente).
+  // Al abrir el plan se busca su entrada, se baja ese JSON y se combina con lo local (gana la fecha más nueva).
+  function runsOf(md, readmeUrl, pageKey) {
+    let inFence = false;
+    let mine = false;
+    const runs = [];
+    md.split(/\r?\n/).forEach((line) => {
+      if (/^\s*```/.test(line)) { inFence = !inFence; return; }
+      if (inFence) return;
+      const plan = /^-\s+\[[^\]]+\]\(([^)]+)\)/.exec(line);
+      if (plan) {
+        const u = new URL(plan[1], readmeUrl);
+        mine = u.origin + u.pathname === pageKey;
+        return;
+      }
+      const run = /^\s+-\s+\[([^\]]+)\]\(([^)]+)\)/.exec(line);
+      if (run && mine) runs.push({ label: run[1], url: new URL(run[2], readmeUrl).href });
+    });
+    return runs;
+  }
+
+  // Número de la próxima tanda: el mayor entre la cantidad de tandas listadas y el prefijo numérico más alto
+  // de sus archivos (1-…, 2-…); los nombres con fecha (2026-…) no cuentan como número.
+  function nextRunNumber(runs) {
+    let max = runs.length;
+    runs.forEach((r) => {
+      const m = /^(\d{1,3})-/.exec(decodeURIComponent(r.url.split('/').pop() || ''));
+      if (m) max = Math.max(max, Number(m[1]));
+    });
+    return max + 1;
+  }
+
+  async function loadFromRepo() {
+    try {
+      const readmeUrl = new URL('../README.md', location.href).href;
+      const res = await fetch(readmeUrl, { cache: 'no-cache' });
+      if (!res.ok) return;
+      const runs = runsOf(await res.text(), readmeUrl, location.origin + location.pathname);
+      nextRun = nextRunNumber(runs);
+      const last = runs[runs.length - 1];
+      if (!last) return;
+      const r = await fetch(last.url, { cache: 'no-cache' });
+      if (!r.ok) return;
+      const data = await r.json();
+      if (checkResults(data)) return;
+      const { changed } = mergeResults(data);
+      if (changed) {
+        const when = data.exportedAt ? fmtWhen(data.exportedAt) : '';
+        showIo('ok', `Cargué ${changed} ${changed === 1 ? 'caso' : 'casos'} de «${last.label}», la última tanda guardada en el repo${when ? ' (exportada el ' + when + ')' : ''}.`);
+      }
+    } catch { /* sin README ni red (por ejemplo, abierto con file://): queda lo que haya en este navegador */ }
+  }
+
+  document.addEventListener('click', (e) => {
+    const sb = e.target.closest('.sb');
+    if (sb) {
+      const id = sb.closest('.case').dataset.id;
+      const s = state[id];
+      s.status = s.status === sb.dataset.v ? null : sb.dataset.v;
+      s.at = new Date().toISOString();
+      updateCard(id);
+      updateSummary();
+      persist(id);
+      return;
+    }
+    const fs = e.target.closest('[data-fs]');
+    if (fs) {
+      fStatus = fs.dataset.fs;
+      document.querySelectorAll('[data-fs]').forEach((b) => b.setAttribute('aria-pressed', String(b === fs)));
+      applyFilters();
+      return;
+    }
+    const fe = e.target.closest('[data-fe]');
+    if (fe) {
+      fEnv = fe.dataset.fe;
+      document.querySelectorAll('[data-fe]').forEach((b) => b.setAttribute('aria-pressed', String(b === fe)));
+      applyFilters();
+      return;
+    }
+    const t = e.target.closest('.tok');
+    if (t) {
+      copyText(t.dataset.copy, () => {
+        t.classList.add('copied');
+        setTimeout(() => t.classList.remove('copied'), 1200);
+      });
+      return;
+    }
+    if (e.target.closest('#exp-res')) { exportResults(); return; }
+    if (e.target.closest('#imp-res')) { $('#imp-file').click(); return; }
+    if (e.target.closest('#copy-sum')) {
+      const btn = $('#copy-sum');
+      copyText(buildSummary(), () => {
+        btn.textContent = 'Resumen copiado';
+        setTimeout(() => { btn.textContent = 'Copiar resumen de fallas'; }, 1600);
+      });
+    }
+  });
+
+  document.addEventListener('change', (e) => {
+    const inp = e.target.closest && e.target.closest('#imp-file');
+    if (!inp) return;
+    const file = inp.files && inp.files[0];
+    inp.value = '';
+    if (file) importResults(file);
+  });
+
+  document.addEventListener('input', (e) => {
+    const ta = e.target.closest('.note');
+    if (!ta) return;
+    const id = ta.closest('.case').dataset.id;
+    state[id].note = ta.value;
+    clearTimeout(noteTimers[id]);
+    noteTimers[id] = setTimeout(() => {
+      state[id].at = new Date().toISOString();
+      updateCard(id);
+      persist(id);
+    }, 700);
+  });
+  document.addEventListener('focusout', (e) => {
+    const ta = e.target.closest && e.target.closest('.note');
+    if (!ta) return;
+    const id = ta.closest('.case').dataset.id;
+    if (noteTimers[id]) {
+      clearTimeout(noteTimers[id]);
+      noteTimers[id] = null;
+      state[id].at = new Date().toISOString();
+      updateCard(id);
+      persist(id);
+    }
+  });
+
+  const prep = $('#prep');
+  try { if (localStorage.getItem(LOCAL_KEY + '.prep') === 'closed') prep.open = false; } catch { /* ignorar */ }
+  prep.addEventListener('toggle', () => {
+    try { localStorage.setItem(LOCAL_KEY + '.prep', prep.open ? 'open' : 'closed'); } catch { /* ignorar */ }
+  });
+
+  renderStatic();
+  loadLocal();
+  refreshAll();
+  initStore().then(loadFromRepo);
+})();
+</script>
+
+
+</body></html>

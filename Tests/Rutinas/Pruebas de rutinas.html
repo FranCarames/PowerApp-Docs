@@ -1,0 +1,1003 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Pruebas de rutinas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: una columna de trabajo (máx. 980px). Resumen arriba, barra de filtros fija, casos agrupados por CU. Paleta de PowerApp, dark-first. */
+:root{
+  --bg:#0B0D16; --card:#13161F; --el:#1B1F2E; --line:#232739; --line2:#2E3347;
+  --tx:#F5F1EB; --tx2:#A3ACC2; --tx3:#6B7390;
+  --pri:#FF6B3D; --priS:rgba(232,69,10,.14); --acc:#A78BFA; --accS:rgba(139,92,246,.16);
+  --ok:#3DD47A; --okS:rgba(34,197,94,.14); --warn:#F5B23D; --warnS:rgba(245,158,11,.14); --err:#F26464; --errS:rgba(239,68,68,.14);
+  --none:#6B7390;
+  --fD:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --fB:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --fM:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#F2F3F7; --card:#FFFFFF; --el:#E8EAF1; --line:#D9DCE6; --line2:#C8CCDA;
+    --tx:#141826; --tx2:#47506A; --tx3:#687089;
+    --pri:#C23A07; --priS:rgba(232,69,10,.10); --acc:#6A3FDB; --accS:rgba(139,92,246,.12);
+    --ok:#157A3C; --okS:rgba(34,197,94,.13); --warn:#A25A06; --warnS:rgba(245,158,11,.16); --err:#C42525; --errS:rgba(239,68,68,.11);
+    --none:#8A91A8;
+    color-scheme:light;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#F2F3F7; --card:#FFFFFF; --el:#E8EAF1; --line:#D9DCE6; --line2:#C8CCDA;
+  --tx:#141826; --tx2:#47506A; --tx3:#687089;
+  --pri:#C23A07; --priS:rgba(232,69,10,.10); --acc:#6A3FDB; --accS:rgba(139,92,246,.12);
+  --ok:#157A3C; --okS:rgba(34,197,94,.13); --warn:#A25A06; --warnS:rgba(245,158,11,.16); --err:#C42525; --errS:rgba(239,68,68,.11);
+  --none:#8A91A8;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--tx);font-family:var(--fB);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding-inline:20px;padding-block:28px 72px}
+code,.mono{font-family:var(--fM);font-size:.86em}
+code{background:var(--el);border:1px solid var(--line);border-radius:5px;padding:1px 5px;overflow-wrap:anywhere}
+.ui{color:var(--tx);font-weight:600}
+a{color:var(--acc)}
+a:focus-visible,button:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+h1,h2,h3{text-wrap:balance}
+
+/* Encabezado */
+.mast{display:grid;gap:6px;margin-bottom:22px}
+.eyebrow{font-family:var(--fM);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--pri);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.eyebrow .sep{color:var(--tx3)}
+h1{font-family:var(--fD);font-weight:800;font-size:clamp(34px,6vw,52px);line-height:1;letter-spacing:-.01em;margin:4px 0 0}
+.lede{color:var(--tx2);max-width:66ch;margin:6px 0 0}
+
+/* Resumen */
+.summary{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:14px;margin-bottom:18px}
+.counts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.count{display:grid;gap:2px}
+.count .n{font-family:var(--fD);font-size:34px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.count .l{font-size:12.5px;color:var(--tx2);display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;flex:none}
+.c-ok .n{color:var(--ok)} .c-ok .dot{background:var(--ok)}
+.c-fail .n{color:var(--err)} .c-fail .dot{background:var(--err)}
+.c-retest .n{color:var(--warn)} .c-retest .dot{background:var(--warn)}
+.c-none .n{color:var(--tx2)} .c-none .dot{background:var(--none)}
+.bar{display:flex;height:10px;border-radius:6px;overflow:hidden;background:var(--el)}
+.bar span{height:100%;transition:width .3s ease}
+.bar .b-ok{background:var(--ok)} .bar .b-fail{background:var(--err)} .bar .b-retest{background:var(--warn)}
+.sumfoot{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.save{font-size:12.5px;color:var(--tx3);display:flex;align-items:center;gap:7px}
+.save .dot{background:var(--tx3)}
+.save.is-db .dot{background:var(--ok)} .save.is-err .dot{background:var(--err)} .save.is-local .dot{background:var(--warn)}
+.btn{font:600 13.5px/1 var(--fB);color:var(--tx);background:var(--el);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{border-color:var(--tx3)}
+.btn.pri{background:var(--priS);border-color:var(--pri);color:var(--pri)}
+.copyfall{display:grid;gap:8px}
+.copyfall textarea{width:100%;min-height:140px;font:13px/1.5 var(--fM);background:var(--el);color:var(--tx);border:1px solid var(--line2);border-radius:10px;padding:10px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.save{flex:1 1 260px;min-width:0;align-items:flex-start}
+.save .dot{margin-top:.45em}
+.save.is-local{color:var(--warn)}
+.save.is-err{color:var(--err)}
+.iomsg{margin:0;font-size:12.5px;color:var(--tx2)}
+.iomsg.is-ok{color:var(--ok)} .iomsg.is-err{color:var(--err)}
+
+/* Antes de empezar */
+details.prep{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:18px}
+details.prep>summary{cursor:pointer;list-style:none;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+details.prep>summary::-webkit-details-marker{display:none}
+details.prep>summary h2{font-family:var(--fD);font-weight:700;font-size:24px;margin:0}
+.chev{color:var(--tx3);font-family:var(--fM);font-size:13px}
+details[open] .chev .c-open{display:none} details:not([open]) .chev .c-close{display:none}
+.prep-body{padding:0 18px 18px;display:grid;gap:18px}
+.prep h3{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin:0 0 8px;font-weight:700}
+.envs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.env{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg);display:grid;gap:6px;align-content:start;min-width:0}
+.env p{margin:0;font-size:13.5px;color:var(--tx2)}
+.tag{display:inline-flex;align-items:center;font:700 11px/1 var(--fM);letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border-radius:6px;border:1px solid currentColor;white-space:nowrap}
+.t-LOCAL{color:var(--acc)} .t-DEMO{color:var(--warn)} .t-RENDER{color:var(--pri)} .t-TODOS{color:var(--tx2)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);font-weight:700;background:var(--bg)}
+tr:last-child td{border-bottom:0}
+.tips{margin:0;padding-left:18px;display:grid;gap:6px;color:var(--tx2);font-size:14px}
+.tips b{color:var(--tx)}
+.tok{font:500 12.5px/1.3 var(--fM);color:var(--tx);background:var(--el);border:1px dashed var(--line2);border-radius:6px;padding:2px 6px;cursor:copy;overflow-wrap:anywhere;text-align:left}
+.tok:hover{border-color:var(--acc)}
+.tok.copied{border-style:solid;border-color:var(--ok);color:var(--ok)}
+
+/* Filtros */
+.filters{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;margin-bottom:8px;display:grid;gap:8px;border-bottom:1px solid var(--line)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chips .lbl{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);font-weight:700;margin-right:4px}
+.chip{font:600 12.5px/1 var(--fB);color:var(--tx2);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 11px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.chip .k{font-family:var(--fM);font-size:11px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.chip[aria-pressed="true"]{color:var(--tx);border-color:var(--tx2);background:var(--el)}
+.jump{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.jump a{font:600 12px/1 var(--fB);color:var(--tx2);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:6px 9px;white-space:nowrap;background:var(--card)}
+.jump a:hover{color:var(--tx);border-color:var(--line2)}
+.jump .p{font-family:var(--fM);font-size:11px;color:var(--tx3);margin-left:4px}
+
+/* Grupos y casos */
+.group{margin-top:28px;scroll-margin-top:120px}
+.ghead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:12px}
+.ghead h2{font-family:var(--fD);font-weight:700;font-size:28px;margin:0;line-height:1.1}
+.ghead .cu{font-family:var(--fM);font-size:12.5px;color:var(--pri)}
+.ghead .gsub{color:var(--tx3);font-size:13.5px}
+.ghead .gprog{margin-left:auto;font-family:var(--fM);font-size:12px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.cases{display:grid;gap:12px}
+.case{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:grid;gap:12px;min-width:0}
+.case[data-status="fail"]{border-color:color-mix(in srgb,var(--err) 55%,var(--line))}
+.case[data-status="ok"]{border-color:color-mix(in srgb,var(--ok) 40%,var(--line))}
+.case[data-status="retest"]{border-color:color-mix(in srgb,var(--warn) 50%,var(--line))}
+.chead{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+.cid{font:700 13px/1 var(--fM);color:var(--pri);letter-spacing:.02em}
+.chead h3{font-size:16.5px;font-weight:700;margin:0;flex:1 1 220px;min-width:0}
+.ctags{display:flex;gap:6px;flex-wrap:wrap}
+.pill{font:700 11px/1 var(--fB);letter-spacing:.04em;text-transform:uppercase;padding:5px 8px;border-radius:999px;background:var(--el);color:var(--tx3);white-space:nowrap}
+.pill.s-ok{background:var(--okS);color:var(--ok)} .pill.s-fail{background:var(--errS);color:var(--err)} .pill.s-retest{background:var(--warnS);color:var(--warn)}
+.cdata{margin:0;font-size:14px;color:var(--tx2)}
+.cdata b{color:var(--tx);font-weight:600}
+.cbody{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:14px}
+.cbody h4{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin:0 0 6px;font-weight:700}
+.steps{margin:0;padding-left:20px;display:grid;gap:5px;font-size:14px}
+.steps li::marker{font-family:var(--fM);color:var(--tx3);font-size:12px}
+.expect{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;min-width:0}
+.expect p{margin:0}
+.expect ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.known{display:flex;gap:10px;align-items:flex-start;background:var(--warnS);color:var(--tx);border-radius:10px;padding:10px 12px;font-size:13.5px}
+.known b{color:var(--warn)}
+.cfoot{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px 14px;align-items:start;border-top:1px solid var(--line);padding-top:12px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.sb{font:600 13px/1 var(--fB);color:var(--tx2);background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:9px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;min-height:38px}
+.sb .ic{font-family:var(--fM);font-weight:700}
+.sb:hover{color:var(--tx)}
+.sb.v-ok[aria-pressed="true"]{background:var(--okS);border-color:var(--ok);color:var(--ok)}
+.sb.v-fail[aria-pressed="true"]{background:var(--errS);border-color:var(--err);color:var(--err)}
+.sb.v-retest[aria-pressed="true"]{background:var(--warnS);border-color:var(--warn);color:var(--warn)}
+.notewrap{display:grid;gap:4px;min-width:0}
+.note{width:100%;min-height:38px;resize:vertical;font:14px/1.45 var(--fB);color:var(--tx);background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:8px 10px}
+.note::placeholder{color:var(--tx3)}
+.when{font-size:12px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.empty{color:var(--tx2);text-align:center;padding:40px 16px;border:1px dashed var(--line2);border-radius:14px;margin-top:24px}
+
+.summary>*,.prep-body>*,.filters>*,.group,.cases>*{min-width:0}
+@media (max-width:760px){
+  .filters{position:static}
+  .group{scroll-margin-top:16px}
+  .envs{grid-template-columns:minmax(0,1fr)}
+  .cbody{grid-template-columns:minmax(0,1fr)}
+  .cfoot{grid-template-columns:minmax(0,1fr)}
+  .counts{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="eyebrow"><span>PowerApp Web</span><span class="sep">/</span><span>Admin y Entrenador · CU-E-15 a CU-E-20</span><span class="sep">/</span><span>Pruebas manuales</span></div>
+    <h1>Pruebas de rutinas</h1>
+    <p class="lede">Las rutinas sistémicas desde el Admin y el Entrenador: listado y búsqueda, alta y edición con sus circuitos en orden, el ida y vuelta con el editor de circuitos, la baja lógica y la reactivación, y las rutinas puntuales de un alumno: asignarlas para un día, desde la rutina o desde el alumno, y quitarlas. Cada caso dice cómo probarlo y qué tenés que ver. Marcá el resultado y anotá lo que observes.</p>
+  </header>
+
+  <section class="summary" aria-label="Resumen">
+    <div class="counts">
+      <div class="count c-ok"><span class="n" id="n-ok">0</span><span class="l"><span class="dot"></span>Funciona</span></div>
+      <div class="count c-fail"><span class="n" id="n-fail">0</span><span class="l"><span class="dot"></span>Falla</span></div>
+      <div class="count c-retest"><span class="n" id="n-retest">0</span><span class="l"><span class="dot"></span>Re-testear</span></div>
+      <div class="count c-none"><span class="n" id="n-none">0</span><span class="l"><span class="dot"></span>Sin probar</span></div>
+    </div>
+    <div class="bar" role="img" id="bar" aria-label="Progreso"><span class="b-ok" id="b-ok"></span><span class="b-fail" id="b-fail"></span><span class="b-retest" id="b-retest"></span></div>
+    <div class="sumfoot">
+      <span class="save" id="save"><span class="dot"></span><span id="save-t">Conectando el guardado…</span></span>
+      <div class="actions">
+        <button type="button" class="btn" id="exp-res">Exportar resultados</button>
+        <button type="button" class="btn" id="imp-res">Importar resultados</button>
+        <button type="button" class="btn pri" id="copy-sum">Copiar resumen de fallas</button>
+        <input type="file" id="imp-file" accept=".json,application/json" hidden>
+      </div>
+    </div>
+    <div class="copyfall" id="copy-fall" hidden>
+      <label for="copy-fall-t" class="when">Tu navegador no dejó copiar automáticamente. El texto ya está seleccionado: copialo con Ctrl+C.</label>
+      <textarea id="copy-fall-t" readonly></textarea>
+    </div>
+    <p class="iomsg" id="io-msg" role="status" hidden></p>
+  </section>
+
+  <details class="prep" id="prep" open>
+    <summary><h2>Antes de empezar</h2><span class="chev"><span class="c-close">Ocultar</span><span class="c-open">Mostrar</span></span></summary>
+    <div class="prep-body">
+      <div>
+        <h3>Entornos</h3>
+        <div class="envs">
+          <div class="env"><span class="tag t-LOCAL">Local</span><p>Backend local en <code>localhost:3000</code> y el front con <code>npm run dev</code>. Hace falta para los casos con el servidor apagado.</p></div>
+          <div class="env"><span class="tag t-RENDER">Render</span><p><a href="https://powerapp-web.onrender.com" target="_blank" rel="noopener">powerapp-web.onrender.com</a> contra el backend de Render. Todo lo que crees queda en esa base.</p></div>
+          <div class="env"><span class="tag t-TODOS">Cualquiera</span><p>El caso da lo mismo en los dos. Desde T44 el front no tiene mocks: todo va al backend real.</p></div>
+        </div>
+      </div>
+      <div>
+        <h3>Cuentas y datos</h3>
+        <ul class="tips">
+          <li><b>Una cuenta admin real y una de entrenador.</b> Las de demo ya no existen.</li>
+          <li><b>Todo lo que crees, con el prefijo «QA»:</b> <button type="button" class="tok" data-copy="QA Rutina A">QA Rutina A</button>, <button type="button" class="tok" data-copy="QA Rutina B">QA Rutina B</button> y el circuito <button type="button" class="tok" data-copy="QA Circuito rutina">QA Circuito rutina</button>.</li>
+          <li><b>Los circuitos del seed, solo para agregar.</b> Editar un circuito cambia todas las rutinas que lo usan: los casos que editan o duplican usan QA Circuito rutina.</li>
+          <li><b>Las rutinas no se pueden borrar,</b> solo dar de baja. FIN-01 deja las de prueba dadas de baja.</li>
+          <li><b>Un alumno de prueba nuevo</b> para asignar y quitar rutinas puntuales, registrado desde <code>/registro</code>: <button type="button" class="tok" data-copy="QA">QA</button> <button type="button" class="tok" data-copy="Puntual">Puntual</button>, con un email tuyo con sufijo, por ejemplo <button type="button" class="tok" data-copy="tuemail+qa-puntual@gmail.com">tuemail+qa-puntual@gmail.com</button>. Las asignaciones que el alumno entrenó no se pueden quitar.</li>
+          <li><b>Dos roles a la vez:</b> ventana normal para el admin o el entrenador y de incógnito para el alumno.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Cómo encararlo</h3>
+        <ul class="tips">
+          <li><b>Seguí el orden de la página.</b> QA Rutina A se crea en CRE-01 y la usan los casos siguientes.</li>
+          <li><b>DevTools › Network</b>, filtrado por <code>routine</code>, para ver qué requests salen, con qué body y qué código responden.</li>
+          <li><b>Dos pestañas</b> para EDT-05, EDT-06, ASG-07, QUI-04 y QUI-05: en una dejás la pantalla abierta y en la otra cambiás algo.</li>
+          <li><b>Lo que hoy falla</b> está marcado con un aviso amarillo: un enlace con un id que no es un UUID muestra un error genérico (EDT-04), y lo que confirman asignar y quitar una rutina puntual no dice cuál (ASG-02 y QUI-03). Los tres los arregla el PR #70 (T51), que todavía no está en <code>develop</code>.</li>
+        </ul>
+      </div>
+    </div>
+  </details>
+
+  <div class="filters" id="filters">
+    <div class="chips" id="f-status" role="group" aria-label="Filtrar por resultado">
+      <span class="lbl">Resultado</span>
+    </div>
+    <div class="chips" id="f-env" role="group" aria-label="Filtrar por entorno">
+      <span class="lbl">Entorno</span>
+    </div>
+    <nav class="jump" id="jump" aria-label="Ir a un grupo"></nav>
+  </div>
+
+  <main id="groups"></main>
+  <p class="empty" id="empty" hidden>Ningún caso coincide con estos filtros.</p>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const PLAN_NAME = 'Pruebas de rutinas PowerApp';
+  const PAGE_ID = 'pruebas-rutinas-powerapp';
+  const DOCS = 'https://github.com/FranCarames/PowerApp-Docs/blob/main/Use%20Cases/';
+  const tok = (t) => `<button type="button" class="tok" data-copy="${t.replace(/"/g, '&quot;')}">${t}</button>`;
+  const ui = (t) => `<span class="ui">«${t}»</span>`;
+
+  const ENVS = { LOCAL: 'Local', RENDER: 'Render', TODOS: 'Cualquiera' };
+  const ENV_FILTERS = [['all', 'Todos'], ['LOCAL', 'Local'], ['RENDER', 'Render']];
+  const STATUSES = [
+    { v: 'ok', label: 'Funciona', ic: '✓' },
+    { v: 'fail', label: 'Falla', ic: '✕' },
+    { v: 'retest', label: 'Re-testear', ic: '↻' },
+  ];
+  const STATUS_LABEL = { ok: 'Funciona', fail: 'Falla', retest: 'Re-testear', none: 'Sin probar' };
+
+  const GROUPS = [
+    { id: 'lst', name: 'Llegar a Rutinas', cu: 'CU-E-15', file: 'entrenador/CU-E-15-obtener-rutinas-sistemicas.md' },
+    { id: 'cre', name: 'Crear', cu: 'CU-E-16', file: 'entrenador/CU-E-16-crear-rutina-sistemica.md' },
+    { id: 'cir', name: 'Circuitos de la rutina', cu: 'CU-E-16 y CU-E-17', file: 'entrenador/CU-E-17-editar-rutina-sistemica.md', sub: 'Agregar, repetir, ordenar, y editar o duplicar desde la rutina' },
+    { id: 'edt', name: 'Editar', cu: 'CU-E-17', file: 'entrenador/CU-E-17-editar-rutina-sistemica.md' },
+    { id: 'baj', name: 'Eliminar y reactivar', cu: 'CU-E-18', file: 'entrenador/CU-E-18-eliminar-rutina-sistemica.md' },
+    { id: 'fil', name: 'Tarjetas y búsqueda', cu: 'CU-E-15', file: 'entrenador/CU-E-15-obtener-rutinas-sistemicas.md' },
+    { id: 'coa', name: 'Desde el Entrenador', cu: null, sub: 'La misma pantalla en /c/rutinas' },
+    { id: 'asg', name: 'Asignar a un alumno', cu: 'CU-E-19', file: 'entrenador/CU-E-19-asignar-rutina-a-alumno.md', sub: 'Rutinas puntuales: una rutina para un día' },
+    { id: 'qui', name: 'Quitar a un alumno', cu: 'CU-E-20', file: 'entrenador/CU-E-20-eliminar-rutina-a-alumno.md', sub: 'Desde las rutinas puntuales del alumno' },
+    { id: 'err', name: 'Errores y pantallas', cu: null, sub: 'Servidor caído, celular, escritorio y teclado' },
+    { id: 'fin', name: 'Limpieza', cu: null, sub: 'Dejar las rutinas y el circuito de prueba fuera de uso' },
+  ];
+
+  const CASES = [
+    // ── Llegar a Rutinas ────────────────────────────────────
+    { id: 'LST-01', g: 'lst', t: 'Llegar a Rutinas', env: ['TODOS'],
+      data: 'Tu cuenta real de admin.',
+      steps: ['En el Panel, anotá el número de la tarjeta Rutinas y tocala.', 'En escritorio, entrá desde la barra lateral › Entrenamiento › Rutinas. En el celular, desde la tab Rutinas.', 'En Network, mirá qué requests salen.'],
+      exp: `<p>Todos llevan a <code>/a/rutinas</code> con ${ui('Sistémicas')} arriba, el título ${ui('Rutinas')}, el buscador ${ui('Buscar rutina')}, el chip ${ui('Incluir inactivas')} apagado y el botón flotante ${ui('Crear rutina')}. Salen <code>GET /routine/all-plus?include_inactive=true</code> y <code>GET /routine/circuit/all-plus?include_inactive=true</code>. El número del panel es la cantidad de rutinas vigentes. (CU-E-15)</p>` },
+    { id: 'LST-02', g: 'lst', t: 'Sin rutinas', env: ['TODOS'],
+      data: 'Una base donde nadie creó rutinas todavía (el seed no trae). Si ya hay, marcá Re-testear.',
+      steps: ['Abrí Rutinas.'],
+      exp: `<p>${ui('Todavía no hay rutinas')}, ${ui('Creá la primera para armar planificaciones.')} y el botón ${ui('Crear rutina')}. (CU-E-15, caminos alternativos)</p>` },
+
+    // ── Crear ───────────────────────────────────────────────
+    { id: 'CRE-01', g: 'cre', t: 'Crear una rutina', env: ['TODOS'],
+      data: `Nombre ${tok('QA Rutina A')} · nota ${tok('Calentar 10 minutos antes')} · dos circuitos activos del seed`,
+      steps: [`Tocá ${ui('Crear rutina')}.`, 'Completá nombre y nota.', `Tocá ${ui('Agregar existente')}, buscá un circuito y elegilo; repetí con otro.`, `Tocá ${ui('Guardar rutina')} y mirá el body en Network.`],
+      exp: `<ul><li>Abre <code>/a/rutinas/nuevo</code> con ${ui('Nueva')} arriba y el título ${ui('Rutina')}: ${ui('Nombre de la rutina')}, ${ui('Nota del coach')} (${ui('Opcional. La ve quien hace la rutina.')}) y ${ui('Circuitos')} con ${ui('La rutina todavía no tiene circuitos. Agregá uno existente o creá uno nuevo.')}</li><li>${ui('Agregar circuito')} tiene buscador y muestra cada circuito con ${ui('Tipo · N ejercicios')}; solo ofrece los activos.</li><li>Al guardar: ${ui('Rutina creada')} y vuelve a la lista. <code>POST /routine/create</code> responde 201 con los dos circuitos y su <code>order</code> 1 y 2. (CU-E-16)</li></ul>` },
+    { id: 'CRE-02', g: 'cre', t: 'Validaciones', env: ['TODOS'],
+      steps: ['En una rutina nueva, tocá Guardar rutina con todo vacío.', 'Escribí solo espacios en el nombre y guardá.', 'Pegá un texto largo en el nombre y en la nota.'],
+      exp: `<p>${ui('Poné un nombre a la rutina')} y ${ui('Agregá al menos un circuito')}, también con solo espacios (CU-E-16, caminos alternativos). El nombre se corta en 50 caracteres y la nota en 100. No sale ningún request.</p>` },
+    { id: 'CRE-03', g: 'cre', t: 'Doble envío', env: ['TODOS'],
+      data: `Nombre ${tok('QA Rutina B')}, con un circuito.`,
+      steps: ['Completá la rutina y hacé doble clic rápido en Guardar rutina.'],
+      exp: '<p>Sale un solo POST y el botón muestra que está cargando. Queda una sola QA Rutina B en la lista.</p>' },
+    { id: 'CRE-04', g: 'cre', t: 'Volver sin guardar', env: ['TODOS'],
+      steps: [`En una rutina nueva, escribí un nombre y tocá ${ui('Volver')}.`],
+      exp: '<p>Vuelve a la lista y no se creó nada.</p>' },
+
+    // ── Circuitos de la rutina ──────────────────────────────
+    { id: 'CIR-01', g: 'cir', t: 'La tarjeta de cada circuito', env: ['TODOS'],
+      steps: ['Abrí QA Rutina A y recorré sus circuitos.'],
+      exp: `<p>Cada tarjeta muestra el nombre, ${ui('N ejercicios')} y, si otra rutina vigente lo usa, ${ui('se usa en N rutinas')}. Debajo van los ejercicios con ${ui('N series')} y su tipo (${ui('Normal')}, ${ui('AMRAP')} o ${ui('RM')}). Los botones se anuncian como ${ui('Subir …')}, ${ui('Bajar …')}, ${ui('Editar …')} y ${ui('Quitar … de la rutina')}.</p>` },
+    { id: 'CIR-02', g: 'cir', t: 'Repetir un circuito', env: ['TODOS'],
+      steps: ['En QA Rutina A, abrí Agregar existente.', 'Mirá los circuitos que ya están en la rutina y elegí uno de ellos.', 'Abrí Agregar existente otra vez.'],
+      exp: `<p>Los que ya están se marcan ${ui('En la rutina')} y siguen elegibles: un circuito se puede repetir. Después de agregarlo, ese circuito dice ${ui('En la rutina ×2')} y la rutina tiene dos tarjetas iguales.</p>` },
+    { id: 'CIR-03', g: 'cir', t: 'Ordenar y quitar', env: ['TODOS'],
+      steps: ['Usá Subir y Bajar para dejar el circuito repetido primero.', 'Quitá una de las dos copias.', 'Guardá y abrí la rutina de nuevo.'],
+      exp: '<p>Subir está apagado en el primero y Bajar en el último. El orden guardado es el que dejaste y la copia quitada no vuelve. (CU-E-16, paso 3)</p>' },
+    { id: 'CIR-04', g: 'cir', t: 'Crear un circuito desde la rutina', env: ['TODOS'],
+      data: `Circuito ${tok('QA Circuito rutina')}, tipo ${tok('principal')}, un ejercicio.`,
+      steps: ['En QA Rutina A, cambiá la nota sin guardar.', `Tocá ${ui('Nuevo circuito')}.`, 'Completá el circuito y tocá Guardar circuito.'],
+      exp: `<p>Abre <code>/a/circuitos/nuevo</code>. Al guardar: ${ui('Circuito creado')} y vuelve a QA Rutina A con el circuito nuevo al final y la nota que habías escrito. Todavía no está guardado en la rutina: falta tocar Guardar rutina.</p>` },
+    { id: 'CIR-05', g: 'cir', t: 'Editar un circuito desde la rutina', env: ['TODOS'],
+      steps: [`En QA Rutina A, tocá ${ui('Editar QA Circuito rutina')}.`, `Tocá ${ui('Volver')}.`, 'Entrá otra vez, cambiá un bloque de series y guardá el circuito.', 'Guardá la rutina.'],
+      exp: `<p>Volver lleva a la rutina con lo escrito intacto. Al guardar el circuito: ${ui('Circuito guardado')} y vuelve a la rutina, que muestra las series nuevas. Al guardar la rutina: ${ui('Rutina guardada')}.</p>` },
+    { id: 'CIR-06', g: 'cir', t: 'Duplicar desde la rutina', env: ['TODOS'],
+      steps: ['En QA Rutina A, editá QA Circuito rutina y tocá Duplicar.', 'Guardá la copia y volvé a la rutina.', 'Guardá la rutina y abrí el circuito original desde Circuitos.'],
+      exp: `<p>${ui('Copia creada y reemplazada en esta rutina')}. La rutina muestra ${ui('QA Circuito rutina (copia)')} en el lugar del original. El original no cambió y ya no está en QA Rutina A.</p>` },
+    { id: 'CIR-07', g: 'cir', t: 'Atrás del navegador', env: ['TODOS'],
+      steps: ['En QA Rutina A, cambiá el nombre sin guardar y abrí un circuito con Editar.', 'Tocá Atrás del navegador.', 'Recargá la página.'],
+      exp: '<p>Con Atrás vuelve a la rutina con el nombre cambiado. Al recargar, el borrador se pierde y aparece lo guardado.</p>' },
+
+    // ── Editar ──────────────────────────────────────────────
+    { id: 'EDT-01', g: 'edt', t: 'Editar una rutina', env: ['TODOS'],
+      steps: ['Tocá la tarjeta de QA Rutina A.', 'Cambiá el nombre a QA Rutina A1, quitá un circuito y agregá otro.', 'Guardá y mirá el body en Network.'],
+      exp: `<p>Abre <code>/a/rutinas/{id}</code> con ${ui('Editar')} arriba y los datos cargados. Al guardar: ${ui('Rutina guardada')} y vuelve a la lista. En <code>POST /routine/edit/{id}</code>, los circuitos que quedaron llevan el <code>id</code> de su vínculo y el nuevo va sin él, con <code>order</code> según la posición. (CU-E-17)</p>` },
+    { id: 'EDT-02', g: 'edt', t: 'Vaciar la nota', env: ['TODOS'],
+      steps: ['Borrá la nota del coach de QA Rutina A1 y guardá.', 'Abrila de nuevo.'],
+      exp: '<p>La nota queda vacía.</p>' },
+    { id: 'EDT-03', g: 'edt', t: 'Dejarla sin circuitos', env: ['TODOS'],
+      steps: ['Quitá todos los circuitos de QA Rutina A1 y guardá.'],
+      exp: `<p>${ui('Agregá al menos un circuito')} y no se guarda. (CU-E-17, caminos alternativos)</p>` },
+    { id: 'EDT-04', g: 'edt', t: 'Link a una rutina que no existe', env: ['TODOS'],
+      steps: ['Abrí <code>/a/rutinas/</code> seguido del id de QA Rutina A1 con el último carácter cambiado.', 'Abrí <code>/a/rutinas/abc</code>.'],
+      exp: `<p>En los dos: ${ui('No encontramos la rutina')} y ${ui('No hay ninguna rutina con ese enlace. Volvé a la lista.')}, sin Reintentar. (CU-E-17, caminos alternativos)</p>`,
+      kt: 'Hoy falla.', known: 'Con <code>abc</code> el backend responde 400 (el id no es un UUID) y el editor solo reconoce el 404: muestra «No pudimos cargar los datos» con Reintentar. Con el id cambiado anda bien. Marcalo Falla si ves eso. Lo arregla el PR #70 (T51), que todavía no está en <code>develop</code>; pasa igual en circuitos, planificaciones y ejercicios.' },
+    { id: 'EDT-05', g: 'edt', t: 'Guardar una rutina que dieron de baja en otra pestaña', env: ['TODOS'],
+      steps: ['En la pestaña A, abrí QA Rutina A1 y cambiá algo, sin guardar.', 'En la pestaña B, eliminala.', 'En la pestaña A, guardá.', 'Reactivala al terminar.'],
+      exp: `<p>Aviso rojo: ${ui('La rutina está dada de baja y no se puede editar. Reactivala primero.')}</p>` },
+    { id: 'EDT-06', g: 'edt', t: 'Un circuito dado de baja mientras lo agregás', env: ['TODOS'],
+      steps: ['En la pestaña A, agregá QA Circuito rutina (el original) a QA Rutina A1, sin guardar.', 'En la pestaña B, desactivá QA Circuito rutina desde Circuitos.', 'En la pestaña A, guardá.', 'Quitalo de la rutina y reactivalo al terminar.'],
+      exp: `<p>${ui('Alguno de los circuitos está dado de baja y no se puede agregar. Quitalo e intentá de nuevo.')} La rutina no cambia.</p>` },
+    { id: 'EDT-07', g: 'edt', t: 'Volver sin guardar', env: ['TODOS'],
+      steps: ['Cambiá el nombre de QA Rutina A1 y tocá Volver.', 'Abrila de nuevo.'],
+      exp: '<p>Vuelve a la lista sin guardar; el nombre sigue igual.</p>' },
+
+    // ── Eliminar y reactivar ────────────────────────────────
+    { id: 'BAJ-01', g: 'baj', t: 'Eliminar una rutina', env: ['TODOS'],
+      steps: [`En QA Rutina B, tocá ${ui('Eliminar rutina')}.`, 'Leé el mensaje y confirmá.'],
+      exp: `<p>${ui('Eliminar rutina')}: ${ui('QA Rutina B deja de ofrecerse para planificaciones y asignaciones nuevas. Las planificaciones que ya la incluyen y los alumnos que ya la tienen la conservan. Es una baja lógica: la podés reactivar cuando quieras.')} Al confirmar: ${ui('Rutina eliminada')}, vuelve a la lista y QA Rutina B ya no está. (CU-E-18 y su camino de rutina en uso)</p>` },
+    { id: 'BAJ-02', g: 'baj', t: 'Cancelar', env: ['TODOS'],
+      steps: ['En QA Rutina A1, tocá Eliminar rutina y después Cancelar.'],
+      exp: '<p>No cambia nada y no sale ningún request. (CU-E-18, caminos alternativos)</p>' },
+    { id: 'BAJ-03', g: 'baj', t: 'Una rutina inactiva', env: ['TODOS'],
+      steps: [`Prendé ${ui('Incluir inactivas')} y abrí QA Rutina B.`],
+      exp: `<p>${ui('Rutina inactiva: no se puede editar ni asignar. Reactivala para poder cambiarla.')} Los campos y los botones de circuitos están apagados, y abajo está ${ui('Reactivar rutina')}.</p>` },
+    { id: 'BAJ-04', g: 'baj', t: 'Reactivar', env: ['TODOS'],
+      steps: ['Tocá Reactivar rutina.'],
+      exp: `<p>No pide confirmación: ${ui('Rutina reactivada')}, la pantalla queda en la rutina y los campos se habilitan.</p>` },
+    { id: 'BAJ-05', g: 'baj', t: 'El panel cuenta solo las vigentes', env: ['TODOS'],
+      steps: ['Eliminá QA Rutina B y mirá la tarjeta Rutinas del Panel.', 'Reactivala y volvé a mirar.'],
+      exp: '<p>El número baja uno y vuelve a subir.</p>' },
+
+    // ── Tarjetas y búsqueda ─────────────────────────────────
+    { id: 'FIL-01', g: 'fil', t: 'Las tarjetas', env: ['TODOS'],
+      steps: ['Recorré la lista con QA Rutina A1 y QA Rutina B.'],
+      exp: `<p>Cada tarjeta muestra el nombre, la nota (hasta dos líneas) y ${ui('N ejercicios · M circuitos')}. Un circuito repetido suma sus ejercicios cada vez que aparece. Tocar la tarjeta abre el editor.</p>` },
+    { id: 'FIL-02', g: 'fil', t: 'Incluir inactivas', env: ['TODOS'],
+      steps: ['Eliminá QA Rutina B.', 'Prendé Incluir inactivas y recargá la página.'],
+      exp: `<p>Apagado se ven solo las vigentes (CU-E-15). Prendido, las inactivas van al final, apagadas y con ${ui('Inactiva')}. El chip queda en la dirección (<code>?filtro=inactivas</code>) y sigue al recargar.</p>` },
+    { id: 'FIL-03', g: 'fil', t: 'Buscar', env: ['TODOS'],
+      steps: [`Con el chip apagado, buscá ${tok('calentar')} (está en la nota de QA Rutina A1).`, 'Buscá QA Rutina B, que está dada de baja.', `Buscá ${tok('zzz')}.`],
+      exp: `<p>La búsqueda mira el nombre y la nota, sin acentos. QA Rutina B no aparece: ${ui('No encontramos rutinas activas con esa búsqueda. Activá “Incluir inactivas” para ver también las dadas de baja.')} Con zzz: ${ui('Sin coincidencias')} y ${ui('No encontramos rutinas con esa búsqueda.')}</p>` },
+
+    // ── Desde el Entrenador ─────────────────────────────────
+    { id: 'COA-01', g: 'coa', t: 'La pantalla del entrenador', env: ['TODOS'],
+      data: 'Tu cuenta real de entrenador.',
+      steps: ['Como entrenador, abrí la tab Rutinas, segmento Rutinas.', 'Abrí QA Rutina A1.', 'Abrí una rutina nueva con Crear rutina y volvé.'],
+      exp: `<p>Es el mismo listado en <code>/c/rutinas</code>, con los segmentos ${ui('Rutinas')} y ${ui('Circuitos')}, y el mismo editor en <code>/c/rutinas/{id}</code>. En una rutina vigente, abajo están ${ui('Asignar a alumno')} y ${ui('Eliminar')} lado a lado. En una nueva o en una inactiva no aparece Asignar a alumno.</p>` },
+    { id: 'COA-02', g: 'coa', t: 'Circuitos desde la rutina del entrenador', env: ['TODOS'],
+      steps: ['En QA Rutina A1, editá un circuito QA y guardalo.'],
+      exp: '<p>Va a <code>/c/circuitos/{id}</code> y vuelve a <code>/c/rutinas/{id}</code>. La tab Rutinas queda marcada todo el tiempo.</p>' },
+    { id: 'COA-03', g: 'coa', t: 'Ir a asignar no pierde lo escrito', env: ['TODOS'],
+      steps: ['En QA Rutina A1, cambiá el nombre sin guardar.', `Tocá ${ui('Asignar a alumno')} y después ${ui('Volver')}.`],
+      exp: '<p>Vuelve al editor con el nombre cambiado: lo escrito se guardó en memoria antes de salir.</p>' },
+    { id: 'COA-04', g: 'coa', t: 'Cambios entre roles', env: ['TODOS'],
+      steps: ['Como entrenador, cambiá la nota de QA Rutina A1 y guardá.', 'Como admin, recargá esa rutina.'],
+      exp: '<p>El admin ve el cambio: los dos roles editan las mismas rutinas.</p>' },
+
+    // ── Asignar a un alumno ─────────────────────────────────
+    { id: 'ASG-01', g: 'asg', t: 'Asignar desde la rutina', env: ['TODOS'],
+      data: 'El alumno QA Puntual, con la cuenta abierta y sin rutinas asignadas.',
+      steps: [`Como entrenador, en QA Rutina A1, tocá ${ui('Asignar a alumno')}.`, 'Buscá a QA Puntual por nombre o email y elegilo.', `Dejá el día en hoy y tocá ${ui('Asignar rutina')}. Mirá el body en Network.`],
+      exp: `<ul><li>Abre <code>/c/rutinas/{id}/asignar</code> con ${ui('Rutina · QA Rutina A1')} arriba y el título ${ui('Asignar a un alumno')}. Muestra la rutina (su nota y ${ui('N circuitos')}), el buscador ${ui('Buscar alumno por nombre o email')} (solo cuentas abiertas) y ${ui('Elegí un alumno para indicar el día.')}</li><li>Al elegirlo: su fila con ${ui('Cambiar')} y ${ui('Día')} en hoy, con ${ui('El día en que el alumno hace la rutina. Puede ser pasado o futuro.')}</li><li>Al asignar vuelve al editor de QA Rutina A1. <code>POST /routine/assign-user</code> responde 201 con <code>routine_id</code>, <code>user_id</code> y <code>date</code>. (CU-E-19, pasos 1 a 3)</li></ul>` },
+    { id: 'ASG-02', g: 'asg', t: 'Lo que confirma', env: ['TODOS'],
+      steps: ['Mirá el aviso que apareció al asignar en ASG-01.'],
+      exp: `<p>Confirma la asignación con el día y el nombre de la rutina: ${ui('QA Rutina A1 asignada a QA Puntual · …')} con la fecha. (CU-E-19, paso 4)</p>`,
+      kt: 'Hoy no cumple el CU.', known: 'Hoy dice «Rutina asignada · QA Puntual · …»: el alumno y el día, sin la rutina. Lo arregla el PR #70 (T51), que todavía no está en <code>develop</code>. Marcalo Falla si no ves el nombre de la rutina.' },
+    { id: 'ASG-03', g: 'asg', t: 'El alumno la ve ese día', env: ['TODOS'],
+      steps: ['En incógnito, entrá como QA Puntual y abrí el inicio.'],
+      exp: `<p>Esta semana muestra QA Rutina A1 con el día de hoy, ${ui('Hoy')} y su avance (${ui('0 de N ejercicios')}). (CU-E-19, postcondición, y CU-U-08)</p>` },
+    { id: 'ASG-04', g: 'asg', t: 'Días y repeticiones', env: ['TODOS'],
+      steps: ['Asignale QA Rutina A1 a QA Puntual para ayer y para la semana que viene.', 'Asignale QA Rutina A1 otra vez para hoy.', 'Cambiá el día a mañana y asigná.'],
+      exp: `<p>Ayer y la semana que viene se aceptan (CU-E-19, el día es pasado o futuro). Hoy otra vez: ${ui('Este alumno ya tiene esa rutina asignada ese día. Elegí otro día.')} y no se duplica (CU-E-19, rutina ya asignada ese día). Al cambiar el día el aviso se va, y mañana se acepta.</p>` },
+    { id: 'ASG-05', g: 'asg', t: 'Otra rutina el mismo día', env: ['TODOS'],
+      data: `Una segunda rutina vigente, por ejemplo ${tok('QA Rutina C')}, creada con un circuito cualquiera.`,
+      steps: ['Asignale QA Rutina C a QA Puntual para hoy.', 'Como QA Puntual, recargá el inicio.'],
+      exp: '<p>Se acepta: el alumno ve las dos rutinas hoy. Lo que no se admite es repetir la misma rutina el mismo día. (CU-E-19, el alumno ya tiene otra rutina ese día)</p>' },
+    { id: 'ASG-06', g: 'asg', t: 'Validar el día', env: ['TODOS'],
+      steps: ['Abrí Asignar a alumno, elegí a QA Puntual y borrá el día.', 'Tocá Asignar rutina.'],
+      exp: `<p>${ui('Elegí el día en que el alumno hace la rutina')} junto al campo, sin request.</p>` },
+    { id: 'ASG-07', g: 'asg', t: 'Una rutina dada de baja', env: ['TODOS'],
+      steps: ['Reactivá QA Rutina B, asignásela a QA Puntual para mañana y volvé a eliminarla.', 'Abrí <code>/c/rutinas/</code> + el id de QA Rutina B + <code>/asignar</code>.', 'En la pestaña A, abrí Asignar a alumno en QA Rutina C y elegí a QA Puntual. En la pestaña B, eliminá QA Rutina C. En la pestaña A, asigná. Reactivala al terminar.', 'Abrí las Rutinas puntuales de QA Puntual (detalle del alumno).'],
+      exp: `<ul><li>${ui('Esta rutina está dada de baja: no se ofrece para asignaciones nuevas. Reactivala desde su editor para asignarla.')} con ${ui('Abrir editor')} y sin buscador de alumnos.</li><li>La que la dieron de baja en el medio: ${ui('La rutina está dada de baja y no se puede asignar. Reactivala desde su editor.')} (CU-E-19, la rutina está dada de baja)</li><li>La asignación de mañana sigue, con ${ui('La rutina está dada de baja, pero esta asignación sigue vigente.')}</li></ul>` },
+    { id: 'ASG-08', g: 'asg', t: 'Asignar desde el alumno', env: ['TODOS'],
+      steps: [`En el detalle de QA Puntual, tocá ${ui('Rutinas puntuales')} (${ui('Asignar o quitar')}).`, `Tocá ${ui('Asignar rutina')}.`, 'Buscá rutinas, elegí QA Rutina A1 y asignala para dentro de dos semanas.'],
+      exp: `<p>El modal ${ui('Rutinas puntuales')} dice ${ui('Las que le asignaste a QA Puntual para un día.')} El botón lleva a <code>/c/alumnos/{id}/asignar-rutina</code> con el nombre del alumno arriba y el título ${ui('Asignar rutina')}. El selector (${ui('Buscar rutina')}) ofrece solo las vigentes: QA Rutina B no está. Sin elegir: ${ui('Elegí una rutina para indicar el día.')} Al asignar vuelve al detalle del alumno.</p>` },
+    { id: 'ASG-09', g: 'asg', t: 'Destinatario que no es alumno o con la cuenta cerrada', env: ['TODOS'],
+      steps: ['Abrí <code>/c/alumnos/{id}/asignar-rutina</code> con el id de tu cuenta de entrenador (el que va en <code>GET /users/get/{id}</code> al abrir tus Datos personales).', 'Abrí <code>/c/rutinas/abc/asignar</code>.', 'Cerrá la cuenta de QA Puntual desde su detalle y abrí sus Rutinas puntuales y su <code>/c/alumnos/{id}/asignar-rutina</code>.', 'Desde Asignar a alumno en QA Rutina A1, buscalo. Reactivá la cuenta al terminar.'],
+      exp: `<ul><li>Con el entrenador: ${ui('No encontramos al alumno')} y ${ui('No hay ningún alumno con ese enlace. Volvé a la lista.')} Con abc: ${ui('No encontramos la rutina')} y ${ui('No hay ninguna rutina con ese enlace. Volvé a la lista.')}</li><li>Con la cuenta cerrada, el modal dice ${ui('La cuenta está inactiva: reactivala para asignarle una rutina.')} sin Asignar rutina, y la pantalla de asignar, ${ui('La cuenta está inactiva: no se le puede asignar una rutina. Reactivala desde su detalle.')} sin selector. Desde la rutina, el buscador no lo ofrece. (CU-E-19, el destinatario no es un alumno o su cuenta está cerrada)</li></ul>` },
+
+    // ── Quitar a un alumno ──────────────────────────────────
+    { id: 'QUI-01', g: 'qui', t: 'Las rutinas puntuales del alumno', env: ['TODOS'],
+      steps: ['Abrí las Rutinas puntuales de QA Puntual y mirá el request en Network.', `Prendé ${ui('Incluir anteriores')}.`],
+      exp: `<p>Sale <code>GET /routine/assigned/{id}</code>. Cada tarjeta tiene la rutina, ${ui('Hoy')}, ${ui('Próxima')} o ${ui('Pasada')}, la fecha y ${ui('Sin ejercicios hechos')} (o cuántos hizo). Primero las de hoy y las próximas, por fecha; con el chip, también las pasadas (la de ayer). (CU-E-20, paso 1)</p>` },
+    { id: 'QUI-02', g: 'qui', t: 'Quitar una rutina', env: ['TODOS'],
+      steps: ['En la de mañana de QA Rutina A1, tocá Quitar y cancelá.', 'Tocá Quitar de nuevo, leé el mensaje y confirmá.', 'Como QA Puntual, pasá al día de mañana en el inicio.'],
+      exp: `<p>${ui('Quitar rutina')}: ${ui('QA Rutina A1 del … deja de verse en el home de QA Puntual. Es un borrado definitivo, no una baja lógica: la asignación no se puede reincorporar, habría que asignarla de nuevo. Si el alumno ya la entrenó, no se puede quitar.')} Cancelar no cambia nada (CU-E-20, cancela la confirmación). Al confirmar sale <code>DELETE /routine/assign-user/{id}</code>, la tarjeta se va y el alumno ya no la ve. (CU-E-20)</p>` },
+    { id: 'QUI-03', g: 'qui', t: 'Lo que confirma', env: ['TODOS'],
+      steps: ['Mirá el aviso que apareció al quitar en QUI-02.'],
+      exp: `<p>Muestra la asignación que se quitó: ${ui('Rutina quitada · QA Rutina A1 · …')} con la fecha. (CU-E-20, paso 3)</p>`,
+      kt: 'Hoy no cumple el CU.', known: 'Hoy dice solo «Rutina quitada». Lo arregla el PR #70 (T51), que todavía no está en <code>develop</code>. Marcalo Falla si no ves cuál se quitó.' },
+    { id: 'QUI-04', g: 'qui', t: 'Una que el alumno ya entrenó', env: ['TODOS'],
+      steps: ['Abrí las Rutinas puntuales de QA Puntual en la pestaña A.', 'Como QA Puntual, abrí la QA Rutina A1 de hoy y marcá un ejercicio como hecho.', 'En la pestaña A, tocá Quitar en esa tarjeta y confirmá.', 'Cerrá y abrí el modal otra vez.'],
+      exp: `<p>${ui('El alumno ya entrenó esta rutina, así que no se puede quitar: su historial se conserva.')} y no se quita (CU-E-20, el alumno ya entrenó la rutina). Al reabrir, la tarjeta dice ${ui('1 de N ejercicios hechos')} y ${ui('Ya la entrenó: no se puede quitar')}, sin botón.</p>` },
+    { id: 'QUI-05', g: 'qui', t: 'Ya quitada en otra pestaña', env: ['TODOS'],
+      steps: ['Abrí las Rutinas puntuales de QA Puntual en dos pestañas.', 'Quitá la misma asignación (una sin ejercicios hechos) en las dos.'],
+      exp: `<p>La segunda dice ${ui('Esa asignación ya no existe.')} y la lista se pone al día. (CU-E-20, la asignación ya no existe)</p>` },
+    { id: 'QUI-06', g: 'qui', t: 'Sin rutinas puntuales', env: ['TODOS'],
+      data: 'Otro alumno sin rutinas asignadas.',
+      steps: ['Abrí sus Rutinas puntuales.'],
+      exp: `<p>${ui('Sin rutinas puntuales')} y ${ui('Todavía no le asignaste ninguna rutina para un día.')}, sin el chip Incluir anteriores.</p>` },
+
+    // ── Errores y pantallas ─────────────────────────────────
+    { id: 'ERR-01', g: 'err', t: 'Servidor caído al cargar', env: ['LOCAL'],
+      steps: ['Apagá el backend local y recargá Rutinas y el editor de QA Rutina A1.', 'Prendelo y tocá Reintentar.'],
+      exp: `<p>Cada pantalla muestra ${ui('No pudimos cargar los datos')} con Reintentar, y con el backend prendido cargan.</p>` },
+    { id: 'ERR-02', g: 'err', t: 'Servidor caído al guardar', env: ['LOCAL'],
+      steps: ['Cambiá algo en QA Rutina A1.', 'Apagá el backend y guardá.', 'Prendelo y guardá otra vez.'],
+      exp: '<p>Aviso rojo arriba del formulario y lo escrito se conserva. Con el backend prendido se guarda.</p>' },
+    { id: 'ERR-03', g: 'err', t: 'Celular y escritorio', env: ['TODOS'],
+      steps: ['Recorré el listado, el editor con varios circuitos y el selector en el celular, o en DevTools a 390 px.', 'Repetí en escritorio.'],
+      exp: '<ul><li>Sin scroll horizontal ni textos cortados; los botones de cada tarjeta de circuito entran en una fila.</li><li>El selector sale como hoja desde abajo en el celular y centrado en escritorio.</li><li>En escritorio, las rutinas van en dos columnas.</li></ul>' },
+    { id: 'ERR-04', g: 'err', t: 'Teclado y lector de pantalla', env: ['TODOS'],
+      steps: ['Recorré el editor solo con Tab y Enter, incluidos Subir, Bajar y el selector.'],
+      exp: '<p>El foco siempre se ve, los botones de cada circuito se anuncian con su nombre y los errores aparecen junto a su campo.</p>' },
+
+    // ── Limpieza ────────────────────────────────────────────
+    { id: 'FIN-01', g: 'fin', t: 'Dejar las rutinas de prueba fuera de uso', env: ['TODOS'],
+      steps: ['En las Rutinas puntuales de QA Puntual, quitá las que se puedan (las entrenadas quedan) y cerrá su cuenta.', 'Renombrá cada rutina QA activa con «QA (no usar)» adelante y guardá.', 'Eliminalas.', 'Desactivá QA Circuito rutina y su copia desde Circuitos.', `Con el chip apagado, buscá ${tok('QA')} en Rutinas.`],
+      exp: '<p>La búsqueda vuelve vacía: las rutinas y los circuitos de prueba quedan solo entre los inactivos, y QA Puntual queda sin asignaciones que se puedan quitar.</p>' },
+  ];
+
+  // ── Estado ────────────────────────────────────────────────
+  const LOCAL_KEY = 'powerapp.pruebas-rutinas.v1';
+  const blank = () => ({ status: null, note: '', at: null });
+  const state = Object.fromEntries(CASES.map((c) => [c.id, blank()]));
+  let db = null;
+  let mode = 'connecting'; // connecting | db | local | error
+  let fStatus = 'all';
+  let fEnv = 'all';
+  const writing = new Set();
+  const dirty = new Set();
+  const pending = new Set();
+  const noteTimers = {};
+
+  const $ = (s, el = document) => el.querySelector(s);
+  const statusOf = (id) => state[id].status || 'none';
+
+  function fmtWhen(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+
+  // ── Render estático ──────────────────────────────────────
+  function caseHtml(c) {
+    const envs = c.env.map((e) => `<span class="tag t-${e}">${ENVS[e]}</span>`).join('');
+    const steps = c.steps.map((s) => `<li>${s}</li>`).join('');
+    const seg = STATUSES.map((s) => `<button type="button" class="sb v-${s.v}" data-v="${s.v}" aria-pressed="false"><span class="ic" aria-hidden="true">${s.ic}</span>${s.label}</button>`).join('');
+    return `<article class="case" id="case-${c.id}" data-id="${c.id}" data-status="none">
+      <div class="chead"><span class="cid">${c.id}</span><h3>${c.t}</h3><div class="ctags">${envs}<span class="pill" data-pill>Sin probar</span></div></div>
+      ${c.data ? `<p class="cdata"><b>Datos:</b> ${c.data}</p>` : ''}
+      <div class="cbody"><div><h4>Cómo probarlo</h4><ol class="steps">${steps}</ol></div><div class="expect"><h4>Qué tenés que ver</h4>${c.exp}</div></div>
+      ${c.known ? `<div class="known" role="note"><span><b>${c.kt || 'Hoy falla.'}</b> ${c.known}</span></div>` : ''}
+      <div class="cfoot">
+        <div class="seg" role="group" aria-label="Resultado de ${c.id}">${seg}</div>
+        <div class="notewrap">
+          <label class="when" for="note-${c.id}"><span data-when>Sin marcar</span></label>
+          <textarea class="note" id="note-${c.id}" rows="1" placeholder="Qué viste, si algo no coincide (opcional)"></textarea>
+        </div>
+      </div>
+    </article>`;
+  }
+
+  function renderStatic() {
+    const root = $('#groups');
+    root.innerHTML = GROUPS.map((g) => {
+      const cases = CASES.filter((c) => c.g === g.id);
+      const cu = g.cu ? `<a class="cu" href="${DOCS}${g.file}" target="_blank" rel="noopener">${g.cu}</a>` : '';
+      return `<section class="group" id="${g.id}" data-g="${g.id}">
+        <div class="ghead"><h2>${g.name}</h2>${cu}${g.sub ? `<span class="gsub">${g.sub}</span>` : ''}<span class="gprog" data-gprog></span></div>
+        <div class="cases">${cases.map(caseHtml).join('')}</div>
+      </section>`;
+    }).join('');
+
+    $('#jump').innerHTML = GROUPS.map((g) => `<a href="#${g.id}" data-jump="${g.id}">${g.name}<span class="p" data-jp></span></a>`).join('');
+
+    const st = $('#f-status');
+    [['all', 'Todos'], ['none', 'Sin probar'], ['fail', 'Falla'], ['retest', 'Re-testear'], ['ok', 'Funciona']].forEach(([v, l]) => {
+      st.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-fs="${v}" aria-pressed="${v === 'all'}">${l}<span class="k" data-k="${v}"></span></button>`);
+    });
+    const en = $('#f-env');
+    ENV_FILTERS.forEach(([v, l]) => {
+      en.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-fe="${v}" aria-pressed="${v === 'all'}">${l}</button>`);
+    });
+  }
+
+  // ── Render dinámico ──────────────────────────────────────
+  function updateCard(id) {
+    const card = document.getElementById('case-' + id);
+    if (!card) return;
+    const s = state[id];
+    const st = statusOf(id);
+    card.dataset.status = st;
+    card.querySelectorAll('.sb').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === s.status)));
+    const pill = card.querySelector('[data-pill]');
+    pill.textContent = STATUS_LABEL[st];
+    pill.className = 'pill' + (st === 'none' ? '' : ' s-' + st);
+    const ta = card.querySelector('.note');
+    if (document.activeElement !== ta && ta.value !== s.note) ta.value = s.note;
+    card.querySelector('[data-when]').textContent = s.at ? 'Actualizado ' + fmtWhen(s.at) : 'Sin marcar';
+  }
+
+  function visible(c) {
+    const st = statusOf(c.id);
+    if (fStatus !== 'all' && st !== fStatus) return false;
+    if (fEnv !== 'all' && !c.env.includes(fEnv) && !c.env.includes('TODOS')) return false;
+    return true;
+  }
+
+  function applyFilters() {
+    let any = false;
+    GROUPS.forEach((g) => {
+      let shown = 0;
+      CASES.filter((c) => c.g === g.id).forEach((c) => {
+        const v = visible(c);
+        document.getElementById('case-' + c.id).hidden = !v;
+        if (v) shown++;
+      });
+      document.getElementById(g.id).hidden = shown === 0;
+      if (shown) any = true;
+    });
+    $('#empty').hidden = any;
+  }
+
+  function updateSummary() {
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const total = CASES.length;
+    ['ok', 'fail', 'retest', 'none'].forEach((k) => { $('#n-' + k).textContent = n[k]; });
+    ['ok', 'fail', 'retest'].forEach((k) => { $('#b-' + k).style.width = (n[k] / total * 100) + '%'; });
+    $('#bar').setAttribute('aria-label', `${total - n.none} de ${total} casos probados: ${n.ok} funcionan, ${n.fail} fallan, ${n.retest} para re-testear`);
+    document.querySelectorAll('[data-k]').forEach((el) => {
+      const k = el.dataset.k;
+      el.textContent = k === 'all' ? total : n[k];
+    });
+    GROUPS.forEach((g) => {
+      const cs = CASES.filter((c) => c.g === g.id);
+      const done = cs.filter((c) => statusOf(c.id) !== 'none').length;
+      const fails = cs.filter((c) => statusOf(c.id) === 'fail').length;
+      const txt = `${done}/${cs.length} probados${fails ? ` · ${fails} con falla` : ''}`;
+      document.getElementById(g.id).querySelector('[data-gprog]').textContent = txt;
+      document.querySelector(`[data-jump="${g.id}"] [data-jp]`).textContent = `${done}/${cs.length}`;
+    });
+  }
+
+  function refreshAll() {
+    CASES.forEach((c) => updateCard(c.id));
+    updateSummary();
+    applyFilters();
+  }
+
+  function setSave(kind, text) {
+    const el = $('#save');
+    el.className = 'save' + (kind ? ' is-' + kind : '');
+    $('#save-t').textContent = text;
+  }
+
+  // ── Guardado ─────────────────────────────────────────────
+  function saveLocal() {
+    try { localStorage.setItem(LOCAL_KEY, JSON.stringify(state)); } catch { /* sin storage: queda en memoria */ }
+  }
+  function loadLocal() {
+    try {
+      const raw = localStorage.getItem(LOCAL_KEY);
+      if (!raw) return;
+      const v = JSON.parse(raw);
+      Object.keys(state).forEach((id) => { if (v && v[id]) state[id] = normalize(v[id]); });
+    } catch { /* ignorar */ }
+  }
+  function normalize(v) {
+    const okStatus = ['ok', 'fail', 'retest'].includes(v.status) ? v.status : null;
+    return { status: okStatus, note: typeof v.note === 'string' ? v.note : '', at: typeof v.at === 'string' ? v.at : null };
+  }
+
+  const DB_OK = 'Guardado en el artefacto: lo ves desde cualquier dispositivo.';
+  const LOCAL_ONLY = 'Solo en este navegador: no se ve desde otro dispositivo y se pierde si borrás los datos de navegación. Exportá los resultados a un JSON para conservarlos.';
+
+  // Siempre queda una copia en el navegador; en el artefacto, además, se sube.
+  async function persist(id) {
+    saveLocal();
+    if (mode !== 'db') return;
+    pending.add(id);
+    if (writing.has(id)) { dirty.add(id); return; }
+    writing.add(id);
+    setSave('db', 'Guardando…');
+    try {
+      do {
+        dirty.delete(id);
+        const s = state[id];
+        await db.doc('results/' + id).set({ status: s.status, note: s.note, at: s.at });
+      } while (dirty.has(id));
+      setSave('db', DB_OK);
+    } catch (e) {
+      setSave('err', 'No se pudo guardar el último cambio en el artefacto. Quedó en este navegador: volvé a marcarlo en un momento.');
+    } finally {
+      writing.delete(id);
+      pending.delete(id);
+    }
+  }
+
+  // Por cada caso gana el resultado más reciente, venga del navegador o del artefacto.
+  const isNewer = (a, b) => Boolean(a.at) && (!b.at || a.at > b.at);
+
+  async function uploadNewer() {
+    const remote = {};
+    try {
+      const snap = await db.collection('results').get();
+      snap.docs.forEach((d) => { const v = d.data(); if (v) remote[d.id] = normalize(v); });
+    } catch {
+      setSave('err', 'No se pudo comparar con el artefacto. Lo que marques queda en este navegador.');
+      return;
+    }
+    const ids = CASES.map((c) => c.id).filter((id) => {
+      const s = state[id];
+      if (!s.status && !s.note) return false;
+      return !remote[id] || isNewer(s, remote[id]);
+    });
+    if (!ids.length) { setSave('db', DB_OK); return; }
+    setSave('db', `Subiendo ${ids.length} resultados de este navegador al artefacto…`);
+    for (const id of ids) await persist(id);
+  }
+
+  async function initStore() {
+    let ns = null;
+    try {
+      ns = window.claude && typeof window.claude.use === 'function' ? await window.claude.use('db') : null;
+    } catch { ns = null; }
+    if (!ns) {
+      mode = 'local';
+      setSave('local', LOCAL_ONLY);
+      return;
+    }
+    db = ns;
+    mode = 'db';
+    setSave('db', 'Sincronizando…');
+    let synced = false;
+    db.collection('results').onSnapshot((snap) => {
+      snap.docs.forEach((d) => {
+        if (!state[d.id] || pending.has(d.id)) return;
+        const v = d.data();
+        if (!v) return;
+        const r = normalize(v);
+        if (!state[d.id].at || !isNewer(state[d.id], r)) state[d.id] = r;
+      });
+      refreshAll();
+      if (!synced) { synced = true; uploadNewer(); }
+      else if (!writing.size) setSave('db', DB_OK);
+    }, () => {
+      mode = 'local';
+      setSave('err', 'Se perdió la conexión con el artefacto. Lo que marques ahora queda solo en este navegador.');
+    });
+  }
+
+  // ── Eventos ──────────────────────────────────────────────
+  function copyText(text, onDone) {
+    const fallback = () => {
+      const box = $('#copy-fall');
+      const ta = $('#copy-fall-t');
+      ta.value = text;
+      box.hidden = false;
+      ta.focus();
+      ta.select();
+    };
+    try {
+      navigator.clipboard.writeText(text).then(onDone, fallback);
+    } catch { fallback(); }
+  }
+
+  function buildSummary() {
+    const today = new Date().toLocaleDateString('es-AR');
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const lines = [`${PLAN_NAME} · ${today}`, `Funciona ${n.ok} · Falla ${n.fail} · Re-testear ${n.retest} · Sin probar ${n.none}`];
+    [['fail', 'Falla'], ['retest', 'Re-testear']].forEach(([k, label]) => {
+      const cs = CASES.filter((c) => statusOf(c.id) === k);
+      if (!cs.length) return;
+      lines.push('', label);
+      cs.forEach((c) => {
+        const note = state[c.id].note.trim();
+        lines.push(`- ${c.id} ${c.t}${note ? ': ' + note.replace(/\s+/g, ' ') : ''}`);
+      });
+    });
+    if (!n.fail && !n.retest) lines.push('', 'Sin fallas ni casos para re-testear.');
+    return lines.join('\n');
+  }
+
+  // ── Exportar / importar resultados (JSON para versionar en el repo) ──
+  const PLAN_ID = PAGE_ID.replace(/-powerapp$/, '');
+  const EXPORT_VERSION = 1;
+  // Nombre listo para el repo: <N>-<plan>.resultados.json, con N = la tanda que sigue a las que lista Tests/README.md
+  // (ver loadFromRepo). Si no se pudo leer ese índice (file://, sin red) no se sabe N: se usa la fecha, que no pisa nada.
+  let nextRun = null;
+  const exportFileName = () => {
+    if (nextRun) return `${nextRun}-${PLAN_ID}.resultados.json`;
+    const d = new Date();
+    const p = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}-${PLAN_ID}.resultados.json`;
+  };
+
+  function buildExport() {
+    const n = { ok: 0, fail: 0, retest: 0, none: 0 };
+    CASES.forEach((c) => n[statusOf(c.id)]++);
+    const results = {};
+    CASES.forEach((c) => {
+      const s = state[c.id];
+      results[c.id] = { title: c.t, status: s.status, note: s.note, at: s.at };
+    });
+    return { plan: PLAN_ID, version: EXPORT_VERSION, exportedAt: new Date().toISOString(), summary: { total: CASES.length, ...n }, results };
+  }
+
+  function showIo(kind, text) {
+    const el = $('#io-msg');
+    el.className = 'iomsg' + (kind ? ' is-' + kind : '');
+    el.textContent = text;
+    el.hidden = false;
+  }
+
+  function exportResults() {
+    const file = exportFileName();
+    const blob = new Blob([JSON.stringify(buildExport(), null, 2) + '\n'], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    const folder = decodeURIComponent(location.pathname.split('/').slice(-2, -1)[0] || '');
+    const where = folder ? `Tests/${folder}/` : 'la carpeta de este plan en Tests/';
+    if (nextRun) {
+      const line = `  - [Tanda ${nextRun}](${encodeURIComponent(folder)}/${file})`;
+      showIo('ok', `Descargué ${file}. Guardalo en ${where} y, si querés que quede en el sitio, sumá esta línea bajo este plan en Tests/README.md: ${line.trim()}`);
+    } else {
+      showIo('ok', `Descargué ${file}. Guardalo en ${where} y, si querés que quede en el sitio, sumalo como sub-bullet bajo este plan en Tests/README.md.`);
+    }
+  }
+
+  // Combina por caso: gana el resultado con la fecha (at) más reciente, así no se pierde nada de lo marcado acá.
+  const stamp = (iso) => { const t = iso ? Date.parse(iso) : NaN; return Number.isNaN(t) ? -Infinity : t; };
+
+  // Devuelve un mensaje de error si el JSON no es un export de este plan, o null si está bien.
+  function checkResults(data) {
+    if (!data || typeof data !== 'object' || data.plan !== PLAN_ID || !data.results || typeof data.results !== 'object') {
+      return `Ese archivo no corresponde a este plan (esperaba plan «${PLAN_ID}»).`;
+    }
+    if (typeof data.version !== 'number' || data.version > EXPORT_VERSION) {
+      return 'El archivo es de una versión más nueva del plan y no sé leerlo.';
+    }
+    return null;
+  }
+
+  function mergeResults(data) {
+    const changed = [];
+    let newer = 0;
+    CASES.forEach((c) => {
+      const src = data.results[c.id];
+      if (!src || typeof src !== 'object') return;
+      const inc = normalize(src);
+      if (!inc.status && !inc.note) return;
+      const cur = state[c.id];
+      if (inc.status === cur.status && inc.note === cur.note && inc.at === cur.at) return;
+      if (stamp(inc.at) > stamp(cur.at)) { state[c.id] = inc; changed.push(c.id); } else newer++;
+    });
+    const unknown = Object.keys(data.results).filter((id) => !state[id]).length;
+    changed.forEach((id) => persist(id));
+    refreshAll();
+    return { changed: changed.length, newer, unknown };
+  }
+
+  async function importResults(file) {
+    let data;
+    try {
+      data = JSON.parse(await file.text());
+    } catch {
+      showIo('err', 'No pude leer el archivo: no es un JSON válido.');
+      return;
+    }
+    const bad = checkResults(data);
+    if (bad) { showIo('err', bad); return; }
+    const { changed, newer, unknown } = mergeResults(data);
+
+    const parts = [];
+    if (changed) {
+      const when = data.exportedAt ? fmtWhen(data.exportedAt) : '';
+      parts.push(`Importé ${changed} ${changed === 1 ? 'caso' : 'casos'}${when ? ' (exportado el ' + when + ')' : ''}.`);
+    } else if (newer) {
+      parts.push('No cambié nada: lo que tenés acá es más reciente que el archivo.');
+    } else {
+      parts.push('El archivo no trae nada nuevo: ya tenés esos resultados.');
+    }
+    if (changed && newer) parts.push(newer === 1 ? 'Dejé 1 caso que acá ya tenía un resultado más reciente.' : `Dejé ${newer} casos que acá ya tenían un resultado más reciente.`);
+    if (unknown) parts.push(unknown === 1 ? 'Ignoré 1 caso que ya no está en el plan.' : `Ignoré ${unknown} casos que ya no están en el plan.`);
+    showIo(changed ? 'ok' : '', parts.join(' '));
+  }
+
+  // ── Resultados guardados en el repo ──────────────────────
+  // Tests/README.md lista las tandas de cada plan (sub-bullets bajo el plan; la última es la más reciente).
+  // Al abrir el plan se busca su entrada, se baja ese JSON y se combina con lo local (gana la fecha más nueva).
+  function runsOf(md, readmeUrl, pageKey) {
+    let inFence = false;
+    let mine = false;
+    const runs = [];
+    md.split(/\r?\n/).forEach((line) => {
+      if (/^\s*```/.test(line)) { inFence = !inFence; return; }
+      if (inFence) return;
+      const plan = /^-\s+\[[^\]]+\]\(([^)]+)\)/.exec(line);
+      if (plan) {
+        const u = new URL(plan[1], readmeUrl);
+        mine = u.origin + u.pathname === pageKey;
+        return;
+      }
+      const run = /^\s+-\s+\[([^\]]+)\]\(([^)]+)\)/.exec(line);
+      if (run && mine) runs.push({ label: run[1], url: new URL(run[2], readmeUrl).href });
+    });
+    return runs;
+  }
+
+  // Número de la próxima tanda: el mayor entre la cantidad de tandas listadas y el prefijo numérico más alto
+  // de sus archivos (1-…, 2-…); los nombres con fecha (2026-…) no cuentan como número.
+  function nextRunNumber(runs) {
+    let max = runs.length;
+    runs.forEach((r) => {
+      const m = /^(\d{1,3})-/.exec(decodeURIComponent(r.url.split('/').pop() || ''));
+      if (m) max = Math.max(max, Number(m[1]));
+    });
+    return max + 1;
+  }
+
+  async function loadFromRepo() {
+    try {
+      const readmeUrl = new URL('../README.md', location.href).href;
+      const res = await fetch(readmeUrl, { cache: 'no-cache' });
+      if (!res.ok) return;
+      const runs = runsOf(await res.text(), readmeUrl, location.origin + location.pathname);
+      nextRun = nextRunNumber(runs);
+      const last = runs[runs.length - 1];
+      if (!last) return;
+      const r = await fetch(last.url, { cache: 'no-cache' });
+      if (!r.ok) return;
+      const data = await r.json();
+      if (checkResults(data)) return;
+      const { changed } = mergeResults(data);
+      if (changed) {
+        const when = data.exportedAt ? fmtWhen(data.exportedAt) : '';
+        showIo('ok', `Cargué ${changed} ${changed === 1 ? 'caso' : 'casos'} de «${last.label}», la última tanda guardada en el repo${when ? ' (exportada el ' + when + ')' : ''}.`);
+      }
+    } catch { /* sin README ni red (por ejemplo, abierto con file://): queda lo que haya en este navegador */ }
+  }
+
+  document.addEventListener('click', (e) => {
+    const sb = e.target.closest('.sb');
+    if (sb) {
+      const id = sb.closest('.case').dataset.id;
+      const s = state[id];
+      s.status = s.status === sb.dataset.v ? null : sb.dataset.v;
+      s.at = new Date().toISOString();
+      updateCard(id);
+      updateSummary();
+      persist(id);
+      return;
+    }
+    const fs = e.target.closest('[data-fs]');
+    if (fs) {
+      fStatus = fs.dataset.fs;
+      document.querySelectorAll('[data-fs]').forEach((b) => b.setAttribute('aria-pressed', String(b === fs)));
+      applyFilters();
+      return;
+    }
+    const fe = e.target.closest('[data-fe]');
+    if (fe) {
+      fEnv = fe.dataset.fe;
+      document.querySelectorAll('[data-fe]').forEach((b) => b.setAttribute('aria-pressed', String(b === fe)));
+      applyFilters();
+      return;
+    }
+    const t = e.target.closest('.tok');
+    if (t) {
+      copyText(t.dataset.copy, () => {
+        t.classList.add('copied');
+        setTimeout(() => t.classList.remove('copied'), 1200);
+      });
+      return;
+    }
+    if (e.target.closest('#exp-res')) { exportResults(); return; }
+    if (e.target.closest('#imp-res')) { $('#imp-file').click(); return; }
+    if (e.target.closest('#copy-sum')) {
+      const btn = $('#copy-sum');
+      copyText(buildSummary(), () => {
+        btn.textContent = 'Resumen copiado';
+        setTimeout(() => { btn.textContent = 'Copiar resumen de fallas'; }, 1600);
+      });
+    }
+  });
+
+  document.addEventListener('change', (e) => {
+    const inp = e.target.closest && e.target.closest('#imp-file');
+    if (!inp) return;
+    const file = inp.files && inp.files[0];
+    inp.value = '';
+    if (file) importResults(file);
+  });
+
+  document.addEventListener('input', (e) => {
+    const ta = e.target.closest('.note');
+    if (!ta) return;
+    const id = ta.closest('.case').dataset.id;
+    state[id].note = ta.value;
+    clearTimeout(noteTimers[id]);
+    noteTimers[id] = setTimeout(() => {
+      state[id].at = new Date().toISOString();
+      updateCard(id);
+      persist(id);
+    }, 700);
+  });
+  document.addEventListener('focusout', (e) => {
+    const ta = e.target.closest && e.target.closest('.note');
+    if (!ta) return;
+    const id = ta.closest('.case').dataset.id;
+    if (noteTimers[id]) {
+      clearTimeout(noteTimers[id]);
+      noteTimers[id] = null;
+      state[id].at = new Date().toISOString();
+      updateCard(id);
+      persist(id);
+    }
+  });
+
+  const prep = $('#prep');
+  try { if (localStorage.getItem(LOCAL_KEY + '.prep') === 'closed') prep.open = false; } catch { /* ignorar */ }
+  prep.addEventListener('toggle', () => {
+    try { localStorage.setItem(LOCAL_KEY + '.prep', prep.open ? 'open' : 'closed'); } catch { /* ignorar */ }
+  });
+
+  renderStatic();
+  loadLocal();
+  refreshAll();
+  initStore().then(loadFromRepo);
+})();
+</script>
+
+
+</body></html>
