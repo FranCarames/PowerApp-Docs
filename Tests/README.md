@@ -43,6 +43,7 @@ Con eso, **no hace falta importar a mano**:
 - [Pruebas de acceso](Acceso/Pruebas%20de%20acceso%20PowerApp.html) — Registro, login, recuperación y cambio de contraseña, cierre de sesión y navegación (CU-U-01 a CU-U-05).
   - [Tanda 1](Acceso/1-pruebas-acceso.resultados.json)
   - [Tanda 2](Acceso/2026-10-11-1842-pruebas-acceso.resultados.json)
+  - [Tanda 3](Acceso/3-pruebas-acceso.resultados.json)
 - [Pruebas de ejercicios](Ejercicios/Pruebas%20de%20ejercicios.html) — Catálogo de ejercicios del Admin: listado, búsqueda y filtro por grupo, alta y edición con sus músculos, borrado, y cómo llegan a los circuitos, a la wiki y a los RMs del alumno (CU-A-01 a CU-A-06).
   - [Tanda 1](Ejercicios/1-pruebas-ejercicios.resultados.json)
   - [Tanda 2](Ejercicios/2-pruebas-ejercicios.resultados.json)
@@ -50,6 +51,7 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 1](Musculos/1-pruebas-musculos.resultados.json)
 - [Pruebas de usuarios y entrenadores](Usuarios%20y%20entrenadores/Pruebas%20de%20usuarios%20y%20entrenadores.html) — Gestión de cuentas del Admin: listado y detalle de usuarios, baja y reactivación, y entrenadores (convertir a un alumno, editar sus datos profesionales y darlo de baja) (CU-A-16 a CU-A-19).
   - [Tanda 1](Usuarios%20y%20entrenadores/1-pruebas-usuarios.resultados.json)
+  - [Tanda 2](Usuarios%20y%20entrenadores/2-pruebas-usuarios.resultados.json)
 - [Pruebas de membresías](Membresias/Pruebas%20de%20membres%C3%ADas.html) — Tipos de membresía del Admin: listado, alta, edición, baja y reactivación, y cómo llegan al registro de pagos del Entrenador y al historial del alumno (CU-A-20 a CU-A-23).
   - [Tanda 1](Membresias/1-pruebas-membresias.resultados.json)
   - [Tanda 2](Membresias/2-pruebas-membresias.resultados.json)

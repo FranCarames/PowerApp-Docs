@@ -1,0 +1,362 @@
+{
+  "plan": "pruebas-acceso",
+  "version": 1,
+  "exportedAt": "2026-10-26T21:04:38.531Z",
+  "summary": {
+    "total": 58,
+    "ok": 37,
+    "fail": 1,
+    "retest": 3,
+    "none": 17
+  },
+  "results": {
+    "REG-01": {
+      "title": "Alta correcta",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T20:06:48.214Z"
+    },
+    "REG-02": {
+      "title": "Siempre crea un alumno",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T20:06:51.761Z"
+    },
+    "REG-03": {
+      "title": "Email ya registrado",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T20:09:12.665Z"
+    },
+    "REG-04": {
+      "title": "Campos obligatorios vacíos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T20:09:14.864Z"
+    },
+    "REG-05": {
+      "title": "Formato inválido",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T20:09:20.006Z"
+    },
+    "REG-06": {
+      "title": "Largos máximos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T20:09:24.637Z"
+    },
+    "REG-07": {
+      "title": "Error del servidor al guardar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:54:07.263Z"
+    },
+    "REG-08": {
+      "title": "Doble envío y Volver",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:54:08.716Z"
+    },
+    "REG-09": {
+      "title": "Email con mayúsculas y espacios",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:54:59.921Z"
+    },
+    "LOG-01": {
+      "title": "Ingreso de un alumno",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T20:10:15.306Z"
+    },
+    "LOG-02": {
+      "title": "Ingreso de un entrenador",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T20:10:16.279Z"
+    },
+    "LOG-03": {
+      "title": "Ingreso de un admin",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T20:10:17.221Z"
+    },
+    "LOG-04": {
+      "title": "Contraseña incorrecta",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T20:10:18.185Z"
+    },
+    "LOG-05": {
+      "title": "Email que no existe",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T20:10:19.115Z"
+    },
+    "LOG-06": {
+      "title": "Cuenta cerrada",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T20:10:20.210Z"
+    },
+    "LOG-07": {
+      "title": "Validaciones del formulario",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T20:10:21.733Z"
+    },
+    "LOG-08": {
+      "title": "Enter y doble envío",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:55:01.867Z"
+    },
+    "LOG-09": {
+      "title": "Contraseña temporal: modal de aviso",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "LOG-10": {
+      "title": "Contraseña temporal real: fuerza el cambio",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "LOG-11": {
+      "title": "Links de la pantalla",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T20:10:29.996Z"
+    },
+    "LOG-12": {
+      "title": "Login real en el sitio publicado",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T20:10:34.300Z"
+    },
+    "LOG-13": {
+      "title": "Servidor dormido",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T20:10:36.659Z"
+    },
+    "LOG-14": {
+      "title": "Sin conexión",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T20:10:38.700Z"
+    },
+    "LOG-15": {
+      "title": "Email con mayúsculas y espacios",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T20:10:42.168Z"
+    },
+    "REC-01": {
+      "title": "Email registrado",
+      "status": "fail",
+      "note": "no me aparecio la contraseña en los logs del back",
+      "at": "2026-10-26T21:02:36.019Z"
+    },
+    "REC-02": {
+      "title": "Email no registrado",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:55:43.738Z"
+    },
+    "REC-03": {
+      "title": "Validaciones",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:55:55.405Z"
+    },
+    "REC-04": {
+      "title": "Falla el envío",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:55:56.448Z"
+    },
+    "REC-05": {
+      "title": "Cerrar el modal",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:56:33.697Z"
+    },
+    "REC-06": {
+      "title": "Entrar con la temporal",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "REC-07": {
+      "title": "La contraseña de siempre sigue andando",
+      "status": "retest",
+      "note": "No aparece ningun modal indicando que estoy con una contraseña temporal",
+      "at": "2026-10-11T21:33:35.162Z"
+    },
+    "REC-08": {
+      "title": "Pedirla dos veces",
+      "status": null,
+      "note": "",
+      "at": "2026-10-26T20:56:40.385Z"
+    },
+    "REC-09": {
+      "title": "El correo llega de verdad",
+      "status": "retest",
+      "note": "El backend todavía no manda mails (C4): la temporal solo aparece en los Logs del backend en Render. Marcalo Falla con la nota «C4».",
+      "at": "2026-10-11T21:30:37.964Z"
+    },
+    "REC-10": {
+      "title": "Volver al login",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T21:29:04.054Z"
+    },
+    "CPO-01": {
+      "title": "Pantalla del cambio obligatorio",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "CPO-02": {
+      "title": "No se puede salir de la pantalla",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "CPO-03": {
+      "title": "Recargar mantiene el cambio pendiente",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "CPO-04": {
+      "title": "Contraseña actual incorrecta",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "CPO-05": {
+      "title": "Validaciones de la contraseña nueva",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "CPO-06": {
+      "title": "Cambio correcto",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "CPO-07": {
+      "title": "Cerrar sesión con el cambio pendiente",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "CPO-08": {
+      "title": "Recuperación completa con una cuenta real",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "CPV-01": {
+      "title": "Cambio desde Mi cuenta",
+      "status": "retest",
+      "note": "Funciona pero no promptea para actualizar la contraseña en el gestor de contraseñas",
+      "at": "2026-10-26T21:04:10.529Z"
+    },
+    "CPV-02": {
+      "title": "Contraseña actual incorrecta no cierra la sesión",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T21:35:55.298Z"
+    },
+    "OUT-01": {
+      "title": "Cerrar sesión",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T21:05:42.662Z"
+    },
+    "OUT-02": {
+      "title": "Cerrar sesión con el servidor caído",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "OUT-03": {
+      "title": "Sesión vencida",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "OUT-04": {
+      "title": "Cuenta cerrada con la sesión abierta",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "OUT-05": {
+      "title": "No quedan datos de la sesión anterior",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "NAV-01": {
+      "title": "Rutas protegidas sin sesión",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T21:06:39.459Z"
+    },
+    "NAV-02": {
+      "title": "La dirección raíz",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T21:06:49.664Z"
+    },
+    "NAV-03": {
+      "title": "Rol equivocado",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T21:07:32.011Z"
+    },
+    "NAV-04": {
+      "title": "La sesión sobrevive al cerrar el navegador",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "NAV-05": {
+      "title": "Dirección inexistente",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T21:09:57.120Z"
+    },
+    "NAV-06": {
+      "title": "Recargar en el sitio publicado",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T21:10:22.241Z"
+    },
+    "NAV-07": {
+      "title": "Pantallas de acceso con la sesión abierta",
+      "status": "ok",
+      "note": "Hoy falla. Probablemente falle: el guard de esas pantallas solo redirige con un cambio de contraseña pendiente, y con sesión abierta muestra el formulario igual. Es un ajuste del front.",
+      "at": "2026-10-11T21:24:26.751Z"
+    },
+    "NAV-08": {
+      "title": "Celular y escritorio",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T21:25:55.214Z"
+    },
+    "NAV-09": {
+      "title": "Teclado y lector de pantalla",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-11T21:24:50.681Z"
+    }
+  }
+}
