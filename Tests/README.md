@@ -33,7 +33,7 @@ Exportar solo descarga el archivo y dice qué línea sumar al índice: guardarlo
 
 Con eso, **no hace falta importar a mano**:
 
-- El visor muestra en cada card el avance de la última tanda: el porcentaje de casos aprobados (sobre todos los del plan, redondeado hacia abajo) y cuántos están probados, con falla o por re-testear.
+- El visor muestra en cada card el avance de la última tanda: el porcentaje de casos aprobados (sobre todos los del plan, redondeado hacia abajo) y cuántos están probados, con falla o por re-testear. El número cambia de color con el nivel: rojo por debajo del 50 %, amarillo hasta el 59 % y tonos de verde desde el 60 %, cada vez más intensos (90 % o más, el verde pleno).
 - Al abrir el plan, se carga solo la última tanda y se combina con lo del navegador, caso por caso: gana el resultado con la fecha más reciente, así no se pierde lo marcado en el momento.
 
 **Importar resultados** sigue disponible para cargar a mano un JSON cualquiera (por ejemplo, una tanda anterior). El archivo tiene que ser del mismo plan.
@@ -44,6 +44,7 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 1](Acceso/1-pruebas-acceso.resultados.json)
   - [Tanda 2](Acceso/2026-10-11-1842-pruebas-acceso.resultados.json)
   - [Tanda 3](Acceso/3-pruebas-acceso.resultados.json)
+  - [Tanda 4](Acceso/4-pruebas-acceso.resultados.json)
 - [Pruebas de ejercicios](Ejercicios/Pruebas%20de%20ejercicios.html) — Catálogo de ejercicios del Admin: listado, búsqueda y filtro por grupo, alta y edición con sus músculos, borrado, y cómo llegan a los circuitos, a la wiki y a los RMs del alumno (CU-A-01 a CU-A-06).
   - [Tanda 1](Ejercicios/1-pruebas-ejercicios.resultados.json)
   - [Tanda 2](Ejercicios/2-pruebas-ejercicios.resultados.json)
