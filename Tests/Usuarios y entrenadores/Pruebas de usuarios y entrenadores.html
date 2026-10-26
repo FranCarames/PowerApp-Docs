@@ -230,7 +230,6 @@ tr:last-child td{border-bottom:0}
         <ul class="tips">
           <li><b>Seguí el orden de la página.</b> Primero el listado y las cuentas, después convertir, editar y dar de baja al entrenador de prueba.</li>
           <li><b>DevTools › Network</b>, filtrado por <code>users</code> o <code>coach</code>, para ver qué requests salen y con qué código responden.</li>
-          <li><b>Lo que hoy falla por el backend</b> está marcado con un aviso amarillo: DET-01, porque la planificación vigente no responde, y EDE-02, porque el endpoint para editar entrenadores no existe (B8). Marcalo igual, así queda registrado cuándo se arregla.</li>
         </ul>
       </div>
     </div>
@@ -306,10 +305,9 @@ tr:last-child td{border-bottom:0}
 
     // ── Detalle y cuentas ─────────────────────────────────
     { id: 'DET-01', g: 'det', t: 'Detalle de un alumno', env: ['TODOS'],
-      data: 'Un alumno que tenga pagos y una planificación asignada.',
+      data: 'Un alumno que tenga pagos y una planificación asignada que cubra hoy.',
       steps: ['Tocá la fila del alumno.'],
-      exp: `<p>Modal con su nombre y ${ui('Alumno · cuenta activa')}, su email, su membresía según el último pago y su planificación vigente. Botones Convertir en entrenador, Desactivar cuenta y Cerrar.</p>`,
-      kt: 'Hoy falla.', known: 'El backend no responde la planificación vigente (GET /planification/user/{id}/active queda colgado), así que el front corta a los 3,5 s y esa fila no aparece. Marcá Falla si falta y anotalo; el resto del detalle tiene que verse igual.' },
+      exp: `<p>Modal con su nombre y ${ui('Alumno · cuenta activa')}, su email, su membresía según el último pago y su planificación vigente: la fila ${ui('Planificación')} con el nombre del plan y «vigente hasta …». Sin una que cubra hoy, esa fila no aparece. Botones Convertir en entrenador, Desactivar cuenta y Cerrar.</p>` },
     { id: 'DET-02', g: 'det', t: 'Detalle de un entrenador', env: ['TODOS'],
       steps: ['Tocá la fila de un entrenador.'],
       exp: `<p>${ui('Entrenador · cuenta activa')}, con su email profesional y su CUIL. Tiene ${ui('Editar datos')} y Desactivar cuenta, pero no Convertir en entrenador.</p>` },
@@ -347,7 +345,7 @@ tr:last-child td{border-bottom:0}
       exp: `<ul><li>${ui('Ingresá el email profesional')}, ${ui('Ingresá el CUIL')} e ${ui('Ingresá un email válido')}.</li><li>10 dígitos o letras: ${ui('El CUIL tiene 11 dígitos')}.</li><li>Con guiones se acepta, y al salir del campo se muestra con la máscara 20-12345678-6.</li><li>El request lleva el email en minúsculas y el CUIL de 11 dígitos sin guiones. (CU-A-17, camino alternativo)</li></ul>` },
     { id: 'CNV-05', g: 'cnv', t: 'Email profesional repetido', env: ['TODOS'],
       steps: ['Elegí un alumno y poné el email profesional de un entrenador existente.', 'Tocá Convertir en entrenador.'],
-      exp: `<p>${ui('Ya hay otro entrenador con ese email profesional')} junto al campo, y no sale ningún request. El front lo controla antes porque el backend, con un email repetido, deja la cuenta a medio convertir.</p>` },
+      exp: `<p>${ui('Ya hay otro entrenador con ese email profesional')} junto al campo, y no sale ningún request. El front lo controla antes de mandar. Si llegara al backend, responde 409 y el aviso sale igual junto al campo.</p>` },
     { id: 'CNV-06', g: 'cnv', t: 'Convertir desde Usuarios', env: ['TODOS'],
       steps: ['En Usuarios, abrí el detalle de un alumno activo y tocá Convertir en entrenador.'],
       exp: `<p>Abre <code>/a/convertir?alumno=…</code> con ese alumno ya elegido (${ui('Se convierte a …')}). No hace falta confirmar la conversión.</p>` },
@@ -365,8 +363,7 @@ tr:last-child td{border-bottom:0}
       exp: `<p>${ui('Editar entrenador')}: ${ui('Datos profesionales de …. Su nombre y su cuenta los gestiona la propia persona.')}, con el email y el CUIL precargados.</p>` },
     { id: 'EDE-02', g: 'ede', t: 'Guardar cambios', env: ['TODOS'],
       steps: ['Cambiá el CUIL y guardá.'],
-      exp: `<p>${ui('Entrenador actualizado')} y el dato nuevo se ve en su detalle (CU-A-18).</p>`,
-      kt: 'Hoy falla.', known: 'El endpoint para editar entrenadores no existe en el backend (B8). La pantalla avisa «Editar entrenadores todavía no está disponible en el servidor. No se guardó nada.» Marcá Falla con la nota «B8».' },
+      exp: `<p>${ui('Entrenador actualizado')} y el dato nuevo se ve en su detalle. Sale <code>POST /coach/promote_user</code>: el backend no tiene un endpoint propio para editar entrenadores y usa el mismo del alta (B8). (CU-A-18)</p>` },
     { id: 'EDE-03', g: 'ede', t: 'Validaciones al editar', env: ['TODOS'],
       steps: ['Borrá el email y guardá.', 'Poné un CUIL de 10 dígitos.', 'Poné el email profesional de otro entrenador y guardá.'],
       exp: `<p>${ui('Ingresá el email profesional')}, ${ui('El CUIL tiene 11 dígitos')} y ${ui('Ya hay otro entrenador con ese email profesional')}. No sale ningún request. (CU-A-18, camino alternativo)</p>` },

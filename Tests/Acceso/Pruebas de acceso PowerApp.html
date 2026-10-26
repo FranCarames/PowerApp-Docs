@@ -207,8 +207,8 @@ tr:last-child td{border-bottom:0}
       <div>
         <h3>Entornos</h3>
         <div class="envs">
-          <div class="env"><span class="tag t-LOCAL">Local</span><p>Backend local en <code>localhost:3000</code> y el front con <code>npm run dev</code> y <code>VITE_USE_MOCKS=false</code>. Todo es real, y la contraseña temporal sale en la consola del backend.</p></div>
-          <div class="env"><span class="tag t-DEMO">Demo</span><p><code>npm run dev</code> con <code>VITE_USE_MOCKS=true</code>, o el sitio de Render, que hoy tiene los mocks prendidos. Sirve para el cambio obligatorio de contraseña, que con cuentas reales todavía no se activa (B9).</p></div>
+          <div class="env"><span class="tag t-LOCAL">Local</span><p>Backend local en <code>localhost:3000</code> y el front con <code>npm run dev</code> y <code>VITE_USE_MOCKS=false</code>. Todo es real. La contraseña temporal sale en la consola del backend solo si su <code>.env</code> tiene <code>LOG_TEMP_PASSWORD=true</code>.</p></div>
+          <div class="env"><span class="tag t-DEMO">Demo</span><p><code>npm run dev</code> con <code>VITE_USE_MOCKS=true</code>, o el sitio de Render, que hoy tiene los mocks prendidos. Sirve para el cambio obligatorio de contraseña sin pedir una temporal (LOG-09 y CPO-01 a CPO-07). Con cuentas reales se prueba en LOG-10 y CPO-08.</p></div>
           <div class="env"><span class="tag t-RENDER">Render</span><p><a href="https://powerapp-web.onrender.com" target="_blank" rel="noopener">powerapp-web.onrender.com</a> contra el backend de Render, con cuentas reales. Es la prueba de punta a punta: el login real desde el sitio publicado nunca se probó.</p></div>
         </div>
       </div>
@@ -231,10 +231,10 @@ tr:last-child td{border-bottom:0}
         <h3>Qué tenés que tener a mano</h3>
         <ul class="tips">
           <li><b>Una cuenta real de cada rol</b>, de las del seed. Admin y entrenador no se pueden crear desde el registro.</li>
-          <li><b>La contraseña temporal:</b> el backend todavía no manda mails (C4). En local aparece en su consola como <code>[EMAIL STUB] Contraseña temporal para …</code>. En Render, en los Logs del servicio del backend.</li>
+          <li><b>La contraseña temporal:</b> el backend todavía no manda mails (BE-29, C4 en la web). En local aparece en su consola como <code>[EMAIL STUB] Contraseña temporal para …</code>, pero solo con <code>LOG_TEMP_PASSWORD=true</code> en el <code>.env</code> del backend (reiniciá el backend después de sumarla). En Render no se loguea: la temporal no le llega a nadie.</li>
           <li><b>DevTools:</b> en Network, filtrá por <code>users</code> para ver qué requests salen. En Application › Local Storage, la clave <code>powerapp.session</code> es la sesión. Para simular que no hay conexión, Network › Offline.</li>
           <li><b>Orden sugerido:</b> Registro, Login, Recuperar, Cambio obligatorio, Cambio voluntario, Cerrar sesión y Navegación. REC-01 te da la temporal que usan LOG-10, REC-06, REC-07, REC-08 y CPO-08.</li>
-          <li><b>Lo que se sabe que hoy falla</b> está marcado en cada caso con un aviso amarillo (LOG-10 y REC-09 por el backend, NAV-07 por el front). Marcalos igual: así queda registrado cuándo se arreglan.</li>
+          <li><b>Lo que se sabe que hoy falla</b> está marcado con un aviso amarillo: REC-09, porque el backend todavía no manda mails (BE-29). Marcalo igual: así queda registrado cuándo se arregla.</li>
         </ul>
       </div>
     </div>
@@ -352,8 +352,7 @@ tr:last-child td{border-bottom:0}
     { id: 'LOG-10', g: 'log', t: 'Contraseña temporal real: fuerza el cambio', env: ['LOCAL'],
       data: 'El email de REC-01 y la temporal que imprimió la consola del backend.',
       steps: ['Iniciá sesión con esa temporal.'],
-      exp: '<p>Como en LOG-09: aparece el modal y después solo se puede usar <code>/cambiar-contrasena</code> (CU-U-02, camino alternativo).</p>',
-      known: 'El backend no avisa que se usó la temporal (B9), así que entra directo a su inicio. Marcalo Falla con la nota «B9» y volvé a probarlo cuando B9 esté.' },
+      exp: '<p>Como en LOG-09: aparece el modal y después solo se puede usar <code>/cambiar-contrasena</code>. <code>POST /users/login</code> responde <code>password_change_required: true</code>. (CU-U-02, camino alternativo)</p>' },
     { id: 'LOG-11', g: 'log', t: 'Links de la pantalla', env: ['TODOS'],
       steps: [`Tocá ${ui('¿Olvidaste tu contraseña?')}.`, `Volvé y tocá ${ui('Crear cuenta nueva')}.`],
       exp: '<p>Llevan a <code>/recuperar</code> y a <code>/registro</code>.</p>' },
@@ -374,9 +373,9 @@ tr:last-child td{border-bottom:0}
 
     // ── Recuperar contraseña ────────────────────────────────
     { id: 'REC-01', g: 'rec', t: 'Email registrado', env: ['LOCAL'],
-      data: 'El email de una cuenta real de alumno.',
+      data: 'El email de una cuenta real de alumno, y el backend local con <code>LOG_TEMP_PASSWORD=true</code> en su <code>.env</code>.',
       steps: [`En <code>/recuperar</code> ingresá el email y tocá ${ui('Enviar contraseña temporal')}.`, 'Mirá la consola del backend.'],
-      exp: `<ul><li>Modal ${ui('Revisá tu correo')}: ${ui('Si &lt;tu email&gt; está registrado, te enviamos una contraseña temporal…')}</li><li>En la consola aparece <code>[EMAIL STUB] Contraseña temporal para …</code> con 10 letras y números. Guardala: la usan LOG-10, REC-06 a REC-08 y CPO-08.</li></ul>` },
+      exp: `<ul><li>Modal ${ui('Revisá tu correo')}: ${ui('Si &lt;tu email&gt; está registrado, te enviamos una contraseña temporal…')}</li><li>En la consola aparece <code>[EMAIL STUB] Contraseña temporal para …</code> con 10 letras y números. Si no aparece, revisá que el <code>.env</code> tenga <code>LOG_TEMP_PASSWORD=true</code>. Guardala: la usan LOG-10, REC-06 a REC-08 y CPO-08.</li></ul>` },
     { id: 'REC-02', g: 'rec', t: 'Email no registrado', env: ['LOCAL', 'RENDER'],
       data: `Por ejemplo ${tok('noexiste@powerapp.com')}.`,
       steps: ['Pedí la temporal para ese email.', 'Compará con REC-01 la respuesta en Network y el texto del modal.'],
@@ -404,7 +403,7 @@ tr:last-child td{border-bottom:0}
       data: 'Tu email real, registrado en Render.',
       steps: ['Pedí la temporal en el sitio publicado.', 'Revisá la bandeja de entrada y spam.'],
       exp: '<p>Llega un correo con la contraseña temporal (CU-U-04, paso 3).</p>',
-      known: 'El backend todavía no manda mails (C4): la temporal solo aparece en los Logs del backend en Render. Marcalo Falla con la nota «C4».' },
+      known: 'El backend todavía no manda mails (BE-29, C4 en la web) y en Render ya no loguea la temporal (<code>LOG_TEMP_PASSWORD=false</code>): no le llega a nadie. Marcalo Falla con la nota «BE-29».' },
     { id: 'REC-10', g: 'rec', t: 'Volver al login', env: ['TODOS'],
       steps: ['En <code>/recuperar</code>, tocá la flecha del encabezado.', `Volvé y tocá ${ui('Volver al inicio de sesión')}.`],
       exp: '<p>Los dos llevan a <code>/login</code>. El encabezado dice «Paso 1 de 3».</p>' },
@@ -435,7 +434,7 @@ tr:last-child td{border-bottom:0}
       exp: '<p>Vuelve a <code>/login</code> sin <code>powerapp.session</code>, y <code>/u/plan</code> también lleva a <code>/login</code>.</p>' },
     { id: 'CPO-08', g: 'cpo', t: 'Recuperación completa con una cuenta real', env: ['LOCAL'],
       data: 'La temporal de REC-01.',
-      steps: ['Iniciá sesión con la temporal. Hoy entra directo a su inicio (B9).', 'Andá a Mi cuenta › Cambiar contraseña y poné la temporal como actual y una nueva.', 'Cerrá sesión y entrá con la nueva.', 'Cerrá sesión e intentá entrar con la temporal.'],
+      steps: ['Iniciá sesión con la temporal: sale el modal de LOG-10 y el botón lleva a <code>/cambiar-contrasena</code>.', 'Poné la temporal como contraseña actual y una nueva, y guardá.', 'Cerrá sesión y entrá con la nueva.', 'Cerrá sesión e intentá entrar con la temporal.'],
       exp: '<p>El cambio se acepta con la temporal como actual y la nueva entra. La temporal ya no entra: queda anulada (CU-U-05, postcondición).</p>' },
 
     // ── Cambio voluntario ───────────────────────────────────
@@ -485,8 +484,7 @@ tr:last-child td{border-bottom:0}
       exp: '<p>Cargan la pantalla. Nunca aparece un 404 de Render.</p>' },
     { id: 'NAV-07', g: 'nav', t: 'Pantallas de acceso con la sesión abierta', env: ['TODOS'],
       steps: ['Con la sesión abierta, escribí <code>/login</code>, <code>/registro</code> y <code>/recuperar</code>.'],
-      exp: '<p>Te lleva al inicio de tu rol, porque esos CU piden que no haya sesión activa (precondición de CU-U-01, CU-U-02 y CU-U-04).</p>',
-      known: 'Probablemente falle: el guard de esas pantallas solo redirige con un cambio de contraseña pendiente, y con sesión abierta muestra el formulario igual. Es un ajuste del front.' },
+      exp: '<p>Te lleva al inicio de tu rol, porque esos CU piden que no haya sesión activa (precondición de CU-U-01, CU-U-02 y CU-U-04).</p>' },
     { id: 'NAV-08', g: 'nav', t: 'Celular y escritorio', env: ['TODOS'],
       steps: ['Abrí login, registro, recuperar y cambiar contraseña en el celular, o en DevTools a 390 px.', 'Abrilas también en escritorio.'],
       exp: '<ul><li>Sin scroll horizontal ni textos cortados.</li><li>Los modales salen como hoja desde abajo en el celular y como diálogo centrado en escritorio.</li><li>En el celular, los campos de email abren el teclado con @.</li></ul>' },

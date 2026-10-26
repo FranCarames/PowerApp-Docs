@@ -90,6 +90,9 @@
   }
   /* avance de la última tanda guardada en el repo */
   .prog{margin-top:20px;display:grid;gap:8px;}
+  .prog-pct{display:flex;align-items:baseline;gap:9px;}
+  .prog-pct b{font-family:var(--fDisplay);font-size:32px;font-weight:800;line-height:1;letter-spacing:-.5px;color:var(--green);font-variant-numeric:tabular-nums;}
+  .prog-pct span{font-family:var(--fMono);font-size:11.5px;color:var(--ts);}
   .prog-top{display:flex;flex-wrap:wrap;gap:3px 12px;font-family:var(--fMono);font-size:11.5px;color:var(--ts);}
   .prog-top b{color:var(--tp);font-weight:700;}
   .prog-top .fail{color:var(--red);}
@@ -242,8 +245,16 @@
         ids.forEach(function (id) { var s = res[id] && res[id].status; if (n[s] !== undefined) n[s]++; });
         var tested = n.ok + n.fail + n.retest;
         var total = ids.length || 1;
+        // Aprobados sobre todos los casos del plan (como el tramo verde de la barra). Se redondea hacia abajo: 100 % solo si no falta ninguno.
+        var passPct = Math.floor(n.ok * 100 / total);
 
         box.textContent = '';
+        if (ids.length) {
+          var pct = el('div', 'prog-pct');
+          pct.appendChild(el('b', null, passPct + '%'));
+          pct.appendChild(el('span', null, 'aprobados · ' + n.ok + ' de ' + ids.length));
+          box.appendChild(pct);
+        }
         var top = el('div', 'prog-top');
         var main = el('span');
         main.appendChild(el('b', null, String(tested)));
@@ -255,7 +266,7 @@
 
         var bar = el('div', 'prog-bar');
         bar.setAttribute('role', 'img');
-        bar.setAttribute('aria-label', n.ok + ' funcionan, ' + n.fail + ' fallan, ' + n.retest + ' para re-testear, de ' + ids.length + ' casos');
+        bar.setAttribute('aria-label', n.ok + ' funcionan (' + passPct + '%), ' + n.fail + ' fallan, ' + n.retest + ' para re-testear, de ' + ids.length + ' casos');
         ['ok', 'fail', 'retest'].forEach(function (k) {
           var s = el('span', k);
           s.style.width = (n[k] / total * 100) + '%';

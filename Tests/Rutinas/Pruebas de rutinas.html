@@ -233,7 +233,6 @@ tr:last-child td{border-bottom:0}
           <li><b>Seguí el orden de la página.</b> QA Rutina A se crea en CRE-01 y la usan los casos siguientes.</li>
           <li><b>DevTools › Network</b>, filtrado por <code>routine</code>, para ver qué requests salen, con qué body y qué código responden.</li>
           <li><b>Dos pestañas</b> para EDT-05, EDT-06, ASG-07, QUI-04 y QUI-05: en una dejás la pantalla abierta y en la otra cambiás algo.</li>
-          <li><b>Lo que hoy falla</b> está marcado con un aviso amarillo: un enlace con un id que no es un UUID muestra un error genérico (EDT-04), y lo que confirman asignar y quitar una rutina puntual no dice cuál (ASG-02 y QUI-03). Los tres los arregla el PR #70 (T51), que todavía no está en <code>develop</code>.</li>
         </ul>
       </div>
     </div>
@@ -349,8 +348,7 @@ tr:last-child td{border-bottom:0}
       exp: `<p>${ui('Agregá al menos un circuito')} y no se guarda. (CU-E-17, caminos alternativos)</p>` },
     { id: 'EDT-04', g: 'edt', t: 'Link a una rutina que no existe', env: ['TODOS'],
       steps: ['Abrí <code>/a/rutinas/</code> seguido del id de QA Rutina A1 con el último carácter cambiado.', 'Abrí <code>/a/rutinas/abc</code>.'],
-      exp: `<p>En los dos: ${ui('No encontramos la rutina')} y ${ui('No hay ninguna rutina con ese enlace. Volvé a la lista.')}, sin Reintentar. (CU-E-17, caminos alternativos)</p>`,
-      kt: 'Hoy falla.', known: 'Con <code>abc</code> el backend responde 400 (el id no es un UUID) y el editor solo reconoce el 404: muestra «No pudimos cargar los datos» con Reintentar. Con el id cambiado anda bien. Marcalo Falla si ves eso. Lo arregla el PR #70 (T51), que todavía no está en <code>develop</code>; pasa igual en circuitos, planificaciones y ejercicios.' },
+      exp: `<p>En los dos: ${ui('No encontramos la rutina')} y ${ui('No hay ninguna rutina con ese enlace. Volvé a la lista.')}, sin Reintentar. Con <code>abc</code> el backend responde 400 y con el id cambiado, 404: el editor los trata igual. (CU-E-17, caminos alternativos)</p>` },
     { id: 'EDT-05', g: 'edt', t: 'Guardar una rutina que dieron de baja en otra pestaña', env: ['TODOS'],
       steps: ['En la pestaña A, abrí QA Rutina A1 y cambiá algo, sin guardar.', 'En la pestaña B, eliminala.', 'En la pestaña A, guardá.', 'Reactivala al terminar.'],
       exp: `<p>Aviso rojo: ${ui('La rutina está dada de baja y no se puede editar. Reactivala primero.')}</p>` },
@@ -411,8 +409,7 @@ tr:last-child td{border-bottom:0}
       exp: `<ul><li>Abre <code>/c/rutinas/{id}/asignar</code> con ${ui('Rutina · QA Rutina A1')} arriba y el título ${ui('Asignar a un alumno')}. Muestra la rutina (su nota y ${ui('N circuitos')}), el buscador ${ui('Buscar alumno por nombre o email')} (solo cuentas abiertas) y ${ui('Elegí un alumno para indicar el día.')}</li><li>Al elegirlo: su fila con ${ui('Cambiar')} y ${ui('Día')} en hoy, con ${ui('El día en que el alumno hace la rutina. Puede ser pasado o futuro.')}</li><li>Al asignar vuelve al editor de QA Rutina A1. <code>POST /routine/assign-user</code> responde 201 con <code>routine_id</code>, <code>user_id</code> y <code>date</code>. (CU-E-19, pasos 1 a 3)</li></ul>` },
     { id: 'ASG-02', g: 'asg', t: 'Lo que confirma', env: ['TODOS'],
       steps: ['Mirá el aviso que apareció al asignar en ASG-01.'],
-      exp: `<p>Confirma la asignación con el día y el nombre de la rutina: ${ui('QA Rutina A1 asignada a QA Puntual · …')} con la fecha. (CU-E-19, paso 4)</p>`,
-      kt: 'Hoy no cumple el CU.', known: 'Hoy dice «Rutina asignada · QA Puntual · …»: el alumno y el día, sin la rutina. Lo arregla el PR #70 (T51), que todavía no está en <code>develop</code>. Marcalo Falla si no ves el nombre de la rutina.' },
+      exp: `<p>Confirma la asignación con el día y el nombre de la rutina: ${ui('QA Rutina A1 asignada a QA Puntual · …')} con la fecha. (CU-E-19, paso 4)</p>` },
     { id: 'ASG-03', g: 'asg', t: 'El alumno la ve ese día', env: ['TODOS'],
       steps: ['En incógnito, entrá como QA Puntual y abrí el inicio.'],
       exp: `<p>Esta semana muestra QA Rutina A1 con el día de hoy, ${ui('Hoy')} y su avance (${ui('0 de N ejercicios')}). (CU-E-19, postcondición, y CU-U-08)</p>` },
@@ -445,8 +442,7 @@ tr:last-child td{border-bottom:0}
       exp: `<p>${ui('Quitar rutina')}: ${ui('QA Rutina A1 del … deja de verse en el home de QA Puntual. Es un borrado definitivo, no una baja lógica: la asignación no se puede reincorporar, habría que asignarla de nuevo. Si el alumno ya la entrenó, no se puede quitar.')} Cancelar no cambia nada (CU-E-20, cancela la confirmación). Al confirmar sale <code>DELETE /routine/assign-user/{id}</code>, la tarjeta se va y el alumno ya no la ve. (CU-E-20)</p>` },
     { id: 'QUI-03', g: 'qui', t: 'Lo que confirma', env: ['TODOS'],
       steps: ['Mirá el aviso que apareció al quitar en QUI-02.'],
-      exp: `<p>Muestra la asignación que se quitó: ${ui('Rutina quitada · QA Rutina A1 · …')} con la fecha. (CU-E-20, paso 3)</p>`,
-      kt: 'Hoy no cumple el CU.', known: 'Hoy dice solo «Rutina quitada». Lo arregla el PR #70 (T51), que todavía no está en <code>develop</code>. Marcalo Falla si no ves cuál se quitó.' },
+      exp: `<p>Muestra la asignación que se quitó: ${ui('Rutina quitada · QA Rutina A1 · …')} con la fecha. (CU-E-20, paso 3)</p>` },
     { id: 'QUI-04', g: 'qui', t: 'Una que el alumno ya entrenó', env: ['TODOS'],
       steps: ['Abrí las Rutinas puntuales de QA Puntual en la pestaña A.', 'Como QA Puntual, abrí la QA Rutina A1 de hoy y marcá un ejercicio como hecho.', 'En la pestaña A, tocá Quitar en esa tarjeta y confirmá.', 'Cerrá y abrí el modal otra vez.'],
       exp: `<p>${ui('El alumno ya entrenó esta rutina, así que no se puede quitar: su historial se conserva.')} y no se quita (CU-E-20, el alumno ya entrenó la rutina). Al reabrir, la tarjeta dice ${ui('1 de N ejercicios hechos')} y ${ui('Ya la entrenó: no se puede quitar')}, sin botón.</p>` },
