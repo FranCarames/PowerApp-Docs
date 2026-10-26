@@ -1,0 +1,326 @@
+{
+  "plan": "pruebas-rutinas",
+  "version": 1,
+  "exportedAt": "2026-10-26T20:00:53.683Z",
+  "summary": {
+    "total": 52,
+    "ok": 33,
+    "fail": 5,
+    "retest": 2,
+    "none": 12
+  },
+  "results": {
+    "LST-01": {
+      "title": "Llegar a Rutinas",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T18:54:53.896Z"
+    },
+    "LST-02": {
+      "title": "Sin rutinas",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "CRE-01": {
+      "title": "Crear una rutina",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T18:55:58.655Z"
+    },
+    "CRE-02": {
+      "title": "Validaciones",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T18:55:57.198Z"
+    },
+    "CRE-03": {
+      "title": "Doble envío",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T18:56:02.951Z"
+    },
+    "CRE-04": {
+      "title": "Volver sin guardar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T18:56:09.766Z"
+    },
+    "CIR-01": {
+      "title": "La tarjeta de cada circuito",
+      "status": "retest",
+      "note": "Le falta info de las series a realizar, el resto esta perfecto",
+      "at": "2026-10-26T18:57:47.712Z"
+    },
+    "CIR-02": {
+      "title": "Repetir un circuito",
+      "status": "fail",
+      "note": "",
+      "at": "2026-10-26T18:58:03.255Z"
+    },
+    "CIR-03": {
+      "title": "Ordenar y quitar",
+      "status": "fail",
+      "note": "",
+      "at": "2026-10-26T18:58:25.679Z"
+    },
+    "CIR-04": {
+      "title": "Crear un circuito desde la rutina",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:00:43.406Z"
+    },
+    "CIR-05": {
+      "title": "Editar un circuito desde la rutina",
+      "status": "fail",
+      "note": "edite las series del ejercicio original y tambien agregue un nuevo ejercicio",
+      "at": "2026-10-26T19:01:29.791Z"
+    },
+    "CIR-06": {
+      "title": "Duplicar desde la rutina",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:09:13.442Z"
+    },
+    "CIR-07": {
+      "title": "Atrás del navegador",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:09:18.942Z"
+    },
+    "EDT-01": {
+      "title": "Editar una rutina",
+      "status": "fail",
+      "note": "",
+      "at": "2026-10-26T19:09:40.874Z"
+    },
+    "EDT-02": {
+      "title": "Vaciar la nota",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:09:51.229Z"
+    },
+    "EDT-03": {
+      "title": "Dejarla sin circuitos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:10:00.603Z"
+    },
+    "EDT-04": {
+      "title": "Link a una rutina que no existe",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:10:12.350Z"
+    },
+    "EDT-05": {
+      "title": "Guardar una rutina que dieron de baja en otra pestaña",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:12:16.397Z"
+    },
+    "EDT-06": {
+      "title": "Un circuito dado de baja mientras lo agregás",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:13:38.664Z"
+    },
+    "EDT-07": {
+      "title": "Volver sin guardar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:13:53.700Z"
+    },
+    "BAJ-01": {
+      "title": "Eliminar una rutina",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:14:08.973Z"
+    },
+    "BAJ-02": {
+      "title": "Cancelar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:14:10.350Z"
+    },
+    "BAJ-03": {
+      "title": "Una rutina inactiva",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:14:14.682Z"
+    },
+    "BAJ-04": {
+      "title": "Reactivar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:14:26.102Z"
+    },
+    "BAJ-05": {
+      "title": "El panel cuenta solo las vigentes",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:14:47.323Z"
+    },
+    "FIL-01": {
+      "title": "Las tarjetas",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:15:15.109Z"
+    },
+    "FIL-02": {
+      "title": "Incluir inactivas",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:15:32.129Z"
+    },
+    "FIL-03": {
+      "title": "Buscar",
+      "status": "retest",
+      "note": "Solo busca por el nombre de las rutinas",
+      "at": "2026-10-26T19:16:05.316Z"
+    },
+    "COA-01": {
+      "title": "La pantalla del entrenador",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:46:12.303Z"
+    },
+    "COA-02": {
+      "title": "Circuitos desde la rutina del entrenador",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:46:13.362Z"
+    },
+    "COA-03": {
+      "title": "Ir a asignar no pierde lo escrito",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:49:14.572Z"
+    },
+    "COA-04": {
+      "title": "Cambios entre roles",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:46:28.798Z"
+    },
+    "ASG-01": {
+      "title": "Asignar desde la rutina",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:55:57.163Z"
+    },
+    "ASG-02": {
+      "title": "Lo que confirma",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:56:34.284Z"
+    },
+    "ASG-03": {
+      "title": "El alumno la ve ese día",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:56:47.921Z"
+    },
+    "ASG-04": {
+      "title": "Días y repeticiones",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:57:31.475Z"
+    },
+    "ASG-05": {
+      "title": "Otra rutina el mismo día",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:58:04.066Z"
+    },
+    "ASG-06": {
+      "title": "Validar el día",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:58:26.362Z"
+    },
+    "ASG-07": {
+      "title": "Una rutina dada de baja",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T19:59:34.971Z"
+    },
+    "ASG-08": {
+      "title": "Asignar desde el alumno",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:00:04.991Z"
+    },
+    "ASG-09": {
+      "title": "Destinatario que no es alumno o con la cuenta cerrada",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "QUI-01": {
+      "title": "Las rutinas puntuales del alumno",
+      "status": "fail",
+      "note": "El acceso a esta seccion no es claro",
+      "at": "2026-10-26T20:00:46.349Z"
+    },
+    "QUI-02": {
+      "title": "Quitar una rutina",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "QUI-03": {
+      "title": "Lo que confirma",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "QUI-04": {
+      "title": "Una que el alumno ya entrenó",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "QUI-05": {
+      "title": "Ya quitada en otra pestaña",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "QUI-06": {
+      "title": "Sin rutinas puntuales",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ERR-01": {
+      "title": "Servidor caído al cargar",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ERR-02": {
+      "title": "Servidor caído al guardar",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ERR-03": {
+      "title": "Celular y escritorio",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ERR-04": {
+      "title": "Teclado y lector de pantalla",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "FIN-01": {
+      "title": "Dejar las rutinas de prueba fuera de uso",
+      "status": null,
+      "note": "",
+      "at": null
+    }
+  }
+}
