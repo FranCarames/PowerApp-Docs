@@ -33,7 +33,7 @@ Exportar solo descarga el archivo y dice qué línea sumar al índice: guardarlo
 
 Con eso, **no hace falta importar a mano**:
 
-- El visor muestra en cada card el avance de la última tanda (probados, fallas, por re-testear).
+- El visor muestra en cada card el avance de la última tanda: el porcentaje de casos aprobados (sobre todos los del plan, redondeado hacia abajo) y cuántos están probados, con falla o por re-testear.
 - Al abrir el plan, se carga solo la última tanda y se combina con lo del navegador, caso por caso: gana el resultado con la fecha más reciente, así no se pierde lo marcado en el momento.
 
 **Importar resultados** sigue disponible para cargar a mano un JSON cualquiera (por ejemplo, una tanda anterior). El archivo tiene que ser del mismo plan.
