@@ -49,6 +49,7 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 2](Ejercicios/2-pruebas-ejercicios.resultados.json)
 - [Pruebas de músculos y grupos](Musculos/Pruebas%20de%20m%C3%BAsculos%20y%20grupos.html) — Catálogo del Admin: alta, edición, detalle y borrado de grupos musculares y músculos, y cómo llegan a Ejercicios y a la wiki del alumno (CU-A-07 a CU-A-15).
   - [Tanda 1](Musculos/1-pruebas-musculos.resultados.json)
+  - [Tanda 2](Musculos/2-pruebas-musculos.resultados.json)
 - [Pruebas de usuarios y entrenadores](Usuarios%20y%20entrenadores/Pruebas%20de%20usuarios%20y%20entrenadores.html) — Gestión de cuentas del Admin: listado y detalle de usuarios, baja y reactivación, y entrenadores (convertir a un alumno, editar sus datos profesionales y darlo de baja) (CU-A-16 a CU-A-19).
   - [Tanda 1](Usuarios%20y%20entrenadores/1-pruebas-usuarios.resultados.json)
   - [Tanda 2](Usuarios%20y%20entrenadores/2-pruebas-usuarios.resultados.json)
