@@ -77,6 +77,8 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 1](Membresias%20del%20entrenador/1-pruebas-membresias-entrenador.resultados.json)
   - [Tanda 2 (la 1, adaptada al plan del 25/10)](Membresias%20del%20entrenador/2-pruebas-membresias-entrenador.resultados.json)
 - [Pruebas de planificaciones](Planificaciones/Pruebas%20de%20planificaciones.html) — Planificaciones desde el Admin y el Entrenador: listado y filtros, alta y edición de la cabecera, las rutinas de cada semana (agregar, quitar y reincorporar), baja y reactivación, y la asignación a un alumno con sus fechas y el aviso de solapamiento (CU-E-08 a CU-E-14).
+  - [Tanda 1](Planificaciones/1-pruebas-planificaciones.resultados.json)
 - [Pruebas de rutinas](Rutinas/Pruebas%20de%20rutinas.html) — Rutinas desde el Admin y el Entrenador: listado y búsqueda, alta y edición con sus circuitos en orden, baja y reactivación, y las rutinas puntuales de un alumno: asignarlas para un día y quitarlas (CU-E-15 a CU-E-20).
   - [Tanda 1](Rutinas/1-pruebas-rutinas.resultados.json)
 - [Pruebas del plan del alumno](Plan%20del%20alumno/Pruebas%20del%20plan%20del%20alumno.html) — El entrenamiento del alumno: el inicio semana por semana, el detalle de cada rutina y de cada ejercicio, sus RMs del ejercicio, marcar y desmarcar lo hecho con su nota, y cómo se ve todo cuando el entrenador cambia algo (CU-U-08 a CU-U-13).
+  - [Tanda 1](Plan%20del%20alumno/1-pruebas-plan-alumno.resultados.json)

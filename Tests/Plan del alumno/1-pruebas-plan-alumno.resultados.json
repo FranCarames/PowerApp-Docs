@@ -1,0 +1,278 @@
+{
+  "plan": "pruebas-plan-alumno",
+  "version": 1,
+  "exportedAt": "2026-10-27T15:48:05.489Z",
+  "summary": {
+    "total": 44,
+    "ok": 1,
+    "fail": 0,
+    "retest": 0,
+    "none": 43
+  },
+  "results": {
+    "PRE-01": {
+      "title": "Dos circuitos",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "PRE-02": {
+      "title": "Dos rutinas",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "PRE-03": {
+      "title": "La planificación, asignada",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "HOM-01": {
+      "title": "El inicio",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-27T15:47:58.257Z"
+    },
+    "HOM-02": {
+      "title": "Moverse de semana",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "HOM-03": {
+      "title": "Semana en la dirección",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "HOM-04": {
+      "title": "Volver conserva la semana",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "RUT-01": {
+      "title": "Abrir una rutina del plan",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "RUT-02": {
+      "title": "Abrir por enlace directo",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "RUT-03": {
+      "title": "La rutina de otro alumno",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "RUT-04": {
+      "title": "Un enlace roto",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "EJE-01": {
+      "title": "Abrir un ejercicio",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "EJE-02": {
+      "title": "Un ejercicio AMRAP",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "EJE-03": {
+      "title": "Tildar series",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "EJE-04": {
+      "title": "Temporizador y ejercicio que no está",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "RMS-01": {
+      "title": "Sin RMs de este ejercicio",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "RMS-02": {
+      "title": "Registrar y ver los RMs",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "MAR-01": {
+      "title": "Marcar hecho",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "MAR-02": {
+      "title": "Marcar otro día",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "MAR-03": {
+      "title": "Corregir el día",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "MAR-04": {
+      "title": "Desmarcar",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "MAR-05": {
+      "title": "Otra semana es otra rutina",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "MAR-06": {
+      "title": "Marcar dos veces",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "MAR-07": {
+      "title": "La misma planificación dos veces",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "NOT-01": {
+      "title": "Nota en un ejercicio sin marcar",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "NOT-02": {
+      "title": "Editar la nota y guardar sin cambios",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "NOT-03": {
+      "title": "Nota demasiado larga",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "NOT-04": {
+      "title": "Vaciar la nota",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "NOT-05": {
+      "title": "Desmarcar con nota",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "IND-01": {
+      "title": "Una rutina individual junto al plan",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "IND-02": {
+      "title": "Abrirla y marcarla",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "IND-03": {
+      "title": "Una semana solo con individuales",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "CAM-01": {
+      "title": "Rutina o planificación dadas de baja",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "CAM-02": {
+      "title": "Rutina quitada del plan, con algo hecho",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "CAM-03": {
+      "title": "Desmarcar lo último de una rutina quitada",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "CAM-04": {
+      "title": "Circuito sacado de la rutina, con algo hecho",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "CAM-05": {
+      "title": "Marcar mientras quitan la rutina",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "CAM-06": {
+      "title": "Plan quitado al alumno",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "CAM-07": {
+      "title": "Reincorporar el plan",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "CAM-08": {
+      "title": "Ejercicio sacado de un circuito, con algo hecho",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ERR-01": {
+      "title": "Servidor caído",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ERR-02": {
+      "title": "Celular y escritorio",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ERR-03": {
+      "title": "Teclado y lector de pantalla",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "FIN-01": {
+      "title": "Dejar lo de prueba fuera de uso",
+      "status": null,
+      "note": "",
+      "at": null
+    }
+  }
+}
