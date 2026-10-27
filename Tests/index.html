@@ -109,6 +109,46 @@
   .prog-bar .retest{background:var(--amber);}
   .prog-meta{font-family:var(--fMono);font-size:10.5px;color:var(--tm);}
 
+  /* resumen: KPIs y escalas de todos los planes (antes de las cards) */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+  .kpi{
+    background:linear-gradient(180deg,var(--card),var(--card2));
+    border:1px solid var(--border);border-radius:16px;padding:18px 20px;display:grid;gap:6px;align-content:start;
+  }
+  .kpi-label{font-family:var(--fMono);font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--ts);}
+  .kpi-val{font-family:var(--fDisplay);font-size:40px;font-weight:800;line-height:1;letter-spacing:-.5px;color:var(--tp);}
+  .kpi-val.prog-pct{display:block;color:var(--pct);}
+  .kpi-val.fail{color:var(--red);}
+  .kpi-val.retest{color:var(--amber);}
+  .kpi-val.none{color:var(--ts);}
+  .kpi-sub{font-family:var(--fMono);font-size:11px;line-height:1.5;color:var(--tm);}
+
+  .scales{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px;}
+  .scale{
+    background:linear-gradient(180deg,var(--card),var(--card2));
+    border:1px solid var(--border);border-radius:16px;padding:18px 20px 20px;
+  }
+  .scale h3{font-family:var(--fDisplay);font-size:21px;font-weight:700;letter-spacing:-.2px;line-height:1.1;}
+  .scale > p{font-family:var(--fMono);font-size:10.5px;line-height:1.5;color:var(--tm);margin:4px 0 14px;}
+  .sc-row{padding:5px 0;}
+  .sc-row + .sc-row{border-top:1px solid color-mix(in srgb,var(--border) 60%,transparent);padding-top:8px;}
+  .sc-row summary{display:grid;gap:5px;cursor:pointer;list-style:none;border-radius:6px;}
+  .sc-row summary::-webkit-details-marker{display:none;}
+  .sc-row summary:focus-visible{outline:2px solid var(--pri);outline-offset:3px;}
+  .sc-head span::before{content:"▸";display:inline-block;width:12px;font-size:10px;color:var(--tm);transition:transform .2s;}
+  .sc-row[open] .sc-head span::before{transform:rotate(90deg);}
+  .sc-head{display:flex;align-items:baseline;gap:10px;font-size:13.5px;color:var(--ts);}
+  .sc-head b{margin-left:auto;font-family:var(--fMono);font-size:12px;font-weight:700;color:var(--tp);font-variant-numeric:tabular-nums;}
+  .sc-head b small{font-weight:400;color:var(--tm);font-size:11px;}
+  .sc-row summary:hover .sc-head{color:var(--tp);}
+  .sc-meter{height:6px;border-radius:4px;background:var(--el);overflow:hidden;}
+  .sc-meter span{display:block;height:100%;border-radius:4px;background:var(--f,var(--green));min-width:0;}
+  .sc-row[data-f="acc"]{--f:var(--acc);}
+  .sc-row[data-f="amber"]{--f:var(--amber);}
+  .sc-row[data-f="red"]{--f:var(--red);}
+  .sc-row[data-f="muted"]{--f:var(--tm);}
+  .sc-names{font-family:var(--fMono);font-size:10.5px;line-height:1.6;color:var(--ts);padding:7px 0 2px 12px;}
+
   .card-go{
     display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:18px;
     font-family:var(--fMono);font-size:12px;font-weight:500;color:var(--tp);letter-spacing:.3px;
@@ -131,6 +171,11 @@
   @media (max-width:620px){
     .grid{grid-template-columns:1fr;}
     .card h2{font-size:24px;}
+    .kpis{grid-template-columns:repeat(2,1fr);}
+    .kpi-val{font-size:34px;}
+  }
+  @media (max-width:900px){
+    .scales{grid-template-columns:1fr;}
   }
   @media (prefers-reduced-motion:reduce){
     *{transition:none!important;}
@@ -240,15 +285,12 @@
     return 'g3';
   }
 
-  // Avance de un plan a partir de su última tanda. Cuenta desde `results`, no desde `summary`, para no depender de un resumen viejo.
-  function progress(box, runs) {
-    if (!runs.length) {
-      box.appendChild(el('div', 'prog-meta', 'Sin resultados cargados todavía'));
-      return;
-    }
+  // Lee la última tanda de un plan y cuenta sus casos. Cuenta desde `results`, no desde `summary`, para no depender de un resumen viejo.
+  // Resuelve null si el plan no tiene tandas y rechaza si no se pudo leer el JSON. La usan la card y el resumen (un solo fetch por plan).
+  function loadStats(runs) {
+    if (!runs.length) return Promise.resolve(null);
     var last = runs[runs.length - 1];
-    box.appendChild(el('div', 'prog-meta', 'Leyendo resultados…'));
-    fetch(last.href, { cache: 'no-cache' })
+    return fetch(last.href, { cache: 'no-cache' })
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(function (data) {
         var res = data && data.results;
@@ -258,21 +300,39 @@
         ids.forEach(function (id) { var s = res[id] && res[id].status; if (n[s] !== undefined) n[s]++; });
         var tested = n.ok + n.fail + n.retest;
         var total = ids.length || 1;
-        // Aprobados sobre todos los casos del plan (como el tramo verde de la barra). Se redondea hacia abajo: 100 % solo si no falta ninguno.
-        var passPct = Math.floor(n.ok * 100 / total);
+        return {
+          data: data, n: n, cases: ids.length, tested: tested, none: ids.length - tested,
+          // Aprobados sobre todos los casos del plan (como el tramo verde de la barra). Se redondea hacia abajo: 100 % solo si no falta ninguno.
+          passPct: Math.floor(n.ok * 100 / total),
+          testPct: Math.floor(tested * 100 / total)
+        };
+      });
+  }
+
+  // Avance de un plan en su card, a partir de lo que leyó loadStats.
+  function progress(box, runs, stats) {
+    if (!runs.length) {
+      box.appendChild(el('div', 'prog-meta', 'Sin resultados cargados todavía'));
+      return;
+    }
+    var last = runs[runs.length - 1];
+    box.appendChild(el('div', 'prog-meta', 'Leyendo resultados…'));
+    stats
+      .then(function (st) {
+        var n = st.n, data = st.data, total = st.cases || 1, passPct = st.passPct;
 
         box.textContent = '';
-        if (ids.length) {
+        if (st.cases) {
           var pct = el('div', 'prog-pct');
           pct.setAttribute('data-tone', pctTone(passPct));
           pct.appendChild(el('b', null, passPct + '%'));
-          pct.appendChild(el('span', null, 'aprobados · ' + n.ok + ' de ' + ids.length));
+          pct.appendChild(el('span', null, 'aprobados · ' + n.ok + ' de ' + st.cases));
           box.appendChild(pct);
         }
         var top = el('div', 'prog-top');
         var main = el('span');
-        main.appendChild(el('b', null, String(tested)));
-        main.appendChild(document.createTextNode('/' + ids.length + ' probados'));
+        main.appendChild(el('b', null, String(st.tested)));
+        main.appendChild(document.createTextNode('/' + st.cases + ' probados'));
         top.appendChild(main);
         top.appendChild(el('span', 'fail', n.fail + (n.fail === 1 ? ' falla' : ' fallas')));
         top.appendChild(el('span', 'retest', n.retest + ' por re-testear'));
@@ -280,7 +340,7 @@
 
         var bar = el('div', 'prog-bar');
         bar.setAttribute('role', 'img');
-        bar.setAttribute('aria-label', n.ok + ' funcionan (' + passPct + '%), ' + n.fail + ' fallan, ' + n.retest + ' para re-testear, de ' + ids.length + ' casos');
+        bar.setAttribute('aria-label', n.ok + ' funcionan (' + passPct + '%), ' + n.fail + ' fallan, ' + n.retest + ' para re-testear, de ' + st.cases + ' casos');
         ['ok', 'fail', 'retest'].forEach(function (k) {
           var s = el('span', k);
           s.style.width = (n[k] / total * 100) + '%';
@@ -298,12 +358,125 @@
       });
   }
 
+  // Escalas del resumen. Cada fila cuenta los planes que cumplen `test` sobre TODOS los planes del índice
+  // (los que no tienen resultados no llegan a ningún umbral). `f` es el color de la barra (ver .sc-row[data-f] en el CSS).
+  var SCALES = [
+    {
+      title: 'Aprobación', sub: 'Planes por % de casos aprobados en su última tanda',
+      rows: [98, 95, 90, 75].map(function (t) {
+        return { label: 'Al menos ' + t + ' %', test: function (s) { return s && s.passPct >= t; } };
+      })
+    },
+    {
+      title: 'Cobertura', sub: 'Planes por % de casos probados (aprobados, con falla o por re-testear)',
+      rows: [100, 95, 90, 75].map(function (t) {
+        return { label: t === 100 ? 'Probados por completo' : 'Al menos ' + t + ' %', f: 'acc', test: function (s) { return s && s.testPct >= t; } };
+      })
+    },
+    {
+      title: 'Fallas abiertas', sub: 'Planes según cuántos casos fallan en su última tanda',
+      rows: [
+        { label: 'Sin fallas', test: function (s) { return s && s.n.fail === 0; } },
+        { label: '1 o 2 fallas', f: 'amber', test: function (s) { return s && s.n.fail >= 1 && s.n.fail <= 2; } },
+        { label: '3 fallas o más', f: 'red', test: function (s) { return s && s.n.fail >= 3; } },
+        { label: 'Sin resultados', f: 'muted', test: function (s) { return !s; } }
+      ]
+    }
+  ];
+
+  function kpi(parent, label, value, cls, sub) {
+    var k = el('div', 'kpi');
+    k.appendChild(el('div', 'kpi-label', label));
+    var v = el('div', 'kpi-val' + (cls ? ' ' + cls : ''), value);
+    k.appendChild(v);
+    if (sub) k.appendChild(el('div', 'kpi-sub', sub));
+    parent.appendChild(k);
+    return v;
+  }
+
+  // Resumen de todos los planes: totales de casos y las escalas. Espera a que se lean todas las tandas.
+  function summary(box, plans, loads) {
+    var label = el('div', 'sec-label', 'Resumen');
+    label.appendChild(el('span', 'n', '· ' + plans.length + (plans.length === 1 ? ' plan' : ' planes')));
+    box.appendChild(label);
+    var wait = el('p', 'prog-meta', 'Calculando el resumen…');
+    box.appendChild(wait);
+
+    Promise.all(loads.map(function (p) {
+      return p.then(function (s) { return { s: s }; }, function () { return { err: true }; });
+    })).then(function (out) {
+      box.removeChild(wait);
+      var withRes = [], errors = 0, tot = { cases: 0, ok: 0, fail: 0, retest: 0, none: 0 }, failPlans = 0;
+      out.forEach(function (o, i) {
+        if (o.err) { errors++; return; }
+        if (!o.s) return;
+        withRes.push(plans[i]);
+        tot.cases += o.s.cases; tot.ok += o.s.n.ok; tot.fail += o.s.n.fail; tot.retest += o.s.n.retest; tot.none += o.s.none;
+        if (o.s.n.fail) failPlans++;
+      });
+      var base = withRes.length + ' de ' + plans.length + ' planes con resultados';
+
+      var kpis = el('div', 'kpis');
+      var passPct = tot.cases ? Math.floor(tot.ok * 100 / tot.cases) : 0;
+      var v = kpi(kpis, 'Casos aprobados', passPct + '%', 'prog-pct', tot.ok + ' de ' + tot.cases + ' casos · ' + base);
+      v.setAttribute('data-tone', pctTone(passPct));
+      kpi(kpis, 'Fallas abiertas', String(tot.fail), 'fail',
+        failPlans ? 'en ' + failPlans + (failPlans === 1 ? ' plan' : ' planes') : 'ningún plan con fallas');
+      kpi(kpis, 'Por re-testear', String(tot.retest), 'retest', 'casos a volver a probar');
+      kpi(kpis, 'Sin probar', String(tot.none), 'none', 'casos sin marcar en la última tanda');
+      box.appendChild(kpis);
+
+      var grid = el('div', 'scales');
+      SCALES.forEach(function (sc) {
+        var panel = el('div', 'scale');
+        panel.appendChild(el('h3', null, sc.title));
+        panel.appendChild(el('p', null, sc.sub));
+        sc.rows.forEach(function (row) {
+          var names = [];
+          out.forEach(function (o, i) { if (!o.err && row.test(o.s)) names.push(plans[i].title.replace(/^Pruebas (de |del )?/, '')); });
+          // Cada fila se despliega para ver qué planes cuenta (con click, para que ande también en el celular).
+          var r = el('details', 'sc-row');
+          if (row.f) r.setAttribute('data-f', row.f);
+          var sum = el('summary');
+          var head = el('div', 'sc-head');
+          head.appendChild(el('span', null, row.label));
+          var count = el('b', null, String(names.length));
+          count.appendChild(el('small', null, ' / ' + plans.length));
+          head.appendChild(count);
+          sum.appendChild(head);
+          var meter = el('div', 'sc-meter');
+          meter.setAttribute('role', 'img');
+          meter.setAttribute('aria-label', row.label + ': ' + names.length + ' de ' + plans.length + ' planes');
+          var fill = el('span');
+          fill.style.width = (names.length / (plans.length || 1) * 100) + '%';
+          meter.appendChild(fill);
+          sum.appendChild(meter);
+          r.appendChild(sum);
+          r.appendChild(el('div', 'sc-names', names.length ? names.join(' · ') : 'Ningún plan'));
+          panel.appendChild(r);
+        });
+        grid.appendChild(panel);
+      });
+      box.appendChild(grid);
+      if (errors) box.appendChild(el('p', 'prog-meta', errors + (errors === 1 ? ' plan' : ' planes') + ' sin leer: sus resultados no entran en el resumen.'));
+    });
+  }
+
   function render(groups) {
     root.textContent = '';
     if (!groups.length) {
       root.appendChild(el('p', 'msg', 'Todavía no hay planes de prueba cargados.'));
       return;
     }
+    var all = [], loads = [];
+    groups.forEach(function (g) {
+      g.plans.forEach(function (plan) { plan.stats = loadStats(plan.runs); all.push(plan); loads.push(plan.stats); });
+    });
+    var dash = el('section', 'dash');
+    dash.setAttribute('aria-label', 'Resumen de los planes de prueba');
+    root.appendChild(dash);
+    summary(dash, all, loads);
+
     groups.forEach(function (g) {
       var label = el('div', 'sec-label', g.name);
       label.appendChild(el('span', 'n', '· ' + g.plans.length + (g.plans.length === 1 ? ' plan' : ' planes')));
@@ -323,7 +496,7 @@
         }
         var prog = el('div', 'prog');
         a.appendChild(prog);
-        progress(prog, plan.runs);
+        progress(prog, plan.runs, plan.stats);
         var go = el('div', 'card-go', 'Abrir plan ');
         go.appendChild(el('span', 'arw', '→'));
         a.appendChild(go);

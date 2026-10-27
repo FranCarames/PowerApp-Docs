@@ -34,6 +34,7 @@ Exportar solo descarga el archivo y dice qué línea sumar al índice: guardarlo
 Con eso, **no hace falta importar a mano**:
 
 - El visor muestra en cada card el avance de la última tanda: el porcentaje de casos aprobados (sobre todos los del plan, redondeado hacia abajo) y cuántos están probados, con falla o por re-testear. El número cambia de color con el nivel: rojo por debajo del 50 %, amarillo hasta el 59 % y tonos de verde desde el 60 %, cada vez más intensos (90 % o más, el verde pleno).
+- Antes de las cards, un **resumen** junta la última tanda de todos los planes: casos aprobados, fallas abiertas, por re-testear y sin probar, y tres escalas que cuentan cuántos planes (sobre todos los del índice; los que no tienen resultados no llegan a ningún umbral) tienen al menos 98 / 95 / 90 / 75 % de aprobados, cuántos están probados por completo o al menos al 95 / 90 / 75 %, y cuántos no tienen fallas, tienen 1 o 2, o 3 o más. Cada fila se despliega para ver qué planes cuenta.
 - Al abrir el plan, se carga solo la última tanda y se combina con lo del navegador, caso por caso: gana el resultado con la fecha más reciente, así no se pierde lo marcado en el momento.
 
 **Importar resultados** sigue disponible para cargar a mano un JSON cualquiera (por ejemplo, una tanda anterior). El archivo tiene que ser del mismo plan.
