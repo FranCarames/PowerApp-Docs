@@ -1,0 +1,266 @@
+{
+  "plan": "pruebas-circuitos",
+  "version": 1,
+  "exportedAt": "2026-10-26T23:57:45.406Z",
+  "summary": {
+    "total": 42,
+    "ok": 40,
+    "fail": 1,
+    "retest": 1,
+    "none": 0
+  },
+  "results": {
+    "LST-01": {
+      "title": "Llegar a Circuitos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:43:43.064Z"
+    },
+    "LST-02": {
+      "title": "Tarjetas",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T19:47:11.562Z"
+    },
+    "LST-03": {
+      "title": "Activos, inactivos y todos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T19:47:35.621Z"
+    },
+    "LST-04": {
+      "title": "Buscar circuitos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T19:47:56.817Z"
+    },
+    "LST-05": {
+      "title": "Filtrar por tipo",
+      "status": "fail",
+      "note": "Hoy no cumple el CU. La pantalla muestra el tipo en cada tarjeta, pero no tiene filtro por tipo: el buscador mira solo el nombre. Marcalo Falla; es un ajuste del front. Ademas necesita mas opciones de filtrado o categorias de circuitos.",
+      "at": "2026-10-26T23:57:08.835Z"
+    },
+    "LST-06": {
+      "title": "Quién puede entrar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:18:30.228Z"
+    },
+    "CRE-01": {
+      "title": "Crear un circuito",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:49:08.859Z"
+    },
+    "CRE-02": {
+      "title": "Validaciones del circuito",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:49:20.496Z"
+    },
+    "CRE-03": {
+      "title": "Un ejercicio no se repite",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:49:43.906Z"
+    },
+    "CRE-04": {
+      "title": "Ordenar y quitar ejercicios",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:50:36.524Z"
+    },
+    "CRE-05": {
+      "title": "Nota del entrenador",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:51:25.227Z"
+    },
+    "CRE-06": {
+      "title": "Doble envío",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:51:42.769Z"
+    },
+    "SET-01": {
+      "title": "Bloque básico y su resumen",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:51:47.559Z"
+    },
+    "SET-02": {
+      "title": "Rangos de series, repeticiones, peso y % del RM",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T19:41:27.392Z"
+    },
+    "SET-03": {
+      "title": "RPE o RIR",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:52:09.037Z"
+    },
+    "SET-04": {
+      "title": "AMRAP",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T19:40:30.890Z"
+    },
+    "SET-05": {
+      "title": "RM",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T19:40:47.325Z"
+    },
+    "SET-06": {
+      "title": "Varios bloques",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:57:08.737Z"
+    },
+    "SET-07": {
+      "title": "Lo guardado vuelve igual",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:57:10.344Z"
+    },
+    "EDT-01": {
+      "title": "Editar un circuito",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:57:15.881Z"
+    },
+    "EDT-02": {
+      "title": "Cambiar los ejercicios",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:57:19.029Z"
+    },
+    "EDT-03": {
+      "title": "Vaciar la descripción y una nota",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:59:41.989Z"
+    },
+    "EDT-04": {
+      "title": "Dejarlo sin ejercicios",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:09:36.677Z"
+    },
+    "EDT-05": {
+      "title": "Aviso de varias rutinas",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T23:55:47.532Z"
+    },
+    "EDT-06": {
+      "title": "Link a un circuito que no existe",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:10:20.641Z"
+    },
+    "EDT-07": {
+      "title": "Guardar uno que desactivaron en otra pestaña",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:19:30.239Z"
+    },
+    "EDT-08": {
+      "title": "Volver sin guardar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:11:36.891Z"
+    },
+    "DUP-01": {
+      "title": "Duplicar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:12:11.764Z"
+    },
+    "DUP-02": {
+      "title": "Duplicar con cambios sin guardar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:13:59.137Z"
+    },
+    "DUP-03": {
+      "title": "La copia es independiente",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:14:57.263Z"
+    },
+    "BAJ-01": {
+      "title": "Desactivar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T19:48:15.384Z"
+    },
+    "BAJ-02": {
+      "title": "Cancelar la desactivación",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T19:48:16.959Z"
+    },
+    "BAJ-03": {
+      "title": "Un circuito inactivo no se edita",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T19:49:01.175Z"
+    },
+    "BAJ-04": {
+      "title": "Reactivar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T19:48:23.965Z"
+    },
+    "BAJ-05": {
+      "title": "El panel cuenta solo los activos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T19:48:49.761Z"
+    },
+    "COA-01": {
+      "title": "La pantalla del entrenador",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:15:51.385Z"
+    },
+    "COA-02": {
+      "title": "Cambios entre roles",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:16:00.497Z"
+    },
+    "ERR-01": {
+      "title": "Servidor caído al cargar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:16:03.767Z"
+    },
+    "ERR-02": {
+      "title": "Servidor caído al guardar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:16:04.928Z"
+    },
+    "ERR-03": {
+      "title": "Celular y escritorio",
+      "status": "retest",
+      "note": "no se ajusta bien a la pantalla del telefono",
+      "at": "2026-10-26T23:54:28.060Z"
+    },
+    "ERR-04": {
+      "title": "Teclado y lector de pantalla",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:16:17.909Z"
+    },
+    "FIN-01": {
+      "title": "Dejar los circuitos de prueba fuera de uso",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T23:57:39.520Z"
+    }
+  }
+}
