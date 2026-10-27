@@ -102,6 +102,7 @@
   .prog-top b{color:var(--tp);font-weight:700;}
   .prog-top .fail{color:var(--red);}
   .prog-top .retest{color:var(--amber);}
+  .prog-top .none{color:var(--tm);}
   .prog-bar{display:flex;height:8px;border-radius:5px;overflow:hidden;background:var(--el);}
   .prog-bar span{height:100%;}
   .prog-bar .ok{background:var(--green);}
@@ -149,6 +150,22 @@
   .sc-row[data-f="muted"]{--f:var(--tm);}
   .sc-names{font-family:var(--fMono);font-size:10.5px;line-height:1.6;color:var(--ts);padding:7px 0 2px 12px;}
 
+  /* orden de las cards */
+  .sort{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:44px;}
+  .sort-label{font-family:var(--fMono);font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--tm);margin-right:4px;}
+  .sort button{
+    font-family:var(--fMono);font-size:12px;color:var(--ts);background:transparent;cursor:pointer;
+    border:1px solid var(--border);border-radius:999px;padding:7px 13px;
+    transition:color .2s,border-color .2s,background .2s;
+  }
+  .sort button:hover:not(:disabled){color:var(--tp);border-color:var(--border2);background:var(--el);}
+  .sort button[aria-pressed="true"],.sort button[aria-pressed="true"]:hover:not(:disabled){color:var(--tp);border-color:color-mix(in srgb,var(--green) 55%,transparent);background:color-mix(in srgb,var(--green) 12%,transparent);}
+  .sort button:focus-visible{outline:2px solid var(--pri);outline-offset:2px;}
+  .sort button:disabled{opacity:.45;cursor:default;}
+  .sort .sort-dir{margin-left:auto;}
+  .sort-hint{width:100%;font-family:var(--fMono);font-size:11px;color:var(--tm);margin-top:2px;}
+  .sort + .sec-label{margin-top:22px;}
+
   .card-go{
     display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:18px;
     font-family:var(--fMono);font-size:12px;font-weight:500;color:var(--tp);letter-spacing:.3px;
@@ -173,6 +190,7 @@
     .card h2{font-size:24px;}
     .kpis{grid-template-columns:repeat(2,1fr);}
     .kpi-val{font-size:34px;}
+    .sort .sort-dir{margin-left:0;}
   }
   @media (max-width:900px){
     .scales{grid-template-columns:1fr;}
@@ -336,6 +354,7 @@
         top.appendChild(main);
         top.appendChild(el('span', 'fail', n.fail + (n.fail === 1 ? ' falla' : ' fallas')));
         top.appendChild(el('span', 'retest', n.retest + ' por re-testear'));
+        top.appendChild(el('span', 'none', st.none + ' sin probar'));
         box.appendChild(top);
 
         var bar = el('div', 'prog-bar');
@@ -476,7 +495,10 @@
     dash.setAttribute('aria-label', 'Resumen de los planes de prueba');
     root.appendChild(dash);
     summary(dash, all, loads);
+    var sortBar = el('div', 'sort');
+    root.appendChild(sortBar);
 
+    var items = [];
     groups.forEach(function (g) {
       var label = el('div', 'sec-label', g.name);
       label.appendChild(el('span', 'n', '· ' + g.plans.length + (g.plans.length === 1 ? ' plan' : ' planes')));
@@ -501,8 +523,84 @@
         go.appendChild(el('span', 'arw', '→'));
         a.appendChild(go);
         grid.appendChild(a);
+        items.push({ plan: plan, card: a, grid: grid, idx: items.length });
       });
       root.appendChild(grid);
+    });
+    sorter(sortBar, items);
+  }
+
+  // Criterios de orden. `desc` es el sentido por defecto: primero lo que más atención pide.
+  var SORTS = [
+    { id: 'index', label: 'Orden del índice' },
+    { id: 'none', label: 'Sin probar', desc: true, key: function (s) { return s.none; }, what: 'casos sin probar' },
+    { id: 'pass', label: '% aprobados', desc: false, key: function (s) { return s.passPct; }, what: '% de casos aprobados' },
+    { id: 'test', label: '% probados', desc: false, key: function (s) { return s.testPct; }, what: '% de casos probados' },
+    { id: 'fail', label: 'Fallas', desc: true, key: function (s) { return s.n.fail; }, what: 'fallas abiertas' },
+    { id: 'retest', label: 'Por re-testear', desc: true, key: function (s) { return s.n.retest; }, what: 'casos por re-testear' }
+  ];
+  var SORT_KEY = 'powerapp-tests-orden';
+
+  // Barra para reordenar las cards dentro de cada sección. Se habilita cuando se leyeron todas las tandas;
+  // los planes sin resultados (o que no se pudieron leer) van siempre al final. A igual valor va primero el de menos % de
+  // aprobados, y si también empatan, el orden del índice.
+  function sorter(bar, items) {
+    var label = el('span', 'sort-label', 'Ordenar');
+    bar.appendChild(label);
+    var state = { id: 'index', desc: false };
+    try {
+      var saved = JSON.parse(localStorage.getItem(SORT_KEY) || 'null');
+      if (saved && SORTS.some(function (o) { return o.id === saved.id; })) state = { id: saved.id, desc: !!saved.desc };
+    } catch (e) { /* sin storage: arranca con el orden del índice */ }
+
+    var buttons = SORTS.map(function (o) {
+      var b = el('button', null, o.label);
+      b.type = 'button';
+      b.disabled = true;
+      b.addEventListener('click', function () {
+        state = { id: o.id, desc: !!o.desc };
+        apply();
+      });
+      bar.appendChild(b);
+      return b;
+    });
+    var dir = el('button', 'sort-dir');
+    dir.type = 'button';
+    dir.disabled = true;
+    dir.addEventListener('click', function () { state.desc = !state.desc; apply(); });
+    bar.appendChild(dir);
+    var hint = el('div', 'sort-hint', 'Leyendo resultados para ordenar…');
+    bar.appendChild(hint);
+
+    function apply() {
+      var opt = SORTS.filter(function (o) { return o.id === state.id; })[0];
+      buttons.forEach(function (b, i) { b.setAttribute('aria-pressed', String(SORTS[i].id === state.id)); });
+      var byIndex = opt.id === 'index';
+      dir.hidden = byIndex;
+      dir.textContent = state.desc ? '↓ Mayor primero' : '↑ Menor primero';
+      dir.setAttribute('aria-label', 'Invertir el orden (ahora: ' + (state.desc ? 'mayor' : 'menor') + ' primero)');
+      hint.textContent = byIndex
+        ? 'Como están en Tests/README.md.'
+        : 'Primero los de ' + (state.desc ? 'más ' : 'menos ') + opt.what + ' en su última tanda' + (opt.id === 'pass' ? '' : '; a igual valor, el de menos % aprobados') + '. Los planes sin resultados van al final.';
+
+      var sorted = items.slice().sort(function (a, b) {
+        if (byIndex) return a.idx - b.idx;
+        var sa = a.st, sb = b.st;
+        if (!sa || !sb) return (sa ? 0 : 1) - (sb ? 0 : 1) || a.idx - b.idx;
+        var d = opt.key(sa) - opt.key(sb);
+        return (state.desc ? -d : d) || sa.passPct - sb.passPct || a.idx - b.idx;
+      });
+      // appendChild mueve la card: queda en el nuevo orden dentro de su propia sección.
+      sorted.forEach(function (it) { it.grid.appendChild(it.card); });
+      try { localStorage.setItem(SORT_KEY, JSON.stringify(state)); } catch (e) { /* sin storage: no se recuerda */ }
+    }
+
+    Promise.all(items.map(function (it) {
+      return it.plan.stats.then(function (s) { it.st = s; }, function () { it.st = null; });
+    })).then(function () {
+      buttons.forEach(function (b) { b.disabled = false; });
+      dir.disabled = false;
+      apply();
     });
   }
 
