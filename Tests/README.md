@@ -66,7 +66,7 @@ Con eso, **no hace falta importar a mano**:
 - [Pruebas del panel y la navegación](Panel%20y%20navegacion/Pruebas%20del%20panel%20y%20la%20navegaci%C3%B3n.html) — El marco de la app: el panel del Admin, «Más», el inicio del Entrenador y del alumno con su tab bar y barra lateral, qué rol entra a qué ruta, las direcciones que no existen, el aviso de servidor dormido y la sesión que se cierra sola (sin CU).
   - [Tanda 1](Panel%20y%20navegacion/1-pruebas-navegacion.resultados.json)
   - [Tanda 2 (la 1, adaptada al plan del 25/10)](Panel%20y%20navegacion/2-pruebas-navegacion.resultados.json)
-  - [Tanda 3](Panel%20y%20navegacion\3-pruebas-navegacion.resultados.json)
+  - [Tanda 3](Panel%20y%20navegacion/3-pruebas-navegacion.resultados.json)
 - [Pruebas de mi cuenta](Mi%20cuenta/Pruebas%20de%20mi%20cuenta.html) — Mi cuenta con los tres roles: la pantalla de cada uno, los datos personales con sus validaciones y el historial de pagos del alumno (CU-U-06 y CU-U-07).
   - [Tanda 1](Mi%20cuenta/1-pruebas-cuenta.resultados.json)
 - [Pruebas de wiki y temporizador](Wiki%20y%20temporizador/Pruebas%20de%20wiki%20y%20temporizador.html) — Herramientas del alumno: la biblioteca de ejercicios con búsqueda, filtro por grupo muscular y ficha de cada ejercicio, y el temporizador de descanso entre series (CU-U-14 y CU-U-15).
@@ -84,6 +84,7 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 1](Planificaciones/1-pruebas-planificaciones.resultados.json)
 - [Pruebas de rutinas](Rutinas/Pruebas%20de%20rutinas.html) — Rutinas desde el Admin y el Entrenador: listado y búsqueda, alta y edición con sus circuitos en orden, baja y reactivación, y las rutinas puntuales de un alumno: asignarlas para un día y quitarlas (CU-E-15 a CU-E-20).
   - [Tanda 1](Rutinas/1-pruebas-rutinas.resultados.json)
-  - [Tanda 1](Rutinas/2-pruebas-rutinas.resultados.json)
+  - [Tanda 2](Rutinas/2-pruebas-rutinas.resultados.json)
 - [Pruebas del plan del alumno](Plan%20del%20alumno/Pruebas%20del%20plan%20del%20alumno.html) — El entrenamiento del alumno: el inicio semana por semana, el detalle de cada rutina y de cada ejercicio, sus RMs del ejercicio, marcar y desmarcar lo hecho con su nota, y cómo se ve todo cuando el entrenador cambia algo (CU-U-08 a CU-U-13).
   - [Tanda 1](Plan%20del%20alumno/1-pruebas-plan-alumno.resultados.json)
+  - [Tanda 2](Plan%20del%20alumno/2-pruebas-plan-alumno.resultados.json)
