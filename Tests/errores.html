@@ -51,7 +51,7 @@
   /* Barra de herramientas */
   .tools{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;margin-top:28px;}
   .tools label{font-family:var(--fMono);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--tm);}
-  .tools select,.tools input[type="search"]{
+  .tools input[type="search"]{
     font:14px var(--fBody);color:var(--tp);background:var(--card);border:1px solid var(--border2);border-radius:10px;
     padding:9px 12px;min-height:38px;
   }
@@ -64,6 +64,15 @@
   .chip:hover{color:var(--tp);border-color:var(--border2);background:var(--el);}
   .chip[aria-pressed="true"]{color:var(--tp);border-color:color-mix(in srgb,var(--amber) 55%,transparent);background:color-mix(in srgb,var(--amber) 12%,transparent);}
   .count-line{margin-left:auto;font-family:var(--fMono);font-size:11.5px;color:var(--ts);}
+
+  /* Pills de plan: una por plan, se pueden combinar varias */
+  .plans-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px;}
+  .plans-row .lbl{font-family:var(--fMono);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--tm);margin-right:4px;}
+  .pp{min-height:34px;padding:6px 12px;font-size:12.5px;}
+  .pp .k{margin-left:7px;font-variant-numeric:tabular-nums;color:var(--tm);}
+  .pp.zero{opacity:.55;}
+  .pp[aria-pressed="true"]{color:var(--tp);border-color:color-mix(in srgb,var(--priL) 60%,transparent);background:color-mix(in srgb,var(--priL) 15%,transparent);}
+  .pp[aria-pressed="true"] .k{color:var(--priL);}
 
   /* Cambios sin exportar */
   .changes{margin-top:18px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(180deg,var(--card),var(--card2));}
@@ -89,7 +98,7 @@
 
   /* Tablero */
   .board{
-    display:grid;grid-auto-flow:column;--n:2;--gap:16px;grid-auto-columns:calc((100% - (var(--n) - 1) * var(--gap)) / var(--n));gap:var(--gap);
+    display:grid;grid-auto-flow:column;--n:2;--gap:16px;grid-auto-columns:calc((100% - (min(var(--n), var(--cols, 7)) - 1) * var(--gap)) / min(var(--n), var(--cols, 7)));gap:var(--gap);
     margin-top:20px;overflow-x:auto;padding-bottom:14px;align-items:start;
     scroll-snap-type:x proximity;
   }
@@ -171,13 +180,12 @@
   </header>
 
   <div class="tools" role="search">
-    <label for="f-plan">Plan</label>
-    <select id="f-plan"><option value="">Todos</option></select>
     <label for="f-q" class="sr" style="position:absolute;left:-9999px">Buscar</label>
     <input type="search" id="f-q" placeholder="Buscar por caso, título o nota">
     <button type="button" class="chip" id="f-retest" aria-pressed="true">Incluir re-testear</button>
     <span class="count-line" id="count-line" aria-live="polite"></span>
   </div>
+  <div class="plans-row" id="f-plans" role="group" aria-label="Filtrar por plan"><span class="lbl">Plan</span></div>
 
   <details class="changes" id="changes" hidden>
     <summary>
@@ -221,7 +229,7 @@
 
   var plans = [];       // [{ title, short, href, folder, key, id, data, nextRun, cases: { id: {base, cur} }, order: [] }]
   var items = [];       // todos los casos que el tablero maneja
-  var filters = { plan: '', q: '', retest: true };
+  var filters = { plans: {}, q: '', retest: true };   // plans: { <id del plan>: true } con los planes elegidos; vacío = todos
   var dragging = null;
   var storageOk = true;
 
@@ -372,8 +380,11 @@
   }
 
   // ── Render ──
+  // Con «Incluir re-testear» apagado, la columna Re-testear no se muestra (ni su botón en las tarjetas) y esos casos no se cuentan.
+  function visibleCols() { return COLS.filter(function (c) { return filters.retest || c.k !== 'retest'; }); }
+  function isOpen(i) { return i.cur.status !== 'ok' && (filters.retest || i.cur.status !== 'retest'); }
   function visible(item) {
-    if (filters.plan && item.plan.id !== filters.plan) return false;
+    if (Object.keys(filters.plans).length && !filters.plans[item.plan.id]) return false;
     if (!filters.retest && item.cur.status === 'retest') return false;
     if (filters.q) {
       var q = filters.q.toLowerCase();
@@ -403,7 +414,7 @@
     var moves = el('div', 'kc-moves');
     moves.setAttribute('role', 'group');
     moves.setAttribute('aria-label', 'Mover ' + item.id);
-    COLS.forEach(function (col) {
+    visibleCols().forEach(function (col) {
       var b = el('button', 'mv', col.btn);
       b.type = 'button';
       b.style.setProperty('--c', col.c);
@@ -488,7 +499,9 @@
     var shown = items.filter(visible);
 
     var board = el('div', 'board');
-    COLS.forEach(function (col) {
+    var cols = visibleCols();
+    board.style.setProperty('--cols', String(cols.length));
+    cols.forEach(function (col) {
       var cs = shown.filter(function (i) { return placeOf(i.cur) === col.k; });
       var sec = el('section', 'col');
       sec.style.setProperty('--c', col.c);
@@ -517,10 +530,27 @@
     board.scrollLeft = left;
     board.querySelectorAll('.kc-note').forEach(function (n) { if (n._more && n.scrollHeight > n.clientHeight + 1) n._more.hidden = false; });
 
-    var open = shown.filter(function (i) { return i.cur.status !== 'ok'; }).length;
-    var allOpen = items.filter(function (i) { return i.cur.status !== 'ok'; }).length;
+    var open = shown.filter(isOpen).length;
+    var allOpen = items.filter(isOpen).length;
     $('#count-line').textContent = open + (open === 1 ? ' caso abierto' : ' casos abiertos') + (open !== allOpen ? ' (de ' + allOpen + ')' : '') + ' · ' + plans.length + ' planes';
+    renderPlanPills();
     renderChanges();
+  }
+
+  // Pills de plan: estado (elegido o no) y casos abiertos de cada plan (no dependen del filtro de plan ni de la búsqueda).
+  function renderPlanPills() {
+    var open = {};
+    items.forEach(function (i) { if (isOpen(i)) open[i.plan.id] = (open[i.plan.id] || 0) + 1; });
+    var total = Object.keys(open).reduce(function (a, k) { return a + open[k]; }, 0);
+    var any = Object.keys(filters.plans).length > 0;
+    document.querySelectorAll('#f-plans .pp').forEach(function (b) {
+      var id = b.dataset.plan;
+      var n = id ? (open[id] || 0) : total;
+      b.querySelector('.k').textContent = String(n);
+      b.setAttribute('aria-pressed', String(id ? !!filters.plans[id] : !any));
+      b.classList.toggle('zero', id !== '' && n === 0);
+      if (id) b.title = n + (n === 1 ? ' caso abierto' : ' casos abiertos') + ' en ' + b.firstChild.textContent;
+    });
   }
 
   // ── Exportar tandas ──
@@ -612,13 +642,27 @@
 
   // ── Filtros ──
   function setupFilters() {
-    var sel = $('#f-plan');
-    plans.forEach(function (p) {
-      var o = el('option', null, p.short);
-      o.value = p.id;
-      sel.appendChild(o);
+    var row = $('#f-plans');
+    function pillBtn(id, name) {
+      var b = el('button', 'chip pp', name);
+      b.type = 'button';
+      b.dataset.plan = id;
+      b.setAttribute('aria-pressed', 'false');
+      b.appendChild(el('span', 'k'));
+      row.appendChild(b);
+      return b;
+    }
+    pillBtn('', 'Todos');
+    plans.forEach(function (p) { pillBtn(p.id, p.short); });
+    row.addEventListener('click', function (e) {
+      var b = e.target.closest('.pp');
+      if (!b) return;
+      var id = b.dataset.plan;
+      if (!id) filters.plans = {};                       // «Todos» limpia la selección
+      else if (filters.plans[id]) delete filters.plans[id];
+      else filters.plans[id] = true;
+      render();
     });
-    sel.addEventListener('change', function () { filters.plan = sel.value; render(); });
     var q = $('#f-q'), t = null;
     q.addEventListener('input', function () { clearTimeout(t); t = setTimeout(function () { filters.q = q.value.trim(); render(); }, 150); });
     var rt = $('#f-retest');
