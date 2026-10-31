@@ -99,6 +99,7 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 2](Mi%20cuenta/2-pruebas-cuenta.resultados.json)
 - [Pruebas de wiki y temporizador](Wiki%20y%20temporizador/Pruebas%20de%20wiki%20y%20temporizador.html) — Herramientas del alumno: la biblioteca de ejercicios con búsqueda, filtro por grupo muscular y ficha de cada ejercicio, y el temporizador de descanso entre series (CU-U-14 y CU-U-15).
   - [Tanda 1](Wiki%20y%20temporizador/1-pruebas-wiki-timer.resultados.json)
+  - [Tanda 2](Wiki%20y%20temporizador/2-pruebas-wiki-timer.resultados.json)
 - [Pruebas de RMs y calculadora](RMs%20y%20calculadora/Pruebas%20de%20RMs%20y%20calculadora.html) — Los récords del alumno: listado agrupado por ejercicio, registrar, editar y eliminar un RM, y la calculadora que estima el 1RM sin guardarlo (CU-U-16 a CU-U-20).
   - [Tanda 1](RMs%20y%20calculadora/1-pruebas-rms.resultados.json)
 - [Pruebas del detalle del alumno](Detalle%20del%20alumno/Pruebas%20del%20detalle%20del%20alumno.html) — La ficha de un alumno desde el Entrenador: sus datos, sus RMs, su historial de pagos y su historial de entrenamientos con el filtro por ejercicio (CU-E-04 a CU-E-07).
