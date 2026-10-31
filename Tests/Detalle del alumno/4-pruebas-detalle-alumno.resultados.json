@@ -1,0 +1,180 @@
+{
+  "plan": "pruebas-detalle-alumno",
+  "version": 1,
+  "exportedAt": "2026-10-30T00:54:16.976Z",
+  "summary": {
+    "total": 26,
+    "ok": 19,
+    "fail": 3,
+    "retest": 4,
+    "none": 0,
+    "sev": {
+      "1": 0,
+      "2": 0,
+      "3": 3,
+      "4": 0,
+      "sinClasificar": 0
+    }
+  },
+  "results": {
+    "FCH-01": {
+      "title": "Abrir la ficha de un alumno",
+      "status": "retest",
+      "note": "Cambió el 25/10: la ficha suma las filas «Planificaciones» y «Rutinas puntuales» (con «Asignar o quitar»). La tanda 1 lo dio por bueno con la ficha anterior.",
+      "at": "2026-10-25T18:38:51.242Z"
+    },
+    "FCH-02": {
+      "title": "Planificación vigente",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T00:50:22.005Z"
+    },
+    "FCH-03": {
+      "title": "Link a un alumno que no existe",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T20:39:36.091Z"
+    },
+    "FCH-04": {
+      "title": "Cerrar y reactivar la cuenta",
+      "status": "retest",
+      "note": "Cambió el 25/10: con la cuenta cerrada la ficha ya no tiene «Registrar pago», y al reactivar vuelve. La tanda 1 lo dio por bueno con la expectativa anterior.",
+      "at": "2026-10-25T18:38:51.242Z"
+    },
+    "RMS-01": {
+      "title": "Sin RMs",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T20:40:28.125Z"
+    },
+    "RMS-02": {
+      "title": "Solo lectura",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T20:40:36.961Z"
+    },
+    "RMS-03": {
+      "title": "RMs agrupados por ejercicio",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T20:40:46.493Z"
+    },
+    "RMS-04": {
+      "title": "Cerrar el modal",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T20:40:48.343Z"
+    },
+    "PAG-01": {
+      "title": "Sin pagos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T20:41:07.200Z"
+    },
+    "PAG-02": {
+      "title": "Registrar un pago desde la ficha",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T20:42:02.776Z"
+    },
+    "PAG-03": {
+      "title": "El historial con pagos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T20:42:19.223Z"
+    },
+    "PAG-04": {
+      "title": "Lo mismo que ve el alumno",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T20:42:31.414Z"
+    },
+    "HIS-01": {
+      "title": "Sin historial",
+      "status": "fail",
+      "sev": 3,
+      "note": "Deberia ser una pantalla completa, para mas detalle ver HIS-02",
+      "at": "2026-10-31T00:04:25.000Z"
+    },
+    "HIS-02": {
+      "title": "Las sesiones",
+      "status": "fail",
+      "sev": 3,
+      "note": "Se ve muy raro, deberia tener una pantalla completa y estar mucho mejor organizada la informacion. Quizas agregar algun grafico en la parte superior ayude",
+      "at": "2026-10-31T00:04:25.000Z"
+    },
+    "HIS-03": {
+      "title": "La fecha de una sesión del plan",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T00:43:22.988Z"
+    },
+    "HIS-04": {
+      "title": "Dos sesiones el mismo día",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T00:44:15.143Z"
+    },
+    "HIS-05": {
+      "title": "La misma rutina en dos asignaciones",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T00:44:26.793Z"
+    },
+    "HIS-06": {
+      "title": "Lo que el entrenador dio de baja",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T00:53:23.063Z"
+    },
+    "FIL-01": {
+      "title": "Filtrar por un ejercicio que hizo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T00:47:39.627Z"
+    },
+    "FIL-02": {
+      "title": "Un ejercicio que no entrenó",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T00:47:49.340Z"
+    },
+    "FIL-03": {
+      "title": "El mismo ejercicio dos veces en una sesión",
+      "status": "retest",
+      "note": "",
+      "at": "2026-10-30T00:54:07.663Z"
+    },
+    "ERR-01": {
+      "title": "Servidor caído al abrir la ficha",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T20:42:56.719Z"
+    },
+    "ERR-02": {
+      "title": "Servidor caído en los modales",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T20:42:58.654Z"
+    },
+    "ERR-03": {
+      "title": "Celular y escritorio",
+      "status": "retest",
+      "note": "",
+      "at": "2026-10-30T00:48:18.215Z"
+    },
+    "ERR-04": {
+      "title": "Teclado y lector de pantalla",
+      "status": "fail",
+      "sev": 3,
+      "note": "Deberia ser una pantalla completa, actualmente es muy confusa",
+      "at": "2026-10-31T00:04:25.000Z"
+    },
+    "CIE-01": {
+      "title": "Dejar al alumno de prueba como estaba",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T00:54:09.231Z"
+    }
+  }
+}

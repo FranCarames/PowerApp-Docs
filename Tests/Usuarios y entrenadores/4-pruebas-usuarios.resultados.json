@@ -1,0 +1,257 @@
+{
+  "plan": "pruebas-usuarios",
+  "version": 1,
+  "exportedAt": "2026-10-26T23:52:45.222Z",
+  "summary": {
+    "total": 39,
+    "ok": 37,
+    "fail": 2,
+    "retest": 0,
+    "none": 0,
+    "sev": {
+      "1": 0,
+      "2": 2,
+      "3": 0,
+      "4": 0,
+      "sinClasificar": 0
+    }
+  },
+  "results": {
+    "USR-01": {
+      "title": "Llegar a Usuarios",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:46:57.137Z"
+    },
+    "USR-02": {
+      "title": "Contadores",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:47:06.726Z"
+    },
+    "USR-03": {
+      "title": "Chips de filtro",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:47:12.805Z"
+    },
+    "USR-04": {
+      "title": "Buscar usuarios",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:47:20.076Z"
+    },
+    "USR-05": {
+      "title": "Filas del listado",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:47:51.167Z"
+    },
+    "USR-06": {
+      "title": "Cargar más",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T23:51:39.873Z"
+    },
+    "USR-07": {
+      "title": "Solo para el Admin",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:48:25.730Z"
+    },
+    "DET-01": {
+      "title": "Detalle de un alumno",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:49:05.956Z"
+    },
+    "DET-02": {
+      "title": "Detalle de un entrenador",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:49:27.538Z"
+    },
+    "DET-03": {
+      "title": "Detalle de un admin y de tu cuenta",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:46:25.176Z"
+    },
+    "DET-04": {
+      "title": "Desactivar una cuenta",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:49:55.712Z"
+    },
+    "DET-05": {
+      "title": "La cuenta desactivada no entra",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:50:47.800Z"
+    },
+    "DET-06": {
+      "title": "Cancelar la desactivación",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:50:09.134Z"
+    },
+    "DET-07": {
+      "title": "Reactivar una cuenta",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:50:55.199Z"
+    },
+    "CNV-01": {
+      "title": "La pantalla de convertir",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:46:58.268Z"
+    },
+    "CNV-02": {
+      "title": "Convertir a un alumno",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T23:01:03.699Z"
+    },
+    "CNV-03": {
+      "title": "El nuevo entrenador entra a su panel",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T23:01:31.041Z"
+    },
+    "CNV-04": {
+      "title": "Validaciones de los datos profesionales",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T23:00:44.236Z"
+    },
+    "CNV-05": {
+      "title": "Email profesional repetido",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T23:01:51.712Z"
+    },
+    "CNV-06": {
+      "title": "Convertir desde Usuarios",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T23:02:34.694Z"
+    },
+    "CNV-07": {
+      "title": "Alguien que no se puede convertir",
+      "status": "fail",
+      "sev": 2,
+      "note": "Se puede convertir e indica que la cuenta esta inactiva",
+      "at": "2026-10-31T00:04:25.000Z"
+    },
+    "CNV-08": {
+      "title": "Los inactivos no se ofrecen",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:48:35.986Z"
+    },
+    "EDE-01": {
+      "title": "Abrir la edición",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:48:52.749Z"
+    },
+    "EDE-02": {
+      "title": "Guardar cambios",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:48:58.094Z"
+    },
+    "EDE-03": {
+      "title": "Validaciones al editar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:49:01.107Z"
+    },
+    "EDE-04": {
+      "title": "Guardar sin cambios",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:49:18.751Z"
+    },
+    "EDE-05": {
+      "title": "Editar desde Usuarios",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:49:46.566Z"
+    },
+    "COA-01": {
+      "title": "Llegar a Entrenadores",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:50:12.815Z"
+    },
+    "COA-02": {
+      "title": "Listado de entrenadores",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:50:14.842Z"
+    },
+    "COA-03": {
+      "title": "Desactivar la cuenta de un entrenador",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:50:42.419Z"
+    },
+    "COA-04": {
+      "title": "Dar de baja a un entrenador",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:51:05.465Z"
+    },
+    "COA-05": {
+      "title": "El ex entrenador entra como alumno",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:52:49.515Z"
+    },
+    "COA-06": {
+      "title": "Cancelar la baja",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:51:17.306Z"
+    },
+    "COA-07": {
+      "title": "Volver a convertir a un ex entrenador",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:51:36.699Z"
+    },
+    "COA-08": {
+      "title": "Dar de baja a uno que ya no es entrenador",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:52:07.988Z"
+    },
+    "ERR-01": {
+      "title": "Servidor caído",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:52:10.054Z"
+    },
+    "ERR-02": {
+      "title": "Celular y escritorio",
+      "status": "fail",
+      "sev": 2,
+      "note": "no se ajusta bien a la pantalla de mi telefono",
+      "at": "2026-10-31T00:04:25.000Z"
+    },
+    "ERR-03": {
+      "title": "Teclado y lector de pantalla",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:52:24.873Z"
+    },
+    "CIE-01": {
+      "title": "Dejar las cuentas como estaban",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T20:52:25.692Z"
+    }
+  }
+}

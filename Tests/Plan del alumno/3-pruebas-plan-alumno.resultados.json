@@ -1,0 +1,288 @@
+{
+  "plan": "pruebas-plan-alumno",
+  "version": 1,
+  "exportedAt": "2026-10-28T23:54:35.334Z",
+  "summary": {
+    "total": 44,
+    "ok": 38,
+    "fail": 3,
+    "retest": 3,
+    "none": 0,
+    "sev": {
+      "1": 1,
+      "2": 0,
+      "3": 1,
+      "4": 1,
+      "sinClasificar": 0
+    }
+  },
+  "results": {
+    "PRE-01": {
+      "title": "Dos circuitos",
+      "status": "ok",
+      "note": "A-Skip - Curl Femoral Sentado - Bird Dog",
+      "at": "2026-10-28T21:11:06.799Z"
+    },
+    "PRE-02": {
+      "title": "Dos rutinas",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T21:12:52.489Z"
+    },
+    "PRE-03": {
+      "title": "La planificación, asignada",
+      "status": "fail",
+      "sev": 3,
+      "note": "En la asignacion de planificaciones no deberia estar presente la seleccion de fecha Vamos a modificar la seleccion de fechas de inicio y fin, necesito que al actualizar el input de fecha de inicio se calcule automaticamente con el valor ingresado en semanas si esta presente y es valido.",
+      "at": "2026-10-31T00:04:25.000Z"
+    },
+    "HOM-01": {
+      "title": "El inicio",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-27T15:47:58.257Z"
+    },
+    "HOM-02": {
+      "title": "Moverse de semana",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T21:36:37.190Z"
+    },
+    "HOM-03": {
+      "title": "Semana en la dirección",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T21:39:08.675Z"
+    },
+    "HOM-04": {
+      "title": "Volver conserva la semana",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T21:39:59.973Z"
+    },
+    "RUT-01": {
+      "title": "Abrir una rutina del plan",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T21:41:39.083Z"
+    },
+    "RUT-02": {
+      "title": "Abrir por enlace directo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T23:47:46.595Z"
+    },
+    "RUT-03": {
+      "title": "La rutina de otro alumno",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T22:38:44.977Z"
+    },
+    "RUT-04": {
+      "title": "Un enlace roto",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T22:38:54.405Z"
+    },
+    "EJE-01": {
+      "title": "Abrir un ejercicio",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T21:48:11.117Z"
+    },
+    "EJE-02": {
+      "title": "Un ejercicio AMRAP",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T21:48:27.466Z"
+    },
+    "EJE-03": {
+      "title": "Tildar series",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T21:49:02.968Z"
+    },
+    "EJE-04": {
+      "title": "Temporizador y ejercicio que no está",
+      "status": "fail",
+      "sev": 4,
+      "note": "no veo el id del ejercicio en la url del timer",
+      "at": "2026-10-31T00:04:25.000Z"
+    },
+    "RMS-01": {
+      "title": "Sin RMs de este ejercicio",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T21:50:41.748Z"
+    },
+    "RMS-02": {
+      "title": "Registrar y ver los RMs",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T21:52:41.546Z"
+    },
+    "MAR-01": {
+      "title": "Marcar hecho",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T21:53:18.969Z"
+    },
+    "MAR-02": {
+      "title": "Marcar otro día",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T21:56:41.678Z"
+    },
+    "MAR-03": {
+      "title": "Corregir el día",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T21:57:16.926Z"
+    },
+    "MAR-04": {
+      "title": "Desmarcar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T21:57:18.711Z"
+    },
+    "MAR-05": {
+      "title": "Otra semana es otra rutina",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T21:59:22.293Z"
+    },
+    "MAR-06": {
+      "title": "Marcar dos veces",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T22:00:01.895Z"
+    },
+    "MAR-07": {
+      "title": "La misma planificación dos veces",
+      "status": "retest",
+      "note": "no vi el boton de asignar igual.\nasigno manualmente la fecha para que coincidan a partir de la segunda semana para la prueba",
+      "at": "2026-10-28T22:02:02.383Z"
+    },
+    "NOT-01": {
+      "title": "Nota en un ejercicio sin marcar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T22:02:51.606Z"
+    },
+    "NOT-02": {
+      "title": "Editar la nota y guardar sin cambios",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T22:03:01.770Z"
+    },
+    "NOT-03": {
+      "title": "Nota demasiado larga",
+      "status": "ok",
+      "note": "tiene limite de 100, me parece aceptable asi que hay que actualizar el test",
+      "at": "2026-10-28T22:03:36.008Z"
+    },
+    "NOT-04": {
+      "title": "Vaciar la nota",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T22:03:56.923Z"
+    },
+    "NOT-05": {
+      "title": "Desmarcar con nota",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T22:03:59.857Z"
+    },
+    "IND-01": {
+      "title": "Una rutina individual junto al plan",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T22:05:10.790Z"
+    },
+    "IND-02": {
+      "title": "Abrirla y marcarla",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T22:05:40.673Z"
+    },
+    "IND-03": {
+      "title": "Una semana solo con individuales",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T22:06:44.446Z"
+    },
+    "CAM-01": {
+      "title": "Rutina o planificación dadas de baja",
+      "status": "retest",
+      "note": "",
+      "at": "2026-10-28T22:28:18.360Z"
+    },
+    "CAM-02": {
+      "title": "Rutina quitada del plan, con algo hecho",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T22:24:43.372Z"
+    },
+    "CAM-03": {
+      "title": "Desmarcar lo último de una rutina quitada",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T22:35:30.198Z"
+    },
+    "CAM-04": {
+      "title": "Circuito sacado de la rutina, con algo hecho",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T22:52:59.166Z"
+    },
+    "CAM-05": {
+      "title": "Marcar mientras quitan la rutina",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T22:55:17.636Z"
+    },
+    "CAM-06": {
+      "title": "Plan quitado al alumno",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T22:56:53.185Z"
+    },
+    "CAM-07": {
+      "title": "Reincorporar el plan",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T22:57:17.802Z"
+    },
+    "CAM-08": {
+      "title": "Ejercicio sacado de un circuito, con algo hecho",
+      "status": "fail",
+      "sev": 1,
+      "note": "Fallo la operacion si intento agregar ejercicios, si los elimino no deja rastro en los usuarios (no llegue a validar si afecta si el usuario marco o no como realizado el ejercicio)",
+      "at": "2026-10-31T00:04:25.000Z"
+    },
+    "ERR-01": {
+      "title": "Servidor caído",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T22:37:02.178Z"
+    },
+    "ERR-02": {
+      "title": "Celular y escritorio",
+      "status": "retest",
+      "note": "",
+      "at": "2026-10-28T22:37:03.313Z"
+    },
+    "ERR-03": {
+      "title": "Teclado y lector de pantalla",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T22:37:08.860Z"
+    },
+    "FIN-01": {
+      "title": "Dejar lo de prueba fuera de uso",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-28T23:54:27.613Z"
+    }
+  }
+}

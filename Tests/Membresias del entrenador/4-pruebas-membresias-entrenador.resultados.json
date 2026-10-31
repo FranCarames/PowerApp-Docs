@@ -1,0 +1,202 @@
+{
+  "plan": "pruebas-membresias-entrenador",
+  "version": 1,
+  "exportedAt": "2026-10-27T19:15:58.644Z",
+  "summary": {
+    "total": 30,
+    "ok": 27,
+    "fail": 1,
+    "retest": 2,
+    "none": 0,
+    "sev": {
+      "1": 0,
+      "2": 1,
+      "3": 0,
+      "4": 0,
+      "sinClasificar": 0
+    }
+  },
+  "results": {
+    "ACC-01": {
+      "title": "Desde Mis alumnos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:34:39.868Z"
+    },
+    "ACC-02": {
+      "title": "Los otros accesos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:34:56.833Z"
+    },
+    "ACC-03": {
+      "title": "Solo para el entrenador",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:35:24.696Z"
+    },
+    "CNT-01": {
+      "title": "Los cuatro contadores",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:37:21.454Z"
+    },
+    "CNT-02": {
+      "title": "No dependen de los filtros",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:37:34.454Z"
+    },
+    "CNT-03": {
+      "title": "El alumno de prueba sin pagos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:37:36.476Z"
+    },
+    "EST-01": {
+      "title": "Todas",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:37:41.284Z"
+    },
+    "EST-02": {
+      "title": "Cada estado",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:37:50.893Z"
+    },
+    "EST-03": {
+      "title": "La tarjeta de cada alumno",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:38:04.105Z"
+    },
+    "EST-04": {
+      "title": "Un estado sin alumnos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:38:22.728Z"
+    },
+    "EST-05": {
+      "title": "Buscar por nombre o email",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:38:36.392Z"
+    },
+    "EST-06": {
+      "title": "Una cuenta inactiva",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:51:56.957Z"
+    },
+    "TIP-01": {
+      "title": "Los tipos de membresía",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:39:22.254Z"
+    },
+    "TIP-02": {
+      "title": "Filtrar por tipo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:39:33.946Z"
+    },
+    "TIP-03": {
+      "title": "Un tipo sin alumnos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:39:42.638Z"
+    },
+    "TIP-04": {
+      "title": "Todos agrupados por tipo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:52:33.784Z"
+    },
+    "PAG-01": {
+      "title": "La pantalla sin alumno",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:40:31.258Z"
+    },
+    "PAG-02": {
+      "title": "Elegir y cambiar el alumno",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:53:39.375Z"
+    },
+    "PAG-03": {
+      "title": "Registrar un pago",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:41:35.365Z"
+    },
+    "PAG-04": {
+      "title": "Renovar arranca con el mismo tipo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:41:51.823Z"
+    },
+    "PAG-05": {
+      "title": "Doble envío",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:41:53.937Z"
+    },
+    "PAG-06": {
+      "title": "Alguien que no es alumno",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:53:43.766Z"
+    },
+    "PAG-07": {
+      "title": "Un tipo dado de baja mientras tanto",
+      "status": "retest",
+      "note": "Cambió el 25/10: ahora espera el 400 de BE-28 con «Ese tipo de membresía está dado de baja. Elegí otro.» y un paso 4 (recargar y ver que el tipo ya no se ofrece). La tanda 1 lo dio por bueno con la expectativa anterior.",
+      "at": "2026-10-25T18:38:51.242Z"
+    },
+    "PAG-08": {
+      "title": "Un alumno con la cuenta cerrada",
+      "status": "retest",
+      "note": "Cambió el 25/10: el pago a una cuenta cerrada se rechaza (el buscador no la ofrece y /c/pago?alumno={id} lo avisa); antes se registraba con un aviso. La tanda 1 lo probó con la expectativa anterior.",
+      "at": "2026-10-25T18:38:51.242Z"
+    },
+    "PAG-09": {
+      "title": "La cuenta se cierra mientras cargás el pago",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-27T19:15:56.123Z"
+    },
+    "ERR-01": {
+      "title": "Servidor caído al cargar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:45:23.270Z"
+    },
+    "ERR-02": {
+      "title": "Servidor caído al confirmar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:45:24.268Z"
+    },
+    "ERR-03": {
+      "title": "Celular y escritorio",
+      "status": "fail",
+      "sev": 2,
+      "note": "No se ajusta a la pantalla de mi celular, el menu de edicion de membresia tiene animacion rara",
+      "at": "2026-10-31T00:04:25.000Z"
+    },
+    "ERR-04": {
+      "title": "Teclado y lector de pantalla",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:49:27.217Z"
+    },
+    "CIE-01": {
+      "title": "Dejar los datos de prueba identificados",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:58:12.318Z"
+    }
+  }
+}

@@ -1,0 +1,208 @@
+{
+  "plan": "pruebas-rms",
+  "version": 1,
+  "exportedAt": "2026-10-24T19:30:27.682Z",
+  "summary": {
+    "total": 31,
+    "ok": 30,
+    "fail": 1,
+    "retest": 0,
+    "none": 0,
+    "sev": {
+      "1": 0,
+      "2": 1,
+      "3": 0,
+      "4": 0,
+      "sinClasificar": 0
+    }
+  },
+  "results": {
+    "LST-01": {
+      "title": "Sin RMs",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:13:48.156Z"
+    },
+    "LST-02": {
+      "title": "Desde Mi cuenta",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:15:17.750Z"
+    },
+    "LST-03": {
+      "title": "Solo para el alumno",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:15:54.197Z"
+    },
+    "ALT-01": {
+      "title": "Registrar un RM",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:16:49.174Z"
+    },
+    "ALT-02": {
+      "title": "Varios RMs y su orden",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:18:22.541Z"
+    },
+    "ALT-03": {
+      "title": "Cancelar el alta",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:18:53.090Z"
+    },
+    "ALT-04": {
+      "title": "Doble envío",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:18:55.792Z"
+    },
+    "VAL-01": {
+      "title": "Campos vacíos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:19:22.491Z"
+    },
+    "VAL-02": {
+      "title": "Peso fuera de rango",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:20:09.292Z"
+    },
+    "VAL-03": {
+      "title": "Repeticiones fuera de rango",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:20:22.339Z"
+    },
+    "VAL-04": {
+      "title": "Fecha futura",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:20:52.057Z"
+    },
+    "EDT-01": {
+      "title": "Editar un RM",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:21:18.256Z"
+    },
+    "EDT-02": {
+      "title": "La fecha no se corre",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:21:49.910Z"
+    },
+    "EDT-03": {
+      "title": "Validaciones al editar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:22:08.328Z"
+    },
+    "EDT-04": {
+      "title": "Editar un RM que ya no existe",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:22:44.133Z"
+    },
+    "DEL-01": {
+      "title": "Eliminar un RM",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:22:48.871Z"
+    },
+    "DEL-02": {
+      "title": "Cancelar la eliminación",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:23:10.145Z"
+    },
+    "DEL-03": {
+      "title": "Eliminar uno que ya no existe",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:23:35.155Z"
+    },
+    "CAL-01": {
+      "title": "Llegar a la calculadora",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:24:11.463Z"
+    },
+    "CAL-02": {
+      "title": "Calcular el 1RM",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:24:53.022Z"
+    },
+    "CAL-03": {
+      "title": "Con una sola repetición",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:25:16.822Z"
+    },
+    "CAL-04": {
+      "title": "No se guarda",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:25:26.956Z"
+    },
+    "CAL-05": {
+      "title": "Datos inválidos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:26:21.654Z"
+    },
+    "CAL-06": {
+      "title": "Más de 12 repeticiones",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:26:56.984Z"
+    },
+    "CAL-07": {
+      "title": "Un request por cálculo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:27:01.298Z"
+    },
+    "CAL-08": {
+      "title": "Sin ejercicio",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:27:23.116Z"
+    },
+    "ERR-01": {
+      "title": "Servidor caído al cargar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:27:26.053Z"
+    },
+    "ERR-02": {
+      "title": "Servidor caído al guardar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:27:27.222Z"
+    },
+    "ERR-03": {
+      "title": "Celular y escritorio",
+      "status": "fail",
+      "sev": 2,
+      "note": "no se ajusta al ancho de la pantalla de mi telefono",
+      "at": "2026-10-31T00:04:25.000Z"
+    },
+    "ERR-04": {
+      "title": "Teclado y lector de pantalla",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:27:37.280Z"
+    },
+    "FIN-01": {
+      "title": "Dejar al alumno de prueba sin RMs",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-24T19:27:49.280Z"
+    }
+  }
+}

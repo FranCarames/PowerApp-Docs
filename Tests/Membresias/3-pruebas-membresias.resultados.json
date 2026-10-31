@@ -1,0 +1,214 @@
+{
+  "plan": "pruebas-membresias",
+  "version": 1,
+  "exportedAt": "2026-10-12T22:21:46.550Z",
+  "summary": {
+    "total": 32,
+    "ok": 31,
+    "fail": 1,
+    "retest": 0,
+    "none": 0,
+    "sev": {
+      "1": 0,
+      "2": 0,
+      "3": 1,
+      "4": 0,
+      "sinClasificar": 0
+    }
+  },
+  "results": {
+    "NAV-01": {
+      "title": "Llegar a Membresías",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:45:31.820Z"
+    },
+    "NAV-02": {
+      "title": "Solo para el Admin",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:47:12.853Z"
+    },
+    "LST-01": {
+      "title": "Tarjetas y orden",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:47:55.751Z"
+    },
+    "LST-02": {
+      "title": "Alumnos por tipo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:48:59.180Z"
+    },
+    "CRE-01": {
+      "title": "Crear un tipo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:49:44.587Z"
+    },
+    "CRE-02": {
+      "title": "Precio con decimales",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:50:15.324Z"
+    },
+    "CRE-03": {
+      "title": "Validaciones del formulario",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:50:18.744Z"
+    },
+    "CRE-04": {
+      "title": "Duración repetida",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:50:42.838Z"
+    },
+    "CRE-05": {
+      "title": "Nombre repetido",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:21:07.218Z"
+    },
+    "CRE-06": {
+      "title": "Doble envío",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:51:55.280Z"
+    },
+    "EDT-01": {
+      "title": "Editar el precio",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:52:25.268Z"
+    },
+    "EDT-02": {
+      "title": "Los pagos ya registrados no cambian",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:59:48.464Z"
+    },
+    "EDT-03": {
+      "title": "Editar a una duración que ya tiene otro tipo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:21:26.518Z"
+    },
+    "EDT-04": {
+      "title": "Nombre en conflicto al editar",
+      "status": "ok",
+      "note": "Hoy no cumple el CU. El backend lo acepta. Marcalo Falla y volvé a llamarlo QA Plan 46.",
+      "at": "2026-10-12T22:21:41.096Z"
+    },
+    "EDT-05": {
+      "title": "Validaciones al editar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:01:12.241Z"
+    },
+    "EDT-06": {
+      "title": "Cancelar sin guardar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:01:22.519Z"
+    },
+    "BAJ-01": {
+      "title": "Dar de baja",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:54:33.644Z"
+    },
+    "BAJ-02": {
+      "title": "Cancelar la baja",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:54:10.647Z"
+    },
+    "BAJ-03": {
+      "title": "Reactivar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:54:35.671Z"
+    },
+    "BAJ-04": {
+      "title": "Dar de baja un tipo con pagos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:56:00.374Z"
+    },
+    "BAJ-05": {
+      "title": "Editar un tipo dado de baja",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:56:40.117Z"
+    },
+    "BAJ-06": {
+      "title": "Crear con la duración de un tipo dado de baja",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:56:59.272Z"
+    },
+    "INT-01": {
+      "title": "Registrar pago ofrece solo los activos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:57:06.889Z"
+    },
+    "INT-02": {
+      "title": "El filtro por tipo del entrenador",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:58:10.170Z"
+    },
+    "INT-03": {
+      "title": "El vencimiento usa la duración del tipo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:58:17.031Z"
+    },
+    "INT-04": {
+      "title": "El contador de alumnos se actualiza",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:58:26.404Z"
+    },
+    "INT-05": {
+      "title": "El alumno ve su membresía",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:58:30.952Z"
+    },
+    "ERR-01": {
+      "title": "Servidor caído al cargar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:58:51.766Z"
+    },
+    "ERR-02": {
+      "title": "Servidor caído al guardar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:58:45.850Z"
+    },
+    "ERR-03": {
+      "title": "Celular y escritorio",
+      "status": "fail",
+      "sev": 3,
+      "note": "se ve rara la UI pero funciona",
+      "at": "2026-10-31T00:04:25.000Z"
+    },
+    "ERR-04": {
+      "title": "Teclado y lector de pantalla",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:58:56.039Z"
+    },
+    "CIE-01": {
+      "title": "Dejar los tipos de prueba identificados",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T22:01:42.788Z"
+    }
+  }
+}
