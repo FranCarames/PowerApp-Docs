@@ -86,6 +86,7 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 2](Usuarios%20y%20entrenadores/2-pruebas-usuarios.resultados.json)
   - [Tanda 3](Usuarios%20y%20entrenadores/3-pruebas-usuarios.resultados.json)
   - [Tanda 4](Usuarios%20y%20entrenadores/4-pruebas-usuarios.resultados.json)
+  - [Tanda 5](Usuarios%20y%20entrenadores/5-pruebas-usuarios.resultados.json)
 - [Pruebas de membresías](Membresias/Pruebas%20de%20membres%C3%ADas.html) — Tipos de membresía del Admin: listado, alta, edición, baja y reactivación, y cómo llegan al registro de pagos del Entrenador y al historial del alumno (CU-A-20 a CU-A-23).
   - [Tanda 1](Membresias/1-pruebas-membresias.resultados.json)
   - [Tanda 2](Membresias/2-pruebas-membresias.resultados.json)
