@@ -77,6 +77,7 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 1](Musculos/1-pruebas-musculos.resultados.json)
   - [Tanda 2](Musculos/2-pruebas-musculos.resultados.json)
   - [Tanda 3](Musculos/3-pruebas-musculos.resultados.json)
+  - [Tanda 4](Musculos/4-pruebas-musculos.resultados.json)
 - [Pruebas de usuarios y entrenadores](Usuarios%20y%20entrenadores/Pruebas%20de%20usuarios%20y%20entrenadores.html) — Gestión de cuentas del Admin: listado y detalle de usuarios, baja y reactivación, y entrenadores (convertir a un alumno, editar sus datos profesionales y darlo de baja) (CU-A-16 a CU-A-19).
   - [Tanda 1](Usuarios%20y%20entrenadores/1-pruebas-usuarios.resultados.json)
   - [Tanda 2](Usuarios%20y%20entrenadores/2-pruebas-usuarios.resultados.json)
