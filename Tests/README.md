@@ -88,6 +88,7 @@ Con eso, **no hace falta importar a mano**:
 - [Pruebas de membresías](Membresias/Pruebas%20de%20membres%C3%ADas.html) — Tipos de membresía del Admin: listado, alta, edición, baja y reactivación, y cómo llegan al registro de pagos del Entrenador y al historial del alumno (CU-A-20 a CU-A-23).
   - [Tanda 1](Membresias/1-pruebas-membresias.resultados.json)
   - [Tanda 2](Membresias/2-pruebas-membresias.resultados.json)
+  - [Tanda 3](Membresias/3-pruebas-membresias.resultados.json)
 - [Pruebas de circuitos](Circuitos/Pruebas%20de%20circuitos.html) — Circuitos desde el Admin y del lado del Entrenador: listado y filtros, alta y edición con sus ejercicios y bloques de series, duplicar, desactivar y reactivar (CU-E-21 a CU-E-24).
   - [Tanda 1](Circuitos/1-pruebas-circuitos.resultados.json)
   - [Tanda 2](Circuitos/2-pruebas-circuitos.resultados.json)
