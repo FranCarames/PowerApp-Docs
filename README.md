@@ -18,6 +18,7 @@ El código de la API vive en el repo hermano **[PowerApp-Backend](https://github
 | 📄 **[Especificaciones de CU](https://francarames.github.io/PowerApp-Docs/Use%20Cases/)** | Las especificaciones de casos de uso, por rol y paquete |
 | 🗃️ **[Modelo de datos](https://francarames.github.io/PowerApp-Docs/Doc/modelo-db.html)** | Visor del diagrama entidad-relación de la base, con zoom y arrastre ([PDF](https://francarames.github.io/PowerApp-Docs/Doc/PowerApp%20-%20Modelo%20DB.pdf)) |
 | ✅ **[Planes de prueba](https://francarames.github.io/PowerApp-Docs/Tests/)** | Pruebas manuales caso por caso, con resultado y notas. El índice está en [`Tests/README.md`](Tests/README.md) |
+| 🧱 **[Tablero de fallas](https://francarames.github.io/PowerApp-Docs/Tests/errores.html)** | Las fallas y los casos por re-testear de todos los planes en columnas por gravedad, para recategorizarlos a mano |
 
 ---
 
@@ -27,7 +28,7 @@ El código de la API vive en el repo hermano **[PowerApp-Backend](https://github
 Doc/         → Documentación vigente: modelo de datos (SVG/PDF + visor), specs y planes de cada cambio, contexto para la app iOS.
 Use Cases/   → Especificaciones de los casos de uso (1 .md por CU, por rol) + índice y visor.
 UI Front/    → Prototipos HTML de las interfaces (app y web).
-Tests/       → Planes de prueba manuales (una carpeta por plan: .html + resultados en JSON) + índice y visor.
+Tests/       → Planes de prueba manuales (una carpeta por plan: .html + resultados en JSON) + índice, visor y tablero de fallas (`errores.html`).
 Status/      → Copia del informe y del dashboard de avance por CU, del backend y de la web.
 index.html   → Portada de GitHub Pages.
 ```

@@ -157,7 +157,11 @@ tr:last-child td{border-bottom:0}
 .sb.v-fail[aria-pressed="true"]{background:var(--errS);border-color:var(--err);color:var(--err)}
 .sb.v-retest[aria-pressed="true"]{background:var(--warnS);border-color:var(--warn);color:var(--warn)}
 /* Gravedad de la falla: solo se muestra con el resultado «Falla» */
-[data-sev="1"]{--sc:var(--err)} [data-sev="2"]{--sc:var(--pri)} [data-sev="3"]{--sc:var(--warn)} [data-sev="4"]{--sc:var(--tx2)} [data-sev="u"]{--sc:var(--tx3)}
+/* Colores de los iniciales de Kanto: 1 Charmander (fuego), 2 Squirtle (agua), 3 Bulbasaur (planta); light-dark(claro, oscuro) sigue el tema */
+[data-sev="1"]{--sc:light-dark(#C2540A,#F08030)} [data-sev="2"]{--sc:light-dark(#2F5FD0,#6890F0)} [data-sev="3"]{--sc:light-dark(#3A7D1B,#78C850)} [data-sev="4"]{--sc:var(--tx2)} [data-sev="u"]{--sc:var(--tx3)}
+.case[data-status="fail"][data-sev]{border-color:color-mix(in srgb,var(--sc) 55%,var(--line))}
+.pill.s-fail[data-sev]{background:color-mix(in srgb,var(--sc) 15%,transparent);color:var(--sc)}
+.tips b[data-sev]{color:var(--sc)}
 .sevrow{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
 .sevrow[hidden],.sevsum[hidden]{display:none}
 .sevrow .sl,.sevsum .sl{font:700 11px/1 var(--fB);letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin-right:2px}
@@ -254,10 +258,10 @@ tr:last-child td{border-bottom:0}
         <h3>Gravedad de las fallas</h3>
         <ul class="tips">
           <li>Al marcar un caso como <b>Falla</b> aparece la fila «Gravedad» para clasificarla. Si no elegís una, queda «sin clasificar».</li>
-          <li><b>1 · Grave:</b> tiene que ser arreglado.</li>
-          <li><b>2 · Moderado:</b> falla que conviene arreglar, sin llegar a ser grave.</li>
-          <li><b>3 · Leve:</b> nice to have, no es bloqueante.</li>
-          <li><b>4 · Diferido:</b> despriorizado; no compromete la funcionalidad.</li>
+          <li><b data-sev="1">1 · Grave:</b> tiene que ser arreglado.</li>
+          <li><b data-sev="2">2 · Moderado:</b> falla que conviene arreglar, sin llegar a ser grave.</li>
+          <li><b data-sev="3">3 · Leve:</b> nice to have, no es bloqueante.</li>
+          <li><b data-sev="4">4 · Diferido:</b> despriorizado; no compromete la funcionalidad.</li>
         </ul>
       </div>
     </div>
@@ -515,6 +519,7 @@ tr:last-child td{border-bottom:0}
     pill.textContent = STATUS_LABEL[st] + (st === 'fail' ? ' · ' + (s.sev ? `${s.sev} ${SEV_LABEL[s.sev]}` : 'sin clasificar') : '');
     pill.className = 'pill' + (st === 'none' ? '' : ' s-' + st);
     card.querySelector('.sevrow').hidden = st !== 'fail';
+    if (st === 'fail') { card.dataset.sev = s.sev || 'u'; pill.dataset.sev = s.sev || 'u'; } else { delete card.dataset.sev; delete pill.dataset.sev; }
     card.querySelectorAll('.sv').forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.v) === s.sev)));
     const ta = card.querySelector('.note');
     if (document.activeElement !== ta && ta.value !== s.note) ta.value = s.note;
