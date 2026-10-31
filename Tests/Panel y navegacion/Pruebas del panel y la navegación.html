@@ -156,6 +156,19 @@ tr:last-child td{border-bottom:0}
 .sb.v-ok[aria-pressed="true"]{background:var(--okS);border-color:var(--ok);color:var(--ok)}
 .sb.v-fail[aria-pressed="true"]{background:var(--errS);border-color:var(--err);color:var(--err)}
 .sb.v-retest[aria-pressed="true"]{background:var(--warnS);border-color:var(--warn);color:var(--warn)}
+/* Gravedad de la falla: solo se muestra con el resultado «Falla» */
+[data-sev="1"]{--sc:var(--err)} [data-sev="2"]{--sc:var(--pri)} [data-sev="3"]{--sc:var(--warn)} [data-sev="4"]{--sc:var(--tx2)} [data-sev="u"]{--sc:var(--tx3)}
+.sevrow{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
+.sevrow[hidden],.sevsum[hidden]{display:none}
+.sevrow .sl,.sevsum .sl{font:700 11px/1 var(--fB);letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin-right:2px}
+.sv{font:600 12.5px/1 var(--fB);color:var(--tx2);background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:8px 11px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;min-height:34px}
+.sv .ic{font-family:var(--fM);font-weight:700}
+.sv:hover{color:var(--tx)}
+.sv[aria-pressed="true"]{background:color-mix(in srgb,var(--sc) 15%,transparent);border-color:var(--sc);color:var(--sc)}
+.sevsum{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;font-size:13px;color:var(--tx2)}
+.sevsum .si{display:inline-flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
+.sevsum .si b{font:700 15px/1 var(--fM);color:var(--sc)}
+.sevsum .si::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--sc);flex:none}
 .notewrap{display:grid;gap:4px;min-width:0}
 .note{width:100%;min-height:38px;resize:vertical;font:14px/1.45 var(--fB);color:var(--tx);background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:8px 10px}
 .note::placeholder{color:var(--tx3)}
@@ -189,6 +202,7 @@ tr:last-child td{border-bottom:0}
       <div class="count c-none"><span class="n" id="n-none">0</span><span class="l"><span class="dot"></span>Sin probar</span></div>
     </div>
     <div class="bar" role="img" id="bar" aria-label="Progreso"><span class="b-ok" id="b-ok"></span><span class="b-fail" id="b-fail"></span><span class="b-retest" id="b-retest"></span></div>
+    <div class="sevsum" id="sevsum" hidden><span class="sl">Fallas por gravedad</span><span class="si" data-sev="1"><b id="ns-1">0</b> Grave</span><span class="si" data-sev="2"><b id="ns-2">0</b> Moderado</span><span class="si" data-sev="3"><b id="ns-3">0</b> Leve</span><span class="si" data-sev="4"><b id="ns-4">0</b> Diferido</span><span class="si" data-sev="u"><b id="ns-u">0</b> Sin clasificar</span></div>
     <div class="sumfoot">
       <span class="save" id="save"><span class="dot"></span><span id="save-t">Conectando el guardado…</span></span>
       <div class="actions">
@@ -233,12 +247,25 @@ tr:last-child td{border-bottom:0}
           <li><b>Local Storage</b> (DevTools › Application) guarda la sesión en <code>powerapp.session</code>. SES-01 le cambia el token.</li>
         </ul>
       </div>
+      <div>
+        <h3>Gravedad de las fallas</h3>
+        <ul class="tips">
+          <li>Al marcar un caso como <b>Falla</b> aparece la fila «Gravedad» para clasificarla. Si no elegís una, queda «sin clasificar».</li>
+          <li><b>1 · Grave:</b> tiene que ser arreglado.</li>
+          <li><b>2 · Moderado:</b> falla que conviene arreglar, sin llegar a ser grave.</li>
+          <li><b>3 · Leve:</b> nice to have, no es bloqueante.</li>
+          <li><b>4 · Diferido:</b> despriorizado; no compromete la funcionalidad.</li>
+        </ul>
+      </div>
     </div>
   </details>
 
   <div class="filters" id="filters">
     <div class="chips" id="f-status" role="group" aria-label="Filtrar por resultado">
       <span class="lbl">Resultado</span>
+    </div>
+    <div class="chips" id="f-sev" role="group" aria-label="Filtrar por gravedad de la falla">
+      <span class="lbl">Gravedad</span>
     </div>
     <div class="chips" id="f-env" role="group" aria-label="Filtrar por entorno">
       <span class="lbl">Entorno</span>
@@ -268,6 +295,14 @@ tr:last-child td{border-bottom:0}
     { v: 'retest', label: 'Re-testear', ic: '↻' },
   ];
   const STATUS_LABEL = { ok: 'Funciona', fail: 'Falla', retest: 'Re-testear', none: 'Sin probar' };
+  // Gravedad de una falla (solo aplica al resultado «Falla»). El número es el nivel que se guarda en `sev`.
+  const SEVERITIES = [
+    { v: 1, label: 'Grave', hint: 'Tiene que ser arreglado' },
+    { v: 2, label: 'Moderado', hint: 'Conviene arreglarlo, sin llegar a ser grave' },
+    { v: 3, label: 'Leve', hint: 'Nice to have, no es bloqueante' },
+    { v: 4, label: 'Diferido', hint: 'Despriorizado, no compromete la funcionalidad' },
+  ];
+  const SEV_LABEL = Object.fromEntries(SEVERITIES.map((s) => [s.v, s.label]));
 
   const GROUPS = [
     { id: 'pan', name: 'Panel del Admin', cu: null, sub: 'Los números y los accesos de /a/inicio' },
@@ -407,11 +442,12 @@ tr:last-child td{border-bottom:0}
 
   // ── Estado ────────────────────────────────────────────────
   const LOCAL_KEY = 'powerapp.pruebas-navegacion.v1';
-  const blank = () => ({ status: null, note: '', at: null });
+  const blank = () => ({ status: null, sev: null, note: '', at: null });
   const state = Object.fromEntries(CASES.map((c) => [c.id, blank()]));
   let db = null;
   let mode = 'connecting'; // connecting | db | local | error
   let fStatus = 'all';
+  let fSev = 'all';
   let fEnv = 'all';
   const writing = new Set();
   const dirty = new Set();
@@ -432,6 +468,7 @@ tr:last-child td{border-bottom:0}
   function caseHtml(c) {
     const envs = c.env.map((e) => `<span class="tag t-${e}">${ENVS[e]}</span>`).join('');
     const steps = c.steps.map((s) => `<li>${s}</li>`).join('');
+    const sev = SEVERITIES.map((s) => `<button type="button" class="sv" data-sev="${s.v}" data-v="${s.v}" title="${s.hint}" aria-pressed="false"><span class="ic" aria-hidden="true">${s.v}</span>${s.label}</button>`).join('');
     const seg = STATUSES.map((s) => `<button type="button" class="sb v-${s.v}" data-v="${s.v}" aria-pressed="false"><span class="ic" aria-hidden="true">${s.ic}</span>${s.label}</button>`).join('');
     return `<article class="case" id="case-${c.id}" data-id="${c.id}" data-status="none">
       <div class="chead"><span class="cid">${c.id}</span><h3>${c.t}</h3><div class="ctags">${envs}<span class="pill" data-pill>Sin probar</span></div></div>
@@ -444,6 +481,7 @@ tr:last-child td{border-bottom:0}
           <label class="when" for="note-${c.id}"><span data-when>Sin marcar</span></label>
           <textarea class="note" id="note-${c.id}" rows="1" placeholder="Qué viste, si algo no coincide (opcional)"></textarea>
         </div>
+        <div class="sevrow" role="group" aria-label="Gravedad de la falla de ${c.id}" hidden><span class="sl">Gravedad</span>${sev}</div>
       </div>
     </article>`;
   }
@@ -465,6 +503,10 @@ tr:last-child td{border-bottom:0}
     [['all', 'Todos'], ['none', 'Sin probar'], ['fail', 'Falla'], ['retest', 'Re-testear'], ['ok', 'Funciona']].forEach(([v, l]) => {
       st.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-fs="${v}" aria-pressed="${v === 'all'}">${l}<span class="k" data-k="${v}"></span></button>`);
     });
+    const sv = $('#f-sev');
+    [['all', 'Todas'], ...SEVERITIES.map((s) => [String(s.v), `${s.v} · ${s.label}`]), ['u', 'Sin clasificar']].forEach(([v, l]) => {
+      sv.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-fv="${v}" aria-pressed="${v === 'all'}">${l}${v === 'all' ? '' : `<span class="k" data-kv="${v}"></span>`}</button>`);
+    });
     const en = $('#f-env');
     ENV_FILTERS.forEach(([v, l]) => {
       en.insertAdjacentHTML('beforeend', `<button type="button" class="chip" data-fe="${v}" aria-pressed="${v === 'all'}">${l}</button>`);
@@ -480,8 +522,10 @@ tr:last-child td{border-bottom:0}
     card.dataset.status = st;
     card.querySelectorAll('.sb').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === s.status)));
     const pill = card.querySelector('[data-pill]');
-    pill.textContent = STATUS_LABEL[st];
+    pill.textContent = STATUS_LABEL[st] + (st === 'fail' ? ' · ' + (s.sev ? `${s.sev} ${SEV_LABEL[s.sev]}` : 'sin clasificar') : '');
     pill.className = 'pill' + (st === 'none' ? '' : ' s-' + st);
+    card.querySelector('.sevrow').hidden = st !== 'fail';
+    card.querySelectorAll('.sv').forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.v) === s.sev)));
     const ta = card.querySelector('.note');
     if (document.activeElement !== ta && ta.value !== s.note) ta.value = s.note;
     card.querySelector('[data-when]').textContent = s.at ? 'Actualizado ' + fmtWhen(s.at) : 'Sin marcar';
@@ -490,6 +534,7 @@ tr:last-child td{border-bottom:0}
   function visible(c) {
     const st = statusOf(c.id);
     if (fStatus !== 'all' && st !== fStatus) return false;
+    if (fSev !== 'all' && (st !== 'fail' || String(state[c.id].sev || 'u') !== fSev)) return false;
     if (fEnv !== 'all' && !c.env.includes(fEnv) && !c.env.includes('TODOS')) return false;
     return true;
   }
@@ -515,6 +560,11 @@ tr:last-child td{border-bottom:0}
     const total = CASES.length;
     ['ok', 'fail', 'retest', 'none'].forEach((k) => { $('#n-' + k).textContent = n[k]; });
     ['ok', 'fail', 'retest'].forEach((k) => { $('#b-' + k).style.width = (n[k] / total * 100) + '%'; });
+    const sv = { 1: 0, 2: 0, 3: 0, 4: 0, u: 0 };
+    CASES.forEach((c) => { if (statusOf(c.id) === 'fail') sv[state[c.id].sev || 'u']++; });
+    [1, 2, 3, 4, 'u'].forEach((k) => { $('#ns-' + k).textContent = sv[k]; });
+    $('#sevsum').hidden = !n.fail;
+    document.querySelectorAll('[data-kv]').forEach((el) => { el.textContent = sv[el.dataset.kv]; });
     $('#bar').setAttribute('aria-label', `${total - n.none} de ${total} casos probados: ${n.ok} funcionan, ${n.fail} fallan, ${n.retest} para re-testear`);
     document.querySelectorAll('[data-k]').forEach((el) => {
       const k = el.dataset.k;
@@ -556,7 +606,8 @@ tr:last-child td{border-bottom:0}
   }
   function normalize(v) {
     const okStatus = ['ok', 'fail', 'retest'].includes(v.status) ? v.status : null;
-    return { status: okStatus, note: typeof v.note === 'string' ? v.note : '', at: typeof v.at === 'string' ? v.at : null };
+    const sev = okStatus === 'fail' && SEVERITIES.some((s) => s.v === Number(v.sev)) ? Number(v.sev) : null;
+    return { status: okStatus, sev, note: typeof v.note === 'string' ? v.note : '', at: typeof v.at === 'string' ? v.at : null };
   }
 
   const DB_OK = 'Guardado en el artefacto: lo ves desde cualquier dispositivo.';
@@ -574,7 +625,7 @@ tr:last-child td{border-bottom:0}
       do {
         dirty.delete(id);
         const s = state[id];
-        await db.doc('results/' + id).set({ status: s.status, note: s.note, at: s.at });
+        await db.doc('results/' + id).set({ status: s.status, sev: s.sev, note: s.note, at: s.at });
       } while (dirty.has(id));
       setSave('db', DB_OK);
     } catch (e) {
@@ -658,15 +709,22 @@ tr:last-child td{border-bottom:0}
     const n = { ok: 0, fail: 0, retest: 0, none: 0 };
     CASES.forEach((c) => n[statusOf(c.id)]++);
     const lines = [`${PLAN_NAME} · ${today}`, `Funciona ${n.ok} · Falla ${n.fail} · Re-testear ${n.retest} · Sin probar ${n.none}`];
-    [['fail', 'Falla'], ['retest', 'Re-testear']].forEach(([k, label]) => {
-      const cs = CASES.filter((c) => statusOf(c.id) === k);
+    const item = (c) => {
+      const note = state[c.id].note.trim();
+      return `- ${c.id} ${c.t}${note ? ': ' + note.replace(/\s+/g, ' ') : ''}`;
+    };
+    const fails = CASES.filter((c) => statusOf(c.id) === 'fail');
+    [...SEVERITIES.map((s) => [s.v, `Falla · ${s.v} ${s.label}`]), [null, 'Falla · sin clasificar']].forEach(([v, label]) => {
+      const cs = fails.filter((c) => (state[c.id].sev || null) === v);
       if (!cs.length) return;
       lines.push('', label);
-      cs.forEach((c) => {
-        const note = state[c.id].note.trim();
-        lines.push(`- ${c.id} ${c.t}${note ? ': ' + note.replace(/\s+/g, ' ') : ''}`);
-      });
+      cs.forEach((c) => lines.push(item(c)));
     });
+    const retest = CASES.filter((c) => statusOf(c.id) === 'retest');
+    if (retest.length) {
+      lines.push('', 'Re-testear');
+      retest.forEach((c) => lines.push(item(c)));
+    }
     if (!n.fail && !n.retest) lines.push('', 'Sin fallas ni casos para re-testear.');
     return lines.join('\n');
   }
@@ -690,9 +748,12 @@ tr:last-child td{border-bottom:0}
     const results = {};
     CASES.forEach((c) => {
       const s = state[c.id];
-      results[c.id] = { title: c.t, status: s.status, note: s.note, at: s.at };
+      results[c.id] = { title: c.t, status: s.status, ...(s.status === 'fail' ? { sev: s.sev } : {}), note: s.note, at: s.at };
     });
-    return { plan: PLAN_ID, version: EXPORT_VERSION, exportedAt: new Date().toISOString(), summary: { total: CASES.length, ...n }, results };
+    // Fallas por gravedad: 1 Grave, 2 Moderado, 3 Leve, 4 Diferido (sinClasificar = falla sin nivel elegido).
+    const sev = { 1: 0, 2: 0, 3: 0, 4: 0, sinClasificar: 0 };
+    CASES.forEach((c) => { if (statusOf(c.id) === 'fail') sev[state[c.id].sev || 'sinClasificar']++; });
+    return { plan: PLAN_ID, version: EXPORT_VERSION, exportedAt: new Date().toISOString(), summary: { total: CASES.length, ...n, sev }, results };
   }
 
   function showIo(kind, text) {
@@ -746,7 +807,7 @@ tr:last-child td{border-bottom:0}
       const inc = normalize(src);
       if (!inc.status && !inc.note) return;
       const cur = state[c.id];
-      if (inc.status === cur.status && inc.note === cur.note && inc.at === cur.at) return;
+      if (inc.status === cur.status && inc.sev === cur.sev && inc.note === cur.note && inc.at === cur.at) return;
       if (stamp(inc.at) > stamp(cur.at)) { state[c.id] = inc; changed.push(c.id); } else newer++;
     });
     const unknown = Object.keys(data.results).filter((id) => !state[id]).length;
@@ -836,11 +897,26 @@ tr:last-child td{border-bottom:0}
   }
 
   document.addEventListener('click', (e) => {
+    const sv = e.target.closest('.sv');
+    if (sv) {
+      const id = sv.closest('.case').dataset.id;
+      const s = state[id];
+      if (s.status !== 'fail') return;
+      const v = Number(sv.dataset.v);
+      s.sev = s.sev === v ? null : v;
+      s.at = new Date().toISOString();
+      updateCard(id);
+      updateSummary();
+      applyFilters();
+      persist(id);
+      return;
+    }
     const sb = e.target.closest('.sb');
     if (sb) {
       const id = sb.closest('.case').dataset.id;
       const s = state[id];
       s.status = s.status === sb.dataset.v ? null : sb.dataset.v;
+      if (s.status !== 'fail') s.sev = null;
       s.at = new Date().toISOString();
       updateCard(id);
       updateSummary();
@@ -851,6 +927,13 @@ tr:last-child td{border-bottom:0}
     if (fs) {
       fStatus = fs.dataset.fs;
       document.querySelectorAll('[data-fs]').forEach((b) => b.setAttribute('aria-pressed', String(b === fs)));
+      applyFilters();
+      return;
+    }
+    const fv = e.target.closest('[data-fv]');
+    if (fv) {
+      fSev = fv.dataset.fv;
+      document.querySelectorAll('[data-fv]').forEach((b) => b.setAttribute('aria-pressed', String(b === fv)));
       applyFilters();
       return;
     }
