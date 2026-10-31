@@ -77,7 +77,7 @@ Por qué difiere del Status:
 
 ### Esfuerzo y dependencias
 
-**Esfuerzo:** 41 tareas, **≈ 91,5 h netas** (≈ 89,5 h sin la opcional BE-22). Criterio:
+**Esfuerzo:** 42 tareas, **≈ 97,5 h netas** (≈ 95,5 h sin la opcional BE-22). Criterio:
 
 - Un desarrollador, horas netas.
 - Incluye la spec y el plan cuando corresponden, el código, el build, `Db Creator` y el Status de cada tarea.
@@ -87,7 +87,7 @@ Del 16/10 al 17/11 son ≈ 4,5 semanas, o sea **≈ 20 h por semana**.
 
 | Tipo | Tareas | Horas |
 |---|---:|---:|
-| Funcional | 11 | 36,5 |
+| Funcional | 12 | 42,5 |
 | Contrato con el front | 7 | 13 |
 | Bug | 9 | 12 |
 | Calidad | 5 | 10 |
@@ -176,6 +176,7 @@ Prioridad (orden por defecto): **P1** bloquea al web o a la app iOS · **P2** CU
 | BE-39 | 5 | Docs de contexto: `CLAUDE.md` del backend y `Doc/app-ios/` | Docs | `CLAUDE.md`; `CLAUDE-ios.md`; `prompts.md`; `contexto-backend.md` | — | 1 h | — | P3 |
 | BE-40 | 4 | CU-U-06: el email deja de ser editable | Bug | CU-U-06 (24/10); Tests Mi cuenta DAT-04 y DAT-05 (fallan); `edit_user.dto.ts`; `users.service.ts:296-304` | coordinar con el web | 1 h | No | P2 |
 | BE-41 | 4 | CU-A-17: no convertir una cuenta inactiva | Bug | CU-A-17 (31/10); Tests Usuarios y entrenadores CNV-07 y CNV-10; `coach.service.ts` `promoteUserToCoach` | — | 0,5 h | No | P3 |
+| BE-42 | 4 | [Las rutinas del plan por semana: `weeks` en el alta, reordenar una semana y repetirla en otras](2026-10-31-be-42-hallazgos-planificaciones-plan.md) | Funcional | Tests Planificaciones CRE-01, CRE-03 y ADD-02 (31/10); CU-E-09, CU-E-12e y CU-E-12f (nuevos); `planification.service.ts` `createPlanification` | — (la T53 del web depende de ésta) | 6 h | No | P2 |
 
 **Por fase:**
 
@@ -184,9 +185,9 @@ Prioridad (orden por defecto): **P1** bloquea al web o a la app iOS · **P2** CU
 | 1 | 11 |
 | 2 | 24 |
 | 3 | 23 |
-| 4 | 24 |
+| 4 | 30 |
 | 5 | 9,5 |
-| **Total** | **91,5** |
+| **Total** | **97,5** |
 
 ## 4. Fases e hitos
 
@@ -196,7 +197,7 @@ Prioridad (orden por defecto): **P1** bloquea al web o a la app iOS · **P2** CU
 | **2** | Bloque A: rutina puntual y ejecución | 24 | 20 al 27/10 | **H2:** flujo puntual de punta a punta, demostrable: asignar → ver → marcar → nota → historial |
 | ⏱ | **Fecha fija:** regenerar la base (BE-23) | 2 | ≈ 1/11 | Esquema del bloque A aplicado. Lo que cambie después entra por patch y por re-aplicar el `03`, que es idempotente |
 | **3** | Bloque B: asignar planificaciones | 21 | 28/10 al 5/11 | **H3:** los 74 CU con código |
-| **4** | Brechas de CU y deuda | 24 | 3 al 12/11, en paralelo con el final de la fase 3 | **H4:** ningún 🟡 y el Swagger completo, candidato a "terminado" |
+| **4** | Brechas de CU y deuda | 30 | 3 al 12/11, en paralelo con el final de la fase 3 | **H4:** ningún 🟡 y el Swagger completo, candidato a "terminado" |
 | **5** | Verificación y cierre | 9,5 | 12 al 17/11 | **H5:** criterios de §2 cumplidos y código congelado. Del 18 al 20/11 sólo arreglos; **entrega el 20/11** |
 
 ### Por qué este orden
@@ -482,6 +483,18 @@ BE-09 → BE-10 → BE-11 → BE-13 → BE-14 → BE-17 → BE-18 → BE-21 → 
 - **Riesgo:** un entrenador dado de baja (`role = user`, `Coach.active = false`) cuya cuenta también está inactiva queda alcanzado por la regla: hay que reactivar la cuenta desde Usuarios antes de reactivarlo como entrenador. Es lo que dice la spec.
 - **Inventario (§9):** A-17 queda como está porque el corte es del 16/10, anterior a este cambio de spec.
 
+#### BE-42 · Las rutinas del plan por semana
+- **Qué** (hallazgos CRE-01, CRE-03 y ADD-02 de la corrida del 31/10, decisiones de Fran del 31/10, variante C; [plan](2026-10-31-be-42-hallazgos-planificaciones-plan.md) y [spec](../specs/2026-10-31-planificacion-por-semanas-design.md)). El contrato completo está en la sección 3 del plan; en resumen:
+  - `POST /planification/create` acepta además `weeks?: [{ week, routine_ids[] }]` (`week` de 1 a `duration`, sin repetidas; 1 a 50 ids por semana, con repetidos permitidos, que quedan con `order` 1..n). Una sola transacción: si algo falla, no se crea nada. Los errores reusan los textos de `assign-bulk` (semana fuera de la duración, rutinas inexistentes o dadas de baja) y suman «Una semana aparece más de una vez.». Responde 201 con el detalle.
+  - `POST /planification/routine/repeat-week` `{ planification_id, from_week, to_weeks[] }`: copia las rutinas vigentes de `from_week`, en su orden, al final de cada semana destino (1 a 50 distintas, ninguna igual al origen). Todo o nada. Responde 201 con el detalle.
+  - `POST /planification/routine/reorder` `{ planification_id, week, routine_asignation_ids[] }`: los ids tienen que ser exactamente las vigentes de la semana; quedan con `order` 1..n en una transacción. Si no coinciden, `400` «La lista no coincide con las rutinas vigentes de la semana N. Recargá la planificación.». Responde 200 con el detalle.
+  - `number_of_routines` significa **rutinas por semana**: cambia sólo su descripción en el Swagger, en crear y en editar.
+  - Conviene extraer del lote existente lo que comparte con `create` (ids únicos, 404, 400 de baja, `order` consecutivo).
+- **Acepta:** el script descartable corre en rojo antes del código y en verde después (todo o nada en los tres endpoints, orden de las validaciones, Swagger con todos los códigos); los scripts anteriores siguen en verde; el build compila. CRE-01, CRE-03 y ADD-02 pasan del lado del backend; el resto es de la T53 del web, que empieza **después** de desplegar esta tarea.
+- **No hace:** la duración 0 sigue aceptándose, sin tope de semana (el web exige 1 o más; ver §8).
+- **Riesgo:** `create` pasa a ser transaccional y no debe diverger de `assign-bulk`. Un cliente que tipó `number_of_routines` como «total» lo lee mal hasta actualizar, aunque la validación no cambia.
+- **Inventario (§9):** el corte es del 16/10, anterior. **CU-E-12e y CU-E-12f no figuran** y quedan ⬜ hasta esta tarea; el total de CU pasa de 75 a 77. E-09 sigue ✅ (sin `weeks` cumplía la spec de entonces).
+
 ### Fase 5 — Verificación y cierre
 
 #### BE-35 · Plan de pruebas Backend
@@ -541,6 +554,7 @@ BE-09 → BE-10 → BE-11 → BE-13 → BE-14 → BE-17 → BE-18 → BE-21 → 
 | Tests automáticos | **Ninguno** | BE-36; criterio 8 de §2 |
 | Email de U-06 (24/10) | **Es de sólo lectura por ahora**; se reescribió CU-U-06 | BE-40; el web deshabilita el campo |
 | Cuenta inactiva en A-17 (31/10) | **No se convierte en entrenador: `400`**; un entrenador con la cuenta inactiva se sigue editando (A-18) | BE-41; el web ya la bloquea del lado del cliente (CNV-07) y muestra el `400` con la T52 (CNV-10) |
+| Las rutinas del plan por semana (31/10) | **`number_of_routines` = rutinas por semana** (define los huecos, no es un tope). El alta puede traer las rutinas de cada semana, todo o nada; una semana se reordena (grabber) y se repite en otras. En la web la duración va de 1 en adelante; el back sigue aceptando 0 | BE-42; el web lo hace en la T53, después. Spec: [`2026-10-31-planificacion-por-semanas-design.md`](../specs/2026-10-31-planificacion-por-semanas-design.md) |
 
 ### Bloque A (se resuelven en BE-09)
 
@@ -614,11 +628,11 @@ BE-09 → BE-10 → BE-11 → BE-13 → BE-14 → BE-17 → BE-18 → BE-21 → 
 | Tests automáticos | Decisión del 16/10 |
 | `Circuit.type` como conjunto cerrado | Status 19/8: es string libre a propósito, y cerrarlo no toca la base |
 | Anular pagos, elegir la fecha de pago, sumar los días restantes | Sin CU (observación del web en T18) y DG3 |
-| Reordenamiento masivo de `Routine_Asignation` | Spec del 4/9, §10: sólo si los `order` duplicados molestan en la práctica |
 | `last_order` para los vínculos de rutina apagados | Status 27/8: sólo si la posición del vínculo apagado llega a importar |
 | Login social, verificación de email y teléfono, nutrición, medidas y funciones sociales | "Correcciones al documento" (`Doc/um/`): post-MVP del proyecto |
 | Cambiar el email desde Mi cuenta | Decisión del 24/10: por ahora es de sólo lectura (CU-U-06). Volver a permitirlo se decide aparte |
 | Interfaz propia del Admin | No es del backend |
+| Planificaciones sin duración fija (duración 0) | Decisión del 31/10, tras la tanda 5 de las pruebas de planificaciones (CRE-03): la web exige 1 semana o más (CU-E-09). El back sigue aceptando 0 y no se refina por ahora: queda como desvío conocido |
 
 ## 9. Anexo — Matriz CU → endpoint → estado verificado
 
@@ -678,14 +692,13 @@ La columna "Status" es la del 12/10.
 | E-06 | Historial de entrenamientos | — | ⬜ | ⬜ | BE-16 |
 | E-07 | Historial, filtro por ejercicio | — | ⬜ | ⬜ | BE-16 |
 | E-08 | Obtener planificaciones | `GET /planification/all` | ✅ | ✅ | Runtime *sin verificar* · BE-35 |
-| E-09 | Crear planificación | `POST /planification/create` | ✅ | ✅ | Ídem |
+| E-09 | Crear planificación | `POST /planification/create` | ✅ | ✅ | Ídem. Desde el 31/10 el alta puede traer las rutinas de cada semana (`weeks`) · BE-42 |
 | E-10 | Editar planificación | `POST /planification/edit/:id` | ✅ | ✅ | No actualiza `updated_at` · BE-30 |
 | E-11 | Eliminar planificación (lógico) | `POST /planification/set-active/:id` | ✅ | ✅ | |
 | E-12a | Asignar una rutina al plan | `POST /planification/routine/assign` | ✅ | ✅ | Runtime *sin verificar* · BE-35 |
 | E-12b | Asignar rutinas en lote | `POST /planification/routine/assign-bulk` | ✅ | ✅ | Ídem |
 | E-12c | Quitar o reincorporar una rutina | `POST /planification/routine/set-active/:id` | ✅ | ✅ | Ídem |
-| E-12d | Quitar o reincorporar en lote | `POST /planification/routine/set-active-bulk` | ✅ | ✅ | Ídem |
-| E-13 | Asignar planificación a alumno | `POST /planification/user/assign` | 🔵 | 🔵 | `body: any`, llamada comentada, cuelga · BE-18 |
+| E-12d | Quitar o reincorporar en lote | `POST /planification/routine/set-active-bulk` | ✅ | ✅ | Ídem || E-13 | Asignar planificación a alumno | `POST /planification/user/assign` | 🔵 | 🔵 | `body: any`, llamada comentada, cuelga · BE-18 |
 | E-14 | Eliminar planificación a alumno | `DELETE /planification/user/:id` | 🔵 | 🔵 | Ídem; pasa a `set-active` · BE-19 |
 | E-15 | Obtener rutinas | `GET /routine/all` | ✅ | ✅ | |
 | E-16 | Crear rutina | `POST /routine/create` | ✅ | ✅ | |

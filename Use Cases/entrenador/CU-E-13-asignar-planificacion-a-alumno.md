@@ -89,6 +89,8 @@ Vía principal de asignación (~90% de los casos): asigna una planificación ent
 1. La planificación tiene duración 0 y el entrenador no indicó el fin.
 2. El sistema le pide que indique el fin y no crea la asignación.
 
+> **Fuera de alcance por ahora (decisión del 31/10/2026).** La web no crea planificaciones de duración 0 (CU-E-09). El camino queda documentado porque el backend lo sigue resolviendo.
+
 ### En el paso 5 — Solapamiento con un plan vigente
 
 1. El alumno ya tiene una planificación vigente cuyas fechas se pisan con las nuevas, contando los dos extremos.

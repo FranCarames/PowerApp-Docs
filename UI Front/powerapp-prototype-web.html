@@ -206,6 +206,42 @@ textarea.input{resize:vertical;min-height:96px;line-height:1.5}
 #toast{position:fixed;left:50%;bottom:calc(104px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);background:var(--el);border:1px solid var(--border2);color:var(--tp);padding:11px 16px;border-radius:12px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:all .25s;z-index:90;display:flex;gap:8px;align-items:center;max-width:calc(100% - 40px);box-shadow:0 8px 30px rgba(0,0,0,.5)}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 #toast.bad svg{color:var(--err)}#toast svg{color:var(--ok)}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Planificación: datos y semanas (variante C, 31/10) */
+.plan-ed{display:grid;grid-template-areas:"form" "weeks" "acts";align-items:start}
+.plan-ed .p-form{grid-area:form}.plan-ed .p-weeks{grid-area:weeks}.plan-ed .p-acts{grid-area:acts;margin-top:18px}
+.stepper{display:flex;gap:6px}
+.stepper .input{flex:1;min-width:0;padding-left:4px;padding-right:4px;text-align:center;font-family:var(--fM);font-size:17px;font-weight:700}
+.stp{flex:0 0 44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;touch-action:manipulation}
+.stp.minus{background:var(--priS);border:2px solid var(--priL);color:var(--priL)}
+.stp.plus{background:var(--okS);border:2px solid var(--ok);color:var(--ok)}
+.stp:disabled{opacity:.35;cursor:not-allowed}
+.pwk-grid{display:grid;gap:12px}
+.pwk{display:grid;gap:8px;align-content:start;padding:12px}
+.pwk-head{display:flex;align-items:center;gap:8px;min-height:34px}
+.pwk-t{font-family:var(--fD);font-size:22px;font-weight:700;line-height:1.1;white-space:nowrap}
+.pwk-c{flex:1;font-size:12px;color:var(--ts);white-space:nowrap}
+.pwk-head .ib{color:var(--ts)}
+.pwk-list{list-style:none;display:grid;gap:8px}
+.pwk-row{display:flex;align-items:center;gap:6px;min-height:48px;padding:4px;background:var(--el);border:1px solid transparent;border-radius:12px;transition:box-shadow .1s}
+.pwk-row .pos{width:16px;flex-shrink:0;font-size:12px;font-weight:700;color:var(--acc)}
+.pwk-row .name{flex:1;min-width:0;font-size:13px}
+.pwk-row.dragging{border-color:var(--acc);background:#22263A;box-shadow:0 10px 28px rgba(0,0,0,.55)}
+.pwk-row.drop-before{box-shadow:0 -3px 0 var(--acc)}
+.pwk-row.drop-after{box-shadow:0 3px 0 var(--acc)}
+.grab{width:32px;height:40px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--ts);cursor:grab;touch-action:none}
+.grab:hover{color:var(--tp);background:var(--card)}
+.grab:active{cursor:grabbing}
+.slot{display:flex;align-items:center;gap:8px;width:100%;min-height:48px;padding:4px 12px;border:1px dashed var(--border2);border-radius:12px;color:var(--tp);font-size:13px;font-weight:600}
+.slot:hover{border-color:var(--acc)}
+.slot .pos{width:16px;font-size:12px;font-weight:700;color:var(--ts)}
+.slot svg{color:var(--acc)}
+.slot.more{color:var(--ts);font-weight:500}
+.pwk .btn-sm{justify-self:start;border:1px solid var(--border);color:var(--ts)}
+.rep{border:none;display:grid;gap:8px;margin-top:16px}
+.rep-row{gap:12px;padding:10px 12px;cursor:pointer;text-align:left}
+.rep-row input{width:22px;height:22px;accent-color:var(--pri);flex-shrink:0}
 
 /* Desktop */
 @media (min-width:960px){
@@ -224,6 +260,9 @@ textarea.input{resize:vertical;min-height:96px;line-height:1.5}
   .title{font-size:46px}
   .list.g2{grid-template-columns:1fr 1fr}
   .narrow{max-width:540px}
+  .plan-ed{grid-template-columns:minmax(0,340px) minmax(0,1fr);grid-template-areas:"form weeks" "acts weeks";grid-template-rows:auto 1fr;column-gap:28px}
+  .plan-ed .p-weeks>.sec:first-child{margin-top:0}
+  .pwk-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
   .fab{bottom:40px;right:48px}
   .overlay{align-items:center;padding:24px}
   .sheet{max-width:460px;border-radius:24px;border-bottom:1px solid var(--border2);padding-bottom:26px}
@@ -235,6 +274,7 @@ textarea.input{resize:vertical;min-height:96px;line-height:1.5}
 <body>
 <div id="app"></div>
 <div id="toast" role="status" aria-live="polite"></div>
+<div id="sr" class="vh" aria-live="polite"></div>
 <script>
 /* ===== Iconos ===== */
 const ICONS={
@@ -272,6 +312,10 @@ const ICONS={
   image:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5L5 20"/>',
   cycle:'<path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3"/><path d="M18 3v4h-4M6 21v-4h4"/>',
   alert:'<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>',
+  grip:'<circle cx="9" cy="6" r="1.1"/><circle cx="15" cy="6" r="1.1"/><circle cx="9" cy="12" r="1.1"/><circle cx="15" cy="12" r="1.1"/><circle cx="9" cy="18" r="1.1"/><circle cx="15" cy="18" r="1.1"/>',
+  copy:'<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',
+  chevD:'<path d="M6 9l6 6 6-6"/>',
+  chevU:'<path d="M6 15l6-6 6 6"/>',
 };
 const ic=(n,s)=>`<svg class="i" viewBox="0 0 24 24" aria-hidden="true"${s?` style="width:${s}px;height:${s}px"`:''}>${ICONS[n]||''}</svg>`;
 
@@ -298,6 +342,8 @@ const GCOL={Pecho:'pri',Espalda:'acc',Piernas:'ok',Hombros:'warn',Brazos:'pri',C
 const PEOPLE={user:{n:'Franco Carames',i:'F',label:'Alumno',av:''},coach:{n:'Diego Fernández',i:'D',label:'Entrenador',av:'acc'},admin:{n:'Administrador',i:'A',label:'Admin',av:'gray'}};
 const HOME={user:'u-home',coach:'c-alumnos',admin:'a-home'};
 
+/* Semanas de un plan: cada una es la lista de sus rutinas, en orden (la posición es el índice + 1) */
+const rep=(n,arr)=>Array.from({length:n},()=>[...arr]);
 const S={
   role:'user',week:3,ej:0,setsBy:{0:[true,true,false,false]},notes:{},
   timer:{total:90,left:88,running:true},calc:{w:70,r:8,ej:'Press de banca'},
@@ -307,7 +353,7 @@ const S={
   alum:[{n:'Lucía Méndez',p:'Fuerza 5×5',a:true,adh:82,d:1},{n:'Tomás Ríos',p:'Hipertrofia A/B',a:true,adh:58,d:3},{n:'Sofía Paz',p:'Full Body',a:true,adh:91,d:1},{n:'Martín Soto',p:'Fuerza 5×5',a:true,adh:64,d:2},{n:'Julián Vega',p:'Powerbuilding',a:true,adh:76,d:2},{n:'Valeria Pérez',p:'Full Body',a:false,adh:18,d:9}],
   memb:[{n:'Lucía Méndez',t:0,v:'2026-07-15'},{n:'Sofía Paz',t:1,v:'2026-08-28'},{n:'Julián Vega',t:2,v:'2027-02-01'},{n:'Franco Carames',t:0,v:'2026-07-15'},{n:'Tomás Ríos',t:0,v:'2026-06-17'},{n:'Martín Soto',t:0,v:'2026-06-15'},{n:'Valeria Pérez',t:0,v:'2026-06-01'}],
   mtypes:[{n:'Plan Mensual',d:30,p:18000},{n:'Plan Trimestral',d:90,p:48000},{n:'Plan Anual',d:365,p:170000}],
-  planes:[{n:'Fuerza 5×5',w:8,a:12,t:'Fuerza',r:['Día A — Empuje','Día B — Tirón','Día C — Piernas']},{n:'Hipertrofia A/B',w:6,a:8,t:'Hipertrofia',r:['Full Upper','Full Lower']},{n:'Full Body',w:4,a:5,t:'Resistencia',r:['Día A — Empuje','Día B — Tirón','Día C — Piernas']},{n:'Powerbuilding',w:12,a:2,t:'Fuerza',r:['Día A — Empuje','Día B — Tirón','Día C — Piernas','Full Upper']}],
+  planes:[{n:'Fuerza 5×5',w:8,k:3,a:12,t:'Fuerza',wk:rep(8,['Día A — Empuje','Día B — Tirón','Día C — Piernas'])},{n:'Hipertrofia A/B',w:6,k:2,a:8,t:'Hipertrofia',wk:rep(6,['Full Upper','Full Lower'])},{n:'Full Body',w:4,k:3,a:5,t:'Resistencia',wk:[['Día A — Empuje','Día B — Tirón','Día C — Piernas'],['Día A — Empuje','Día B — Tirón'],[],[]]},{n:'Powerbuilding',w:12,k:4,a:2,t:'Fuerza',wk:[...rep(4,['Día A — Empuje','Día B — Tirón','Día C — Piernas','Full Upper']),...rep(8,[])]}],
   circs:[{n:'Empuje — Principal',act:true,ej:[['Press de banca',4,'Normal'],['Press inclinado mancuernas',3,'Normal'],['Aperturas',3,'AMRAP']]},{n:'Tirón — Principal',act:true,ej:[['Dominadas',4,'AMRAP'],['Remo con barra',4,'RM'],['Pull-down polea',3,'Normal'],['Curl con barra',3,'Normal']]},{n:'Piernas — Fuerza',act:true,ej:[['Sentadilla',5,'RM'],['Prensa',4,'Normal'],['Extensión de cuádriceps',3,'Normal']]},{n:'Upper básico',act:true,ej:[['Press de banca',4,'Normal'],['Remo con barra',4,'Normal'],['Press militar',3,'Normal']]},{n:'Lower básico',act:true,ej:[['Sentadilla',4,'Normal'],['Peso muerto',3,'RM']]},{n:'Core finisher',act:true,ej:[['Plancha',3,'AMRAP'],['Elevaciones de piernas',3,'Normal']]}],
   ruts:[{n:'Día A — Empuje',m:'Pecho · Hombro · Tríceps',c:[0,5]},{n:'Día B — Tirón',m:'Espalda · Bíceps',c:[1]},{n:'Día C — Piernas',m:'Cuádriceps · Glúteo',c:[2,5]},{n:'Full Upper',m:'Tren superior completo',c:[3]},{n:'Full Lower',m:'Tren inferior completo',c:[4,5]}],
   mus:[{n:'Pectoral mayor',g:'Pecho'},{n:'Dorsal ancho',g:'Espalda'},{n:'Trapecio',g:'Espalda'},{n:'Cuádriceps',g:'Piernas'},{n:'Bíceps femoral',g:'Piernas'},{n:'Glúteo mayor',g:'Piernas'},{n:'Deltoides',g:'Hombros'},{n:'Bíceps braquial',g:'Brazos'},{n:'Tríceps',g:'Brazos'},{n:'Recto abdominal',g:'Core'}],
@@ -357,6 +403,8 @@ function modalHTML(){const m=S.modal;
   <h3>${m.title}</h3>${m.body?`<p>${m.body}</p>`:''}${m.html||''}<div class="stack">${m.actions||''}</div>${m.foot?`<p class="sub" style="text-align:center;margin-top:14px">${m.foot}</p>`:''}</div></div>`;}
 
 function render(){
+  // Si un campo de número del plan tiene foco con un valor sin aplicar, se aplica antes de redibujar (su "change" no puede llegar a mitad del redibujo)
+  const ae=document.activeElement;if(ae&&ae.dataset&&ae.dataset.plannum!==undefined)ae.blur();
   let id=location.hash.replace(/^#\/?/,'')||'login';
   if(!R[id])id='login';
   CUR=id;const r=R[id];
@@ -533,19 +581,68 @@ const P=()=>S.role==='admin'?'a':'c';
 const rutUsos=id=>S.ruts.filter(r=>r.c.includes(id));
 const rutEj=r=>r.c.reduce((n,id)=>n+S.circs[id].ej.length,0);
 const planesList=()=>{const p=P();return `${pageHead('Sistémicas','Planificaciones')}
-  <div class="list g2">${S.planes.map((pl,i)=>`<div class="card click" data-act="plan:${i}" data-go="${p}-plan" role="button" tabindex="0"><div class="row" style="justify-content:space-between"><div style="font-family:var(--fD);font-size:22px;font-weight:700">${pl.n}</div><span class="chev">${ic('chev',18)}</span></div><div class="sub" style="margin:2px 0 12px">${pl.w} semanas · ${pl.r.length} rutinas · ${pl.t}</div><div class="row" style="justify-content:space-between"><span class="pill p-acc">${pl.a} alumnos</span>${p==='c'?`<div class="row" style="gap:6px"><button class="btn btn-ghost btn-sm" data-act="plan:${i}" data-go="c-plan">Editar</button><button class="btn btn-sec btn-sm" data-act="assignPlan:${i}" data-go="c-asignar">Asignar</button></div>`:''}</div></div>`).join('')||empty('Todavía no hay planificaciones.')}</div>
+  <div class="list g2">${S.planes.map((pl,i)=>`<div class="card click" data-act="plan:${i}" data-go="${p}-plan" role="button" tabindex="0"><div class="row" style="justify-content:space-between"><div style="font-family:var(--fD);font-size:22px;font-weight:700">${pl.n}</div><span class="chev">${ic('chev',18)}</span></div><div class="sub" style="margin:2px 0 12px">${pl.w} semanas · ${pl.k} rutinas por semana · ${pl.t}</div><div class="row" style="justify-content:space-between"><span class="pill p-acc">${pl.a} alumnos</span>${p==='c'?`<div class="row" style="gap:6px"><button class="btn btn-ghost btn-sm" data-act="plan:${i}" data-go="c-plan">Editar</button><button class="btn btn-sec btn-sm" data-act="assignPlan:${i}" data-go="c-asignar">Asignar</button></div>`:''}</div></div>`).join('')||empty('Todavía no hay planificaciones.')}</div>
   <button class="fab" data-act="plan:new" data-go="${p}-plan" aria-label="Crear planificación">${ic('plus',26)}</button>`;};
-const planEditor=()=>{if(!S.draft||!S.draft.r)ACT.plan('new');const d=S.draft;
-  return `${pageHead(S.plan===null?'Nueva':'Editar','Planificación')}<div class="narrow">
+/* ===== Planificación por semanas (variante C, 31/10) =====
+   Alta: las semanas son del borrador y se guardan con "Crear planificación".
+   Edición: las rutinas se cambian al instante (planWkCommit); la cabecera, con "Guardar planificación". */
+const rc=n=>`${n} rutina${n===1?'':'s'}`;
+const andList=a=>a.length<2?a.join(''):`${a.slice(0,-1).join(', ')} y ${a[a.length-1]}`;
+const maxUsedWeek=wk=>{for(let i=wk.length-1;i>=0;i--)if(wk[i].length)return i+1;return 0;};
+const resizeWeeks=(wk,n)=>wk.length>=n?wk.slice(0,n):[...wk,...rep(n-wk.length,[])];
+const kOf=d=>parseInt(d.k,10)||0;
+const stepper=(key,label,v,min,ph)=>`<div class="field"><label for="pn-${key}">${label}</label><div class="stepper">
+  <button type="button" class="stp minus" data-act="planStep:${key}|-1" aria-label="Disminuir ${label.toLowerCase()}" ${(parseInt(v,10)||0)<=min?'disabled':''}>−</button>
+  <input class="input" id="pn-${key}" inputmode="numeric" data-plannum="${key}" value="${esc(v)}" placeholder="${ph}">
+  <button type="button" class="stp plus" data-act="planStep:${key}|1" aria-label="Aumentar ${label.toLowerCase()}">+</button></div></div>`;
+function weekCard(w,wi,k,fold){const n=wi+1,len=w.length,open=!fold.includes(wi),free=Math.max(0,k-len);
+  return `<section class="card pwk" aria-labelledby="wk-${wi}"><div class="pwk-head"><h5 class="pwk-t" id="wk-${wi}">Semana ${n}</h5><span class="data pwk-c">${k?`${len} de ${k}`:rc(len)}</span>
+    <button class="ib" data-act="wkFold:${wi}" aria-expanded="${open}" aria-label="${open?'Plegar':'Mostrar'} la semana ${n}">${ic(open?'chevU':'chevD',18)}</button></div>
+  ${open?`${len?`<ol class="pwk-list">${w.map((r,j)=>`<li class="pwk-row" data-week="${wi}" data-idx="${j}"><button type="button" class="grab" data-grab="${wi}|${j}" aria-label="Mover ${esc(r)}, posición ${j+1} de ${len}" aria-describedby="grab-hint">${ic('grip',18)}</button><span class="data pos">${j+1}</span><span class="name">${esc(r)}</span><button class="ib del" data-act="wkRm:${wi}|${j}" aria-label="Quitar ${esc(r)} de la semana ${n}">${ic('x',16)}</button></li>`).join('')}</ol>`:''}
+  ${Array.from({length:free},(_,f)=>`<button class="slot" data-act="wkAdd:${wi}" aria-label="Agregar una rutina a la semana ${n}"><span class="data pos">${len+f+1}</span>${ic('plus',16)} Agregar rutina</button>`).join('')}
+  ${free?'':`<button class="slot more" data-act="wkAdd:${wi}" aria-label="Agregar otra rutina a la semana ${n}">${ic('plus',16)} ${len?'Agregar otra rutina':'Agregar rutina'}</button>`}
+  ${len&&S.draft.wk.length>1?`<button class="btn btn-ghost btn-sm" data-act="wkRep:${wi}">${ic('copy',16)} Repetir en las otras semanas</button>`:''}`:''}</section>`;}
+const planEditor=()=>{if(!S.draft||!S.draft.wk)ACT.plan('new');const d=S.draft,isNew=S.plan===null,k=kOf(d);
+  const total=d.wk.reduce((s,w)=>s+w.length,0),used=d.wk.filter(w=>w.length).length;
+  const saved=isNew?null:S.planes[S.plan],durChanged=!isNew&&String(d.w)!==String(saved.w);
+  return `${pageHead(isNew?'Nueva':'Editar','Planificación')}<div class="plan-ed">
+  <div class="p-form">
   ${field('Nombre del plan','data-draft="n"',d.n,'Ej: Fuerza 5×5 — Avanzado')}
   <div class="field"><label>Notas del entrenador</label><textarea class="input" data-draft="notas" placeholder="Objetivos y observaciones">${esc(d.notas||'')}</textarea></div>
   <div class="field"><label>Tipo de plan</label><div class="chips">${['Fuerza','Hipertrofia','Resistencia'].map(t=>`<button class="chip ${d.t===t?'on':''}" data-act="draftT:${t}">${t}</button>`).join('')}</div></div>
-  ${field('Duración (semanas)','type="number" min="1" data-draft="w"',d.w)}
-  <div class="sec"><h4>Rutinas asignadas</h4><span class="sub" style="margin:0">${d.r.length}</span></div>
-  <div class="list" style="gap:8px">${d.r.length?d.r.map((r,j)=>`<div class="card row" style="padding:12px 14px"><div class="grow name">${r}</div><button class="ib del" data-act="planRm:${j}" aria-label="Quitar ${r}">${ic('x',16)}</button></div>`).join(''):empty('Asigná al menos una rutina a la planificación.')}</div>
-  <button class="btn btn-ghost" style="border-style:dashed;margin:10px 0 18px" data-act="planAdd">${ic('plus',16)} Asignar rutina</button>
-  <button class="btn btn-pri" data-act="planSave">Guardar planificación</button>
-  ${S.plan!==null?`<button class="btn btn-danger" style="margin-top:10px" data-act="planDel">Eliminar planificación</button>`:''}</div>`;};
+  <div class="two">${stepper('w','Duración (semanas)',d.w,1,'Ej: 8')}${stepper('k','Rutinas por semana',d.k,1,'Ej: 3')}</div>
+  <p class="sub" style="margin:-6px 0 4px">${isNew?'La duración va de 1 semana en adelante, y cada semana tiene los huecos que indiques.':'La duración va de 1 semana en adelante. Si la cambiás, se mueve el fin de las asignaciones de todos los alumnos que lo tienen.'}</p>
+  </div>
+  <section class="p-weeks" aria-labelledby="pw-h">
+  <div class="sec"><h4 id="pw-h">Semanas del plan</h4><span class="pill p-acc">${k?`${total} de ${rc(d.wk.length*k)}`:rc(total)}</span></div>
+  <p class="sub" style="margin:-4px 0 14px">${isNew?'Se arman solas con la duración y las rutinas por semana. Podés llenarlas ahora o después: lo que elijas acá se guarda al crear la planificación.':'Los cambios de esta sección se aplican al instante, sin pasar por “Guardar planificación”.'}</p>
+  ${durChanged?`<div class="note acc">${ic('alert',18)}<span>Cambiaste la duración a ${esc(d.w)} semanas: las semanas se ajustan cuando guardes la planificación.</span></div>`:''}
+  <p id="grab-hint" class="vh">Arrastrala para cambiarle el lugar dentro de la semana, o usá las flechas arriba y abajo.</p>
+  <div class="pwk-grid">${d.wk.map((w,wi)=>weekCard(w,wi,k,d.fold)).join('')}</div>
+  </section>
+  <div class="p-acts">
+  ${isNew?`<button class="btn btn-pri" data-act="planSave">Crear planificación</button><p class="sub" style="text-align:center;margin-top:8px">${total?`Se crea con ${rc(total)} en ${used} semana${used===1?'':'s'}.`:'Se crea sin rutinas: las semanas se llenan después.'}</p>`
+  :`<button class="btn btn-pri" data-act="planSave">Guardar planificación</button><button class="btn btn-danger" style="margin-top:10px" data-act="planDel">Eliminar planificación</button>`}
+  </div></div>`;};
+/* El panel de "Repetir en las otras semanas" */
+function repModalData(){const r=S.rep,d=S.draft,src=d.wk[r.from],n=r.from+1,cnt=r.sel.length;
+  return {title:`Repetir la semana ${n}`,body:`${esc(andList(src))}, en ese orden. Elegí en qué semanas.`,
+    html:`<fieldset class="rep"><legend class="vh">Semanas donde se repite</legend>${d.wk.map((w,i)=>i===r.from?'':`<label class="card row rep-row" for="rep-${i}"><input type="checkbox" id="rep-${i}" data-act="repTog:${i}" ${r.sel.includes(i)?'checked':''}><span class="grow"><span class="name" style="display:block">Semana ${i+1}</span><span class="sub" style="display:block">${w.length?`Ya tiene ${rc(w.length)}: estas se suman al final.`:`Queda igual a la semana ${n}.`}</span></span><span class="pill ${w.length?'p-mut':'p-ok'}">${w.length?rc(w.length):'Vacía'}</span></label>`).join('')}</fieldset>`,
+    actions:`<button class="btn btn-pri" data-act="repOk" ${cnt?'':'disabled'}>${cnt?`Repetir en ${cnt} semana${cnt===1?'':'s'}`:'Elegí una semana'}</button><button class="btn btn-ghost" data-act="close">Cancelar</button>`};}
+/* Al editar, lo que cambia en las semanas se guarda al instante */
+function planWkCommit(msg){if(S.plan!==null){S.planes[S.plan].wk=S.draft.wk.map(w=>[...w]);if(msg)toast(msg);}}
+function planMove(wi,from,to,how){const w=S.draft.wk[wi];if(to<0||to>=w.length||to===from)return;const[x]=w.splice(from,1);w.splice(to,0,x);
+  planWkCommit(how==='drag'?`Orden de la semana ${wi+1} actualizado`:'');rerender();
+  const sr=document.getElementById('sr');if(sr)sr.textContent=`${x}: posición ${to+1} de ${w.length}`;
+  if(how==='key'){const g=document.querySelector(`[data-grab="${wi}|${to}"]`);if(g)g.focus();}}
+function planNumSet(key,raw){const d=S.draft,txt=String(raw).trim(),isNew=S.plan===null;
+  if(txt===''){toast(key==='w'?'Indicá la duración en semanas':'Indicá cuántas rutinas tiene cada semana',1);rerender();return;}
+  let v=Number(txt);
+  if(!Number.isInteger(v)||v<1){toast(key==='w'?'Poné un número entero de semanas, de 1 en adelante':'Poné un número entero de rutinas, de 1 en adelante',1);rerender();return;}
+  if(key==='k'){d.k=Math.min(v,10);rerender();return;}
+  v=Math.min(v,52);
+  if(isNew){const mx=maxUsedWeek(d.wk);if(v<mx){toast(`El plan tiene rutinas en la semana ${mx}: la duración no puede ser menor.`,1);rerender();return;}d.wk=resizeWeeks(d.wk,v);d.fold=d.fold.filter(i=>i<v);}
+  d.w=v;rerender();}
 const rutinasList=()=>{const p=P();return `${pageHead('Sistémicas','Rutinas')}
   <div class="list g2">${S.ruts.map((r,i)=>`<div class="card click row" data-act="rut:${i}" data-go="${p}-rutina" role="button" tabindex="0"><div class="grow"><div class="name" style="font-weight:700">${r.n}</div><div class="sub">${r.m}</div><div style="font-size:12px;color:var(--acc);margin-top:4px">${rutEj(r)} ejercicios · ${r.c.length} circuito${r.c.length===1?'':'s'}</div></div><span class="chev">${ic('chev',18)}</span></div>`).join('')||empty('Todavía no hay rutinas.')}</div>
   <button class="fab" data-act="rut:new" data-go="${p}-rutina" aria-label="Crear rutina">${ic('plus',26)}</button>`;};
@@ -711,13 +808,29 @@ const ACT={
   alPagos:()=>openModal({title:'Historial de pagos',html:`<div style="margin-top:14px">${PAGOS.map(p=>`<div class="trow"><span>${p[0]}</span><span>${p[1]}</span><span class="data" style="color:var(--tp)">${ars(p[2])}</span></div>`).join('')}</div>`,actions:`<button class="btn btn-ghost" data-act="close">Cerrar</button>`}),
   closeAcc:()=>openModal({ic:'alert',tone:'err',title:'Cerrar cuenta',body:`<b>${esc(S.alum[S.alu].n)}</b> va a dejar de tener acceso a la app. Podés reactivarla más adelante.`,actions:`<button class="btn btn-danger solid" data-act="closeAccOk">Cerrar cuenta</button><button class="btn btn-ghost" data-act="close">Cancelar</button>`}),
   closeAccOk:()=>{S.alum[S.alu].a=false;toast('Cuenta cerrada');go('c-alumnos');},
-  plan:i=>{S.plan=i==='new'?null:+i;const p=S.plan===null?{n:'',w:8,t:'Fuerza',r:[]}:S.planes[S.plan];S.draft={n:p.n,w:p.w,t:p.t,notas:p.notas||'',r:[...p.r]};},
+  plan:i=>{S.plan=i==='new'?null:+i;const p=S.plan===null?{n:'',w:4,k:3,t:'Fuerza',wk:rep(4,[])}:S.planes[S.plan];S.draft={n:p.n,w:p.w,k:p.k,t:p.t,notas:p.notas||'',wk:p.wk.map(w=>[...w]),fold:[]};},
   draftT:t=>{S.draft.t=t;rerender();},
-  planRm:j=>{S.draft.r.splice(+j,1);rerender();},
-  planAdd:()=>pickModal('Asignar rutina',S.ruts.map(r=>r.n).filter(n=>!S.draft.r.includes(n)),'planAddOk'),
-  planAddOk:i=>{S.draft.r.push(S.pick[+i]);S.modal=null;rerender();},
-  planSave:()=>{const d=S.draft;if(!d.n.trim()){toast('Poné un nombre a la planificación',1);return;}if(!d.r.length){toast('Asigná al menos una rutina',1);return;}
-    const p={n:d.n.trim(),w:+d.w||1,t:d.t,notas:d.notas,r:d.r,a:S.plan===null?0:S.planes[S.plan].a};if(S.plan===null)S.planes.unshift(p);else S.planes[S.plan]=p;toast('Planificación guardada');go(P()+'-planes');},
+  planStep:a=>{const[key,dl]=a.split('|'),d=S.draft;planNumSet(key,(parseInt(d[key],10)||0)+ +dl);},
+  wkFold:wi=>{const f=S.draft.fold,i=+wi,k=f.indexOf(i);k<0?f.push(i):f.splice(k,1);rerender();},
+  wkAdd:wi=>{S.wkT=+wi;pickModal(`Agregar rutina a la semana ${+wi+1}`,S.ruts.map(r=>r.n),'wkAddOk');},
+  wkAddOk:i=>{const wi=S.wkT;S.draft.wk[wi].push(S.pick[+i]);S.modal=null;planWkCommit(`1 rutina agregada a la semana ${wi+1}`);rerender();},
+  wkRm:a=>{const[wi,j]=a.split('|').map(Number),name=S.draft.wk[wi][j];
+    if(S.plan===null){S.draft.wk[wi].splice(j,1);rerender();return;}
+    openModal({ic:'trash',tone:'err',title:'Quitar rutina del plan',body:`<b>${esc(name)}</b> sale de la semana ${wi+1} del plan. Es una baja lógica: conserva su lugar y los alumnos que ya la entrenaron conservan su historial.`,actions:`<button class="btn btn-danger solid" data-act="wkRmOk:${a}">Quitar</button><button class="btn btn-ghost" data-act="close">Cancelar</button>`});},
+  wkRmOk:a=>{const[wi,j]=a.split('|').map(Number);S.draft.wk[wi].splice(j,1);S.modal=null;planWkCommit('Rutina quitada del plan');rerender();},
+  wkRep:wi=>{const from=+wi;S.rep={from,sel:S.draft.wk.map((w,i)=>i).filter(i=>i!==from&&!S.draft.wk[i].length)};openModal(repModalData());},
+  repTog:i=>{const s=S.rep.sel,k=s.indexOf(+i);k<0?s.push(+i):s.splice(k,1);s.sort((a,b)=>a-b);S.modal=repModalData();rerender();const c=document.getElementById('rep-'+i);if(c)c.focus();},
+  repOk:()=>{const r=S.rep,d=S.draft,src=d.wk[r.from];if(!r.sel.length)return;r.sel.forEach(i=>d.wk[i].push(...src));S.modal=null;
+    const m=r.sel.length;if(S.plan===null)toast(`Semana ${r.from+1} repetida en ${m} semana${m===1?'':'s'}`);planWkCommit(`Semana ${r.from+1} repetida en ${m} semana${m===1?'':'s'}`);rerender();},
+  planSave:()=>{const d=S.draft,isNew=S.plan===null;if(!d.n.trim()){toast('Poné un nombre a la planificación',1);return;}
+    const w=Number(String(d.w).trim()),k=Number(String(d.k).trim());
+    if(String(d.w).trim()===''){toast('Indicá la duración en semanas',1);return;}
+    if(!Number.isInteger(w)||w<1){toast('Poné un número entero de semanas, de 1 en adelante',1);return;}
+    if(String(d.k).trim()===''){toast('Indicá cuántas rutinas tiene cada semana',1);return;}
+    if(!Number.isInteger(k)||k<1){toast('Poné un número entero de rutinas, de 1 en adelante',1);return;}
+    if(isNew){S.planes.unshift({n:d.n.trim(),w,k,t:d.t,notas:d.notas,wk:resizeWeeks(d.wk,w),a:0});ACT.plan('0');toast('Planificación creada');render();scrollTo(0,0);return;}
+    const p=S.planes[S.plan],mx=maxUsedWeek(p.wk);if(w<mx){toast(`El plan tiene rutinas en la semana ${mx}: la duración no puede ser menor.`,1);return;}
+    Object.assign(p,{n:d.n.trim(),w,k,t:d.t,notas:d.notas,wk:resizeWeeks(p.wk,w)});toast('Planificación guardada');go(P()+'-planes');},
   planDel:()=>confirmDel('Eliminar planificación',`¿Eliminar <b>${esc(S.planes[S.plan].n)}</b>? Se quita de los alumnos que la tengan asignada.`,'planDelOk'),
   planDelOk:()=>{S.planes.splice(S.plan,1);toast('Planificación eliminada');go(P()+'-planes');},
   assignPlan:i=>{S.assign={name:S.planes[+i].n,kind:'Planificación',back:'c-planes',sel:[]};S.q.asig='';},
@@ -751,7 +864,7 @@ const ACT={
     actions:`${!coach&&act?`<button class="btn btn-sec" data-act="conv:${u.n}" data-go="a-convertir">Convertir en entrenador</button>`:''}${coach?`<button class="btn btn-sec" data-act="coachForm:${i}">Editar datos</button>`:''}<button class="btn ${act?'btn-danger':'btn-ghost'}" data-act="userToggle:${k}|${i}">${act?'Desactivar cuenta':'Reactivar cuenta'}</button><button class="btn btn-ghost" data-act="close">Cerrar</button>`});},
   userToggle:a=>{const[k,i]=a.split('|'),u=S[k][+i];if(k==='coaches')u.act=!u.act;else u.a=!u.a;const on=k==='coaches'?u.act:u.a;S.modal=null;toast(on?'Cuenta reactivada':'Cuenta desactivada');rerender();},
   rutDel:()=>confirmDel('Eliminar rutina',`¿Eliminar <b>${esc(S.ruts[S.rut].n)}</b>? Se quita de las planificaciones que la incluyan.`,'rutDelOk'),
-  rutDelOk:()=>{const n=S.ruts[S.rut].n;S.ruts.splice(S.rut,1);S.planes.forEach(p=>p.r=p.r.filter(x=>x!==n));toast('Rutina eliminada');go(P()+'-rutinas');},
+  rutDelOk:()=>{const n=S.ruts[S.rut].n;S.ruts.splice(S.rut,1);S.planes.forEach(p=>p.wk=p.wk.map(w=>w.filter(x=>x!==n)));toast('Rutina eliminada');go(P()+'-rutinas');},
   cat:k=>{S.cat=k;S.q.cat='';if(CUR==='a-catalogo')rerender();},
   ejEdit:i=>{S.ejEdit=i==='new'?null:+i;const w=S.ejEdit===null?null:S.wiki[S.ejEdit];S.draft={n:w?w[0]:'',desc:w?'Ejercicio '+w[2].toLowerCase()+' para '+w[1].toLowerCase()+'.':'',tips:'',video:'',mus:w?S.mus.filter(m=>w[1].includes(m.n.split(' ')[0])).map(m=>m.n):[]};},
   musRm:j=>{S.draft.mus.splice(+j,1);rerender();},
@@ -787,8 +900,21 @@ document.addEventListener('click',e=>{
     if(ACT[n]&&ACT[n](arg,a,e)===false)return;}
   if(g){e.preventDefault();go(g.dataset.go);}
 });
+/* Ordenar las rutinas de una semana: arrastrando el grabber (mouse o touch) o con las flechas */
+let DRAG=null;
+const clearDrop=()=>document.querySelectorAll('.pwk-row.drop-before,.pwk-row.drop-after').forEach(r=>r.classList.remove('drop-before','drop-after'));
+document.addEventListener('pointerdown',e=>{const g=e.target.closest('[data-grab]');if(!g||e.button>0)return;
+  const[w,j]=g.dataset.grab.split('|').map(Number),row=g.closest('.pwk-row');DRAG={w,j,to:null,row};row.classList.add('dragging');
+  try{g.setPointerCapture(e.pointerId);}catch(_){}e.preventDefault();});
+document.addEventListener('pointermove',e=>{if(!DRAG)return;clearDrop();DRAG.to=null;
+  const el=document.elementFromPoint(e.clientX,e.clientY),r=el&&el.closest('.pwk-row');if(!r||+r.dataset.week!==DRAG.w)return;
+  const b=r.getBoundingClientRect(),after=e.clientY>b.top+b.height/2;r.classList.add(after?'drop-after':'drop-before');DRAG.to=+r.dataset.idx+(after?1:0);});
+const endDrag=()=>{if(!DRAG)return;const{w,j,to,row}=DRAG;DRAG=null;clearDrop();row.classList.remove('dragging');
+  if(to===null)return;const dest=to>j?to-1:to;if(dest!==j)planMove(w,j,dest,'drag');};
+document.addEventListener('pointerup',endDrag);document.addEventListener('pointercancel',endDrag);
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&S.modal&&!S.modal.lock)closeModal();
+  if((e.key==='ArrowUp'||e.key==='ArrowDown')&&e.target.matches('[data-grab]')){e.preventDefault();const[w,j]=e.target.dataset.grab.split('|').map(Number);planMove(w,j,j+(e.key==='ArrowUp'?-1:1),'key');return;}
   if((e.key==='Enter'||e.key===' ')&&e.target.matches('[role="button"]')){e.preventDefault();e.target.click();}
 });
 document.addEventListener('input',e=>{const t=e.target;
@@ -798,7 +924,7 @@ document.addEventListener('input',e=>{const t=e.target;
   if(t.dataset.cdraft&&S.cdraft)S.cdraft[t.dataset.cdraft]=t.value;
   if(t.dataset.pw!==undefined){const r=document.getElementById('reqs');if(r)r.innerHTML=reqsHTML(t.value);}
 });
-document.addEventListener('change',e=>{const t=e.target;if(t.dataset.pay){S.pay[t.dataset.pay]=t.dataset.pay==='t'?+t.value:t.value;if(t.dataset.pay==='al'){const m=S.memb.find(x=>x.n===t.value);if(m)S.pay.t=m.t;}rerender();}});
+document.addEventListener('change',e=>{const t=e.target;if(t.dataset.plannum&&S.draft){planNumSet(t.dataset.plannum,t.value);return;}if(t.dataset.pay){S.pay[t.dataset.pay]=t.dataset.pay==='t'?+t.value:t.value;if(t.dataset.pay==='al'){const m=S.memb.find(x=>x.n===t.value);if(m)S.pay.t=m.t;}rerender();}});
 
 setInterval(()=>{const t=S.timer;if(!t.running||t.left<=0)return;t.left--;
   if(t.left===0){t.running=false;if(CUR.endsWith('timer'))rerender();toast('Descanso terminado');return;}

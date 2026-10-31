@@ -1,8 +1,8 @@
 # PowerApp — Especificaciones de Casos de Uso
 
-Índice de casos de uso (75 en total). Un archivo Markdown por CU.
+Índice de casos de uso (77 en total). Un archivo Markdown por CU.
 
-> **CU-E-12** es un caso de uso **agrupador**: no se cuenta a sí mismo, sino sus cuatro operaciones anidadas (`CU-E-12a` a `CU-E-12d`), que sí figuran en el total.
+> **CU-E-12** es un caso de uso **agrupador**: no se cuenta a sí mismo, sino sus seis operaciones anidadas (`CU-E-12a` a `CU-E-12f`), que sí figuran en el total. Eran 75 CU hasta el 31/10/2026, cuando se sumaron `CU-E-12e` y `CU-E-12f`.
 
 ## Rol Usuario
 
@@ -60,6 +60,8 @@
     - [`CU-E-12b` Asignar Rutinas en Lote a una Planificación Sistémica](entrenador/CU-E-12b-asignar-rutinas-en-lote-a-planificacion.md)
     - [`CU-E-12c` Quitar o Reincorporar una Rutina (Lógico)](entrenador/CU-E-12c-quitar-rutina-de-planificacion.md)
     - [`CU-E-12d` Quitar o Reincorporar Rutinas en Lote (Lógico)](entrenador/CU-E-12d-quitar-rutinas-en-lote-de-planificacion.md)
+    - [`CU-E-12e` Reordenar las Rutinas de una Semana](entrenador/CU-E-12e-reordenar-rutinas-de-una-semana.md)
+    - [`CU-E-12f` Repetir una Semana en Otras Semanas](entrenador/CU-E-12f-repetir-una-semana-en-otras-semanas.md)
 - [`CU-E-13` Asignar Planificación a Alumno](entrenador/CU-E-13-asignar-planificacion-a-alumno.md)
 - [`CU-E-14` Eliminar Planificación a Alumno (Lógico)](entrenador/CU-E-14-eliminar-planificacion-a-alumno.md)
 
