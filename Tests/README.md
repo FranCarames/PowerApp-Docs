@@ -21,12 +21,12 @@ Los espacios del nombre de archivo van como `%20`. No hay que tocar `index.html`
 
 Cuando un caso se marca como **Falla**, aparece la fila «Gravedad» para clasificarla en uno de cuatro niveles:
 
-| Nivel | Nombre | Qué significa |
-|---|---|---|
-| 1 | Grave | Tiene que ser arreglado. |
-| 2 | Moderado | Conviene arreglarlo, sin llegar a ser grave. |
-| 3 | Leve | Nice to have, no es bloqueante. |
-| 4 | Diferido | Despriorizado; no compromete la funcionalidad. |
+| Nivel | Nombre | Color | Qué significa |
+|---|---|---|---|
+| 1 | Grave | Naranja, el de Charmander | Tiene que ser arreglado. |
+| 2 | Moderado | Azul, el de Squirtle | Conviene arreglarlo, sin llegar a ser grave. |
+| 3 | Leve | Verde, el de Bulbasaur | Nice to have, no es bloqueante. |
+| 4 | Diferido | Gris | Despriorizado; no compromete la funcionalidad. |
 
 - Elegir la gravedad es opcional: una falla sin nivel queda como «sin clasificar». Si el caso deja de estar en Falla, la gravedad se borra.
 - El plan suma un contador de fallas por gravedad en el resumen, un filtro «Gravedad» junto a los de resultado y entorno, y el nivel en la etiqueta del caso. «Copiar resumen de fallas» las agrupa de la más grave a la menos grave.
