@@ -380,8 +380,8 @@ tr:last-child td{border-bottom:0}
       exp: '<p>Entra a <code>/c/alumnos</code>, con la navegación de entrenador.</p>' },
     { id: 'CNV-04', g: 'cnv', t: 'Validaciones de los datos profesionales', env: ['TODOS'],
       data: `CUIL de 10 dígitos ${tok('2012345678')} · con guiones ${tok('20-12345678-6')} · email en mayúsculas ${tok('QA.COACH2@POWERAPP.COM')}`,
-      steps: ['Elegí un alumno y tocá Convertir sin datos.', `Escribí ${tok('qa.coach@')} como email.`, 'Probá el CUIL de 10 dígitos y uno con letras.', 'Probá el CUIL con guiones y salí del campo.', 'Con el email en mayúsculas, convertí y mirá el body del request en Network. Si no querés convertir a nadie más, frená antes de confirmar.'],
-      exp: `<ul><li>${ui('Ingresá el email profesional')}, ${ui('Ingresá el CUIL')} e ${ui('Ingresá un email válido')}.</li><li>10 dígitos o letras: ${ui('El CUIL tiene 11 dígitos')}.</li><li>Con guiones se acepta, y al salir del campo se muestra con la máscara 20-12345678-6.</li><li>El request lleva el email en minúsculas y el CUIL de 11 dígitos sin guiones. (CU-A-17, camino alternativo)</li></ul>` },
+      steps: ['Elegí un alumno y tocá Convertir sin datos.', `Escribí ${tok('qa.coach@')} como email.`, 'Probá el CUIL de 10 dígitos.', 'Con el email en mayúsculas y el CUIL con guiones, convertí y mirá el body del request en Network. Si no querés convertir a nadie más, frená antes de confirmar.'],
+      exp: `<ul><li>${ui('Ingresá el email profesional')}, ${ui('Ingresá el CUIL')} e ${ui('Ingresá un email válido')}.</li><li>10 dígitos: ${ui('El CUIL tiene 11 dígitos')}.</li><li>El request lleva el email en minúsculas y el CUIL de 11 dígitos sin guiones. (CU-A-17, camino alternativo)</li></ul>` },
     { id: 'CNV-05', g: 'cnv', t: 'Email profesional repetido', env: ['TODOS'],
       steps: ['Elegí un alumno y poné el email profesional de un entrenador existente.', 'Tocá Convertir en entrenador.'],
       exp: `<p>${ui('Ya hay otro entrenador con ese email profesional')} junto al campo, y no sale ningún request. El front lo controla antes de mandar. Si llegara al backend, responde 409 y el aviso sale igual junto al campo.</p>` },
@@ -395,6 +395,15 @@ tr:last-child td{border-bottom:0}
     { id: 'CNV-08', g: 'cnv', t: 'Los inactivos no se ofrecen', env: ['TODOS'],
       steps: ['Con el alumno QA cuenta desactivado, buscalo en Convertir.'],
       exp: `<p>No aparece; la lista solo tiene alumnos activos. Si no hay otro que coincida: ${ui('No hay alumnos activos que coincidan con la búsqueda.')}</p>` },
+    { id: 'CNV-09', g: 'cnv', t: 'El CUIL se formatea mientras escribís', env: ['TODOS'],
+      steps: [`En Convertir, elegí un alumno y escribí ${tok('20123456786')} en el CUIL de a un dígito. Después probá con un dígito más.`, 'Borralo de a un dígito.', `Pegá ${tok('20-12345678-6')}.`, 'Intentá escribir una letra.', 'Repetí todo en Editar entrenador (el lápiz del alumno QA coach).'],
+      exp: `<ul><li>Los guiones aparecen mientras escribís: <code>20</code>, <code>20-1</code>… <code>20-12345678-6</code>.</li><li>No pasa de 11 dígitos.</li><li>Al borrar, los guiones se van solos y el cursor no se traba.</li><li>Lo pegado queda igual.</li><li>Las letras no entran.</li></ul>`,
+      kt: 'Hoy falla.', known: 'Hoy el CUIL se formatea recién al salir del campo. Lo arregla la T52 del front; hasta que llegue a main, marcalo como Falla.' },
+    { id: 'CNV-10', g: 'cnv', t: 'La cuenta se desactiva con el formulario abierto', env: ['TODOS'],
+      data: 'El alumno QA cuenta, activo. Si quedó desactivado de CNV-07 y CNV-08, reactivalo antes desde Usuarios.',
+      steps: ['En Convertir, elegí al alumno QA cuenta y completá un email y un CUIL que no use otro entrenador (los de prueba ya son del alumno QA coach). No conviertas.', 'En incógnito, con el mismo admin, desactivá esa cuenta desde Usuarios.', `Volvé a la pantalla de Convertir y tocá ${ui('Convertir en entrenador')}.`],
+      exp: `<ul><li><code>POST /coach/promote_user</code> responde 400 con <code>{ error: 'No se puede convertir en entrenador a una cuenta inactiva.' }</code>.</li><li>La pantalla dice ${ui('La cuenta de … está inactiva. Reactivala desde Usuarios para poder convertirla en entrenador.')}</li><li>El alumno no aparece en Entrenadores. (CU-A-17, camino alternativo)</li></ul>`,
+      kt: 'Hoy falla.', known: 'Hoy el backend la convierte igual: <code>promote_user</code> no mira <code>User.active</code>. Lo arreglan BE-41 del back y la T52 del front.' },
 
     // ── Editar entrenador ─────────────────────────────────
     { id: 'EDE-01', g: 'ede', t: 'Abrir la edición', env: ['TODOS'],
@@ -454,7 +463,7 @@ tr:last-child td{border-bottom:0}
 
     // ── Cierre ────────────────────────────────────────────
     { id: 'CIE-01', g: 'cie', t: 'Dejar las cuentas como estaban', env: ['TODOS'],
-      steps: ['Si el alumno QA coach sigue de entrenador, dalo de baja.', 'Desactivá las dos cuentas de prueba.', 'Reactivá cualquier cuenta real que hayas desactivado durante las pruebas.'],
+      steps: ['Si el alumno QA coach sigue de entrenador, dalo de baja.', 'Desactivá las dos cuentas de prueba. El alumno QA cuenta ya queda inactivo desde CNV-10: solo confirmá que figure Inactivo.', 'Reactivá cualquier cuenta real que hayas desactivado durante las pruebas.'],
       exp: '<p>Las cuentas de prueba quedan inactivas y ninguna cuenta real queda cambiada.</p>' },
   ];
 

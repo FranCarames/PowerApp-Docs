@@ -23,11 +23,12 @@ Promueve a un usuario alumno al rol de entrenador, creando su registro Coach con
 
 - Alta de un usuario desde cero (lo hace el propio usuario).
 - Convertir en entrenador a un administrador.
+- Convertir en entrenador una cuenta inactiva: primero se reactiva desde Usuarios.
 
 ## Precondiciones
 
 - Existe una sesión activa con rol Admin.
-- Existe el User a promover y no es un administrador.
+- Existe el User a promover, no es un administrador y, si es un alumno, su cuenta está activa.
 
 ## Postcondiciones
 
@@ -51,6 +52,11 @@ Promueve a un usuario alumno al rol de entrenador, creando su registro Coach con
 
 1. El usuario tiene rol administrador.
 2. El sistema informa que un administrador no se puede convertir en entrenador y no realiza cambios: el administrador conserva su acceso.
+
+### En el paso 1 — La cuenta del alumno está inactiva
+
+1. El usuario es un alumno con la cuenta dada de baja.
+2. El sistema informa que hay que reactivarla antes de convertirla y no realiza cambios. Un entrenador con la cuenta inactiva se sigue editando por CU-A-18: eso no cambia.
 
 ### En el paso 2 — Datos profesionales inválidos
 
