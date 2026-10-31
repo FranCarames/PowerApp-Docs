@@ -19,7 +19,7 @@ Los espacios del nombre de archivo van como `%20`. No hay que tocar `index.html`
 
 ## Tablero de fallas
 
-[`errores.html`](errores.html) junta las fallas y los casos por re-testear de la última tanda de todos los planes, en columnas por gravedad (Re-testear, 1 a 4, Funciona y, al final, Sin clasificar). Sirve para recategorizar a mano: se arrastra la tarjeta a otra columna (o se usan los botones de la tarjeta), se edita la nota y se filtra por plan o texto.
+[`errores.html`](errores.html) junta las fallas y los casos por re-testear de la última tanda de todos los planes, en columnas por gravedad (Re-testear, 1 a 4, Funciona y, al final, Sin clasificar). Sirve para recategorizar a mano: se arrastra la tarjeta a otra columna (o se usan los botones de la tarjeta), se edita la nota y se filtra por plan (pills combinables) o texto. Las pills «Incluir re-testear» e «Incluir diferidos» (activas por defecto) ocultan su columna, sus casos y los contadores.
 
 - Lo que se mueve queda en el `localStorage` del navegador, en la misma clave que usa el plan, así que el plan también lo muestra.
 - Para llevarlo al repo, el panel «Cambios sin exportar» genera una tanda nueva por plan con el mismo formato que «Exportar resultados» y muestra la línea para sumar a este índice.
