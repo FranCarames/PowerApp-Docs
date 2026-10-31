@@ -19,7 +19,7 @@ Los espacios del nombre de archivo van como `%20`. No hay que tocar `index.html`
 
 ## Tablero de fallas
 
-[`errores.html`](errores.html) junta las fallas y los casos por re-testear de la última tanda de todos los planes, en columnas por gravedad (Re-testear, Sin clasificar, 1 a 4 y Funciona). Sirve para recategorizar a mano: se arrastra la tarjeta a otra columna (o se usan los botones de la tarjeta), se edita la nota y se filtra por plan o texto.
+[`errores.html`](errores.html) junta las fallas y los casos por re-testear de la última tanda de todos los planes, en columnas por gravedad (Re-testear, 1 a 4, Funciona y, al final, Sin clasificar). Sirve para recategorizar a mano: se arrastra la tarjeta a otra columna (o se usan los botones de la tarjeta), se edita la nota y se filtra por plan o texto.
 
 - Lo que se mueve queda en el `localStorage` del navegador, en la misma clave que usa el plan, así que el plan también lo muestra.
 - Para llevarlo al repo, el panel «Cambios sin exportar» genera una tanda nueva por plan con el mismo formato que «Exportar resultados» y muestra la línea para sumar a este índice.
@@ -57,7 +57,7 @@ Exportar solo descarga el archivo y dice qué línea sumar al índice: guardarlo
 Con eso, **no hace falta importar a mano**:
 
 - El visor muestra en cada card el avance de la última tanda: el porcentaje de casos aprobados (sobre todos los del plan, redondeado hacia abajo) y cuántos están probados, con falla (con el desglose por gravedad) o por re-testear. El número cambia de color con el nivel: rojo por debajo del 50 %, amarillo hasta el 59 % y tonos de verde desde el 60 %, cada vez más intensos (90 % o más, el verde pleno).
-- Antes de las cards, un **resumen** junta la última tanda de todos los planes: casos aprobados, fallas abiertas (con cuántas son graves, moderadas, leves o diferidas), por re-testear y sin probar, y tres escalas que cuentan cuántos planes (sobre todos los del índice; los que no tienen resultados no llegan a ningún umbral) tienen al menos 98 / 95 / 90 / 75 % de aprobados, cuántos están probados por completo o al menos al 95 / 90 / 75 %, y cuántos no tienen fallas, tienen 1 o 2, o 3 o más. Cada fila se despliega para ver qué planes cuenta.
+- Antes de las cards, un **resumen** junta la última tanda de todos los planes: casos aprobados, fallas abiertas (solo las graves, moderadas y leves, con una pill por nivel), por re-testear (con las fallas sin clasificar y las diferidas como pills aparte) y sin probar, y tres escalas que cuentan cuántos planes (sobre todos los del índice; los que no tienen resultados no llegan a ningún umbral) tienen al menos 98 / 95 / 90 / 75 % de aprobados, cuántos están probados por completo o al menos al 95 / 90 / 75 %, y cuántos no tienen fallas, tienen 1 o 2, o 3 o más. Cada fila se despliega para ver qué planes cuenta.
 - Entre el resumen y las cards hay botones para **ordenarlas** (dentro de cada sección): por orden del índice, casos sin probar, % de aprobados, % de probados, fallas o casos por re-testear. Cada criterio arranca poniendo primero lo que más atención pide (más sin probar, menos % aprobados…) y se puede invertir. A igual valor va primero el de menos % de aprobados; los planes sin resultados van siempre al final. El navegador recuerda el último orden elegido.
 - Al abrir el plan, se carga solo la última tanda y se combina con lo del navegador, caso por caso: gana el resultado con la fecha más reciente, así no se pierde lo marcado en el momento.
 

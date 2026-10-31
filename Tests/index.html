@@ -140,7 +140,20 @@
   .kpi-val.fail{color:var(--red);}
   .kpi-val.retest{color:var(--amber);}
   .kpi-val.none{color:var(--ts);}
-  .kpi-sub{font-family:var(--fMono);font-size:11px;line-height:1.5;color:var(--tm);}
+  .kpi-sub{font-family:var(--fMono);font-size:12px;line-height:1.5;color:var(--ts);display:grid;gap:3px;}
+  .kpi-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px;}
+  /* pill por gravedad: 1 Grave, 2 Moderado, 3 Leve, 4 Diferido (colores de los iniciales de Kanto) */
+  .pill{
+    --sev:var(--ts);display:inline-flex;align-items:center;gap:6px;font-family:var(--fMono);font-size:11.5px;color:var(--tp);
+    padding:4px 10px;border-radius:999px;
+    border:1px solid color-mix(in srgb,var(--sev) 55%,transparent);background:color-mix(in srgb,var(--sev) 14%,transparent);
+  }
+  .pill b{color:var(--sev);font-weight:700;font-variant-numeric:tabular-nums;}
+  .pill[data-sev="1"]{--sev:#F08030;}
+  .pill[data-sev="2"]{--sev:#6890F0;}
+  .pill[data-sev="3"]{--sev:#78C850;}
+  .pill[data-sev="4"]{--sev:#8892A8;}
+  .pill[data-sev="u"]{--sev:#8892A8;border-style:dashed;}
 
   .scales{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px;}
   .scale{
@@ -347,7 +360,7 @@
         var tested = n.ok + n.fail + n.retest;
         var total = ids.length || 1;
         return {
-          data: data, n: n, sev: sev, cases: ids.length, tested: tested, none: ids.length - tested,
+          data: data, n: n, sev: sev, open: n.fail - sev[4] - sev.u, cases: ids.length, tested: tested, none: ids.length - tested,
           // Aprobados sobre todos los casos del plan (como el tramo verde de la barra). Se redondea hacia abajo: 100 % solo si no falta ninguno.
           passPct: Math.floor(n.ok * 100 / total),
           testPct: Math.floor(tested * 100 / total)
@@ -434,11 +447,11 @@
       })
     },
     {
-      title: 'Fallas abiertas', sub: 'Planes según cuántos casos fallan en su última tanda',
+      title: 'Fallas abiertas', sub: 'Planes según cuántas fallas abiertas tienen en su última tanda (sin contar las diferidas ni las sin clasificar)',
       rows: [
-        { label: 'Sin fallas', test: function (s) { return s && s.n.fail === 0; } },
-        { label: '1 o 2 fallas', f: 'amber', test: function (s) { return s && s.n.fail >= 1 && s.n.fail <= 2; } },
-        { label: '3 fallas o más', f: 'red', test: function (s) { return s && s.n.fail >= 3; } },
+        { label: 'Sin fallas', test: function (s) { return s && s.open === 0; } },
+        { label: '1 o 2 fallas', f: 'amber', test: function (s) { return s && s.open >= 1 && s.open <= 2; } },
+        { label: '3 fallas o más', f: 'red', test: function (s) { return s && s.open >= 3; } },
         { label: 'Sin resultados', f: 'muted', test: function (s) { return !s; } }
       ]
     }
@@ -449,7 +462,11 @@
     k.appendChild(el('div', 'kpi-label', label));
     var v = el('div', 'kpi-val' + (cls ? ' ' + cls : ''), value);
     k.appendChild(v);
-    if (sub) k.appendChild(el('div', 'kpi-sub', sub));
+    if (sub) {
+      var box = el('div', 'kpi-sub');
+      [].concat(sub).forEach(function (line) { box.appendChild(typeof line === 'string' ? el('div', null, line) : line); });
+      k.appendChild(box);
+    }
     parent.appendChild(k);
     return v;
   }
@@ -466,28 +483,56 @@
       return p.then(function (s) { return { s: s }; }, function () { return { err: true }; });
     })).then(function (out) {
       box.removeChild(wait);
-      var withRes = [], errors = 0, tot = { cases: 0, ok: 0, fail: 0, retest: 0, none: 0 }, totSev = sevCounts(), failPlans = 0;
+      var withRes = [], errors = 0, tot = { cases: 0, ok: 0, fail: 0, retest: 0, none: 0 }, totSev = sevCounts(), totOpen = 0, failPlans = 0;
       out.forEach(function (o, i) {
         if (o.err) { errors++; return; }
         if (!o.s) return;
         withRes.push(plans[i]);
         tot.cases += o.s.cases; tot.ok += o.s.n.ok; tot.fail += o.s.n.fail; tot.retest += o.s.n.retest; tot.none += o.s.none;
-        if (o.s.n.fail) failPlans++;
+        totOpen += o.s.open;
+        if (o.s.open) failPlans++;
         Object.keys(totSev).forEach(function (k) { totSev[k] += o.s.sev[k]; });
       });
       var base = withRes.length + ' de ' + plans.length + ' planes con resultados';
 
       var kpis = el('div', 'kpis');
       var passPct = tot.cases ? Math.floor(tot.ok * 100 / tot.cases) : 0;
-      var v = kpi(kpis, 'Casos aprobados', passPct + '%', 'prog-pct', tot.ok + ' de ' + tot.cases + ' casos · ' + base);
+      var v = kpi(kpis, 'Casos aprobados', passPct + '%', 'prog-pct', [tot.ok + ' de ' + tot.cases + ' casos', base.charAt(0).toUpperCase() + base.slice(1)]);
       v.setAttribute('data-tone', pctTone(passPct));
-      var sevTxt = SEVERITIES.concat([['u', 'Sin clasificar', 'sin clasificar', 'sin clasificar']])
-        .filter(function (s) { return totSev[s[0]]; })
-        .map(function (s) { return totSev[s[0]] + ' ' + (totSev[s[0]] === 1 ? s[2] : s[3]); }).join(' · ');
-      kpi(kpis, 'Fallas abiertas', String(tot.fail), 'fail',
-        failPlans ? 'en ' + failPlans + (failPlans === 1 ? ' plan' : ' planes') + (sevTxt ? ' · ' + sevTxt : '') : 'ningún plan con fallas');
-      kpi(kpis, 'Por re-testear', String(tot.retest), 'retest', 'casos a volver a probar');
-      kpi(kpis, 'Sin probar', String(tot.none), 'none', 'casos sin marcar en la última tanda');
+      // Fallas abiertas: solo las clasificadas como grave, moderada o leve. Las diferidas (despriorizadas, no comprometen la funcionalidad)
+      // y las sin clasificar (falta decidir su gravedad) van como pills junto a «Por re-testear».
+      function pill(key, count, name) {
+        var p = el('span', 'pill');
+        p.setAttribute('data-sev', String(key));
+        p.appendChild(el('b', null, String(count)));
+        p.appendChild(document.createTextNode(name));
+        return p;
+      }
+      var openPills = el('div', 'kpi-pills');
+      SEVERITIES.slice(0, 3).forEach(function (s) {
+        if (!totSev[s[0]]) return;
+        var name = totSev[s[0]] === 1 ? s[2] : s[3];
+        openPills.appendChild(pill(s[0], totSev[s[0]], name.charAt(0).toUpperCase() + name.slice(1)));
+      });
+      var openLines = [failPlans ? 'En ' + failPlans + (failPlans === 1 ? ' plan' : ' planes') : 'Ningún plan con fallas abiertas'];
+      if (openPills.childNodes.length) openLines.push(openPills);
+      kpi(kpis, 'Fallas abiertas', String(totOpen), 'fail', openLines);
+
+      var retestLines = ['Casos a volver a probar'];
+      var sideFails = el('div', 'kpi-pills');
+      if (totSev.u) {
+        var up = pill('u', totSev.u, 'Sin clasificar');
+        up.title = 'Fallas a las que todavía no se les eligió gravedad';
+        sideFails.appendChild(up);
+      }
+      if (totSev[4]) {
+        var dp = pill(4, totSev[4], totSev[4] === 1 ? 'Diferida' : 'Diferidas');
+        dp.title = 'Fallas despriorizadas: no comprometen la funcionalidad';
+        sideFails.appendChild(dp);
+      }
+      if (sideFails.childNodes.length) retestLines.push(sideFails);
+      kpi(kpis, 'Por re-testear', String(tot.retest), 'retest', retestLines);
+      kpi(kpis, 'Sin probar', String(tot.none), 'none', 'Casos sin marcar en la última tanda');
       box.appendChild(kpis);
 
       var grid = el('div', 'scales');
