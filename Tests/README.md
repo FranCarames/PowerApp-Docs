@@ -88,9 +88,11 @@ Con eso, **no hace falta importar a mano**:
 - [Pruebas de membresías](Membresias/Pruebas%20de%20membres%C3%ADas.html) — Tipos de membresía del Admin: listado, alta, edición, baja y reactivación, y cómo llegan al registro de pagos del Entrenador y al historial del alumno (CU-A-20 a CU-A-23).
   - [Tanda 1](Membresias/1-pruebas-membresias.resultados.json)
   - [Tanda 2](Membresias/2-pruebas-membresias.resultados.json)
+  - [Tanda 3](Membresias/3-pruebas-membresias.resultados.json)
 - [Pruebas de circuitos](Circuitos/Pruebas%20de%20circuitos.html) — Circuitos desde el Admin y del lado del Entrenador: listado y filtros, alta y edición con sus ejercicios y bloques de series, duplicar, desactivar y reactivar (CU-E-21 a CU-E-24).
   - [Tanda 1](Circuitos/1-pruebas-circuitos.resultados.json)
   - [Tanda 2](Circuitos/2-pruebas-circuitos.resultados.json)
+  - [Tanda 3](Circuitos/3-pruebas-circuitos.resultados.json)
 - [Pruebas del panel y la navegación](Panel%20y%20navegacion/Pruebas%20del%20panel%20y%20la%20navegaci%C3%B3n.html) — El marco de la app: el panel del Admin, «Más», el inicio del Entrenador y del alumno con su tab bar y barra lateral, qué rol entra a qué ruta, las direcciones que no existen, el aviso de servidor dormido y la sesión que se cierra sola (sin CU).
   - [Tanda 1](Panel%20y%20navegacion/1-pruebas-navegacion.resultados.json)
   - [Tanda 2 (la 1, adaptada al plan del 25/10)](Panel%20y%20navegacion/2-pruebas-navegacion.resultados.json)
@@ -104,6 +106,7 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 2](Wiki%20y%20temporizador/2-pruebas-wiki-timer.resultados.json)
 - [Pruebas de RMs y calculadora](RMs%20y%20calculadora/Pruebas%20de%20RMs%20y%20calculadora.html) — Los récords del alumno: listado agrupado por ejercicio, registrar, editar y eliminar un RM, y la calculadora que estima el 1RM sin guardarlo (CU-U-16 a CU-U-20).
   - [Tanda 1](RMs%20y%20calculadora/1-pruebas-rms.resultados.json)
+  - [Tanda 2](RMs%20y%20calculadora/2-pruebas-rms.resultados.json)
 - [Pruebas del detalle del alumno](Detalle%20del%20alumno/Pruebas%20del%20detalle%20del%20alumno.html) — La ficha de un alumno desde el Entrenador: sus datos, sus RMs, su historial de pagos y su historial de entrenamientos con el filtro por ejercicio (CU-E-04 a CU-E-07).
   - [Tanda 1](Detalle%20del%20alumno/1-pruebas-detalle-alumno.resultados.json)
   - [Tanda 2 (la 1, adaptada al plan del 25/10)](Detalle%20del%20alumno/2-pruebas-detalle-alumno.resultados.json)
