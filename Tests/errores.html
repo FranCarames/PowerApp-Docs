@@ -30,7 +30,7 @@
       radial-gradient(760px 560px at 108% 112%, rgba(104,144,240,.10), transparent 62%),
       radial-gradient(520px 420px at 92% 4%, rgba(139,92,246,.09), transparent 60%);
   }
-  .wrap{max-width:1600px;margin:0 auto;}
+  .wrap{max-width:none;margin:0 auto;}
   button{font:inherit;color:inherit;}
   a{color:inherit;}
 
@@ -89,7 +89,7 @@
 
   /* Tablero */
   .board{
-    display:grid;grid-auto-flow:column;grid-auto-columns:380px;gap:16px;
+    display:grid;grid-auto-flow:column;--n:2;--gap:16px;grid-auto-columns:calc((100% - (var(--n) - 1) * var(--gap)) / var(--n));gap:var(--gap);
     margin-top:20px;overflow-x:auto;padding-bottom:14px;align-items:start;
     scroll-snap-type:x proximity;
   }
@@ -136,6 +136,13 @@
   .kc-links a,.kc-links button{color:var(--ts);text-decoration:none;background:none;border:0;cursor:pointer;padding:2px 0;font:inherit;}
   .kc-links a:hover,.kc-links button:hover{color:var(--tp);text-decoration:underline;}
 
+  /* Columnas por pantalla: el tablero usa todo el ancho y reparte las columnas para que entren enteras (el resto se desliza) */
+  @media (min-width:1100px){.board{--n:3;}}
+  @media (min-width:1500px){.board{--n:4;}}
+  @media (min-width:1900px){.board{--n:5;}}
+  @media (min-width:2200px){.board{--n:6;}}
+  @media (min-width:2500px){.board{--n:7;}}
+
   .msg{
     font-family:var(--fMono);font-size:12.5px;line-height:1.6;color:var(--ts);
     border:1px dashed var(--border2);border-radius:14px;padding:18px 20px;margin-top:24px;
@@ -145,7 +152,7 @@
   .foot{margin-top:34px;padding-top:20px;border-top:1px solid var(--border);font-family:var(--fMono);font-size:11.5px;color:var(--tm);line-height:1.7;}
 
   @media (max-width:720px){
-    .board{grid-auto-columns:min(380px,88vw);}
+    .board{grid-auto-columns:min(380px,88vw);--gap:14px;}
     .count-line{margin-left:0;width:100%;}
     .ch-row{grid-template-columns:1fr;}
   }
