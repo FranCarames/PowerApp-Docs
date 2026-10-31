@@ -70,6 +70,7 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 2](Acceso/2026-10-11-1842-pruebas-acceso.resultados.json)
   - [Tanda 3](Acceso/3-pruebas-acceso.resultados.json)
   - [Tanda 4](Acceso/4-pruebas-acceso.resultados.json)
+  - [Tanda 5](Acceso/5-pruebas-acceso.resultados.json)
 - [Pruebas de ejercicios](Ejercicios/Pruebas%20de%20ejercicios.html) — Catálogo de ejercicios del Admin: listado, búsqueda y filtro por grupo, alta y edición con sus músculos, borrado, y cómo llegan a los circuitos, a la wiki y a los RMs del alumno (CU-A-01 a CU-A-06).
   - [Tanda 1](Ejercicios/1-pruebas-ejercicios.resultados.json)
   - [Tanda 2](Ejercicios/2-pruebas-ejercicios.resultados.json)
@@ -83,6 +84,7 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 1](Usuarios%20y%20entrenadores/1-pruebas-usuarios.resultados.json)
   - [Tanda 2](Usuarios%20y%20entrenadores/2-pruebas-usuarios.resultados.json)
   - [Tanda 3](Usuarios%20y%20entrenadores/3-pruebas-usuarios.resultados.json)
+  - [Tanda 4](Usuarios%20y%20entrenadores/4-pruebas-usuarios.resultados.json)
 - [Pruebas de membresías](Membresias/Pruebas%20de%20membres%C3%ADas.html) — Tipos de membresía del Admin: listado, alta, edición, baja y reactivación, y cómo llegan al registro de pagos del Entrenador y al historial del alumno (CU-A-20 a CU-A-23).
   - [Tanda 1](Membresias/1-pruebas-membresias.resultados.json)
   - [Tanda 2](Membresias/2-pruebas-membresias.resultados.json)
@@ -93,11 +95,13 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 1](Panel%20y%20navegacion/1-pruebas-navegacion.resultados.json)
   - [Tanda 2 (la 1, adaptada al plan del 25/10)](Panel%20y%20navegacion/2-pruebas-navegacion.resultados.json)
   - [Tanda 3](Panel%20y%20navegacion/3-pruebas-navegacion.resultados.json)
+  - [Tanda 4](Panel%20y%20navegacion/4-pruebas-navegacion.resultados.json)
 - [Pruebas de mi cuenta](Mi%20cuenta/Pruebas%20de%20mi%20cuenta.html) — Mi cuenta con los tres roles: la pantalla de cada uno, los datos personales con sus validaciones y el historial de pagos del alumno (CU-U-06 y CU-U-07).
   - [Tanda 1](Mi%20cuenta/1-pruebas-cuenta.resultados.json)
   - [Tanda 2](Mi%20cuenta/2-pruebas-cuenta.resultados.json)
 - [Pruebas de wiki y temporizador](Wiki%20y%20temporizador/Pruebas%20de%20wiki%20y%20temporizador.html) — Herramientas del alumno: la biblioteca de ejercicios con búsqueda, filtro por grupo muscular y ficha de cada ejercicio, y el temporizador de descanso entre series (CU-U-14 y CU-U-15).
   - [Tanda 1](Wiki%20y%20temporizador/1-pruebas-wiki-timer.resultados.json)
+  - [Tanda 2](Wiki%20y%20temporizador/2-pruebas-wiki-timer.resultados.json)
 - [Pruebas de RMs y calculadora](RMs%20y%20calculadora/Pruebas%20de%20RMs%20y%20calculadora.html) — Los récords del alumno: listado agrupado por ejercicio, registrar, editar y eliminar un RM, y la calculadora que estima el 1RM sin guardarlo (CU-U-16 a CU-U-20).
   - [Tanda 1](RMs%20y%20calculadora/1-pruebas-rms.resultados.json)
 - [Pruebas del detalle del alumno](Detalle%20del%20alumno/Pruebas%20del%20detalle%20del%20alumno.html) — La ficha de un alumno desde el Entrenador: sus datos, sus RMs, su historial de pagos y su historial de entrenamientos con el filtro por ejercicio (CU-E-04 a CU-E-07).
