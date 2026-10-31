@@ -93,6 +93,7 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 1](Panel%20y%20navegacion/1-pruebas-navegacion.resultados.json)
   - [Tanda 2 (la 1, adaptada al plan del 25/10)](Panel%20y%20navegacion/2-pruebas-navegacion.resultados.json)
   - [Tanda 3](Panel%20y%20navegacion/3-pruebas-navegacion.resultados.json)
+  - [Tanda 4](Panel%20y%20navegacion/4-pruebas-navegacion.resultados.json)
 - [Pruebas de mi cuenta](Mi%20cuenta/Pruebas%20de%20mi%20cuenta.html) — Mi cuenta con los tres roles: la pantalla de cada uno, los datos personales con sus validaciones y el historial de pagos del alumno (CU-U-06 y CU-U-07).
   - [Tanda 1](Mi%20cuenta/1-pruebas-cuenta.resultados.json)
   - [Tanda 2](Mi%20cuenta/2-pruebas-cuenta.resultados.json)
