@@ -17,6 +17,21 @@ Los espacios del nombre de archivo van como `%20`. No hay que tocar `index.html`
 
 ## Resultados
 
+## Gravedad de las fallas
+
+Cuando un caso se marca como **Falla**, aparece la fila «Gravedad» para clasificarla en uno de cuatro niveles:
+
+| Nivel | Nombre | Qué significa |
+|---|---|---|
+| 1 | Grave | Tiene que ser arreglado. |
+| 2 | Moderado | Conviene arreglarlo, sin llegar a ser grave. |
+| 3 | Leve | Nice to have, no es bloqueante. |
+| 4 | Diferido | Despriorizado; no compromete la funcionalidad. |
+
+- Elegir la gravedad es opcional: una falla sin nivel queda como «sin clasificar». Si el caso deja de estar en Falla, la gravedad se borra.
+- El plan suma un contador de fallas por gravedad en el resumen, un filtro «Gravedad» junto a los de resultado y entorno, y el nivel en la etiqueta del caso. «Copiar resumen de fallas» las agrupa de la más grave a la menos grave.
+- El export agrega `sev` (1 a 4, o `null` si no se clasificó) a cada caso con falla y un `summary.sev` con el conteo por nivel. Las tandas anteriores no lo traen: sus fallas se leen como «sin clasificar».
+
 Lo que se marca en un plan queda en el `localStorage` del navegador. Para que quede en el repo y se vea desde cualquier dispositivo, cada tanda de pruebas se exporta a un JSON y se lista debajo de su plan:
 
 1. **Exportar resultados** (botón del plan) descarga un JSON con el estado de todos los casos (resultado, nota y fecha). El plan le pone el nombre que va en el repo, con el número de la próxima tanda según este índice: `2-pruebas-acceso.resultados.json`. Si no puede leer el índice (por ejemplo, con el HTML abierto desde `file://`), usa la fecha y hora: `2026-10-11-1711-pruebas-acceso.resultados.json`.
@@ -33,8 +48,8 @@ Exportar solo descarga el archivo y dice qué línea sumar al índice: guardarlo
 
 Con eso, **no hace falta importar a mano**:
 
-- El visor muestra en cada card el avance de la última tanda: el porcentaje de casos aprobados (sobre todos los del plan, redondeado hacia abajo) y cuántos están probados, con falla o por re-testear. El número cambia de color con el nivel: rojo por debajo del 50 %, amarillo hasta el 59 % y tonos de verde desde el 60 %, cada vez más intensos (90 % o más, el verde pleno).
-- Antes de las cards, un **resumen** junta la última tanda de todos los planes: casos aprobados, fallas abiertas, por re-testear y sin probar, y tres escalas que cuentan cuántos planes (sobre todos los del índice; los que no tienen resultados no llegan a ningún umbral) tienen al menos 98 / 95 / 90 / 75 % de aprobados, cuántos están probados por completo o al menos al 95 / 90 / 75 %, y cuántos no tienen fallas, tienen 1 o 2, o 3 o más. Cada fila se despliega para ver qué planes cuenta.
+- El visor muestra en cada card el avance de la última tanda: el porcentaje de casos aprobados (sobre todos los del plan, redondeado hacia abajo) y cuántos están probados, con falla (con el desglose por gravedad) o por re-testear. El número cambia de color con el nivel: rojo por debajo del 50 %, amarillo hasta el 59 % y tonos de verde desde el 60 %, cada vez más intensos (90 % o más, el verde pleno).
+- Antes de las cards, un **resumen** junta la última tanda de todos los planes: casos aprobados, fallas abiertas (con cuántas son graves, moderadas, leves o diferidas), por re-testear y sin probar, y tres escalas que cuentan cuántos planes (sobre todos los del índice; los que no tienen resultados no llegan a ningún umbral) tienen al menos 98 / 95 / 90 / 75 % de aprobados, cuántos están probados por completo o al menos al 95 / 90 / 75 %, y cuántos no tienen fallas, tienen 1 o 2, o 3 o más. Cada fila se despliega para ver qué planes cuenta.
 - Entre el resumen y las cards hay botones para **ordenarlas** (dentro de cada sección): por orden del índice, casos sin probar, % de aprobados, % de probados, fallas o casos por re-testear. Cada criterio arranca poniendo primero lo que más atención pide (más sin probar, menos % aprobados…) y se puede invertir. A igual valor va primero el de menos % de aprobados; los planes sin resultados van siempre al final. El navegador recuerda el último orden elegido.
 - Al abrir el plan, se carga solo la última tanda y se combina con lo del navegador, caso por caso: gana el resultado con la fecha más reciente, así no se pierde lo marcado en el momento.
 

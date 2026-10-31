@@ -103,6 +103,15 @@
   .prog-top .fail{color:var(--red);}
   .prog-top .retest{color:var(--amber);}
   .prog-top .none{color:var(--tm);}
+  /* fallas por gravedad: 1 Grave, 2 Moderado, 3 Leve, 4 Diferido */
+  .prog-sev{display:flex;flex-wrap:wrap;gap:3px 12px;font-family:var(--fMono);font-size:11px;color:var(--ts);}
+  .prog-sev span::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;background:var(--sev);}
+  .prog-sev b{color:var(--tp);font-weight:700;}
+  .prog-sev [data-sev="1"]{--sev:var(--red);}
+  .prog-sev [data-sev="2"]{--sev:#FF6B3D;}
+  .prog-sev [data-sev="3"]{--sev:var(--amber);}
+  .prog-sev [data-sev="4"]{--sev:var(--ts);}
+  .prog-sev [data-sev="u"]{--sev:var(--tm);}
   .prog-bar{display:flex;height:8px;border-radius:5px;overflow:hidden;background:var(--el);}
   .prog-bar span{height:100%;}
   .prog-bar .ok{background:var(--green);}
@@ -208,7 +217,7 @@
   <header>
     <div class="eyebrow">Calidad · Pruebas manuales</div>
     <h1>Planes de <span>prueba</span></h1>
-    <p>Casos paso a paso con el resultado esperado. Cada plan deja marcar si funciona, falla o hay que re-testear, y anotar lo que observes: queda guardado en tu navegador.</p>
+    <p>Casos paso a paso con el resultado esperado. Cada plan deja marcar si funciona, falla o hay que re-testear (y, si falla, qué tan grave es), y anotar lo que observes: queda guardado en tu navegador.</p>
   </header>
 
   <main id="plans" aria-live="polite">
@@ -303,6 +312,10 @@
     return 'g3';
   }
 
+  // Gravedad de las fallas: el número es el nivel que guarda cada plan en `sev` (1 a 4); `u` = falla sin clasificar.
+  var SEVERITIES = [[1, 'Grave', 'grave', 'graves'], [2, 'Moderado', 'moderada', 'moderadas'], [3, 'Leve', 'leve', 'leves'], [4, 'Diferido', 'diferida', 'diferidas']];
+  function sevCounts() { return { 1: 0, 2: 0, 3: 0, 4: 0, u: 0 }; }
+
   // Lee la última tanda de un plan y cuenta sus casos. Cuenta desde `results`, no desde `summary`, para no depender de un resumen viejo.
   // Resuelve null si el plan no tiene tandas y rechaza si no se pudo leer el JSON. La usan la card y el resumen (un solo fetch por plan).
   function loadStats(runs) {
@@ -315,11 +328,16 @@
         if (!res || typeof res !== 'object') throw new Error('sin results');
         var ids = Object.keys(res);
         var n = { ok: 0, fail: 0, retest: 0 };
-        ids.forEach(function (id) { var s = res[id] && res[id].status; if (n[s] !== undefined) n[s]++; });
+        var sev = sevCounts();
+        ids.forEach(function (id) {
+          var s = res[id] && res[id].status;
+          if (n[s] !== undefined) n[s]++;
+          if (s === 'fail') { var v = Number(res[id].sev); sev[v >= 1 && v <= 4 ? v : 'u']++; }
+        });
         var tested = n.ok + n.fail + n.retest;
         var total = ids.length || 1;
         return {
-          data: data, n: n, cases: ids.length, tested: tested, none: ids.length - tested,
+          data: data, n: n, sev: sev, cases: ids.length, tested: tested, none: ids.length - tested,
           // Aprobados sobre todos los casos del plan (como el tramo verde de la barra). Se redondea hacia abajo: 100 % solo si no falta ninguno.
           passPct: Math.floor(n.ok * 100 / total),
           testPct: Math.floor(tested * 100 / total)
@@ -356,6 +374,19 @@
         top.appendChild(el('span', 'retest', n.retest + ' por re-testear'));
         top.appendChild(el('span', 'none', st.none + ' sin probar'));
         box.appendChild(top);
+        if (n.fail) {
+          var sv = el('div', 'prog-sev');
+          sv.setAttribute('aria-label', 'Fallas por gravedad');
+          SEVERITIES.concat([['u', 'Sin clasificar']]).forEach(function (s) {
+            if (!st.sev[s[0]]) return;
+            var one = el('span');
+            one.setAttribute('data-sev', String(s[0]));
+            one.appendChild(el('b', null, String(st.sev[s[0]])));
+            one.appendChild(document.createTextNode(' ' + s[1]));
+            sv.appendChild(one);
+          });
+          box.appendChild(sv);
+        }
 
         var bar = el('div', 'prog-bar');
         bar.setAttribute('role', 'img');
@@ -425,13 +456,14 @@
       return p.then(function (s) { return { s: s }; }, function () { return { err: true }; });
     })).then(function (out) {
       box.removeChild(wait);
-      var withRes = [], errors = 0, tot = { cases: 0, ok: 0, fail: 0, retest: 0, none: 0 }, failPlans = 0;
+      var withRes = [], errors = 0, tot = { cases: 0, ok: 0, fail: 0, retest: 0, none: 0 }, totSev = sevCounts(), failPlans = 0;
       out.forEach(function (o, i) {
         if (o.err) { errors++; return; }
         if (!o.s) return;
         withRes.push(plans[i]);
         tot.cases += o.s.cases; tot.ok += o.s.n.ok; tot.fail += o.s.n.fail; tot.retest += o.s.n.retest; tot.none += o.s.none;
         if (o.s.n.fail) failPlans++;
+        Object.keys(totSev).forEach(function (k) { totSev[k] += o.s.sev[k]; });
       });
       var base = withRes.length + ' de ' + plans.length + ' planes con resultados';
 
@@ -439,8 +471,11 @@
       var passPct = tot.cases ? Math.floor(tot.ok * 100 / tot.cases) : 0;
       var v = kpi(kpis, 'Casos aprobados', passPct + '%', 'prog-pct', tot.ok + ' de ' + tot.cases + ' casos · ' + base);
       v.setAttribute('data-tone', pctTone(passPct));
+      var sevTxt = SEVERITIES.concat([['u', 'Sin clasificar', 'sin clasificar', 'sin clasificar']])
+        .filter(function (s) { return totSev[s[0]]; })
+        .map(function (s) { return totSev[s[0]] + ' ' + (totSev[s[0]] === 1 ? s[2] : s[3]); }).join(' · ');
       kpi(kpis, 'Fallas abiertas', String(tot.fail), 'fail',
-        failPlans ? 'en ' + failPlans + (failPlans === 1 ? ' plan' : ' planes') : 'ningún plan con fallas');
+        failPlans ? 'en ' + failPlans + (failPlans === 1 ? ' plan' : ' planes') + (sevTxt ? ' · ' + sevTxt : '') : 'ningún plan con fallas');
       kpi(kpis, 'Por re-testear', String(tot.retest), 'retest', 'casos a volver a probar');
       kpi(kpis, 'Sin probar', String(tot.none), 'none', 'casos sin marcar en la última tanda');
       box.appendChild(kpis);
