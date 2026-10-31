@@ -38,8 +38,12 @@ Permite a una persona crear una cuenta de alumno en PowerApp, generando un regis
 ## Camino principal (flujo básico)
 
 1. El visitante abre la pantalla de registro.
-2. Ingresa sus datos personales (nombre, email, contraseña).
-3. El sistema valida el formato de los datos y la unicidad del email.
+2. Ingresa sus datos personales: nombre, apellido, email, teléfono (código de país y número) y contraseña.
+3. El sistema valida el formato de los datos y la unicidad del email. Para el teléfono:
+   - El número tiene solo dígitos, hasta 20. El largo cuenta solo los dígitos.
+   - La pantalla acepta espacios y guiones mientras el usuario escribe y los saca antes de enviar: se guardan solo los dígitos.
+   - El código de país es «+» seguido de 1 a 4 dígitos (y no pasa de 10 caracteres).
+   - El tope de largo se controla antes que el formato.
 4. El sistema hashea la contraseña y persiste un nuevo registro User con role = usuario.
 5. El sistema confirma el alta y redirige a la pantalla de login.
 
@@ -53,7 +57,7 @@ Permite a una persona crear una cuenta de alumno en PowerApp, generando un regis
 
 ### En el paso 3 — Datos inválidos
 
-1. Formato de email/contraseña inválido o campos obligatorios faltantes.
+1. Formato de email, contraseña o teléfono inválido (por ejemplo, un teléfono con letras («abc») o un código de país que no es «+» con 1 a 4 dígitos) o campos obligatorios faltantes.
 2. El sistema marca los errores en el formulario y no persiste nada.
 
 ### En el paso 4 — Error de persistencia
