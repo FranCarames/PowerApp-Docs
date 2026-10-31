@@ -63,6 +63,7 @@
   }
   .chip:hover{color:var(--tp);border-color:var(--border2);background:var(--el);}
   .chip[aria-pressed="true"]{color:var(--tp);border-color:color-mix(in srgb,var(--amber) 55%,transparent);background:color-mix(in srgb,var(--amber) 12%,transparent);}
+  #f-deferred[aria-pressed="true"]{border-color:color-mix(in srgb,var(--ts) 65%,transparent);background:color-mix(in srgb,var(--ts) 14%,transparent);}
   .count-line{margin-left:auto;font-family:var(--fMono);font-size:11.5px;color:var(--ts);}
 
   /* Pills de plan: una por plan, se pueden combinar varias */
@@ -183,6 +184,7 @@
     <label for="f-q" class="sr" style="position:absolute;left:-9999px">Buscar</label>
     <input type="search" id="f-q" placeholder="Buscar por caso, título o nota">
     <button type="button" class="chip" id="f-retest" aria-pressed="true">Incluir re-testear</button>
+    <button type="button" class="chip" id="f-deferred" aria-pressed="true">Incluir diferidos</button>
     <span class="count-line" id="count-line" aria-live="polite"></span>
   </div>
   <div class="plans-row" id="f-plans" role="group" aria-label="Filtrar por plan"><span class="lbl">Plan</span></div>
@@ -229,7 +231,7 @@
 
   var plans = [];       // [{ title, short, href, folder, key, id, data, nextRun, cases: { id: {base, cur} }, order: [] }]
   var items = [];       // todos los casos que el tablero maneja
-  var filters = { plans: {}, q: '', retest: true };   // plans: { <id del plan>: true } con los planes elegidos; vacío = todos
+  var filters = { plans: {}, q: '', retest: true, deferred: true };   // plans: { <id del plan>: true } con los planes elegidos; vacío = todos
   var dragging = null;
   var storageOk = true;
 
@@ -380,12 +382,17 @@
   }
 
   // ── Render ──
-  // Con «Incluir re-testear» apagado, la columna Re-testear no se muestra (ni su botón en las tarjetas) y esos casos no se cuentan.
-  function visibleCols() { return COLS.filter(function (c) { return filters.retest || c.k !== 'retest'; }); }
-  function isOpen(i) { return i.cur.status !== 'ok' && (filters.retest || i.cur.status !== 'retest'); }
+  // Con «Incluir re-testear» o «Incluir diferidos» apagados, la columna correspondiente no se muestra (ni su botón en las tarjetas)
+  // y esos casos no se cuentan.
+  function visibleCols() { return COLS.filter(function (c) { return (filters.retest || c.k !== 'retest') && (filters.deferred || c.k !== '4'); }); }
+  function isOpen(i) {
+    if (i.cur.status === 'ok') return false;
+    return (filters.retest || i.cur.status !== 'retest') && (filters.deferred || placeOf(i.cur) !== '4');
+  }
   function visible(item) {
     if (Object.keys(filters.plans).length && !filters.plans[item.plan.id]) return false;
     if (!filters.retest && item.cur.status === 'retest') return false;
+    if (!filters.deferred && placeOf(item.cur) === '4') return false;
     if (filters.q) {
       var q = filters.q.toLowerCase();
       var hay = (item.id + ' ' + item.title + ' ' + item.cur.note + ' ' + item.plan.short).toLowerCase();
@@ -665,11 +672,14 @@
     });
     var q = $('#f-q'), t = null;
     q.addEventListener('input', function () { clearTimeout(t); t = setTimeout(function () { filters.q = q.value.trim(); render(); }, 150); });
-    var rt = $('#f-retest');
-    rt.addEventListener('click', function () {
-      filters.retest = !filters.retest;
-      rt.setAttribute('aria-pressed', String(filters.retest));
-      render();
+    // Pills que muestran u ocultan una columna (y sus casos) del tablero: Incluir re-testear / Incluir diferidos.
+    [['#f-retest', 'retest'], ['#f-deferred', 'deferred']].forEach(function (x) {
+      var btn = $(x[0]);
+      btn.addEventListener('click', function () {
+        filters[x[1]] = !filters[x[1]];
+        btn.setAttribute('aria-pressed', String(filters[x[1]]));
+        render();
+      });
     });
   }
 
