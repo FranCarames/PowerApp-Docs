@@ -104,6 +104,7 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 1](Detalle%20del%20alumno/1-pruebas-detalle-alumno.resultados.json)
   - [Tanda 2 (la 1, adaptada al plan del 25/10)](Detalle%20del%20alumno/2-pruebas-detalle-alumno.resultados.json)
   - [Tanda 3](Detalle%20del%20alumno/3-pruebas-detalle-alumno.resultados.json)
+  - [Tanda 4](Detalle%20del%20alumno/4-pruebas-detalle-alumno.resultados.json)
 - [Pruebas de membresías del entrenador](Membresias%20del%20entrenador/Pruebas%20de%20membres%C3%ADas%20del%20entrenador.html) — El control de membresías del Entrenador: contadores por estado, alumnos filtrados por estado y por tipo, y el registro de un pago (CU-E-25 a CU-E-29).
   - [Tanda 1](Membresias%20del%20entrenador/1-pruebas-membresias-entrenador.resultados.json)
   - [Tanda 2 (la 1, adaptada al plan del 25/10)](Membresias%20del%20entrenador/2-pruebas-membresias-entrenador.resultados.json)
