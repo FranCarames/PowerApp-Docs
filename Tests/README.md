@@ -73,6 +73,7 @@ Con eso, **no hace falta importar a mano**:
 - [Pruebas de ejercicios](Ejercicios/Pruebas%20de%20ejercicios.html) — Catálogo de ejercicios del Admin: listado, búsqueda y filtro por grupo, alta y edición con sus músculos, borrado, y cómo llegan a los circuitos, a la wiki y a los RMs del alumno (CU-A-01 a CU-A-06).
   - [Tanda 1](Ejercicios/1-pruebas-ejercicios.resultados.json)
   - [Tanda 2](Ejercicios/2-pruebas-ejercicios.resultados.json)
+  - [Tanda 3](Ejercicios/3-pruebas-ejercicios.resultados.json)
 - [Pruebas de músculos y grupos](Musculos/Pruebas%20de%20m%C3%BAsculos%20y%20grupos.html) — Catálogo del Admin: alta, edición, detalle y borrado de grupos musculares y músculos, y cómo llegan a Ejercicios y a la wiki del alumno (CU-A-07 a CU-A-15).
   - [Tanda 1](Musculos/1-pruebas-musculos.resultados.json)
   - [Tanda 2](Musculos/2-pruebas-musculos.resultados.json)
@@ -103,6 +104,7 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 1](Detalle%20del%20alumno/1-pruebas-detalle-alumno.resultados.json)
   - [Tanda 2 (la 1, adaptada al plan del 25/10)](Detalle%20del%20alumno/2-pruebas-detalle-alumno.resultados.json)
   - [Tanda 3](Detalle%20del%20alumno/3-pruebas-detalle-alumno.resultados.json)
+  - [Tanda 4](Detalle%20del%20alumno/4-pruebas-detalle-alumno.resultados.json)
 - [Pruebas de membresías del entrenador](Membresias%20del%20entrenador/Pruebas%20de%20membres%C3%ADas%20del%20entrenador.html) — El control de membresías del Entrenador: contadores por estado, alumnos filtrados por estado y por tipo, y el registro de un pago (CU-E-25 a CU-E-29).
   - [Tanda 1](Membresias%20del%20entrenador/1-pruebas-membresias-entrenador.resultados.json)
   - [Tanda 2 (la 1, adaptada al plan del 25/10)](Membresias%20del%20entrenador/2-pruebas-membresias-entrenador.resultados.json)
