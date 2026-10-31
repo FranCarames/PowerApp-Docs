@@ -105,6 +105,7 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 2](Wiki%20y%20temporizador/2-pruebas-wiki-timer.resultados.json)
 - [Pruebas de RMs y calculadora](RMs%20y%20calculadora/Pruebas%20de%20RMs%20y%20calculadora.html) — Los récords del alumno: listado agrupado por ejercicio, registrar, editar y eliminar un RM, y la calculadora que estima el 1RM sin guardarlo (CU-U-16 a CU-U-20).
   - [Tanda 1](RMs%20y%20calculadora/1-pruebas-rms.resultados.json)
+  - [Tanda 2](RMs%20y%20calculadora/2-pruebas-rms.resultados.json)
 - [Pruebas del detalle del alumno](Detalle%20del%20alumno/Pruebas%20del%20detalle%20del%20alumno.html) — La ficha de un alumno desde el Entrenador: sus datos, sus RMs, su historial de pagos y su historial de entrenamientos con el filtro por ejercicio (CU-E-04 a CU-E-07).
   - [Tanda 1](Detalle%20del%20alumno/1-pruebas-detalle-alumno.resultados.json)
   - [Tanda 2 (la 1, adaptada al plan del 25/10)](Detalle%20del%20alumno/2-pruebas-detalle-alumno.resultados.json)
