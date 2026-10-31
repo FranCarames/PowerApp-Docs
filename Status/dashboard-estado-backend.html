@@ -200,9 +200,9 @@
   <header class="mast">
     <div class="eyebrow"><span class="dot"></span> PowerApp Backend · NestJS · Auditoría de cobertura</div>
     <h1>Estado de implementación frente a los Casos de Uso</h1>
-    <p class="lede">Mapeo uno a uno de los 75 casos de uso especificados contra los <em>controllers</em> y <em>services</em> presentes en el código. Un CU cuenta como implementado sólo si su endpoint existe, ejecuta lógica real y cumple <em>todos</em> los caminos de su spec.</p>
+    <p class="lede">Mapeo uno a uno de los 77 casos de uso especificados contra los <em>controllers</em> y <em>services</em> presentes en el código. Un CU cuenta como implementado sólo si su endpoint existe, ejecuta lógica real y cumple <em>todos</em> los caminos de su spec.</p>
     <div class="meta">
-      <span><b>75</b> casos de uso</span>
+      <span><b>77</b> casos de uso</span>
       <span><b>9</b> módulos</span>
       <span>Fuente: <b>Use Cases/</b> (PowerApp-Docs) vs <b>power-app/src</b></span>
       <span>Corte: <b>2026-10-31</b></span>
@@ -211,10 +211,10 @@
 
   <!-- OVERALL -->
   <section>
-    <div class="sec-head"><h2>Panorama general</h2><span class="kicker">75 CU clasificados</span></div>
+    <div class="sec-head"><h2>Panorama general</h2><span class="kicker">77 CU clasificados</span></div>
     <div class="tiles">
       <div class="tile done">
-        <div class="n">73</div><div class="lbl">Implementado</div><div class="pct">97% · cumple su spec</div>
+        <div class="n">75</div><div class="lbl">Implementado</div><div class="pct">97% · cumple su spec</div>
       </div>
       <div class="tile partial">
         <div class="n">1</div><div class="lbl">Parcial</div><div class="pct">1% · un camino sin cumplir</div>
@@ -228,13 +228,13 @@
     </div>
 
     <div class="bar-block">
-      <div class="bar" role="img" aria-label="73 implementados, 1 parcial, 0 andamiaje, 0 no implementados y 1 sin backend, de 75">
-        <span class="s-done" style="width:97.33%"></span>
-        <span class="s-partial" style="width:1.33%"></span>
-        <span class="s-client" style="width:1.33%"></span>
+      <div class="bar" role="img" aria-label="75 implementados, 1 parcial, 0 andamiaje, 0 no implementados y 1 sin backend, de 77">
+        <span class="s-done" style="width:97.40%"></span>
+        <span class="s-partial" style="width:1.30%"></span>
+        <span class="s-client" style="width:1.30%"></span>
       </div>
       <div class="bar-cap">
-        <span><b>73 de los 74</b> CU con backend completos (99%) · <span class="warn">⚠</span> 1 con un defecto abierto (A-04)</span>
+        <span><b>75 de los 76</b> CU con backend completos (99%) · <span class="warn">⚠</span> 1 con un defecto abierto (A-04)</span>
         <span><b>1</b> pendiente (U-04, parcial) · ninguno sin endpoint ni en andamiaje · 1 sin backend (U-14)</span>
       </div>
     </div>
@@ -262,14 +262,14 @@
       </div>
 
       <div class="role-card">
-        <h3>Entrenador <em>32 CU</em></h3>
+        <h3>Entrenador <em>34 CU</em></h3>
         <div class="role-pct" style="color:var(--done)">100%</div>
-        <div class="role-sub">32 de 32 · circuitos, rutinas, planificaciones, la asignación individual, el historial y asignar y quitar planificaciones cerrados</div>
+        <div class="role-sub">34 de 34 · circuitos, rutinas, planificaciones (con sus rutinas por semana: armarlas, ordenarlas y repetirlas), la asignación individual, el historial y asignar y quitar planificaciones cerrados</div>
         <div class="mini-bar">
           <span style="width:100%;background:var(--done)"></span>
         </div>
         <div class="role-legend">
-          <i><span class="swatch" style="background:var(--done)"></span><b>32</b> impl.</i>
+          <i><span class="swatch" style="background:var(--done)"></span><b>34</b> impl.</i>
         </div>
       </div>
 
@@ -315,7 +315,7 @@
           <tr><td class="cu">2</td><td class="name">Bloque A: rutina puntual y ejecución <span class="muted">· BE-09 a BE-16</span></td><td class="endpoint">20 al 27/10</td><td><b>H2:</b> el flujo puntual de punta a punta: asignar → ver → marcar → nota → historial</td><td><span class="chip done"><span class="cd"></span>Cerrada 18/10</span></td></tr>
           <tr><td class="cu">⏱</td><td class="name">Regenerar la base de Render <span class="muted">· BE-23</span></td><td class="endpoint">30/10 al 1/11</td><td>La base nueva con el esquema y el seed completos, antes de que venza la vieja (≈ 2/11, sin verificar)</td><td><span class="muted">fecha fija · runbook listo (23/10): lo ejecuta el usuario</span></td></tr>
           <tr><td class="cu">3</td><td class="name">Bloque B: asignar planificaciones <span class="muted">· BE-17 a BE-23</span></td><td class="endpoint">28/10 al 5/11</td><td><b>H3:</b> los 74 CU con backend tienen código</td><td><span class="chip partial"><span class="cd"></span>En curso</span> <span class="muted">BE-17, BE-18, BE-18b, BE-19, BE-20, BE-20e, BE-20b, BE-20c, BE-20d y BE-21 (20 a 23/10)</span></td></tr>
-          <tr><td class="cu">4</td><td class="name">Brechas de CU y deuda <span class="muted">· BE-24 a BE-34</span></td><td class="endpoint">3 al 12/11</td><td><b>H4:</b> ningún parcial y el Swagger completo</td><td><span class="chip partial"><span class="cd"></span>En curso</span> <span class="muted">BE-24, BE-25 y BE-26 adelantadas (22/10); BE-27, BE-28 y BE-30 (24/10); BE-41 (31/10)</span></td></tr>
+          <tr><td class="cu">4</td><td class="name">Brechas de CU y deuda <span class="muted">· BE-24 a BE-34</span></td><td class="endpoint">3 al 12/11</td><td><b>H4:</b> ningún parcial y el Swagger completo</td><td><span class="chip partial"><span class="cd"></span>En curso</span> <span class="muted">BE-24, BE-25 y BE-26 adelantadas (22/10); BE-27, BE-28 y BE-30 (24/10); BE-41, BE-42 y BE-43 (31/10)</span></td></tr>
           <tr><td class="cu">5</td><td class="name">Verificación y cierre <span class="muted">· BE-35 a BE-39</span></td><td class="endpoint">12 al 17/11</td><td><b>H5:</b> criterios de "backend terminado" cumplidos y código congelado</td><td></td></tr>
         </tbody>
       </table>
@@ -332,12 +332,12 @@
         </thead>
         <tbody>
           <tr class="pkg"><td colspan="4"><span class="pkg-lbl">Administrar mi cuenta</span></td></tr>
-          <tr><td class="cu">CU-U-01</td><td class="name">Registrar usuario</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /users/register <span class="muted">· siempre crea un alumno; otro <code>role</code> da 400 (16/10)</span></td></tr>
+          <tr><td class="cu">CU-U-01</td><td class="name">Registrar usuario</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /users/register <span class="muted">· siempre crea un alumno; otro <code>role</code> da 400 (16/10) · el teléfono es <code>+</code> y 1 a 4 dígitos de código de país y sólo dígitos en el número, o 400 (BE-43, 31/10)</span></td></tr>
           <tr><td class="cu">CU-U-02</td><td class="name">Login</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /users/login <span class="muted">· <code>password_change_required</code> si se entró con la temporal (16/10)</span></td></tr>
           <tr><td class="cu">CU-U-03</td><td class="name">Cerrar sesión</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /users/logout</td></tr>
           <tr><td class="cu">CU-U-04</td><td class="name">Recuperar contraseña</td><td><span class="chip partial"><span class="cd"></span>Parcial</span></td><td class="endpoint"><span class="verb">POST</span> /users/recover-password <span class="muted">· genera la temporal pero no envía el mail · BE-29</span></td></tr>
           <tr><td class="cu">CU-U-05</td><td class="name">Cambiar contraseña</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /users/change-password <span class="muted">· acepta la actual o la temporal; la confirmación se valida en el front</span></td></tr>
-          <tr><td class="cu">CU-U-06</td><td class="name">Editar datos personales</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /users/edit <span class="muted">· sobre el propio registro; la lectura <code>/users/get/:id</code> con <code>@Owner</code> (16/10)</span></td></tr>
+          <tr><td class="cu">CU-U-06</td><td class="name">Editar datos personales</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /users/edit <span class="muted">· sobre el propio registro; la lectura <code>/users/get/:id</code> con <code>@Owner</code> (16/10) · el teléfono, si viene, tiene el mismo formato que en el alta, o 400 (BE-43, 31/10)</span></td></tr>
           <tr><td class="cu">CU-U-07</td><td class="name">Obtener historial de pagos</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /membership/payment/user/:id <span class="muted">· <code>@Owner</code>, del más reciente al más viejo (16/10)</span></td></tr>
 
           <tr class="pkg"><td colspan="4"><span class="pkg-lbl">Mi entrenamiento</span></td></tr>
@@ -363,7 +363,7 @@
 
   <!-- DETAIL: ENTRENADOR -->
   <section>
-    <div class="sec-head"><h2>Rol Entrenador</h2><span class="kicker">32 CU · 100% implementado</span></div>
+    <div class="sec-head"><h2>Rol Entrenador</h2><span class="kicker">34 CU · 100% implementado</span></div>
     <div class="table-scroll">
       <table>
         <thead>
@@ -381,14 +381,16 @@
 
           <tr class="pkg"><td colspan="4"><span class="pkg-lbl">Administrar planificaciones</span></td></tr>
           <tr><td class="cu">CU-E-08</td><td class="name">Obtener planificaciones sistémicas</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /planification/all <span class="muted">· keyword/type/include_inactive + routine_count</span></td></tr>
-          <tr><td class="cu">CU-E-09</td><td class="name">Crear planificación sistémica</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/create <span class="muted">· 201 con el detalle · <code>duration</code> en semanas, obligatoria (17/10)</span></td></tr>
+          <tr><td class="cu">CU-E-09</td><td class="name">Crear planificación sistémica</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/create <span class="muted">· 201 con el detalle · <code>duration</code> en semanas, obligatoria (17/10) · <code>weeks</code> opcional: crea la cabecera y las rutinas de cada semana en <b>una transacción</b>, todo o nada; 400 por semana repetida, fuera de la duración o rutinas de baja, 404 por rutinas inexistentes (BE-42, 31/10)</span></td></tr>
           <tr><td class="cu">CU-E-10</td><td class="name">Editar planificación sistémica</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/edit/:id <span class="muted">· 400 si está de baja · el opcional omitido borra · <code>duration</code> obligatoria; 400 si queda por debajo de una semana en uso (17/10) · <code>updated_at</code> nuevo al editar (24/10, BE-30)</span></td></tr>
           <tr><td class="cu">CU-E-11</td><td class="name">Eliminar planificación sistémica (lógico)</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/set-active/:id <span class="muted">· baja y reactivación</span></td></tr>
-          <tr><td class="cu">CU-E-12</td><td class="name">Gestionar rutinas de una planificación</td><td><span class="muted">agrupador</span></td><td class="endpoint"><span class="muted">no se cuenta: agrupa a E-12a → E-12d</span></td></tr>
+          <tr><td class="cu">CU-E-12</td><td class="name">Gestionar rutinas de una planificación</td><td><span class="muted">agrupador</span></td><td class="endpoint"><span class="muted">no se cuenta: agrupa a E-12a → E-12f</span></td></tr>
           <tr><td class="cu">CU-E-12a</td><td class="name">Asignar una rutina a planificación</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/routine/assign <span class="muted">· <code>week</code> obligatoria (≤ <code>duration</code> si es &gt; 0); order opcional, al final de esa semana si se omite (17/10)</span></td></tr>
           <tr><td class="cu">CU-E-12b</td><td class="name">Asignar rutinas en lote</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/routine/assign-bulk <span class="muted">· transaccional, una semana por lote, consecutivas al final de la semana (17/10)</span></td></tr>
           <tr><td class="cu">CU-E-12c</td><td class="name">Quitar o reincorporar una rutina (lógico)</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/routine/set-active/:id <span class="muted">· la baja conserva semana y orden; week y order opcionales al reincorporar (17/10)</span></td></tr>
           <tr><td class="cu">CU-E-12d</td><td class="name">Quitar o reincorporar rutinas en lote (lógico)</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/routine/set-active-bulk <span class="muted">· transaccional; cada una vuelve a su lugar, 400 si alguna queda fuera de la duración (17/10)</span></td></tr>
+          <tr><td class="cu">CU-E-12e</td><td class="name">Reordenar las rutinas de una semana</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/routine/reorder <span class="muted">· la lista tiene que ser exactamente las vigentes de la semana (400 «La lista no coincide…» si no); las renumera 1..n en una transacción; las quitadas y las otras semanas no se tocan · 200 con el detalle (BE-42, 31/10)</span></td></tr>
+          <tr><td class="cu">CU-E-12f</td><td class="name">Repetir una semana en otras semanas</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/routine/repeat-week <span class="muted">· copia las vigentes de <code>from_week</code>, en su orden, al final de cada semana de <code>to_weeks</code> (1 a 50, distintas) · todo o nada, en una transacción · 201 con el detalle (BE-42, 31/10)</span></td></tr>
           <tr><td class="cu">CU-E-13</td><td class="name">Asignar planificación a alumno</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/user/assign <span class="muted">· sólo coach (403 sin su fila activa en Coach) · el fin por defecto es el domingo de la semana duration; obligatorio con duración 0 · 409 con las que se pisan, salvo confirm_overlap: true (BE-18b, 21/10)</span></td></tr>
           <tr><td class="cu">CU-E-14</td><td class="name">Eliminar planificación a alumno</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/user/set-active/:id <span class="muted">· quitar y reincorporar, coach y admin · 400 si ya está en ese estado · sin cascada y sin volver a chequear el solapamiento · el paso 1: </span><span class="verb">GET</span> /planification/user/:userId <span class="muted">(BE-19, 21/10)</span></td></tr>
 
@@ -478,7 +480,7 @@
 
   <footer>
     <span>PowerApp Backend · auditoría de casos de uso</span>
-    <span>73 impl · 1 parc · 0 andam · 0 falta · 1 sin backend — de 75 · corte 2026-10-31</span>
+    <span>75 impl · 1 parc · 0 andam · 0 falta · 1 sin backend — de 77 · corte 2026-10-31</span>
   </footer>
 
 </div>
