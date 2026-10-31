@@ -17,6 +17,14 @@ Los espacios del nombre de archivo van como `%20`. No hay que tocar `index.html`
 
 ## Resultados
 
+## Tablero de fallas
+
+[`errores.html`](errores.html) junta las fallas y los casos por re-testear de la última tanda de todos los planes, en columnas por gravedad (Re-testear, Sin clasificar, 1 a 4 y Funciona). Sirve para recategorizar a mano: se arrastra la tarjeta a otra columna (o se usan los botones de la tarjeta), se edita la nota y se filtra por plan o texto.
+
+- Lo que se mueve queda en el `localStorage` del navegador, en la misma clave que usa el plan, así que el plan también lo muestra.
+- Para llevarlo al repo, el panel «Cambios sin exportar» genera una tanda nueva por plan con el mismo formato que «Exportar resultados» y muestra la línea para sumar a este índice.
+- No se abre por `file://`: hay que servirlo por HTTP, como los otros visores.
+
 ## Gravedad de las fallas
 
 Cuando un caso se marca como **Falla**, aparece la fila «Gravedad» para clasificarla en uno de cuatro niveles:
