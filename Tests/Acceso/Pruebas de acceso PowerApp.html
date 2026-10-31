@@ -252,7 +252,7 @@ tr:last-child td{border-bottom:0}
           <li><b>La contraseña temporal:</b> el backend todavía no manda mails (BE-29, C4 en la web). En local aparece en su consola como <code>[EMAIL STUB] Contraseña temporal para …</code>, pero solo con <code>LOG_TEMP_PASSWORD=true</code> en el <code>.env</code> del backend (reiniciá el backend después de sumarla). En Render no se loguea: la temporal no le llega a nadie.</li>
           <li><b>DevTools:</b> en Network, filtrá por <code>users</code> para ver qué requests salen. En Application › Local Storage, la clave <code>powerapp.session</code> es la sesión. Para simular que no hay conexión, Network › Offline.</li>
           <li><b>Orden sugerido:</b> Registro, Login, Recuperar, Cambio obligatorio, Cambio voluntario, Cerrar sesión y Navegación. REC-01 te da la temporal que usan LOG-10, REC-06, REC-07, REC-08 y CPO-08.</li>
-          <li><b>Lo que se sabe que hoy falla</b> está marcado con un aviso amarillo: REC-09, porque el backend todavía no manda mails (BE-29). Marcalo igual: así queda registrado cuándo se arregla.</li>
+          <li><b>Lo que se sabe que hoy falla</b> está marcado con un aviso amarillo: REC-09, porque el backend todavía no manda mails (BE-29), y REG-10, porque el alta deja pasar un teléfono con letras (T54). Marcalo igual: así queda registrado cuándo se arregla.</li>
         </ul>
       </div>
       <div>
@@ -353,6 +353,11 @@ tr:last-child td{border-bottom:0}
       data: `Registrá ${tok('  Prueba.Mayus@Gmail.com  ')} con los espacios.`,
       steps: ['Hacé el alta con ese email.', `Iniciá sesión con ${tok('prueba.mayus@gmail.com')}.`],
       exp: '<p>El alta pasa, porque los espacios se recortan, y el login en minúsculas entra, porque el backend guarda el email en minúsculas.</p>' },
+    { id: 'REG-10', g: 'reg', t: 'Teléfono con letras', env: ['TODOS'],
+      data: `Teléfono ${tok('abc')} · código de país ${tok('abc')}`,
+      steps: ['Completá el resto del formulario con datos válidos y dejá el +54.', `Escribí ${tok('abc')} como teléfono y tocá ${ui('Registrarme')}.`, `Poné un teléfono válido, escribí ${tok('abc')} como código de país y tocá ${ui('Registrarme')}.`],
+      exp: `<p>Con «abc» como teléfono, bajo Teléfono sale ${ui('El teléfono solo puede tener números')}. Con «abc» como código de país, sale ${ui('Ingresá el código de país con + y números, por ejemplo +54')}. En Network no sale ningún request. (CU-U-01, caminos alternativos)</p>`,
+      kt: 'Hoy no cumple el CU.', known: 'El alta deja pasar cualquier texto en el teléfono y en el código de país: el front solo mira su largo y sale el <code>POST /users/register</code>. Lo arregla la T54 (web). Marcalo Falla mientras salga el request.' },
 
     // ── Login ────────────────────────────────────────────────
     { id: 'LOG-01', g: 'log', t: 'Ingreso de un alumno', env: ['LOCAL', 'RENDER'],
