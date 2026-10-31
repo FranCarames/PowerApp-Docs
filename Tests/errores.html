@@ -198,7 +198,7 @@
 
   <footer class="foot">
     Sale de la última tanda de cada plan listada en <code>Tests/README.md</code>, combinada con lo que haya en este navegador (gana lo más reciente, igual que en los planes).<br>
-    Sin arrastrar (celular o teclado): los botones <b>↻ ? 1 2 3 4 ✓</b> de cada tarjeta la pasan a Re-testear, Sin clasificar, los cuatro niveles o Funciona.
+    Sin arrastrar (celular o teclado): los botones <b>↻ 1 2 3 4 ✓ ?</b> de cada tarjeta la pasan a Re-testear, los cuatro niveles, Funciona o Sin clasificar.
   </footer>
 
 </div>
@@ -207,15 +207,16 @@
 (function () {
   'use strict';
 
-  // Columnas del tablero. `k` es el lugar: retest | u (falla sin clasificar) | 1 a 4 (gravedad) | ok.
+  // Columnas del tablero, en el orden en que se muestran. `k` es el lugar: retest | 1 a 4 (gravedad) | ok | u (falla sin clasificar).
+  // «Sin clasificar» va al final: una vez recategorizado todo, es la que menos se mira.
   var COLS = [
     { k: 'retest', label: 'Re-testear', btn: '↻', hint: 'Todavía no es una falla confirmada', c: 'var(--amber)' },
-    { k: 'u', label: 'Sin clasificar', btn: '?', hint: 'Falla sin gravedad elegida', c: 'var(--ts)' },
     { k: '1', label: '1 · Grave', btn: '1', hint: 'Tiene que ser arreglado', c: '#F08030' },
     { k: '2', label: '2 · Moderado', btn: '2', hint: 'Conviene arreglarlo, sin llegar a ser grave', c: '#6890F0' },
     { k: '3', label: '3 · Leve', btn: '3', hint: 'Nice to have, no es bloqueante', c: '#78C850' },
     { k: '4', label: '4 · Diferido', btn: '4', hint: 'Despriorizado, no compromete la funcionalidad', c: '#8892A8' },
-    { k: 'ok', label: 'Funciona', btn: '✓', hint: 'Soltá acá lo que en realidad anda', c: 'var(--green)' }
+    { k: 'ok', label: 'Funciona', btn: '✓', hint: 'Soltá acá lo que en realidad anda', c: 'var(--green)' },
+    { k: 'u', label: 'Sin clasificar', btn: '?', hint: 'Falla sin gravedad elegida', c: 'var(--ts)' }
   ];
 
   var plans = [];       // [{ title, short, href, folder, key, id, data, nextRun, cases: { id: {base, cur} }, order: [] }]
