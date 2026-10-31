@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 // Levanta los resultados nuevos de Tests/<plan>/ y los commitea en la rama `tests-results`.
 //
-//   node .claude/tools/ingest-test-results.js            una pasada
-//   node .claude/tools/ingest-test-results.js --watch    una pasada cada 1 min hasta que se corte
+//   node .claude/tools/ingest-test-results.js
 //
 // Por cada `N-<plan>.resultados.json` nuevo (sin trackear) en la carpeta de un plan:
 //   1. lo valida contra el HTML del plan (plan, casos, resumen) y contra el índice (N = próxima tanda);
 //   2. lo copia y suma el sub-bullet «Tanda N» en Tests/README.md;
-//   3. hace UN commit atómico (el JSON + el README): «Tests: tanda N de <plan>».
+//   3. hace UN commit atómico (el JSON + el README): «Tests: tanda N de <plan>»;
+//   4. borra la copia local ya commiteada.
+// Si hay varios, van del más viejo al más nuevo (por fecha de modificación; dentro de un plan, por tanda).
 // Nunca toca main ni el checkout actual: trabaja en un worktree de la rama, en .git/tests-results-wt.
 // Lo que no valida no se commitea: queda dicho en la salida y el archivo se deja donde estaba.
 const fs = require('fs');
@@ -19,7 +20,6 @@ const BASE = 'main';
 const ROOT = execFileSync('git', ['rev-parse', '--show-toplevel'], { cwd: __dirname, encoding: 'utf8' }).trim();
 const GITDIR = path.resolve(ROOT, execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: ROOT, encoding: 'utf8' }).trim());
 const WT = path.join(GITDIR, 'tests-results-wt');
-const PIDFILE = path.join(GITDIR, 'tests-results-watch.pid');
 
 const git = (args, cwd = ROOT) =>
   execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
@@ -125,44 +125,52 @@ function ingestOne(rel) {
   return { msg, count: v.count, total: v.total, warnings: v.warnings };
 }
 
-function pass(seen) {
-  ensureWorktree();
-  const out = git(['ls-files', '--others', '--exclude-standard', '-z', '--', 'Tests/*/*.resultados.json']);
-  const files = out.split('\0').filter(Boolean).sort((a, b) => {
-    const n = (f) => Number(/^(\d+)-/.exec(path.basename(f))?.[1] || 0);
-    return a.split('/')[1] === b.split('/')[1] ? n(a) - n(b) : a.localeCompare(b);
-  });
-  for (const rel of files) {
-    const mtime = fs.statSync(path.join(ROOT, rel)).mtimeMs;
-    if (Date.now() - mtime < 2000) continue;            // todavía se está escribiendo
-    const key = `${rel}@${mtime}`;
-    if (seen.has(key)) continue;
-    let r;
-    try { r = ingestOne(rel); } catch (e) { r = { error: (e.stderr || e.message).toString().trim() }; }
-    if (r === 'ya-esta') { seen.add(key); continue; }
-    if (r.error) {
-      seen.add(key);
-      log(`✗ ${rel}: ${r.error}`);
-      continue;
-    }
-    seen.add(key);
-    log(`✓ ${r.msg}  (${r.count.ok}/${r.total} aprobados · ${r.count.fail} fallas · ${r.count.retest} re-testear · ${r.count.none} sin probar)`);
-    r.warnings.forEach((w) => log(`  aviso: ${w}`));
+/** Pone la rama sobre main (planes y README al día) antes de validar; si hay conflicto, la deja como estaba. */
+function syncWithMain() {
+  try { git(['merge-base', '--is-ancestor', BASE, BRANCH], WT); return; } catch { /* main se adelantó */ }
+  try {
+    git(['rebase', BASE], WT);
+    log(`rama ${BRANCH} rebaseada sobre ${BASE} (si ya estaba pusheada, /upload-test-results la sube con --force-with-lease)`);
+  } catch (e) {
+    try { git(['rebase', '--abort'], WT); } catch { /* no había rebase en curso */ }
+    log(`✗ no pude rebasear ${BRANCH} sobre ${BASE}: ${(e.stderr || e.message).toString().trim().split('\n')[0]}`);
   }
 }
 
-const seen = new Set();
-if (process.argv.includes('--watch')) {
-  try {
-    const pid = Number(fs.readFileSync(PIDFILE, 'utf8'));
-    if (pid && pid !== process.pid) { process.kill(pid, 0); console.log(`ya hay un watcher (pid ${pid})`); process.exit(0); }
-  } catch { /* no hay watcher vivo */ }
-  fs.writeFileSync(PIDFILE, String(process.pid));
-  process.on('exit', () => { try { fs.unlinkSync(PIDFILE); } catch { /* ya no está */ } });
-  log(`mirando Tests/*/ cada 1 min → rama ${BRANCH}`);
-  const tick = () => { try { pass(seen); } catch (e) { log(`✗ ${(e.stderr || e.message).toString().trim()}`); } };
-  tick();
-  setInterval(tick, 60000);
-} else {
-  pass(seen);
+/** Los pendientes, del más viejo al más nuevo; dentro de un plan, siempre en orden de tanda. */
+function pending() {
+  const out = git(['ls-files', '--others', '--exclude-standard', '-z', '--', 'Tests/*/*.resultados.json']);
+  const n = (f) => Number(/^(\d+)-/.exec(path.basename(f))?.[1] || 0);
+  const files = out.split(String.fromCharCode(0)).filter(Boolean).map((rel) => ({ rel, mtime: fs.statSync(path.join(ROOT, rel)).mtimeMs }));
+  files.sort((a, b) => a.mtime - b.mtime);
+  const byFolder = {};
+  files.forEach((f, i) => (byFolder[f.rel.split('/')[1]] ||= []).push(i));
+  for (const idx of Object.values(byFolder)) {
+    const sorted = idx.map((i) => files[i]).sort((a, b) => n(a.rel) - n(b.rel));
+    idx.forEach((i, k) => { files[i] = sorted[k]; });
+  }
+  return files.map((f) => f.rel);
 }
+
+ensureWorktree();
+const files = pending();
+if (!files.length) console.log('no hay resultados nuevos sin trackear en Tests/*/');
+let done = 0, failed = 0;
+for (const rel of files) {
+  syncWithMain();
+  let r;
+  try { r = ingestOne(rel); } catch (e) { r = { error: (e.stderr || e.message).toString().trim() }; }
+  if (r.error) { failed++; log(`✗ ${rel}: ${r.error}`); continue; }
+  if (r === 'ya-esta') log(`= ${rel} ya estaba en ${BRANCH}`);
+  else {
+    done++;
+    log(`✓ ${r.msg}  (${r.count.ok}/${r.total} aprobados · ${r.count.fail} fallas · ${r.count.retest} re-testear · ${r.count.none} sin probar)`);
+    r.warnings.forEach((w) => log(`  aviso: ${w}`));
+  }
+  // El archivo ya está (idéntico) en la rama: se borra la copia local para que no choque con el pull.
+  if (fs.readFileSync(path.join(ROOT, rel)).equals(fs.readFileSync(path.join(WT, rel)))) {
+    fs.unlinkSync(path.join(ROOT, rel));
+    log(`  copia local borrada: ${rel}`);
+  }
+}
+if (files.length) log(`${done} commit(s) en ${BRANCH}, ${failed} rechazado(s)${failed ? ' (siguen en su carpeta)' : ''}`);

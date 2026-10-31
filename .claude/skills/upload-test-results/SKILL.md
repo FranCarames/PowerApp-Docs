@@ -10,7 +10,7 @@ La rama `tests-results` acumula un commit atómico por tanda («Tests: tanda N d
 
 ## Pasos
 
-1. **Levantar lo pendiente.** Correr `node .claude/tools/ingest-test-results.js` (una pasada). Si deja líneas `✗`, mostrárselas al usuario: esas tandas no entraron y hay que corregirlas antes.
+1. **Levantar lo pendiente** (lo mismo que `/commit-test-results`). Correr `node .claude/tools/ingest-test-results.js`: commitea los resultados nuevos y borra sus copias locales. Si deja líneas `✗`, mostrárselas al usuario: esas tandas no entraron y hay que corregirlas antes.
 2. **Ver qué hay.** `git fetch origin` y `git log --oneline origin/main..tests-results`. Si no hay commits, decirlo y terminar.
 3. **Poner la rama al día con main** (en el worktree: `git -C .git/tests-results-wt rebase origin/main`). Si hay conflicto, `rebase --abort`, explicarlo y parar: lo resuelve el usuario.
 4. **Auditar el índice** de la rama: `node .claude/tools/audit-index.js "$(pwd)/.git/tests-results-wt"` tiene que decir «índice consistente».
