@@ -77,7 +77,7 @@ Por qué difiere del Status:
 
 ### Esfuerzo y dependencias
 
-**Esfuerzo:** 42 tareas, **≈ 97,5 h netas** (≈ 95,5 h sin la opcional BE-22). Criterio:
+**Esfuerzo:** 43 tareas, **≈ 98 h netas** (≈ 96 h sin la opcional BE-22). Criterio:
 
 - Un desarrollador, horas netas.
 - Incluye la spec y el plan cuando corresponden, el código, el build, `Db Creator` y el Status de cada tarea.
@@ -177,6 +177,7 @@ Prioridad (orden por defecto): **P1** bloquea al web o a la app iOS · **P2** CU
 | BE-40 | 4 | CU-U-06: el email deja de ser editable | Bug | CU-U-06 (24/10); Tests Mi cuenta DAT-04 y DAT-05 (fallan); `edit_user.dto.ts`; `users.service.ts:296-304` | coordinar con el web | 1 h | No | P2 |
 | BE-41 | 4 | CU-A-17: no convertir una cuenta inactiva | Bug | CU-A-17 (31/10); Tests Usuarios y entrenadores CNV-07 y CNV-10; `coach.service.ts` `promoteUserToCoach` | — | 0,5 h | No | P3 |
 | BE-42 | 4 | [Las rutinas del plan por semana: `weeks` en el alta, reordenar una semana y repetirla en otras](2026-10-31-be-42-hallazgos-planificaciones-plan.md) | Funcional | Tests Planificaciones CRE-01, CRE-03 y ADD-02 (31/10); CU-E-09, CU-E-12e y CU-E-12f (nuevos); `planification.service.ts` `createPlanification` | — (la T53 del web depende de ésta) | 6 h | No | P2 |
+| BE-43 | 4 | [CU-U-06 y CU-U-01: formato del teléfono](2026-10-31-be-43-formato-del-telefono-plan.md) | Bug | CU-U-06 y CU-U-01 (31/10); Tests Mi cuenta VAL-05 y VAL-06, Acceso REG-10; `create_user.dto.ts`, `edit_user.dto.ts` | — | 0,5 h | No | P2 |
 
 **Por fase:**
 
@@ -185,9 +186,9 @@ Prioridad (orden por defecto): **P1** bloquea al web o a la app iOS · **P2** CU
 | 1 | 11 |
 | 2 | 24 |
 | 3 | 23 |
-| 4 | 30 |
+| 4 | 30,5 |
 | 5 | 9,5 |
-| **Total** | **97,5** |
+| **Total** | **98** |
 
 ## 4. Fases e hitos
 
@@ -197,7 +198,7 @@ Prioridad (orden por defecto): **P1** bloquea al web o a la app iOS · **P2** CU
 | **2** | Bloque A: rutina puntual y ejecución | 24 | 20 al 27/10 | **H2:** flujo puntual de punta a punta, demostrable: asignar → ver → marcar → nota → historial |
 | ⏱ | **Fecha fija:** regenerar la base (BE-23) | 2 | ≈ 1/11 | Esquema del bloque A aplicado. Lo que cambie después entra por patch y por re-aplicar el `03`, que es idempotente |
 | **3** | Bloque B: asignar planificaciones | 21 | 28/10 al 5/11 | **H3:** los 74 CU con código |
-| **4** | Brechas de CU y deuda | 30 | 3 al 12/11, en paralelo con el final de la fase 3 | **H4:** ningún 🟡 y el Swagger completo, candidato a "terminado" |
+| **4** | Brechas de CU y deuda | 30,5 | 3 al 12/11, en paralelo con el final de la fase 3 | **H4:** ningún 🟡 y el Swagger completo, candidato a "terminado" |
 | **5** | Verificación y cierre | 9,5 | 12 al 17/11 | **H5:** criterios de §2 cumplidos y código congelado. Del 18 al 20/11 sólo arreglos; **entrega el 20/11** |
 
 ### Por qué este orden

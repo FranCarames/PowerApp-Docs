@@ -250,7 +250,7 @@ tr:last-child td{border-bottom:0}
           <li><b>Seguí el orden de la página.</b> El alumno QA Cuenta arranca sin pagos y los casos de historial le van sumando.</li>
           <li><b>DevTools › Network</b>, filtrado por <code>users</code> o por <code>payment</code>, para ver qué requests salen, con qué body y qué código responden.</li>
           <li><b>Cerrar sesión y cambiar contraseña</b> ya están en «Pruebas de acceso». Acá solo se mira que el menú lleve a esas pantallas.</li>
-          <li><b>Lo que hoy no cumple el caso de uso</b> está marcado con un aviso amarillo (DAT-06: la foto de perfil no se puede quitar). El arreglo empieza en el backend.</li>
+          <li><b>Lo que hoy no cumple el caso de uso</b> está marcado con un aviso amarillo (DAT-06: la foto de perfil no se puede quitar; VAL-05 y VAL-06: el teléfono acepta letras). El arreglo empieza en el backend.</li>
         </ul>
       </div>
       <div>
@@ -392,8 +392,14 @@ tr:last-child td{border-bottom:0}
       steps: [`Escribí ${tok('foto.png')} en Foto de perfil y guardá.`],
       exp: `<p>${ui('Ingresá un link válido, que empiece con http:// o https://')} y no sale ningún request.</p>` },
     { id: 'VAL-05', g: 'val', t: 'Teléfono con letras', env: ['TODOS'],
-      steps: [`Escribí ${tok('abc')} como teléfono y guardá.`, 'Volvé a poner un teléfono válido y guardá.'],
-      exp: '<p>Se guarda: ni el front ni el backend validan el formato del teléfono, solo su largo. Anotalo si te parece que debería rechazarse.</p>' },
+      data: `Teléfono ${tok('abc')} · código de país ${tok('abc')} · con espacio y guion, con ${tok('+54')}: ${tok('11 2345-6789')}`,
+      steps: [`Con +54 de código de país, escribí ${tok('abc')} como teléfono y guardá.`, `Poné un teléfono válido (por ejemplo ${tok('1198765432')}), escribí ${tok('abc')} como código de país y guardá.`, `Poné ${tok('+54')} y escribí ${tok('11 2345-6789')} como teléfono. Con Network abierto, guardá y volvé a abrir Datos personales.`],
+      exp: `<ul><li>Con «abc» como teléfono: ${ui('El teléfono solo puede tener números')} bajo Teléfono. Con «abc» como código de país: ${ui('Ingresá el código de país con + y números, por ejemplo +54')}, también bajo Teléfono. En los dos casos no sale ningún request.</li><li>Con «11 2345-6789»: ${ui('Datos actualizados')}. <code>POST /users/edit</code> manda <code>phone_number: "1123456789"</code>, sin el espacio ni el guion, y responde 200. Al volver a abrir Datos personales, el campo muestra <code>1123456789</code>. (CU-U-06, caminos alternativos)</li></ul>`,
+      kt: 'Hoy no cumple el CU.', known: 'Se guarda cualquier texto: ni el front ni el backend validan el formato del teléfono, solo su largo. Lo arreglan la BE-43 (backend) y la T54 (web). Marcalo Falla mientras se guarde.' },
+    { id: 'VAL-06', g: 'val', t: 'Teléfono con letras por la API', env: ['TODOS'],
+      steps: ['Con QA Cuenta, abrí Network, guardá un cambio cualquiera y copiá el <code>POST /users/edit</code> como fetch.', `Pegalo en la consola cambiando el body por ${tok('{"phone_number":"abc"}')} y ejecutalo.`, `Repetilo con el body ${tok('{"phone_prefix":"abc"}')}.`, 'Volvé a abrir Datos personales.'],
+      exp: `<p>Los dos pedidos responden 400, con el cuerpo del error del backend (<code>statusCode</code>, <code>message</code> y <code>error: "Bad Request"</code>), aunque el front no lo hubiera dejado pasar. El teléfono y el código de país siguen como estaban. (CU-U-06, caminos alternativos)</p>`,
+      kt: 'Hoy falla.', known: 'El backend acepta cualquier texto de hasta 20 caracteres en el teléfono y de hasta 10 en el código de país, y responde 200. Lo arregla la BE-43 (backend). Marcalo Falla mientras responda 200.' },
 
     // ── Historial de pagos ──────────────────────────────────
     { id: 'PAG-01', g: 'pag', t: 'Sin pagos', env: ['TODOS'],
