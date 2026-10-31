@@ -1,0 +1,276 @@
+{
+  "plan": "pruebas-musculos",
+  "version": 1,
+  "exportedAt": "2026-10-31T12:21:38.058Z",
+  "summary": {
+    "total": 42,
+    "ok": 39,
+    "fail": 3,
+    "retest": 0,
+    "none": 0,
+    "sev": {
+      "1": 0,
+      "2": 0,
+      "3": 1,
+      "4": 1,
+      "sinClasificar": 1
+    }
+  },
+  "results": {
+    "CAT-01": {
+      "title": "Llegar al catálogo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T20:57:00.953Z"
+    },
+    "CAT-02": {
+      "title": "Un solo buscador para los dos segmentos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T20:57:22.650Z"
+    },
+    "CAT-03": {
+      "title": "Solo para el Admin",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T20:58:28.395Z"
+    },
+    "GRP-01": {
+      "title": "Listado de grupos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T20:58:44.276Z"
+    },
+    "GRP-02": {
+      "title": "Músculos de un grupo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T20:59:12.949Z"
+    },
+    "GRP-03": {
+      "title": "Crear grupos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T20:59:44.119Z"
+    },
+    "GRP-04": {
+      "title": "Grupo sin músculos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T20:59:52.043Z"
+    },
+    "GRP-05": {
+      "title": "Validaciones del formulario",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T20:59:57.278Z"
+    },
+    "GRP-06": {
+      "title": "Nombre repetido",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T23:03:02.496Z"
+    },
+    "GRP-07": {
+      "title": "Editar un grupo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:00:43.784Z"
+    },
+    "GRP-08": {
+      "title": "Vaciar un link al editar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:00:57.692Z"
+    },
+    "GRP-09": {
+      "title": "Nombre en conflicto al editar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T23:03:14.949Z"
+    },
+    "GRP-10": {
+      "title": "Cancelar sin guardar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:01:24.604Z"
+    },
+    "MUS-01": {
+      "title": "Listado de músculos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:01:42.603Z"
+    },
+    "MUS-02": {
+      "title": "Buscar músculos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:01:54.667Z"
+    },
+    "MUS-03": {
+      "title": "Crear un músculo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:02:28.628Z"
+    },
+    "MUS-04": {
+      "title": "Crear con los datos opcionales",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:03:24.052Z"
+    },
+    "MUS-05": {
+      "title": "Validaciones del formulario",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:03:26.278Z"
+    },
+    "MUS-06": {
+      "title": "Editar y cambiar de grupo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:03:44.745Z"
+    },
+    "MUS-07": {
+      "title": "Vaciar datos opcionales al editar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:03:46.042Z"
+    },
+    "MUS-08": {
+      "title": "Cancelar sin guardar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:04:02.818Z"
+    },
+    "INT-01": {
+      "title": "El músculo en el editor de ejercicios",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:05:12.028Z"
+    },
+    "INT-02": {
+      "title": "Crear el ejercicio de prueba",
+      "status": "ok",
+      "note": "[DONE] No se cargan los nombres de los musculos, solo dice musculo",
+      "at": "2026-10-26T23:09:11.287Z"
+    },
+    "INT-03": {
+      "title": "Renombrar se ve en los ejercicios",
+      "status": "ok",
+      "note": "[DONE] No se cargan los nombres de los musculos, solo dice musculo",
+      "at": "2026-10-26T23:10:21.356Z"
+    },
+    "INT-04": {
+      "title": "La wiki del alumno",
+      "status": "ok",
+      "note": "[DONE] Parece que la wiki no esta implementada",
+      "at": "2026-10-26T23:10:41.637Z"
+    },
+    "INT-05": {
+      "title": "Mover el músculo cambia el filtro",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T23:01:11.931Z"
+    },
+    "DEL-01": {
+      "title": "Eliminar un músculo sin uso",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:21:50.109Z"
+    },
+    "DEL-02": {
+      "title": "Cancelar la eliminación",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:23:01.245Z"
+    },
+    "DEL-03": {
+      "title": "Editar un músculo que ya no existe",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:24:05.817Z"
+    },
+    "DEL-04": {
+      "title": "Eliminar un músculo que ya no existe",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:24:19.668Z"
+    },
+    "DEL-05": {
+      "title": "Eliminar un grupo con músculos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:25:04.585Z"
+    },
+    "DEL-06": {
+      "title": "Eliminar un músculo en uso",
+      "status": "fail",
+      "sev": 3,
+      "note": "Falla pero el mensaje de error es poco descriptivo",
+      "at": "2026-10-31T12:21:30.397Z"
+    },
+    "DEL-07": {
+      "title": "El ejercicio que se quedó sin músculos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:31:58.473Z"
+    },
+    "DEL-08": {
+      "title": "Eliminar un grupo vacío",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:32:23.211Z"
+    },
+    "DEL-09": {
+      "title": "Un grupo que ya no existe",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:36:26.992Z"
+    },
+    "DEL-10": {
+      "title": "Un grupo que recibió un músculo en otra pestaña",
+      "status": "fail",
+      "sev": null,
+      "note": "Se borraron los dos registros, tanto el grupo como el musculo",
+      "at": "2026-10-12T21:35:09.758Z"
+    },
+    "ERR-01": {
+      "title": "Servidor caído al cargar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:09:14.866Z"
+    },
+    "ERR-02": {
+      "title": "Servidor caído al guardar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:09:20.973Z"
+    },
+    "ERR-03": {
+      "title": "Doble envío",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:09:25.101Z"
+    },
+    "ERR-04": {
+      "title": "Celular y escritorio",
+      "status": "fail",
+      "sev": 4,
+      "note": "Se podria mejorar la experiencia",
+      "at": "2026-10-31T12:21:34.088Z"
+    },
+    "ERR-05": {
+      "title": "Teclado y lector de pantalla",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:18:57.691Z"
+    },
+    "FIN-01": {
+      "title": "Borrar lo que quedó",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-12T21:21:07.926Z"
+    }
+  }
+}
