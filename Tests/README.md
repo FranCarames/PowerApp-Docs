@@ -73,6 +73,7 @@ Con eso, **no hace falta importar a mano**:
 - [Pruebas de ejercicios](Ejercicios/Pruebas%20de%20ejercicios.html) — Catálogo de ejercicios del Admin: listado, búsqueda y filtro por grupo, alta y edición con sus músculos, borrado, y cómo llegan a los circuitos, a la wiki y a los RMs del alumno (CU-A-01 a CU-A-06).
   - [Tanda 1](Ejercicios/1-pruebas-ejercicios.resultados.json)
   - [Tanda 2](Ejercicios/2-pruebas-ejercicios.resultados.json)
+  - [Tanda 3](Ejercicios/3-pruebas-ejercicios.resultados.json)
 - [Pruebas de músculos y grupos](Musculos/Pruebas%20de%20m%C3%BAsculos%20y%20grupos.html) — Catálogo del Admin: alta, edición, detalle y borrado de grupos musculares y músculos, y cómo llegan a Ejercicios y a la wiki del alumno (CU-A-07 a CU-A-15).
   - [Tanda 1](Musculos/1-pruebas-musculos.resultados.json)
   - [Tanda 2](Musculos/2-pruebas-musculos.resultados.json)
