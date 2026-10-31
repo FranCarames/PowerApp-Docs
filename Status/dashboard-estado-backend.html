@@ -205,7 +205,7 @@
       <span><b>75</b> casos de uso</span>
       <span><b>9</b> módulos</span>
       <span>Fuente: <b>Use Cases/</b> (PowerApp-Docs) vs <b>power-app/src</b></span>
-      <span>Corte: <b>2026-10-24</b></span>
+      <span>Corte: <b>2026-10-31</b></span>
     </div>
   </header>
 
@@ -315,7 +315,7 @@
           <tr><td class="cu">2</td><td class="name">Bloque A: rutina puntual y ejecución <span class="muted">· BE-09 a BE-16</span></td><td class="endpoint">20 al 27/10</td><td><b>H2:</b> el flujo puntual de punta a punta: asignar → ver → marcar → nota → historial</td><td><span class="chip done"><span class="cd"></span>Cerrada 18/10</span></td></tr>
           <tr><td class="cu">⏱</td><td class="name">Regenerar la base de Render <span class="muted">· BE-23</span></td><td class="endpoint">30/10 al 1/11</td><td>La base nueva con el esquema y el seed completos, antes de que venza la vieja (≈ 2/11, sin verificar)</td><td><span class="muted">fecha fija · runbook listo (23/10): lo ejecuta el usuario</span></td></tr>
           <tr><td class="cu">3</td><td class="name">Bloque B: asignar planificaciones <span class="muted">· BE-17 a BE-23</span></td><td class="endpoint">28/10 al 5/11</td><td><b>H3:</b> los 74 CU con backend tienen código</td><td><span class="chip partial"><span class="cd"></span>En curso</span> <span class="muted">BE-17, BE-18, BE-18b, BE-19, BE-20, BE-20e, BE-20b, BE-20c, BE-20d y BE-21 (20 a 23/10)</span></td></tr>
-          <tr><td class="cu">4</td><td class="name">Brechas de CU y deuda <span class="muted">· BE-24 a BE-34</span></td><td class="endpoint">3 al 12/11</td><td><b>H4:</b> ningún parcial y el Swagger completo</td><td><span class="chip partial"><span class="cd"></span>En curso</span> <span class="muted">BE-24, BE-25 y BE-26 adelantadas (22/10); BE-27, BE-28 y BE-30 (24/10)</span></td></tr>
+          <tr><td class="cu">4</td><td class="name">Brechas de CU y deuda <span class="muted">· BE-24 a BE-34</span></td><td class="endpoint">3 al 12/11</td><td><b>H4:</b> ningún parcial y el Swagger completo</td><td><span class="chip partial"><span class="cd"></span>En curso</span> <span class="muted">BE-24, BE-25 y BE-26 adelantadas (22/10); BE-27, BE-28 y BE-30 (24/10); BE-41 (31/10)</span></td></tr>
           <tr><td class="cu">5</td><td class="name">Verificación y cierre <span class="muted">· BE-35 a BE-39</span></td><td class="endpoint">12 al 17/11</td><td><b>H5:</b> criterios de "backend terminado" cumplidos y código congelado</td><td></td></tr>
         </tbody>
       </table>
@@ -449,7 +449,7 @@
 
           <tr class="pkg"><td colspan="4"><span class="pkg-lbl">Administrar entrenadores</span></td></tr>
           <tr><td class="cu">CU-A-16</td><td class="name">Obtener entrenadores</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /coach/all <span class="muted">· sólo admin; era público (16/10)</span></td></tr>
-          <tr><td class="cu">CU-A-17</td><td class="name">Convertir alumno a entrenador</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /coach/promote_user <span class="muted">· el rol y el Coach se escriben en una transacción · 409 si el email profesional o el CUIL son de otro entrenador · 400 si el usuario es un administrador · sobre un entrenador dado de baja lo reactiva y sobre uno activo edita sus datos (BE-27, 24/10)</span></td></tr>
+          <tr><td class="cu">CU-A-17</td><td class="name">Convertir alumno a entrenador</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /coach/promote_user <span class="muted">· el rol y el Coach se escriben en una transacción · 409 si el email profesional o el CUIL son de otro entrenador · 400 si el usuario es un administrador · 400 si es un alumno con la cuenta inactiva (un entrenador inactivo se sigue editando) · sobre un entrenador dado de baja lo reactiva y sobre uno activo edita sus datos (BE-27, 24/10; cuenta inactiva en BE-41, 31/10)</span></td></tr>
           <tr><td class="cu">CU-A-18</td><td class="name">Editar datos de entrenador</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /coach/promote_user <span class="muted">· edita el coach existente; se mantiene así (16/10)</span></td></tr>
           <tr><td class="cu">CU-A-19</td><td class="name">Eliminar entrenador</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /coach/delete_coach/:id <span class="muted">· baja lógica</span></td></tr>
 
@@ -478,7 +478,7 @@
 
   <footer>
     <span>PowerApp Backend · auditoría de casos de uso</span>
-    <span>73 impl · 1 parc · 0 andam · 0 falta · 1 sin backend — de 75 · corte 2026-10-24</span>
+    <span>73 impl · 1 parc · 0 andam · 0 falta · 1 sin backend — de 75 · corte 2026-10-31</span>
   </footer>
 
 </div>

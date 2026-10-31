@@ -1,6 +1,6 @@
 # PowerApp Backend — Estado de implementación vs. Casos de Uso
 
-> **Corte:** 2026-10-24 · **Fuente:** `Use Cases/` del repo PowerApp-Docs (fuente de verdad de los CU) comparado contra `power-app/src`
+> **Corte:** 2026-10-31 · **Fuente:** `Use Cases/` del repo PowerApp-Docs (fuente de verdad de los CU) comparado contra `power-app/src`
 > **Método:** mapeo 1:1 de los 75 CU contra los `controller` y `service` del código, con el criterio del inventario del [roadmap del 16/10](https://github.com/FranCarames/PowerApp-Docs/blob/main/Doc/plans/2026-10-16-roadmap-backend.md) (§9): un CU es ✅ sólo si **todos los caminos de su spec** se cumplen.
 
 ## Resumen
@@ -28,6 +28,22 @@
 | **Total** | **75** | **73** | **1** | **0** | **0** | **1** | **99%** |
 
 > **Nota (4/9):** `CU-E-12` es un CU **agrupador** y no se cuenta a sí mismo; cuentan sus cuatro operaciones anidadas (`CU-E-12a` a `CU-E-12d`). Por eso el total pasó de 72 a **75** sin que haya funcionalidad nueva respecto del corte anterior.
+
+## Cambios recientes (2026-10-31 · BE-41: `promote_user` no convierte una cuenta inactiva)
+
+- **BE-41** (pedido del usuario del 31/10; bug chico de la fase 4, sin esquema). Plan: `Doc/plans/2026-10-31-be-41-convertir-cuenta-inactiva-plan.md` (repo PowerApp-Docs). **Sin cambios de estado de CU: sigue en 73 ✅ · 1 🟡 · 0 🔵.** A-17 ya figuraba ✅ del corte anterior; la spec nueva del 31/10 (camino «la cuenta del alumno está inactiva») lo habría vuelto 🟡 hasta esta tarea, y la tarea lo deja ✅ de nuevo. **No cambia ninguna entidad, el esquema ni `Db Creator`.**
+- **El bug** (CNV-10 del plan de pruebas de *Usuarios y entrenadores*): `promoteUserToCoach` sólo miraba que el usuario existiera y que no fuera administrador. Un alumno con la cuenta dada de baja (`active = false`) pasaba: quedaba con `role = coach` y su `Coach` activo, con la cuenta todavía cerrada, o sea un entrenador que no puede entrar.
+- **Ahora:** `POST /coach/promote_user` responde **`400`** `{ error: 'No se puede convertir en entrenador a una cuenta inactiva.' }` cuando `user.role === UserRole.user && !user.active`, y no cambia nada: ni el rol ni el `Coach`, y ni siquiera abre la transacción. El texto está en una constante `PROMOTE_INACTIVE_ERROR`, junto a `PROMOTE_ADMIN_ERROR`, y **el front lo compara por texto: no se toca**. El `@ApiResponse` 400 de `promote_user` declara el caso.
+- **El orden de las comprobaciones** pasa a ser `404` (no existe) → `400` (administrador) → **`400` (cuenta inactiva)** → `409` del email → `409` del CUIL → la transacción. Una consecuencia: con la cuenta inactiva y un email o CUIL repetidos responde `400`, no `409` (no se consulta ningún `Coach`).
+- **Lo que NO se bloquea:** un **entrenador con la cuenta inactiva** (`role = coach`) se sigue editando por `promote_user` (CU-A-18), porque la condición mira el rol además de `active`. Y `promote_user` no le reactiva la cuenta.
+- **Caso borde, dicho a propósito:** un entrenador **dado de baja** (`role = user`, `Coach.active = false`; `deleteCoach` no toca `User.active`) cuya cuenta **también** está inactiva queda alcanzado por la regla: hay que reactivar la cuenta desde Usuarios antes de reactivarlo como entrenador. Es lo que dice la spec; con la cuenta activa, la reactivación no cambia.
+- **Verificación, sin levantar el server.** Hecho:
+  - Build en verde.
+  - **Un script nuevo, escrito antes del código y corrido en rojo (17 fallas; la primera: el alumno inactivo se convertía con `200`), después en verde (29 chequeos):** el `CoachService` real sobre un mundo en memoria con transacción que restaura el estado al hacer rollback (alumno inactivo → `400` con el cuerpo exacto, estado idéntico y sin transacción; el `400` gana a los `409`; el administrador inactivo sigue dando el `400` del administrador; el entrenador inactivo → `200`; el alumno activo y el entrenador dado de baja con la cuenta activa → `200`), más el texto del código (la constante, la condición del contrato entre el chequeo del administrador y la búsqueda del `Coach`) y el Swagger.
+  - **Regresión:** los 26 scripts de BE-12 a BE-28 y los 50 chequeos de las reglas de `promote_user` de BE-27, sin fallas.
+  - **Qué NO se verificó:** el runtime contra una base (BE-35) y las pantallas del web (CNV-07 y CNV-10, que son de su repo).
+- **Para el web:** el contrato suma un caso (`400` con ese texto); el aviso *«La cuenta de … está inactiva. Reactivala desde Usuarios…»* ya lo muestra al elegir una cuenta inactiva (CNV-07); mostrarlo también ante este `400` es de su T52 (CNV-10). **CNV-10** deja de ser un «Hoy falla» del lado del backend: re-correrlo al desplegar. CNV-07 no cambia.
+- **Cierra lo que BE-27 dejó abierto:** «por API todavía se puede convertir a una cuenta cerrada».
 
 ## Cambios recientes (2026-10-24 · BE-30: `updated_at` automático en las 20 entidades · cierra el hallazgo 4)
 
@@ -76,7 +92,7 @@
   - **T37 (editar entrenador)** pasa a `POST /coach/promote_user`, que sobre un entrenador activo edita su email y su CUIL.
   - **PAG-07** (un tipo dado de baja mientras tanto) ahora tiene un `400` real detrás, y el *«Hoy no cumple el CU»* del plan de pruebas queda viejo: re-correrlo.
   - **PAG-08 (cuenta cerrada): el web se adapta (decidido).** Tiene que dejar de ofrecer a los alumnos cerrados para pagar (o mostrar el `400`) y corregir su aviso y el plan de pruebas.
-  - **El backend sólo bloquea al administrador;** el web bloquea además convertir a una cuenta inactiva (el aviso «Reactivala desde Usuarios…»). Por API todavía se puede convertir a una cuenta cerrada.
+  - **El backend sólo bloquea al administrador;** el web bloquea además convertir a una cuenta inactiva (el aviso «Reactivala desde Usuarios…»). Por API todavía se puede convertir a una cuenta cerrada. **Cerrado el 31/10 con BE-41: `promote_user` responde `400` si el alumno tiene la cuenta inactiva.**
 
 ## Cambios recientes (2026-10-23 · BE-23 preparada: la regeneración de la base de Render)
 
@@ -943,7 +959,7 @@ Alineación de las entidades con el modelo vigente de `Doc/` (spec: `Doc/specs/2
 | **2** | Bloque A: rutina puntual y ejecución | BE-09 a BE-16 | 20 al 27/10 | **H2:** el flujo puntual de punta a punta: asignar → ver → marcar → nota → historial | ✅ cerrada el 18/10 (BE-10 y BE-10b el 17/10; BE-11 a BE-16 el 18/10) |
 | ⏱ | Regenerar la base de Render | BE-23 | 30/10 al 1/11 | La base nueva con el esquema y el seed completos, antes de que venza la vieja (≈ 2/11) | **runbook listo (23/10); lo ejecuta el usuario** |
 | **3** | Bloque B: asignar planificaciones | BE-17 a BE-23 | 28/10 al 5/11 | **H3:** los 74 CU con backend tienen código | en curso: BE-17, BE-18, BE-18b, BE-19, BE-20, BE-20e, BE-20b, BE-20c, BE-20d y BE-21 hechas (20 a 23/10) |
-| **4** | Brechas de CU y deuda | BE-24 a BE-34 | 3 al 12/11 | **H4:** ningún 🟡 y el Swagger completo | en curso: BE-24, BE-25 y BE-26 adelantadas (22/10), con dos de las FK de BE-22; BE-27, BE-28 y BE-30 (24/10) |
+| **4** | Brechas de CU y deuda | BE-24 a BE-34 | 3 al 12/11 | **H4:** ningún 🟡 y el Swagger completo | en curso: BE-24, BE-25 y BE-26 adelantadas (22/10), con dos de las FK de BE-22; BE-27, BE-28 y BE-30 (24/10); BE-41 (31/10) |
 | **5** | Verificación y cierre | BE-35 a BE-39 | 12 al 17/11 | **H5:** criterios de "backend terminado" cumplidos y código congelado | |
 
 > **Dependencias del usuario:** el diagrama de `Doc/` actualizado antes de BE-10 (el modelo manda), la fecha real de vencimiento de la base de Render (BE-23), la cuenta del proveedor de mail (BE-29) y la corrida del plan de pruebas (BE-35).
@@ -1076,7 +1092,7 @@ Alineación de las entidades con el modelo vigente de `Doc/` (spec: `Doc/specs/2
 | CU | Caso de uso | Estado | Endpoint / nota |
 |---|---|---|---|
 | CU-A-16 | Obtener entrenadores | ✅ Implementado | `GET /coach/all` · sólo admin; era público y exponía el CUIL (16/10) |
-| CU-A-17 | Convertir alumno a entrenador | ✅ Implementado | `POST /coach/promote_user` · el rol y el `Coach` se escriben en una **transacción**; `409` si el email profesional o el CUIL son de otro entrenador; `400` si el usuario es un administrador; sobre un entrenador dado de baja lo reactiva y sobre uno activo edita sus datos (BE-27, 24/10) |
+| CU-A-17 | Convertir alumno a entrenador | ✅ Implementado | `POST /coach/promote_user` · el rol y el `Coach` se escriben en una **transacción**; `409` si el email profesional o el CUIL son de otro entrenador; `400` si el usuario es un administrador; `400` si es un alumno con la cuenta inactiva (un entrenador con la cuenta inactiva se sigue editando, CU-A-18); sobre un entrenador dado de baja lo reactiva y sobre uno activo edita sus datos (BE-27, 24/10; cuenta inactiva en BE-41, 31/10) |
 | CU-A-18 | Editar datos de entrenador | ✅ Implementado | `POST /coach/promote_user` · si el user ya es coach, actualiza `coach_email`, `cuil`, `active`; se mantiene así (decisión del 16/10) |
 | CU-A-19 | Eliminar entrenador | ✅ Implementado | `POST /coach/delete_coach/:id` · baja lógica (`active: false`) |
 
