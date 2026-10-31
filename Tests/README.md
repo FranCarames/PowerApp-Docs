@@ -70,6 +70,7 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 2](Acceso/2026-10-11-1842-pruebas-acceso.resultados.json)
   - [Tanda 3](Acceso/3-pruebas-acceso.resultados.json)
   - [Tanda 4](Acceso/4-pruebas-acceso.resultados.json)
+  - [Tanda 5](Acceso/5-pruebas-acceso.resultados.json)
 - [Pruebas de ejercicios](Ejercicios/Pruebas%20de%20ejercicios.html) — Catálogo de ejercicios del Admin: listado, búsqueda y filtro por grupo, alta y edición con sus músculos, borrado, y cómo llegan a los circuitos, a la wiki y a los RMs del alumno (CU-A-01 a CU-A-06).
   - [Tanda 1](Ejercicios/1-pruebas-ejercicios.resultados.json)
   - [Tanda 2](Ejercicios/2-pruebas-ejercicios.resultados.json)
