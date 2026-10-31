@@ -545,9 +545,30 @@
   }
 
   // Pills de plan: estado (elegido o no) y casos abiertos de cada plan (no dependen del filtro de plan ni de la búsqueda).
-  function renderPlanPills() {
+  function openByPlan() {
     var open = {};
     items.forEach(function (i) { if (isOpen(i)) open[i.plan.id] = (open[i.plan.id] || 0) + 1; });
+    return open;
+  }
+
+  // Ordena las pills de plan de más a menos casos abiertos (si empatan, queda el orden del índice); «Todos» siempre primero.
+  // Se llama al abrir el tablero y al prender o apagar «Incluir re-testear» / «Incluir diferidos», pero no al mover tarjetas:
+  // así las pills no cambian de lugar mientras se clasifica.
+  function sortPlanPills() {
+    var open = openByPlan();
+    var row = $('#f-plans');
+    var pos = {};
+    plans.forEach(function (p, i) { pos[p.id] = i; });
+    [].slice.call(row.querySelectorAll('.pp'))
+      .filter(function (b) { return b.dataset.plan; })
+      .sort(function (a, b) {
+        return (open[b.dataset.plan] || 0) - (open[a.dataset.plan] || 0) || pos[a.dataset.plan] - pos[b.dataset.plan];
+      })
+      .forEach(function (b) { row.appendChild(b); });
+  }
+
+  function renderPlanPills() {
+    var open = openByPlan();
     var total = Object.keys(open).reduce(function (a, k) { return a + open[k]; }, 0);
     var any = Object.keys(filters.plans).length > 0;
     document.querySelectorAll('#f-plans .pp').forEach(function (b) {
@@ -679,6 +700,7 @@
         filters[x[1]] = !filters[x[1]];
         btn.setAttribute('aria-pressed', String(filters[x[1]]));
         render();
+        sortPlanPills();
       });
     });
   }
@@ -709,6 +731,7 @@
       setupFilters();
       window.__snap = JSON.stringify(plans.map(function (p) { return localStorage.getItem(p.key); }));
       reload();
+      sortPlanPills();
     })
     .catch(function () {
       var w = $('#board-wrap');
