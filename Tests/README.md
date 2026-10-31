@@ -107,6 +107,8 @@ Con eso, **no hace falta importar a mano**:
 - [Pruebas de planificaciones](Planificaciones/Pruebas%20de%20planificaciones.html) — Planificaciones desde el Admin y el Entrenador: listado y filtros, alta y edición de la cabecera, las rutinas de cada semana (agregar, quitar y reincorporar), baja y reactivación, y la asignación a un alumno con sus fechas y el aviso de solapamiento (CU-E-08 a CU-E-14).
   - [Tanda 1](Planificaciones/1-pruebas-planificaciones.resultados.json)
   - [Tanda 2](Planificaciones/2-pruebas-planificaciones.resultados.json)
+  - [Tanda 3](Planificaciones/3-pruebas-planificaciones.resultados.json)
+  - [Tanda 4](Planificaciones/4-pruebas-planificaciones.resultados.json)
 - [Pruebas de rutinas](Rutinas/Pruebas%20de%20rutinas.html) — Rutinas desde el Admin y el Entrenador: listado y búsqueda, alta y edición con sus circuitos en orden, baja y reactivación, y las rutinas puntuales de un alumno: asignarlas para un día y quitarlas (CU-E-15 a CU-E-20).
   - [Tanda 1](Rutinas/1-pruebas-rutinas.resultados.json)
   - [Tanda 2](Rutinas/2-pruebas-rutinas.resultados.json)

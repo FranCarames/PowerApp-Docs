@@ -1,0 +1,382 @@
+{
+  "plan": "pruebas-planificaciones",
+  "version": 1,
+  "exportedAt": "2026-10-31T00:07:33.813Z",
+  "summary": {
+    "total": 60,
+    "ok": 27,
+    "fail": 1,
+    "retest": 5,
+    "none": 27,
+    "sev": {
+      "1": 0,
+      "2": 0,
+      "3": 1,
+      "4": 0,
+      "sinClasificar": 0
+    }
+  },
+  "results": {
+    "LST-01": {
+      "title": "Llegar a Planificaciones",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-27T15:43:13.700Z"
+    },
+    "LST-02": {
+      "title": "Sin planificaciones",
+      "status": "retest",
+      "note": "",
+      "at": "2026-10-30T22:45:36.169Z"
+    },
+    "CRE-01": {
+      "title": "Crear una planificación",
+      "status": "retest",
+      "note": "Cuando indicas la cantidad de semanas, se deberian crear automaticamente las secciones de las semanas por debajo. Por ejemplo, si indico que la rutina tiene 3 semanas se tienen que crear las secciones:\n- semana 1:\n    Placeholder\n- semana 2\n    placeholder\n- semana 3\n    placeholder",
+      "at": "2026-10-30T22:54:08.024Z"
+    },
+    "CRE-02": {
+      "title": "Validaciones",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T22:47:25.580Z"
+    },
+    "CRE-03": {
+      "title": "Tipo propio y sin duración fija",
+      "status": "retest",
+      "note": "la seccion de rutinas deberia ser rutinas semanales. cuando ingresas este valor se deberian crear esta cantidad de espacios en las secciones de semanas.",
+      "at": "2026-10-30T23:36:46.189Z"
+    },
+    "CRE-04": {
+      "title": "Volver sin guardar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T22:49:26.578Z"
+    },
+    "ADD-01": {
+      "title": "Agregar una rutina",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T22:51:47.404Z"
+    },
+    "ADD-02": {
+      "title": "Varias en lote, con una repetida",
+      "status": "retest",
+      "note": "Dentro de cada una de las semanas se deberia poder editar el orden interno de las rutinas por la semana.",
+      "at": "2026-10-30T22:56:42.747Z"
+    },
+    "ADD-03": {
+      "title": "Una posición ya ocupada",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T22:56:42.839Z"
+    },
+    "ADD-04": {
+      "title": "Semana y posición inválidas",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T22:59:00.324Z"
+    },
+    "ADD-05": {
+      "title": "Plan sin duración fija",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T22:59:26.281Z"
+    },
+    "ADD-06": {
+      "title": "Selección vacía, sacar y el máximo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T23:02:00.976Z"
+    },
+    "ADD-07": {
+      "title": "Una rutina que dan de baja mientras la elegís",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T23:04:15.247Z"
+    },
+    "ADD-08": {
+      "title": "Agregar a una planificación dada de baja",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T23:05:55.912Z"
+    },
+    "EDT-01": {
+      "title": "Editar la cabecera",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T23:23:18.949Z"
+    },
+    "EDT-02": {
+      "title": "Vaciar notas y tipo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T23:23:21.330Z"
+    },
+    "EDT-03": {
+      "title": "Achicar la duración",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T23:37:31.042Z"
+    },
+    "EDT-04": {
+      "title": "Link a una planificación que no existe",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T23:25:11.059Z"
+    },
+    "EDT-05": {
+      "title": "Guardar una planificación dada de baja en otra pestaña",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T23:26:41.142Z"
+    },
+    "EDT-06": {
+      "title": "Volver sin guardar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T23:25:49.349Z"
+    },
+    "QUI-01": {
+      "title": "Quitar una rutina",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T23:51:57.584Z"
+    },
+    "QUI-02": {
+      "title": "Reincorporar a su lugar",
+      "status": "ok",
+      "note": "no veo la seccion de reincorporar rutinas",
+      "at": "2026-10-31T00:07:12.138Z"
+    },
+    "QUI-03": {
+      "title": "Reincorporar a otro lugar",
+      "status": "retest",
+      "note": "Ver falla de QUI-02",
+      "at": "2026-10-30T23:53:57.279Z"
+    },
+    "QUI-04": {
+      "title": "Quitar varias",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T23:55:28.281Z"
+    },
+    "QUI-05": {
+      "title": "Reincorporar todas",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T23:55:42.301Z"
+    },
+    "QUI-06": {
+      "title": "Reincorporar a una semana que ya no existe",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "QUI-07": {
+      "title": "Reincorporar después de salir",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "QUI-08": {
+      "title": "Quitar de una planificación dada de baja",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "BAJ-01": {
+      "title": "Eliminar una planificación",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "BAJ-02": {
+      "title": "Cancelar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T23:06:55.490Z"
+    },
+    "BAJ-03": {
+      "title": "Una planificación inactiva",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T23:07:37.679Z"
+    },
+    "BAJ-04": {
+      "title": "Reactivar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T23:07:39.393Z"
+    },
+    "BAJ-05": {
+      "title": "El panel cuenta solo las vigentes",
+      "status": "fail",
+      "sev": 3,
+      "note": "El panel me cuenta todas las planificaciones, contando las inactivas",
+      "at": "2026-10-31T00:07:17.387Z"
+    },
+    "FIL-01": {
+      "title": "Las tarjetas",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T23:10:38.268Z"
+    },
+    "FIL-02": {
+      "title": "Chips de tipo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T23:10:32.060Z"
+    },
+    "FIL-03": {
+      "title": "Incluir inactivas",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T23:10:52.759Z"
+    },
+    "FIL-04": {
+      "title": "Buscar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-30T23:11:00.933Z"
+    },
+    "COA-01": {
+      "title": "La pantalla del entrenador",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "COA-02": {
+      "title": "Cambios entre roles",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ASG-01": {
+      "title": "Asignar desde la planificación",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ASG-02": {
+      "title": "Lo que confirma",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ASG-03": {
+      "title": "El alumno la ve en su inicio",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ASG-04": {
+      "title": "Validar las fechas",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ASG-05": {
+      "title": "Solapamiento",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ASG-06": {
+      "title": "Quitar desde el aviso",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ASG-07": {
+      "title": "Asignar desde el alumno, en el futuro",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ASG-08": {
+      "title": "Plan sin duración fija, en el pasado",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ASG-09": {
+      "title": "Planificación sin rutinas, dada de baja o inexistente",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ASG-10": {
+      "title": "Destinatario que no es alumno o con la cuenta cerrada",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ASG-11": {
+      "title": "Cambiar la duración con alumnos asignados",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ALU-01": {
+      "title": "Las planificaciones del alumno",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ALU-02": {
+      "title": "Quitar",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ALU-03": {
+      "title": "Reincorporar sin revisar el solapamiento",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ALU-04": {
+      "title": "Ya quitada o ya activa en otra pestaña",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ALU-05": {
+      "title": "Sin planificaciones",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ERR-01": {
+      "title": "Servidor caído al cargar",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ERR-02": {
+      "title": "Servidor caído al guardar",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ERR-03": {
+      "title": "Celular y escritorio",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "ERR-04": {
+      "title": "Teclado y lector de pantalla",
+      "status": null,
+      "note": "",
+      "at": null
+    },
+    "FIN-01": {
+      "title": "Dejar lo de prueba fuera de uso",
+      "status": null,
+      "note": "",
+      "at": null
+    }
+  }
+}
