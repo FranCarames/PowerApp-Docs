@@ -91,6 +91,7 @@ Con eso, **no hace falta importar a mano**:
 - [Pruebas de circuitos](Circuitos/Pruebas%20de%20circuitos.html) — Circuitos desde el Admin y del lado del Entrenador: listado y filtros, alta y edición con sus ejercicios y bloques de series, duplicar, desactivar y reactivar (CU-E-21 a CU-E-24).
   - [Tanda 1](Circuitos/1-pruebas-circuitos.resultados.json)
   - [Tanda 2](Circuitos/2-pruebas-circuitos.resultados.json)
+  - [Tanda 3](Circuitos/3-pruebas-circuitos.resultados.json)
 - [Pruebas del panel y la navegación](Panel%20y%20navegacion/Pruebas%20del%20panel%20y%20la%20navegaci%C3%B3n.html) — El marco de la app: el panel del Admin, «Más», el inicio del Entrenador y del alumno con su tab bar y barra lateral, qué rol entra a qué ruta, las direcciones que no existen, el aviso de servidor dormido y la sesión que se cierra sola (sin CU).
   - [Tanda 1](Panel%20y%20navegacion/1-pruebas-navegacion.resultados.json)
   - [Tanda 2 (la 1, adaptada al plan del 25/10)](Panel%20y%20navegacion/2-pruebas-navegacion.resultados.json)
