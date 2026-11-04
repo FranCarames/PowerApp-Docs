@@ -178,6 +178,7 @@ Prioridad (orden por defecto): **P1** bloquea al web o a la app iOS · **P2** CU
 | BE-41 | 4 | CU-A-17: no convertir una cuenta inactiva | Bug | CU-A-17 (31/10); Tests Usuarios y entrenadores CNV-07 y CNV-10; `coach.service.ts` `promoteUserToCoach` | — | 0,5 h | No | P3 |
 | BE-42 | 4 | [Las rutinas del plan por semana: `weeks` en el alta, reordenar una semana y repetirla en otras](2026-10-31-be-42-hallazgos-planificaciones-plan.md) | Funcional | Tests Planificaciones CRE-01, CRE-03 y ADD-02 (31/10); CU-E-09, CU-E-12e y CU-E-12f (nuevos); `planification.service.ts` `createPlanification` | — (la T53 del web depende de ésta) | 6 h | No | P2 |
 | BE-43 | 4 | [CU-U-06 y CU-U-01: formato del teléfono](2026-10-31-be-43-formato-del-telefono-plan.md) | Bug | CU-U-06 y CU-U-01 (31/10); Tests Mi cuenta VAL-05 y VAL-06, Acceso REG-10; `create_user.dto.ts`, `edit_user.dto.ts` | — | 0,5 h | No | P2 |
+| BE-44 | 4 | [Tipos de circuito: el `type` libre de `Circuit` pasa a una tabla `Circuit_Type` que administra el Admin](2026-11-04-be-44-tipos-de-circuito-plan.md) | Funcional | Tests Circuitos LST-05 (31/10); CU-E-21 a E-23; CU-A-24 a A-27 (nuevos); `routine.service.ts` `createCircuit`, `editCircuit` y `buildCircuitsQuery` | — (la T58 del web depende de ésta) | 6 h | **Sí** | P2 |
 
 **Por fase:**
 
@@ -186,9 +187,9 @@ Prioridad (orden por defecto): **P1** bloquea al web o a la app iOS · **P2** CU
 | 1 | 11 |
 | 2 | 24 |
 | 3 | 23 |
-| 4 | 30,5 |
+| 4 | 36,5 |
 | 5 | 9,5 |
-| **Total** | **98** |
+| **Total** | **104** |
 
 ## 4. Fases e hitos
 
@@ -198,7 +199,7 @@ Prioridad (orden por defecto): **P1** bloquea al web o a la app iOS · **P2** CU
 | **2** | Bloque A: rutina puntual y ejecución | 24 | 20 al 27/10 | **H2:** flujo puntual de punta a punta, demostrable: asignar → ver → marcar → nota → historial |
 | ⏱ | **Fecha fija:** regenerar la base (BE-23) | 2 | ≈ 1/11 | Esquema del bloque A aplicado. Lo que cambie después entra por patch y por re-aplicar el `03`, que es idempotente |
 | **3** | Bloque B: asignar planificaciones | 21 | 28/10 al 5/11 | **H3:** los 74 CU con código |
-| **4** | Brechas de CU y deuda | 30,5 | 3 al 12/11, en paralelo con el final de la fase 3 | **H4:** ningún 🟡 y el Swagger completo, candidato a "terminado" |
+| **4** | Brechas de CU y deuda | 36,5 | 3 al 12/11, en paralelo con el final de la fase 3 | **H4:** ningún 🟡 y el Swagger completo, candidato a "terminado" |
 | **5** | Verificación y cierre | 9,5 | 12 al 17/11 | **H5:** criterios de §2 cumplidos y código congelado. Del 18 al 20/11 sólo arreglos; **entrega el 20/11** |
 
 ### Por qué este orden
@@ -497,6 +498,17 @@ BE-09 → BE-10 → BE-11 → BE-13 → BE-14 → BE-17 → BE-18 → BE-21 → 
 - **Riesgo:** `create` pasa a ser transaccional y no debe diverger de `assign-bulk`. Un cliente que tipó `number_of_routines` como «total» lo lee mal hasta actualizar, aunque la validación no cambia.
 - **Inventario (§9):** el corte es del 16/10, anterior. **CU-E-12e y CU-E-12f no figuran** y quedan ⬜ hasta esta tarea; el total de CU pasa de 75 a 77. E-09 sigue ✅ (sin `weeks` cumplía la spec de entonces).
 
+#### BE-44 · Tipos de circuito
+- **Qué** (hallazgo LST-05 de la corrida del 31/10 de Pruebas de circuitos, decisiones de Fran del 31/10; [plan](2026-11-04-be-44-tipos-de-circuito-plan.md) y [spec](../specs/2026-11-04-tipos-de-circuito-design.md)). El contrato completo está en la sección 3 del plan; en resumen:
+  - **Modelo:** tabla nueva `Circuit_Type` (`type` VARCHAR(50), `description` VARCHAR(100) NULL, `active`); `Circuit` pierde `type` y gana `circuit_type_id` UUID NOT NULL, FK `RESTRICT` con índice. El nombre del tipo es único sin mayúsculas ni espacios de los bordes, contra activos e inactivos, en el service (como membresías).
+  - **Endpoints nuevos en `routine/`:** `GET circuit-type/all?include_inactive=` (entrenador y admin, con `circuit_count`), y `POST circuit-type/create`, `circuit-type/edit/:id` y `circuit-type/set-active/:id` (admin), con `409` «Ya existe un tipo de circuito con ese nombre» y `404` «Tipo de circuito no encontrado». Sin borrado físico.
+  - **Circuitos:** `create` y `edit` reciben `circuit_type_id` en lugar de `type` (`404` si no existe; `400` «El tipo de circuito está dado de baja.», en la edición sólo si cambia); los listados filtran por `circuit_type_id`; toda respuesta que traía el `type` de un circuito (circuitos, rutinas y las dos vistas del alumno) pasa a traer `circuit_type: { id, type, active }`.
+  - **Datos:** el `02` siembra Entrada en calor, Principal, Superserie, AMRAP y Enfriamiento (UUID v5); el `03` pasa a esos nombres; un patch lleva la base viva (mapea `normal` → Principal y crea un tipo por cada otro valor).
+- **Acepta:** el script descartable corre en rojo antes del código y en verde después (unicidad, orden de los errores, conservar un tipo de baja, las formas de todas las respuestas, Swagger con todos los códigos); los scripts anteriores siguen en verde; el build compila; `Db Creator` regenerado da los mismos bytes dos veces. LST-05 pasa recién con la T58 del web, que empieza **después** de correr el patch y desplegar.
+- **Riesgo:** **cambia la forma de las respuestas**: la web vieja falla con los circuitos desde el deploy hasta la T58, así que esa ventana tiene que ser corta. El patch y el deploy van uno detrás del otro (sección 6 del plan).
+- **Sale de §8** «`Circuit.type` como conjunto cerrado»: se cierra con esta tarea.
+- **Inventario (§9):** el corte es del 16/10, anterior. **CU-A-24 a CU-A-27 no figuran** y quedan ⬜ hasta esta tarea (cuatro CU más). E-21 a E-23 siguen ✅ con la spec de entonces.
+
 ### Fase 5 — Verificación y cierre
 
 #### BE-35 · Plan de pruebas Backend
@@ -557,6 +569,7 @@ BE-09 → BE-10 → BE-11 → BE-13 → BE-14 → BE-17 → BE-18 → BE-21 → 
 | Email de U-06 (24/10) | **Es de sólo lectura por ahora**; se reescribió CU-U-06 | BE-40; el web deshabilita el campo |
 | Cuenta inactiva en A-17 (31/10) | **No se convierte en entrenador: `400`**; un entrenador con la cuenta inactiva se sigue editando (A-18) | BE-41; el web ya la bloquea del lado del cliente (CNV-07) y muestra el `400` con la T52 (CNV-10) |
 | Las rutinas del plan por semana (31/10) | **`number_of_routines` = rutinas por semana** (define los huecos, no es un tope). El alta puede traer las rutinas de cada semana, todo o nada; una semana se reordena (grabber) y se repite en otras. En la web la duración va de 1 en adelante; el back sigue aceptando 0 | BE-42; el web lo hace en la T53, después. Spec: [`2026-10-31-planificacion-por-semanas-design.md`](../specs/2026-10-31-planificacion-por-semanas-design.md) |
+| Tipos de circuito (31/10) | **El tipo de un circuito pasa a una tabla `Circuit_Type`** que administra el Admin (alta, edición, baja lógica y reactivar); el Entrenador sólo los elige y filtra con ellos. Un tipo de baja no se ofrece, pero los circuitos que ya lo tienen lo conservan. Reabre «`Circuit.type` como conjunto cerrado», que estaba en §8 | BE-44; el web lo hace en la T58, después. Spec: [`2026-11-04-tipos-de-circuito-design.md`](../specs/2026-11-04-tipos-de-circuito-design.md) |
 
 ### Bloque A (se resuelven en BE-09)
 
@@ -628,7 +641,6 @@ BE-09 → BE-10 → BE-11 → BE-13 → BE-14 → BE-17 → BE-18 → BE-21 → 
 | `UNIQUE` en la base para los nombres | Decisión del 12/10: la barrera está en el service. Se puede revisar después de la regeneración, pero no se reabre acá |
 | Infraestructura de migraciones TypeORM | Decisión del 25/8: `Db Creator` y patches a mano |
 | Tests automáticos | Decisión del 16/10 |
-| `Circuit.type` como conjunto cerrado | Status 19/8: es string libre a propósito, y cerrarlo no toca la base |
 | Anular pagos, elegir la fecha de pago, sumar los días restantes | Sin CU (observación del web en T18) y DG3 |
 | `last_order` para los vínculos de rutina apagados | Status 27/8: sólo si la posición del vínculo apagado llega a importar |
 | Login social, verificación de email y teléfono, nutrición, medidas y funciones sociales | "Correcciones al documento" (`Doc/um/`): post-MVP del proyecto |
