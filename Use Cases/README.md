@@ -1,8 +1,8 @@
 # PowerApp — Especificaciones de Casos de Uso
 
-Índice de casos de uso (78 en total). Un archivo Markdown por CU.
+Índice de casos de uso (82 en total). Un archivo Markdown por CU.
 
-> **CU-E-12** es un caso de uso **agrupador**: no se cuenta a sí mismo, sino sus seis operaciones anidadas (`CU-E-12a` a `CU-E-12f`), que sí figuran en el total. Eran 75 CU hasta el 31/10/2026, cuando se sumaron `CU-E-12e` y `CU-E-12f`, y 77 hasta el 04/11/2026, cuando se sumó `CU-E-30`.
+> **CU-E-12** es un caso de uso **agrupador**: no se cuenta a sí mismo, sino sus seis operaciones anidadas (`CU-E-12a` a `CU-E-12f`), que sí figuran en el total. Eran 75 CU hasta el 31/10/2026, cuando se sumaron `CU-E-12e` y `CU-E-12f`, 77 hasta el 04/11/2026, cuando se sumó `CU-E-30`, y 78 hasta ese mismo día, cuando se sumaron `CU-A-24` a `CU-A-27` (tipos de circuito).
 
 ## Rol Usuario
 
@@ -133,3 +133,10 @@
 - [`CU-A-21` Crear Membresía](admin/CU-A-21-crear-membresia.md)
 - [`CU-A-22` Editar Membresía](admin/CU-A-22-editar-membresia.md)
 - [`CU-A-23` Eliminar Membresía](admin/CU-A-23-eliminar-membresia.md)
+
+### Administrar Tipos de Circuito
+
+- [`CU-A-24` Obtener Tipos de Circuito](admin/CU-A-24-obtener-tipos-de-circuito.md)
+- [`CU-A-25` Crear Tipo de Circuito](admin/CU-A-25-crear-tipo-de-circuito.md)
+- [`CU-A-26` Editar Tipo de Circuito](admin/CU-A-26-editar-tipo-de-circuito.md)
+- [`CU-A-27` Eliminar Tipo de Circuito (Lógico)](admin/CU-A-27-eliminar-tipo-de-circuito.md)

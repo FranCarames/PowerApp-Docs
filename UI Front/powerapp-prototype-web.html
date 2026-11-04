@@ -430,8 +430,10 @@ const S={
   alum:[{n:'Lucía Méndez',p:'Fuerza 5×5',a:true,adh:82,d:1},{n:'Tomás Ríos',p:'Hipertrofia A/B',a:true,adh:58,d:3},{n:'Sofía Paz',p:'Full Body',a:true,adh:91,d:1},{n:'Martín Soto',p:'Fuerza 5×5',a:true,adh:64,d:2},{n:'Julián Vega',p:'Powerbuilding',a:true,adh:76,d:2},{n:'Valeria Pérez',p:'Full Body',a:false,adh:18,d:9}],
   memb:[{n:'Lucía Méndez',t:0,v:'2026-07-15'},{n:'Sofía Paz',t:1,v:'2026-08-28'},{n:'Julián Vega',t:2,v:'2027-02-01'},{n:'Franco Carames',t:0,v:'2026-07-15'},{n:'Tomás Ríos',t:0,v:'2026-06-17'},{n:'Martín Soto',t:0,v:'2026-06-15'},{n:'Valeria Pérez',t:0,v:'2026-06-01'}],
   mtypes:[{n:'Plan Mensual',d:30,p:18000},{n:'Plan Trimestral',d:90,p:48000},{n:'Plan Anual',d:365,p:170000}],
+  /* Tipos de circuito (BE-44 / T58): los cinco del seed y «Core», dado de baja (como uno que el patch creó desde el texto libre). Cada circuito guarda en t el índice de su tipo */
+  ctypes:[{n:'Entrada en calor',d:'Movilidad y activación antes del trabajo principal',act:true},{n:'Principal',d:'El bloque central de la sesión',act:true},{n:'Superserie',d:'Dos o más ejercicios seguidos, sin descanso entre ellos',act:true},{n:'AMRAP',d:'Tantas repeticiones o rondas como se pueda en un tiempo dado',act:true},{n:'Enfriamiento',d:'Vuelta a la calma y estiramientos al final de la sesión',act:true},{n:'Core',d:'',act:false}],
   planes:[{n:'Fuerza 5×5',w:8,k:3,a:12,t:'Fuerza',wk:rep(8,['Día A — Empuje','Día B — Tirón','Día C — Piernas'])},{n:'Hipertrofia A/B',w:6,k:2,a:8,t:'Hipertrofia',wk:rep(6,['Full Upper','Full Lower'])},{n:'Full Body',w:4,k:3,a:5,t:'Resistencia',wk:[['Día A — Empuje','Día B — Tirón','Día C — Piernas'],['Día A — Empuje','Día B — Tirón'],[],[]]},{n:'Powerbuilding',w:12,k:4,a:2,t:'Fuerza',wk:[...rep(4,['Día A — Empuje','Día B — Tirón','Día C — Piernas','Full Upper']),...rep(8,[])]}],
-  circs:[{n:'Empuje — Principal',act:true,ej:[['Press de banca',4,'Normal'],['Press inclinado mancuernas',3,'Normal'],['Aperturas',3,'AMRAP']]},{n:'Tirón — Principal',act:true,ej:[['Dominadas',4,'AMRAP'],['Remo con barra',4,'RM'],['Pull-down polea',3,'Normal'],['Curl con barra',3,'Normal']]},{n:'Piernas — Fuerza',act:true,ej:[['Sentadilla',5,'RM'],['Prensa',4,'Normal'],['Extensión de cuádriceps',3,'Normal']]},{n:'Upper básico',act:true,ej:[['Press de banca',4,'Normal'],['Remo con barra',4,'Normal'],['Press militar',3,'Normal']]},{n:'Lower básico',act:true,ej:[['Sentadilla',4,'Normal'],['Peso muerto',3,'RM']]},{n:'Core finisher',act:true,ej:[['Plancha',3,'AMRAP'],['Elevaciones de piernas',3,'Normal']]}],
+  circs:[{n:'Empuje — Principal',t:1,act:true,ej:[['Press de banca',4,'Normal'],['Press inclinado mancuernas',3,'Normal'],['Aperturas',3,'AMRAP']]},{n:'Tirón — Principal',t:1,act:true,ej:[['Dominadas',4,'AMRAP'],['Remo con barra',4,'RM'],['Pull-down polea',3,'Normal'],['Curl con barra',3,'Normal']]},{n:'Piernas — Fuerza',t:1,act:true,ej:[['Sentadilla',5,'RM'],['Prensa',4,'Normal'],['Extensión de cuádriceps',3,'Normal']]},{n:'Upper básico',t:1,act:true,ej:[['Press de banca',4,'Normal'],['Remo con barra',4,'Normal'],['Press militar',3,'Normal']]},{n:'Lower básico',t:1,act:true,ej:[['Sentadilla',4,'Normal'],['Peso muerto',3,'RM']]},{n:'Core finisher',t:5,act:true,ej:[['Plancha',3,'AMRAP'],['Elevaciones de piernas',3,'Normal']]}],
   ruts:[{n:'Día A — Empuje',m:'Pecho · Hombro · Tríceps',c:[0,5]},{n:'Día B — Tirón',m:'Espalda · Bíceps',c:[1]},{n:'Día C — Piernas',m:'Cuádriceps · Glúteo',c:[2,5]},{n:'Full Upper',m:'Tren superior completo',c:[3]},{n:'Full Lower',m:'Tren inferior completo',c:[4,5]}],
   mus:[{n:'Pectoral mayor',g:'Pecho'},{n:'Dorsal ancho',g:'Espalda'},{n:'Trapecio',g:'Espalda'},{n:'Cuádriceps',g:'Piernas'},{n:'Bíceps femoral',g:'Piernas'},{n:'Glúteo mayor',g:'Piernas'},{n:'Deltoides',g:'Hombros'},{n:'Bíceps braquial',g:'Brazos'},{n:'Tríceps',g:'Brazos'},{n:'Recto abdominal',g:'Core'}],
   gru:['Pecho','Espalda','Piernas','Hombros','Brazos','Core'],
@@ -465,7 +467,7 @@ const allEj=()=>[...new Set([...S.wiki.map(w=>w[0]),'Pull-down polea','Curl con 
 const TABS={
   user:[['u-home','Rutina','dumbbell'],['u-progreso','Progreso','chart'],['u-rms','RMs','trophy'],['u-timer','Timer','timer'],['u-perfil','Perfil','user']],
   coach:[['c-alumnos','Alumnos','users'],['c-planes','Planes','calendar'],['c-rutinas','Rutinas','list'],['c-timer','Timer','timer'],['c-perfil','Perfil','user']],
-  admin:[['a-home','Inicio','home'],['a-usuarios','Usuarios','users'],['a-coaches','Entrenadores','shield'],['sep','Entrenamiento'],['a-ejercicios','Ejercicios','dumbbell'],['a-circuitos','Circuitos','cycle'],['a-rutinas','Rutinas','list'],['a-planes','Planificaciones','calendar'],['sep','Configuración'],['a-catalogo','Catálogo','grid'],['a-membresias','Membresías','wallet'],['a-perfil','Perfil','user']],
+  admin:[['a-home','Inicio','home'],['a-usuarios','Usuarios','users'],['a-coaches','Entrenadores','shield'],['sep','Entrenamiento'],['a-ejercicios','Ejercicios','dumbbell'],['a-circuitos','Circuitos','cycle'],['a-rutinas','Rutinas','list'],['a-planes','Planificaciones','calendar'],['sep','Configuración'],['a-catalogo','Catálogo','grid'],['a-membresias','Membresías','wallet'],['a-tipos-circuito','Tipos de circuito','cycle'],['a-perfil','Perfil','user']],
 };
 const MTABS={admin:[['a-home','Inicio','home'],['a-usuarios','Usuarios','users'],['a-ejercicios','Ejercicios','dumbbell'],['a-rutinas','Rutinas','list'],['a-mas','Más','grid']]};
 function sidebar(r){const P=PEOPLE[r.role];const org=['c-membresias','c-pago'].includes(CUR);
@@ -811,6 +813,27 @@ Cc('c-hist',{t:'Historial de entrenamientos',tab:'c-alumnos',back:'c-alumno',ren
 
 const P=()=>S.role==='admin'?'a':'c';
 const rutUsos=id=>S.ruts.filter(r=>r.c.includes(id));
+/* ===== Tipos de circuito (BE-44 / T58) ===== */
+const byName=(a,b)=>a.localeCompare(b,'es',{sensitivity:'base'});
+const ctName=c=>S.ctypes[c.t]?S.ctypes[c.t].n:'';
+const ctUsos=i=>S.circs.filter(c=>c.act&&c.t===i).length;
+const ctActive=()=>S.ctypes.map((t,i)=>[t,i]).filter(([t])=>t.act).sort((a,b)=>byName(a[0].n,b[0].n));
+const nCirc=n=>`${n} circuito${n===1?'':'s'}`;
+const nEj=n=>`${n} ejercicio${n===1?'':'s'}`;
+const circState=(c,f)=>f==='Todos'||(f==='Activos')===c.act;
+/* Los chips de tipo salen de los circuitos que deja ver el chip de estado (no la búsqueda), como en Planificaciones */
+const circTypeOpts=()=>{const f=S.f.circ||'Activos';return [...new Set(S.circs.filter(c=>circState(c,f)).map(ctName))].sort(byName);};
+/* Un tipo elegido que no está entre los chips cuenta como Todos, pero se recuerda (en la web, ?tipo=<id> en la URL) */
+const circTypeSel=()=>circTypeOpts().includes(S.f.ctipo)?S.f.ctipo:'Todos';
+const circTypeChips=()=>{const o=circTypeOpts();if(!o.length)return '';const sel=circTypeSel();
+  return `<div class="chips" role="group" aria-label="Filtrar por tipo">${['Todos',...o].map(v=>`<button class="chip ${sel===v?'on':''}" aria-pressed="${sel===v}" data-act="filt:ctipo|${esc(v)}">${esc(v)}</button>`).join('')}</div>`;};
+/* El tipo en el editor: los activos y, si el circuito tiene uno dado de baja, ese también (marcado). Sin tipos activos, un aviso */
+const goTypes=()=>S.role==='admin'?`<button class="btn btn-sec" style="margin:-8px 0 18px" data-go="a-tipos-circuito">Ir a Tipos de circuito</button>`:'';
+function typeField(d){const act=ctActive(),cur=d.t===''?null:+d.t,curOff=cur!==null&&!S.ctypes[cur].act;
+  if(!act.length&&!curOff)return `<div class="field"><label>Tipo</label><select class="input" id="cd-t" disabled><option>No hay tipos activos</option></select></div>
+  <div class="note warn" role="status">${ic('alert',18)}<span>No hay tipos de circuito activos: hace falta uno para crear un circuito.${S.role==='admin'?'':' Pedile al admin que cree uno o que reactive alguno.'}</span></div>${goTypes()}`;
+  const opts=[...(cur===null?[['','Elegí un tipo']]:[]),...(curOff?[[String(cur),`${S.ctypes[cur].n} (dado de baja)`]]:[]),...act.map(([t,i])=>[String(i),t.n])];
+  return `${selectF('Tipo',opts,cur===null?'':String(cur),'id="cd-t" data-cdraft="t"')}${act.length?'':`<div class="note warn" role="status">${ic('alert',18)}<span>No hay tipos de circuito activos: el circuito conserva el suyo, pero por ahora no se le puede cambiar.</span></div>${goTypes()}`}`;}
 const rutEj=r=>r.c.reduce((n,id)=>n+S.circs[id].ej.length,0);
 const planesList=()=>{const p=P();return `${pageHead('Sistémicas','Planificaciones')}
   <div class="list g2">${S.planes.map((pl,i)=>`<div class="card click" data-act="plan:${i}" data-go="${p}-plan" role="button" tabindex="0"><div class="row" style="justify-content:space-between"><div style="font-family:var(--fD);font-size:22px;font-weight:700">${pl.n}</div><span class="chev">${ic('chev',18)}</span></div><div class="sub" style="margin:2px 0 12px">${pl.w} semanas · ${pl.k} rutinas por semana · ${pl.t}</div><div class="row" style="justify-content:space-between"><span class="pill p-acc">${pl.a} alumnos</span>${p==='c'?`<div class="row" style="gap:6px"><button class="btn btn-ghost btn-sm" data-act="plan:${i}" data-go="c-plan">Editar</button><button class="btn btn-sec btn-sm" data-act="assignPlan:${i}" data-go="c-asignar">Asignar</button></div>`:''}</div></div>`).join('')||empty('Todavía no hay planificaciones.')}</div>
@@ -893,10 +916,11 @@ const circuitEditor=()=>{if(!S.cdraft)ACT.circEdit('new');const d=S.cdraft,id=S.
   ${us.length>1?`<div class="note warn">${ic('alert',18)}<span>Este circuito se usa en ${us.length} rutinas (${us.map(r=>esc(r.n)).join(', ')}). Los cambios se aplican en todas. Si querés cambiarlo solo para una, duplicalo.</span></div>`:''}
   ${c&&!c.act?`<div class="note warn">${ic('alert',18)}<span>Circuito inactivo: no se puede agregar a rutinas nuevas.</span></div>`:''}
   ${field('Nombre del circuito','data-cdraft="n"',d.n,'Ej: Empuje — Principal')}
+  ${typeField(d)}
   <div class="sec"><h4>Ejercicios</h4><span class="sub" style="margin:0">${d.ej.length}</span></div>
   <div class="list" style="gap:8px">${d.ej.map((e,j)=>`<div class="card row" style="padding:10px 12px"><div class="thumb" style="width:40px;height:40px">${ic('dumbbell',18)}</div><div class="grow"><div class="name">${e[0]}</div><div class="row" style="gap:6px;margin-top:6px"><button class="ib" style="${stepBtn}" data-act="cdSeries:${j}|-1" aria-label="Menos series">−</button><span class="data" style="font-size:12px;min-width:58px;text-align:center">${e[1]} series</span><button class="ib" style="${stepBtn}" data-act="cdSeries:${j}|1" aria-label="Más series">+</button></div></div><button class="pill ${e[2]==='Normal'?'p-mut':'p-acc'}" data-act="cdTipo:${j}" title="Cambiar tipo de serie">${e[2]}</button><button class="ib del" data-act="cdRm:${j}" aria-label="Quitar ${e[0]}">${ic('x',16)}</button></div>`).join('')||empty('Agregá ejercicios al circuito.')}</div>
   <button class="btn btn-ghost" style="border-style:dashed;margin:10px 0 18px" data-act="cdAdd">${ic('plus',16)} Agregar ejercicio</button>
-  <button class="btn btn-pri" data-act="circSave">Guardar circuito</button>
+  <button class="btn btn-pri" data-act="circSave" ${d.t===''&&!ctActive().length?'disabled':''}>Guardar circuito</button>
   ${c?`<div class="two" style="margin-top:10px"><button class="btn btn-sec" data-act="circDup">Duplicar</button>${c.act?`<button class="btn btn-danger" data-act="circDel">Desactivar</button>`:`<button class="btn btn-ghost" data-act="circOn">Reactivar</button>`}</div>`:''}</div>`;};
 
 Cc('c-planes',{t:'Planificaciones',tab:'c-planes',render:planesList});
@@ -963,12 +987,12 @@ A('a-catalogo',{t:'Catálogo',tab:'a-catalogo',list:()=>{const q=(S.q.cat||'').t
   ${search('cat','Buscar '+lbl)}<div class="list g2" id="list">${R['a-catalogo'].list()}</div>
   <button class="fab" data-act="${k==='musculos'?'musForm:new':'gruForm:new'}" aria-label="Crear ${lbl}">${ic('plus',26)}</button>`;}});
 
-A('a-circuitos',{t:'Circuitos',tab:'a-circuitos',list:()=>{const q=(S.q.circ||'').toLowerCase(),f=S.f.circ||'Activos';
-  const it=S.circs.map((c,i)=>[c,i]).filter(([c])=>(f==='Todos'||(f==='Activos')===c.act)&&c.n.toLowerCase().includes(q));
-  return it.map(([c,i])=>{const u=rutUsos(i).length;return `<div class="card click" data-act="circEdit:${i}" data-go="a-circuito" role="button" tabindex="0" style="${c.act?'':'opacity:.65'}"><div class="row"><div class="tile" style="background:var(--accS);color:var(--acc)">${ic('cycle',18)}</div><div class="grow"><div class="name" style="font-weight:700">${esc(c.n)}</div><div class="sub">${c.ej.length} ejercicios · ${c.ej.reduce((n,e)=>n+e[1],0)} series</div></div>${c.act?`<span class="pill p-acc">${u} rutina${u===1?'':'s'}</span>`:'<span class="pill p-warn">Inactivo</span>'}</div><div class="sub" style="margin-top:10px">${c.ej.map(e=>e[0]).join(', ')}</div></div>`;}).join('')||empty('No hay circuitos con ese filtro.');},
+A('a-circuitos',{t:'Circuitos',tab:'a-circuitos',list:()=>{const q=(S.q.circ||'').toLowerCase(),f=S.f.circ||'Activos',ft=circTypeSel();
+  const it=S.circs.map((c,i)=>[c,i]).filter(([c])=>circState(c,f)&&(ft==='Todos'||ctName(c)===ft)&&c.n.toLowerCase().includes(q));
+  return it.map(([c,i])=>{const u=rutUsos(i).length;return `<div class="card click" data-act="circEdit:${i}" data-go="a-circuito" role="button" tabindex="0" style="${c.act?'':'opacity:.65'}"><div class="row"><div class="tile" style="background:var(--accS);color:var(--acc)">${ic('cycle',18)}</div><div class="grow"><div class="name" style="font-weight:700">${esc(c.n)}</div><div class="sub">${esc(ctName(c))} · ${nEj(c.ej.length)}</div></div>${c.act?`<span class="pill p-acc">${u} rutina${u===1?'':'s'}</span>`:'<span class="pill p-warn">Inactivo</span>'}</div><div class="sub" style="margin-top:10px">${c.ej.map(e=>e[0]).join(', ')}</div></div>`;}).join('')||empty('No hay circuitos con ese filtro.');},
   render:()=>`${pageHead('Entrenamiento','Circuitos')}
   <p class="muted" style="line-height:1.6;margin:-6px 0 16px">Un circuito se puede usar en varias rutinas. Si lo editás, el cambio se aplica en todas las que lo usan.</p>
-  ${search('circ','Buscar circuito')}${chips('circ',['Activos','Inactivos','Todos'])}<div class="list g2" id="list">${R['a-circuitos'].list()}</div>
+  ${search('circ','Buscar circuito')}${chips('circ',['Activos','Inactivos','Todos'])}${circTypeChips()}<div class="list g2" id="list">${R['a-circuitos'].list()}</div>
   <button class="fab" data-act="circEdit:new" data-go="a-circuito" aria-label="Crear circuito">${ic('plus',26)}</button>`});
 A('a-circuito',{t:'Circuito',tab:'a-circuitos',back:()=>S.circReturn||'a-circuitos',render:circuitEditor});
 A('a-rutinas',{t:'Rutinas',tab:'a-rutinas',render:rutinasList});
@@ -976,11 +1000,17 @@ A('a-rutina',{t:'Rutina',tab:'a-rutinas',back:'a-rutinas',render:rutinaEditor});
 A('a-planes',{t:'Planificaciones',tab:'a-planes',render:planesList});
 A('a-plan',{t:'Planificación',tab:'a-planes',back:'a-planes',render:planEditor});
 A('a-mas',{t:'Más',tab:'a-mas',render:()=>`${pageHead('Administración','Más secciones')}
-  <div class="list g2">${menu([['a-planes','Planificaciones','Planes sistémicos','calendar'],['a-circuitos','Circuitos','Reutilizables entre rutinas','cycle'],['a-coaches','Entrenadores','Edición y bajas','shield'],['a-catalogo','Catálogo','Músculos y grupos musculares','grid'],['a-membresias','Membresías','Tipos, precios y duración','wallet'],['a-perfil','Mi cuenta','Contraseña y sesión','user']])}</div>`});
+  <div class="list g2">${menu([['a-planes','Planificaciones','Planes sistémicos','calendar'],['a-circuitos','Circuitos','Reutilizables entre rutinas','cycle'],['a-coaches','Entrenadores','Edición y bajas','shield'],['a-catalogo','Catálogo','Músculos y grupos musculares','grid'],['a-membresias','Membresías','Tipos, precios y duración','wallet'],['a-tipos-circuito','Tipos de circuito','Para clasificar y filtrar circuitos','cycle'],['a-perfil','Mi cuenta','Contraseña y sesión','user']])}</div>`});
 
 A('a-membresias',{t:'Membresías',tab:'a-membresias',render:()=>`${pageHead('Configuración','Tipos de membresía')}
   <div class="list g2">${S.mtypes.map((m,i)=>`<div class="card"><div class="row"><div class="tile" style="background:var(--okS);color:var(--ok)">${ic('wallet',18)}</div><div class="grow"><div class="name" style="font-weight:700">${m.n}</div><div class="sub">${m.d} días · ${S.memb.filter(x=>x.t===i).length} alumnos</div></div><button class="ib" data-act="mtForm:${i}" aria-label="Editar ${m.n}">${ic('edit',16)}</button><button class="ib del" data-act="del:mtypes|${i}" aria-label="Eliminar ${m.n}">${ic('trash',16)}</button></div><div class="data" style="font-size:22px;font-weight:800;margin-top:12px">${ars(m.p)}</div></div>`).join('')}</div>
   <button class="fab" data-act="mtForm:new" aria-label="Crear membresía">${ic('plus',26)}</button>`});
+
+A('a-tipos-circuito',{t:'Tipos de circuito',tab:'a-tipos-circuito',render:()=>{const it=S.ctypes.map((t,i)=>[t,i]).sort((a,b)=>Number(b[0].act)-Number(a[0].act)||byName(a[0].n,b[0].n));
+  return `${pageHead('Configuración','Tipos de circuito')}
+  <p class="muted" style="line-height:1.6;margin:-6px 0 16px">Los entrenadores eligen uno al armar cada circuito y filtran el listado con ellos.</p>
+  <div class="list g2">${it.map(([t,i])=>`<div class="card" style="${t.act?'':'opacity:.65'}"><div class="row"><div class="tile" style="background:var(--accS);color:var(--acc)">${ic('cycle',18)}</div><div class="grow"><div class="name" style="font-weight:700">${esc(t.n)}</div><div class="sub">${nCirc(ctUsos(i))}</div></div><button class="ib" data-act="ctForm:${i}" aria-label="Editar ${esc(t.n)}">${ic('edit',16)}</button>${t.act?`<button class="ib del" data-act="ctDel:${i}" aria-label="Eliminar ${esc(t.n)}">${ic('trash',16)}</button>`:`<button class="ib" data-act="ctOn:${i}" aria-label="Reactivar ${esc(t.n)}">${ic('refresh',16)}</button>`}</div>${t.d||!t.act?`<div class="row" style="justify-content:space-between;gap:10px;margin-top:10px"><span class="muted" style="font-size:13px;line-height:1.5">${esc(t.d)}</span>${t.act?'':'<span class="pill p-warn">Inactivo</span>'}</div>`:''}</div>`).join('')||empty('Todavía no hay tipos de circuito. Creá el primero: sin un tipo activo no se pueden crear circuitos.')}</div>
+  <button class="fab" data-act="ctForm:new" aria-label="Crear tipo de circuito">${ic('plus',26)}</button>`;}});
 
 A('a-coaches',{t:'Entrenadores',tab:'a-coaches',render:()=>`${pageHead('Gestión','Entrenadores')}
   <button class="btn btn-sec" style="margin-bottom:16px" data-go="a-convertir">${ic('plus',16)} Convertir alumno en entrenador</button>
@@ -1085,19 +1115,25 @@ const ACT={
   circRm:ci=>{S.draft.c.splice(+ci,1);rerender();},
   circPick:()=>{const ids=S.circs.map((c,i)=>i).filter(i=>S.circs[i].act&&!S.draft.c.includes(i));S.pickIds=ids;pickModal('Agregar circuito',ids.map(i=>`${S.circs[i].n} · ${S.circs[i].ej.length} ejercicios`),'circPickOk');},
   circPickOk:i=>{S.draft.c.push(S.pickIds[+i]);S.modal=null;rerender();},
-  circEdit:i=>{S.circReturn=/rutina$/.test(CUR)?CUR:(S.role==='admin'?'a-circuitos':'c-rutina');S.circEdit=i==='new'?null:+i;const c=S.circEdit===null?{n:'',ej:[]}:S.circs[S.circEdit];S.cdraft={n:c.n,ej:c.ej.map(e=>[...e])};},
+  circEdit:i=>{S.circReturn=/rutina$/.test(CUR)?CUR:(S.role==='admin'?'a-circuitos':'c-rutina');S.circEdit=i==='new'?null:+i;const c=S.circEdit===null?{n:'',t:'',ej:[]}:S.circs[S.circEdit];S.cdraft={n:c.n,t:c.t===''?'':String(c.t),ej:c.ej.map(e=>[...e])};},
   cdSeries:a=>{const[j,d]=a.split('|'),e=S.cdraft.ej[+j];e[1]=Math.max(1,Math.min(10,e[1]+ +d));rerender();},
   cdTipo:j=>{const e=S.cdraft.ej[+j],T=['Normal','AMRAP','RM'];e[2]=T[(T.indexOf(e[2])+1)%3];rerender();},
   cdRm:j=>{S.cdraft.ej.splice(+j,1);rerender();},
   cdAdd:()=>pickModal('Agregar ejercicio',allEj().filter(n=>!S.cdraft.ej.some(e=>e[0]===n)),'cdAddOk'),
   cdAddOk:i=>{S.cdraft.ej.push([S.pick[+i],3,'Normal']);S.modal=null;rerender();},
-  circSave:()=>{const d=S.cdraft;if(!d.n.trim()){toast('Poné un nombre al circuito',1);return;}if(!d.ej.length){toast('Agregá al menos un ejercicio',1);return;}
-    let id=S.circEdit;const c={n:d.n.trim(),ej:d.ej,act:id===null?true:S.circs[id].act};
+  circSave:()=>{const d=S.cdraft;if(!d.n.trim()){toast('Poné un nombre al circuito',1);return;}if(d.t===''){toast('Elegí el tipo del circuito',1);return;}if(!d.ej.length){toast('Agregá al menos un ejercicio',1);return;}
+    let id=S.circEdit;const c={n:d.n.trim(),t:+d.t,ej:d.ej,act:id===null?true:S.circs[id].act};
     if(id===null){S.circs.push(c);id=S.circs.length-1;if(/rutina$/.test(S.circReturn)&&S.draft&&S.draft.c)S.draft.c.push(id);}else S.circs[id]=c;
     S.cdraft=null;toast('Circuito guardado');go(S.circReturn);},
-  circDup:()=>{const o=S.circEdit,c=S.circs[o];S.circs.push({n:c.n+' (copia)',ej:c.ej.map(e=>[...e]),act:true});const nid=S.circs.length-1;let enRutina=false;
+  /* La copia conserva el tipo; si está dado de baja no puede llevarlo (es un circuito nuevo) y se elige otro */
+  circDup:()=>{const c=S.circs[S.circEdit],t=S.ctypes[c.t];if(t.act){ACT.circDupDo(c.t);return;}const act=ctActive();
+    openModal({title:'Duplicar circuito',body:act.length?`El tipo <b>${esc(t.n)}</b> está dado de baja y una copia no puede llevarlo. Elegí el tipo de la copia.`:`El tipo <b>${esc(t.n)}</b> está dado de baja y no hay otro tipo activo, así que por ahora no se puede duplicar.`,
+      html:act.length?`<div style="margin-top:16px">${selectF('Tipo de la copia',[['','Elegí un tipo'],...act.map(([x,i])=>[String(i),x.n])],'','id="dup-t"')}</div>`:'',
+      actions:act.length?`<button class="btn btn-pri" id="dup-ok" data-act="circDupOk" disabled>Duplicar</button><button class="btn btn-ghost" data-act="close">Cancelar</button>`:`<button class="btn btn-ghost" data-act="close">Cerrar</button>`});},
+  circDupOk:()=>{const v=val('dup-t');if(v==='')return;S.modal=null;ACT.circDupDo(+v);},
+  circDupDo:t=>{const o=S.circEdit,c=S.circs[o];S.circs.push({n:c.n+' (copia)',t,ej:c.ej.map(e=>[...e]),act:true});const nid=S.circs.length-1;let enRutina=false;
     if(/rutina$/.test(S.circReturn)&&S.draft&&S.draft.c){const k=S.draft.c.indexOf(o);if(k>=0){S.draft.c[k]=nid;enRutina=true;}}
-    S.circEdit=nid;S.cdraft={n:c.n+' (copia)',ej:c.ej.map(e=>[...e])};toast(enRutina?'Copia creada y reemplazada en esta rutina':'Circuito duplicado: estás editando la copia');rerender();},
+    S.circEdit=nid;S.cdraft={n:c.n+' (copia)',t:String(t),ej:c.ej.map(e=>[...e])};toast(enRutina?'Copia creada y reemplazada en esta rutina':'Circuito duplicado: estás editando la copia');rerender();},
   circDel:()=>{const c=S.circs[S.circEdit],u=rutUsos(S.circEdit).length;openModal({ic:'alert',tone:'err',title:'Desactivar circuito',body:`<b>${esc(c.n)}</b> deja de estar disponible para rutinas nuevas.${u?` Las ${u} rutinas que ya lo usan lo conservan.`:''}`,actions:`<button class="btn btn-danger solid" data-act="circDelOk">Desactivar</button><button class="btn btn-ghost" data-act="close">Cancelar</button>`});},
   circDelOk:()=>{S.circs[S.circEdit].act=false;S.cdraft=null;toast('Circuito desactivado');go(S.circReturn);},
   circOn:()=>{S.circs[S.circEdit].act=true;toast('Circuito reactivado');rerender();},
@@ -1127,6 +1163,16 @@ const ACT={
   gruFormOk:i=>{const n=val('gf-n').trim();if(!n){toast('Poné un nombre',1);return;}if(i==='new')S.gru.push(n);else{const old=S.gru[+i];S.mus.forEach(m=>{if(m.g===old)m.g=n;});S.gru[+i]=n;}S.modal=null;toast('Grupo guardado');rerender();},
   gruView:i=>{const g=S.gru[+i],ms=S.mus.filter(m=>m.g===g);openModal({title:g,body:`${ms.length} músculo${ms.length===1?'':'s'} en este grupo`,html:`<div class="list" style="gap:8px;margin-top:14px">${ms.map(m=>`<div class="card" style="padding:12px 14px">${m.n}</div>`).join('')||empty('Este grupo todavía no tiene músculos.')}</div>`,actions:`<button class="btn btn-ghost" data-act="close">Cerrar</button>`});},
   mtForm:i=>{const m=i==='new'?{n:'',d:30,p:''}:S.mtypes[+i];openModal({title:i==='new'?'Nueva membresía':'Editar membresía',html:`<div style="margin-top:16px">${field('Nombre','id="mt-n"',m.n,'Ej: Plan Semestral')}<div class="two">${field('Precio ($)','type="number" min="0" id="mt-p"',m.p)}${field('Duración (días)','type="number" min="1" id="mt-d"',m.d)}</div></div>`,actions:`<button class="btn btn-pri" data-act="mtFormOk:${i}">Guardar</button><button class="btn btn-ghost" data-act="close">Cancelar</button>`});},
+  ctForm:i=>{const t=i==='new'?{n:'',d:''}:S.ctypes[+i];openModal({title:i==='new'?'Nuevo tipo de circuito':'Editar tipo de circuito',body:i==='new'?'':'El cambio se ve en todos los circuitos que lo usan.',
+    html:`<div style="margin-top:16px">${field('Nombre','id="ct-n" maxlength="50"',t.n,'Ej: Movilidad')}${field('Descripción','id="ct-d" maxlength="100" aria-describedby="ct-d-h"',t.d,'Ej: Activación antes del bloque principal')}<p class="sub" id="ct-d-h" style="margin:-8px 0 4px">Opcional.</p></div>`,
+    actions:`<button class="btn btn-pri" data-act="ctFormOk:${i}">Guardar</button><button class="btn btn-ghost" data-act="close">Cancelar</button>`});},
+  /* El nombre es único sin mayúsculas ni espacios de los bordes, contra activos e inactivos */
+  ctFormOk:i=>{const n=val('ct-n').trim(),d=val('ct-d').trim();if(!n){toast('Poné un nombre al tipo de circuito',1);return;}
+    if(S.ctypes.some((t,j)=>String(j)!==i&&t.n.trim().toLowerCase()===n.toLowerCase())){toast('Ya hay un tipo de circuito con ese nombre. Elegí otro o editá ese tipo.',1);return;}
+    if(i==='new')S.ctypes.push({n,d,act:true});else Object.assign(S.ctypes[+i],{n,d});S.modal=null;toast(i==='new'?'Tipo de circuito creado':'Tipo de circuito guardado');rerender();},
+  ctDel:i=>confirmDel('Eliminar tipo de circuito',`¿Eliminar <b>${esc(S.ctypes[+i].n)}</b>? Es una baja lógica: deja de ofrecerse para circuitos nuevos, y los circuitos que ya lo tienen lo conservan. Lo podés reactivar cuando quieras.`,`ctDelOk:${i}`),
+  ctDelOk:i=>{S.ctypes[+i].act=false;S.modal=null;toast('Tipo de circuito dado de baja');rerender();},
+  ctOn:i=>{S.ctypes[+i].act=true;toast('Tipo de circuito reactivado');rerender();},
   mtFormOk:i=>{const n=val('mt-n').trim(),p=+val('mt-p'),d=+val('mt-d');if(!n||!(p>0)||!(d>0)){toast('Completá nombre, precio y duración',1);return;}const m={n,p,d};if(i==='new')S.mtypes.push(m);else S.mtypes[+i]=m;S.modal=null;toast('Membresía guardada');rerender();},
   coachForm:i=>{const c=S.coaches[+i];openModal({title:'Editar entrenador',html:`<div style="margin-top:16px">${field('Nombre','id="cf-n"',c.n)}${field('Email profesional','type="email" id="cf-e"',c.e)}</div>`,actions:`<button class="btn btn-pri" data-act="coachFormOk:${i}">Guardar</button><button class="btn btn-ghost" data-act="close">Cancelar</button>`});},
   coachFormOk:i=>{const c=S.coaches[+i];c.n=val('cf-n').trim()||c.n;c.e=val('cf-e').trim()||c.e;S.modal=null;toast('Entrenador actualizado');rerender();},
@@ -1171,7 +1217,7 @@ document.addEventListener('input',e=>{const t=e.target;
   if(t.dataset.cdraft&&S.cdraft)S.cdraft[t.dataset.cdraft]=t.value;
   if(t.dataset.pw!==undefined){const r=document.getElementById('reqs');if(r)r.innerHTML=reqsHTML(t.value);}
 });
-document.addEventListener('change',e=>{const t=e.target;if(t.dataset.plannum&&S.draft){planNumSet(t.dataset.plannum,t.value);return;}if(t.dataset.pay){S.pay[t.dataset.pay]=t.dataset.pay==='t'?+t.value:t.value;if(t.dataset.pay==='al'){const m=S.memb.find(x=>x.n===t.value);if(m)S.pay.t=m.t;}rerender();}});
+document.addEventListener('change',e=>{const t=e.target;if(t.id==='dup-t'){const b=document.getElementById('dup-ok');if(b)b.disabled=!t.value;return;}if(t.id==='cd-t'&&S.cdraft){S.cdraft.t=t.value;rerender();return;}if(t.dataset.plannum&&S.draft){planNumSet(t.dataset.plannum,t.value);return;}if(t.dataset.pay){S.pay[t.dataset.pay]=t.dataset.pay==='t'?+t.value:t.value;if(t.dataset.pay==='al'){const m=S.memb.find(x=>x.n===t.value);if(m)S.pay.t=m.t;}rerender();}});
 
 setInterval(()=>{const t=S.timer;if(!t.running||t.left<=0)return;t.left--;
   if(t.left===0){t.running=false;if(CUR.endsWith('timer'))rerender();toast('Descanso terminado');return;}
