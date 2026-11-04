@@ -439,12 +439,26 @@ tr:last-child td{border-bottom:0}
       steps: ['En Grupos musculares, tocá el tacho de QA Grupo A, que tiene a QA Músculo 1b.'],
       exp: `<p>No pide confirmación: muestra ${ui('No se puede eliminar')} con ${ui('QA Grupo A tiene 1 músculo: el servidor no deja eliminar un grupo mientras tenga músculos…')} y el botón ${ui('Entendido')}. En Network no sale ningún DELETE. (CU-A-15, camino alternativo)</p>` },
     { id: 'DEL-06', g: 'del', t: 'Eliminar un músculo en uso', env: ['TODOS'],
-      steps: ['En Músculos, tocá el tacho de QA Músculo 1b, que usa QA Ejercicio.', 'Leé el mensaje y confirmá.'],
-      exp: '<p>No deja eliminarlo e informa que lo usan ejercicios (CU-A-10, camino alternativo).</p>',
-      kt: 'Hoy no cumple el CU.', known: 'El backend lo borra igual y lo quita de los ejercicios. La pantalla lo avisa en el diálogo: «Lo usa 1 ejercicio: se quita de él.» Si te sirve así, actualizá CU-A-10; si no, es un cambio del backend. Seguí con DEL-07.' },
-    { id: 'DEL-07', g: 'del', t: 'El ejercicio que se quedó sin músculos', env: ['TODOS'],
-      steps: ['En Ejercicios, abrí QA Ejercicio.', 'Tocá Guardar sin agregar músculos.'],
-      exp: `<p>El ejercicio no tiene músculos y al guardar pide ${ui('Elegí al menos un músculo')}. Es la consecuencia de DEL-06 mientras el backend borre en cascada.</p>` },
+      data: `Para el listado viejo: creá ${tok('QA Músculo 6')} en QA Grupo A.`,
+      steps: [
+        'En Músculos, tocá el tacho de QA Músculo 1b, que usa QA Ejercicio.',
+        'Leé el aviso y cerralo.',
+        'Listado viejo: abrí el catálogo en dos pestañas y dejá la pestaña A en Músculos.',
+        'En la pestaña B, editá QA Ejercicio, sumale QA Músculo 6 y guardá.',
+        'Volvé enseguida a la pestaña A y, sin recargar, tocá el tacho de QA Músculo 6. Si pide confirmación, confirmá.',
+        'Recargá la pestaña A y abrí QA Ejercicio.',
+      ],
+      exp: `<ul><li>QA Músculo 1b no pide confirmación: aparece ${ui('No se puede eliminar')}, que dice que lo usa 1 ejercicio y que hay que quitarlo de él antes de eliminarlo. En Network no sale ningún DELETE: QA Músculo 1b sigue en la lista y QA Ejercicio lo sigue teniendo. (CU-A-10, camino alternativo)</li><li>Listado viejo: la pestaña A todavía no sabe que QA Ejercicio usa QA Músculo 6 y pide confirmación. Al confirmar sale <code>DELETE /muscles/{id}</code>, el backend responde <code>409</code> con <code>{ "error": "No se puede eliminar el músculo: está asociado a ejercicios" }</code> y aparece ${ui('No se puede eliminar el músculo: lo usan ejercicios. Quitalo de ellos antes de eliminarlo.')} (CU-A-10, camino alternativo). Si en vez de la confirmación aparece el aviso, la lista ya se actualizó sola: también está bien.</li><li>Al recargar, QA Músculo 6 sigue en la lista y QA Ejercicio tiene QA Músculo 1b y QA Músculo 6.</li></ul>` },
+    // DEL-07 («El ejercicio que se quedó sin músculos») se retiró el 4/11: dependía del borrado en
+    // cascada de DEL-06, que ya no pasa. Lo reemplaza DEL-11; su id no se reutiliza.
+    { id: 'DEL-11', g: 'del', t: 'Un ejercicio sin músculos', env: ['TODOS'],
+      steps: [
+        'En Ejercicios, abrí QA Ejercicio.',
+        'Quitá todos los chips de músculos y tocá Guardar.',
+        'Agregá un músculo cualquiera del seed y guardá.',
+        'En Músculos, eliminá QA Músculo 1b y QA Músculo 6, que ya no los usa ningún ejercicio.',
+      ],
+      exp: `<ul><li>Sin músculos, al guardar aparece ${ui('Elegí al menos un músculo')} y no sale ningún request: el ejercicio sigue como estaba.</li><li>Con el músculo del seed se guarda.</li><li>QA Músculo 1b y QA Músculo 6 piden la confirmación de siempre y se eliminan, así que QA Grupo A queda sin músculos para DEL-08.</li></ul>` },
     { id: 'DEL-08', g: 'del', t: 'Eliminar un grupo vacío', env: ['TODOS'],
       steps: ['Tocá el tacho de QA Grupo A, que ya no tiene músculos.', 'Confirmá.', `Abrí ${ui('Crear músculo')} y mirá el selector de grupo.`],
       exp: `<p>${ui('Eliminar grupo muscular')}: ${ui('¿Eliminar QA Grupo A? No se puede deshacer.')} Al confirmar: ${ui('Grupo eliminado')}, desaparece de la lista y del selector. (CU-A-15)</p>` },
@@ -454,7 +468,7 @@ tr:last-child td{border-bottom:0}
       exp: `<p>Al guardar: ${ui('El grupo muscular ya no existe. Cerrá esta ventana y volvé a intentar.')} Al eliminar: ${ui('El grupo ya no existe.')} (CU-A-14 y CU-A-15, caminos alternativos)</p>` },
     { id: 'DEL-10', g: 'del', t: 'Un grupo que recibió un músculo en otra pestaña', env: ['TODOS'],
       steps: ['En la pestaña A, dejá abierta la lista de grupos, donde QA Grupo B2 figura con 0 músculos.', `En la pestaña B, creá ${tok('QA Músculo 5')} en QA Grupo B2.`, 'En la pestaña A, sin recargar, eliminá QA Grupo B2.'],
-      exp: `<p>El backend lo rechaza y aparece ${ui('No se pudo eliminar el grupo. Si todavía tiene músculos, movelos a otro grupo o eliminalos antes.')} El grupo y su músculo siguen existiendo.</p>` },
+      exp: `<p>El backend lo rechaza: <code>DELETE /muscles/mg/{id}</code> responde <code>409</code> con <code>{ "error": "No se puede eliminar el grupo muscular: todavía tiene músculos" }</code> y aparece ${ui('No se puede eliminar el grupo: todavía tiene músculos. Movelos a otro grupo o eliminalos antes.')} Al recargar, QA Grupo B2 y QA Músculo 5 siguen existiendo. (CU-A-15, camino alternativo)</p>` },
 
     // ── Errores y pantallas ─────────────────────────────────
     { id: 'ERR-01', g: 'err', t: 'Servidor caído al cargar', env: ['LOCAL'],

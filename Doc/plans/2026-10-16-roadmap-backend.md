@@ -402,6 +402,7 @@ BE-09 → BE-10 → BE-11 → BE-13 → BE-14 → BE-17 → BE-18 → BE-21 → 
 #### BE-24 · CU-A-10: músculo en uso
 - **Qué:** mismo patrón que A-06 (12/10). `deleteMuscle` (`muscles.service.ts:137`) responde `409` si el músculo tiene filas en `Exercised_Muscle`, en vez de borrarlo en cascada.
 - **Acepta:** DEL-06 pasa y DEL-07 deja de ser alcanzable. El diálogo del web ("se quita de él") hay que corregirlo.
+- **Web (4/11):** el diálogo lo corrige la **T56** del web, sin cambios del backend: un músculo en uso muestra «No se puede eliminar» sin pedir confirmación, y el `409` tiene su propio texto. También cubre el `409` de BE-25 (DEL-10). DEL-07 se retiró y lo reemplaza DEL-11. Ver [plan](2026-11-04-hallazgos-musculos-borrado-plan.md).
 
 #### BE-25 · CU-A-15: grupo con músculos
 - **Qué:** `deleteMuscleGroup` (`muscles.service.ts:249`) responde `409` si el grupo tiene músculos. Hoy el FK `CASCADE` (`01_estructura.sql:136`) borra el grupo, sus músculos y sus vínculos.
