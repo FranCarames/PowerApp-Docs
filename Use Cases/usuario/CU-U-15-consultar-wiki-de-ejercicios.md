@@ -18,6 +18,7 @@ Permite al usuario explorar la biblioteca/catálogo global de ejercicios para co
 
 - Búsqueda y lectura del catálogo de Exercise.
 - Visualización de descripción, tips, video e imágenes.
+- El Entrenador consulta la misma biblioteca, también solo de lectura, en su propio CU: [CU-E-30](../entrenador/CU-E-30-consultar-wiki-de-ejercicios.md).
 
 **Fuera de alcance:**
 
