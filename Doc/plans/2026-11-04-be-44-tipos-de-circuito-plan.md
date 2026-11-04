@@ -14,7 +14,7 @@
 > **Este plan es de diseño:** lo escribió la sesión de docs el 4/11 con las decisiones de Fran del 31/10. Lo leen la sesión del **backend** (sección 4) y la del **web** (sección 5). **Primero el back, después el deploy (con el patch) y después la web** (sección 6). Las decisiones y su porqué están en la [spec](../specs/2026-11-04-tipos-de-circuito-design.md): son las **D1 a D6** del pedido, que en el repo se numeran **D59 a D64**.
 
 **Fuente:** la corrida del 31/10 de [Pruebas de circuitos](../../Tests/Circuitos/Pruebas%20de%20circuitos.html). El pedido la llama «tanda 4»; en el repo, el archivo es [`3-pruebas-circuitos.resultados.json`](../../Tests/Circuitos/3-pruebas-circuitos.resultados.json), exportado el 31/10 a las 13:58 UTC.
-**Modelo:** **cambia.** Tabla nueva `Circuit_Type`; `Circuit` pierde `type` y gana `circuit_type_id`. Manda el de Miro (D59), exportado el 4/11 a [`Doc/PowerApp - Modelo DB.svg`](../PowerApp%20-%20Modelo%20DB.svg) y su PDF. **Dos diferencias con D1, a confirmar por Fran antes de empezar la BE-44;** mientras tanto vale D1 en las dos:
+**Modelo:** **cambia.** Tabla nueva `Circuit_Type`; `Circuit` pierde `type` y gana `circuit_type_id`. Manda el de Miro (D59), exportado el 4/11 a [`Doc/PowerApp - Modelo DB.svg`](../PowerApp%20-%20Modelo%20DB.svg) y su PDF. **Dos diferencias con D1; Fran confirmó el 4/11 que vale D1 en las dos:**
 1. El diagrama llama a la tabla `CircuitType` y D1 `Circuit_Type`. Se usa `Circuit_Type`, como todas las tablas de la base.
 2. El diagrama muestra `Circuit.description` como `Varchar(30)`, cuando era `Varchar(100)`. Parece un resto de la fila `type` que se borró: **no se cambia**.
 
@@ -460,7 +460,7 @@ La pantalla **nunca** muestra el texto del servidor tal cual: lo reconoce y mues
    - Desde el deploy del backend hasta el de la T58, **la web vieja también falla con los circuitos** (lee `type`, que ya no viene, y su editor lo manda): conviene que la T58 esté lista para salir enseguida (se puede avanzar contra el backend local con la BE-44, sección 5.6).
 3. **Web (T58)** después: `api:fetch` y `api:gen` sobre el Swagger ya desplegado, y recién ahí las pantallas. No sale antes porque `circuit-type/*` y `circuit_type_id` no existen en el contrato hasta entonces.
 4. **Docs:**
-   - Cerrar con Fran las dos diferencias entre el diagrama y D1 (encabezado, «Modelo»). Si se corrige el diagrama en Miro, volver a exportar `Doc/PowerApp - Modelo DB.svg` y `.pdf` (si cambia el nombre del archivo, tocar la constante `SRC` de `Doc/modelo-db.html` y los links al PDF).
+   - Corregir en Miro las dos diferencias con D1 (encabezado, «Modelo»): la tabla se llama `Circuit_Type` y `Circuit.description` sigue en `Varchar(100)`. Después, volver a exportar `Doc/PowerApp - Modelo DB.svg` y `.pdf` (si cambia el nombre del archivo, tocar la constante `SRC` de `Doc/modelo-db.html` y los links al PDF).
    - Con la BE-44 y la T58 en Render: sacar los avisos amarillos (la constante `BE44`, `NO_TYPES` y los `kt`/`known`) de TIP-01 a TIP-09, LST-02, LST-05, CRE-01, CRE-02, CRE-07, EDT-09, DUP-04, COA-03, ERR-05 y FIN-02 en Pruebas de circuitos, y de MAS-01 y MAS-03 en Pruebas del panel y la navegación, junto con su línea en «Antes de empezar» de los dos planes. Después, volver a correr esos casos.
    - Las copias de `Status/` (backend y web) las trae el usuario.
 
