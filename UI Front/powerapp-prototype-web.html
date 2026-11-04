@@ -243,8 +243,85 @@ textarea.input{resize:vertical;min-height:96px;line-height:1.5}
 .rep-row{gap:12px;padding:10px 12px;cursor:pointer;text-align:left}
 .rep-row input{width:22px;height:22px;accent-color:var(--pri);flex-shrink:0}
 
+/* Historial de entrenamientos del alumno (T55, 4/11): pantalla con Sesiones, Calendario y el detalle de un ejercicio */
+a.card{color:inherit;text-decoration:none}
+.mini{display:flex;align-items:flex-end;gap:3px;height:26px;flex-shrink:0}
+.mini span{width:5px;height:100%;border-radius:2px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end}
+.mini.acc span{background:var(--el)}
+.seg.htabs button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;font-size:14px}
+.hcols{display:grid;gap:20px;align-items:start}
+.hleft{display:grid;gap:14px;min-width:0}
+.hright{min-width:0}
+.hleft .stats{gap:8px}
+.hleft .stat{padding:12px 6px;min-width:0}
+.hleft .stat .l{overflow-wrap:anywhere}
+.hhead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hhead h2{font-size:14px;font-weight:700}
+.harrows{display:flex;gap:6px;flex-shrink:0}
+.harrows .wk{width:40px;height:40px}
+.bars.hb{height:150px;margin-top:14px}
+.hb .bar{gap:4px;min-width:0}
+.hb button.bar:disabled{cursor:default}
+.hb .track{max-width:34px;flex-direction:column;justify-content:flex-end;align-items:stretch}
+.hb .track .t-pl,.hb .track .t-in,.hb .track .t-ok{display:block;width:100%;border-radius:0;flex-shrink:0}
+.hb .track .t-pl{background:var(--acc)}
+.hb .track .t-in{background:var(--priL)}
+.hb .track .t-in+.t-pl{border-top:2px solid var(--el)}
+.hb .track .t-ok{background:var(--ok)}
+.hb .track.fut{background:none;border:1px dashed var(--border2)}
+.hb .track.cur{outline:2px solid #C9CFDC;outline-offset:2px}
+.hb .track.foc{outline:2px solid #A78BFA;outline-offset:2px}
+.hb .cnt{min-height:15px;font-family:var(--fM);font-size:11px;font-weight:700}
+.hb .cnt.z{color:var(--tm)}
+.hb small{text-align:center;line-height:1.25}
+.hb small b{display:block;font-size:11px;color:var(--ts)}
+.hb small b.cur{color:var(--tp)}
+.hleg{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--ts)}
+.hleg i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:6px;vertical-align:-1px;box-sizing:border-box}
+.hpk{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:44px;padding:0 6px;border-bottom:1px solid var(--el);font-size:14px;text-align:left}
+.hpk span:last-child{font-size:12px;color:var(--ts);white-space:nowrap}
+.hpk-g{font-size:12px;font-weight:700;color:#A78BFA;margin:12px 0 2px}
+.hwk{margin-bottom:22px;scroll-margin-top:16px;border-radius:14px}
+.hwk.foc{outline:2px solid #A78BFA;outline-offset:6px}
+.hwk-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:8px}
+.hwk-h h3{font-size:13px;font-weight:700}
+.hdash{padding:12px 14px;border:1px dashed var(--border2);border-radius:14px;font-size:13px;color:var(--ts)}
+.hses{padding:0}
+.hses-b{width:100%;display:flex;align-items:center;gap:12px;padding:12px;text-align:left}
+.hday{width:38px;flex-shrink:0;display:flex;flex-direction:column;align-items:center}
+.hday b{font-family:var(--fM);font-size:20px;font-weight:800;line-height:1}
+.hday span{font-size:11px;color:var(--ts);margin-top:3px}
+.hex{list-style:none;padding:0 12px 4px 62px}
+.hex li{border-top:1px solid var(--border);padding:8px 0 10px}
+.hex-r{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hex-n{min-height:36px;font-size:13px;font-weight:600;text-align:left;text-decoration:underline;text-decoration-color:#4A5068;text-underline-offset:3px;overflow-wrap:anywhere}
+.hnote{display:flex;gap:8px;align-items:flex-start;margin-top:6px;padding:8px 10px;border-radius:10px;background:var(--el);font-size:13px;line-height:1.45;color:#D4D8E2;font-style:italic;overflow-wrap:anywhere}
+.hnote svg{color:#A78BFA;margin-top:2px}
+.hcal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin-top:14px}
+.hcal .wd{text-align:center;font-size:11px;font-weight:600;color:var(--ts);padding-bottom:2px}
+.dd{aspect-ratio:1;min-height:42px;border-radius:10px;font-family:var(--fM);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);color:#C9CFDC;text-align:center}
+.dd.l1{background:rgba(34,197,94,.30);border-color:transparent;color:var(--tp)}
+.dd.l2{background:rgba(34,197,94,.62);border-color:transparent;color:#fff}
+.dd.l3{background:var(--ok);border-color:var(--ok);color:var(--base)}
+.dd.hoy{box-shadow:inset 0 0 0 2px var(--tp)}
+.dd.sel{outline:2px solid #A78BFA;outline-offset:2px}
+.dd:disabled{opacity:.35;cursor:default}
+.dd.pad{visibility:hidden}
+.heat{display:inline-flex;align-items:center;gap:4px}
+.heat i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.rmc{position:relative;height:140px;margin:30px 10px 0;border-bottom:1px solid var(--border2)}
+.rmc .mid{position:absolute;left:0;right:0;top:50%;border-top:1px dashed var(--border)}
+.rmc svg{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible}
+.rmc .pt{position:absolute;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 3px var(--card)}
+.rmc .pt.last{width:12px;height:12px;margin:-6px 0 0 -6px}
+.rmc .lb{position:absolute;font-family:var(--fM);font-size:11px;font-weight:700;white-space:nowrap;color:#C9CFDC}
+.rmc .lb.last{color:var(--tp)}
+
 /* Desktop */
 @media (min-width:960px){
+  .hcols{grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:28px}
+  .hleft{position:sticky;top:24px}
+  .seg.htabs{max-width:380px}
   .layout{display:grid;grid-template-columns:264px 1fr;min-height:100vh}
   .sidebar{display:flex;flex-direction:column;gap:2px;position:sticky;top:0;height:100vh;overflow-y:auto;padding:26px 16px 16px;border-right:1px solid var(--border);background:var(--card)}
   .side-brand{display:flex;align-items:center;gap:12px;padding:0 8px 24px}
@@ -414,6 +491,9 @@ function render(){
   if(S.modal)html+=modalHTML();
   document.getElementById('app').innerHTML=html;
   document.title=`${r.t||'PowerApp'} · PowerApp`;
+  // Foco pedido por una acción (historial: pestañas, mes, día, semana, detalle de un ejercicio y la vuelta a la ficha)
+  if(S.hFocus){const f=S.hFocus;S.hFocus=null;requestAnimationFrame(()=>{const el=document.getElementById(f.id);if(!el)return;if(f.top)scrollTo(0,0);el.focus({preventScroll:true});
+    if(f.scroll)el.closest('section').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});});}
 }
 function rerender(){const y=scrollY;render();scrollTo(0,y);}
 function go(id){S.modal=null;if(location.hash==='#/'+id){render();scrollTo(0,0);}else location.hash='#/'+id;}
@@ -573,9 +653,161 @@ Cc('c-pago',{t:'Registrar pago',tab:'c-alumnos',back:'c-membresias',render:()=>{
 Cc('c-alumno',{t:'Alumno',tab:'c-alumnos',back:'c-alumnos',render:()=>{const a=S.alum[S.alu];
   return `${pageHead('Alumno',a.n)}
   <div class="row" style="margin-bottom:18px"><div class="avatar ${a.a?'':'gray'}" style="width:64px;height:64px;font-size:26px">${a.n[0]}</div><div><span class="pill ${a.a?'p-ok':'p-warn'}">${a.a?'Activo':'Inactivo'}</span><div class="sub" style="margin-top:6px">${a.p}</div></div></div>
-  <div class="stats" style="margin-bottom:18px"><div class="stat"><div class="v">${a.adh}%</div><div class="l">Adherencia</div></div><div class="stat"><div class="v">24</div><div class="l">Sesiones</div></div><div class="stat"><div class="v">3</div><div class="l">Meses</div></div></div>
-  <div class="list g2">${menu([[null,'RMs del alumno','Récords por ejercicio','trophy','alRms'],[null,'Historial de entrenamientos','Sesiones completadas','list','alHist'],[null,'Historial de pagos','Membresías y pagos','wallet','alPagos'],['c-pago','Registrar pago','Nuevo pago de membresía','plus','payFor:'+a.n]])}</div>
+  <div class="stats" style="margin-bottom:18px"><div class="stat"><div class="v">${a.adh}%</div><div class="l">Adherencia</div></div><div class="stat"><div class="v">${histData().ses.length}</div><div class="l">Sesiones</div></div><div class="stat"><div class="v">3</div><div class="l">Meses</div></div></div>
+  <div class="list g2">${menu([[null,'RMs del alumno','Récords por ejercicio','trophy','alRms']])}${histRow()}${menu([[null,'Historial de pagos','Membresías y pagos','wallet','alPagos'],['c-pago','Registrar pago','Nuevo pago de membresía','plus','payFor:'+a.n]])}</div>
   ${a.a?`<button class="btn btn-danger" style="margin-top:16px" data-act="closeAcc">Cerrar cuenta del alumno</button>`:''}`;}});
+
+/* ===== Historial de entrenamientos del alumno (T55, 4/11) =====
+   Una pantalla propia (#/c-hist) con las pestañas Sesiones y Calendario y el detalle de un ejercicio.
+   En la web: /c/alumnos/:id/historial con ?vista=calendario, ?mes=AAAA-MM y ?ejercicio=<id>. Reglas y textos:
+   Doc/specs/2026-11-04-historial-de-entrenamientos-design.md. Datos de ejemplo: 16 semanas hasta la actual. */
+const MESc=MES.map(m=>m.toLowerCase());
+const MESL=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const DIAL=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+const HOY=dt(iso(TODAY));
+const monday=d=>addDays(d,-((d.getDay()+6)%7));
+const fCorta=d=>`${d.getDate()} ${MESc[d.getMonth()]}${d.getFullYear()!==HOY.getFullYear()?' '+d.getFullYear():''}`;
+const fRel=d=>{const n=Math.round((HOY-dt(iso(d)))/864e5);return n===0?'Hoy':n===1?'Ayer':n>1&&n<7?`Hace ${n} días`:fCorta(d);};
+const pl=(n,a,b)=>`${n} ${n===1?a:b}`;
+const dec=n=>n.toLocaleString('es-AR',{maximumFractionDigits:1});
+const norm=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+/* Rutinas de ejemplo: [nombre, [[ejercicio, prescripción]]]. M es una rutina puntual (individual); las demás, del plan */
+const HR={A:['Día A — Empuje',[['Press de banca','4×6 · 80 kg'],['Press militar','3×8 · 40 kg'],['Fondos en paralelas','3×10'],['Aperturas','3×12 · 14 kg']]],
+  B:['Día B — Tirón',[['Dominadas','4×8'],['Remo con barra','4×10 · 60 kg'],['Curl con barra','3×12 · 25 kg']]],
+  C:['Día C — Piernas',[['Sentadilla','5×5 · 90 kg'],['Prensa','4×10 · 160 kg'],['Peso muerto','3×5 · 110 kg']]],
+  U:['Full Upper',[['Press de banca','4×8 · 65 kg'],['Remo con barra','4×10 · 50 kg'],['Press militar','3×10 · 30 kg']]],
+  L:['Full Lower',[['Sentadilla','4×8 · 70 kg'],['Peso muerto','3×6 · 90 kg'],['Zancadas','3×10 · 12 kg']]],
+  M:['Movilidad y core',[['Plancha','3×AMRAP · 45 s'],['Dominadas','3×5'],['Zancadas','2×12']]]};
+/* Sesiones: [semana (0 = hace 15, 15 = la actual), rutina, día (0 = lunes), {n: notas, late: ejercicio hecho otro día de la semana, only: solo esos ejercicios}] */
+const HSPEC=[[0,'U',0],[0,'L',2],[0,'U',4],[1,'U',0],[1,'L',3],[2,'U',1],[2,'L',3,{n:{'Sentadilla':'Buena técnica, me sentí firme'}}],[2,'U',5],[3,'L',2],
+  [5,'U',0],[5,'M',2],[6,'U',0,{n:{'Press de banca':'La última serie me quedé en 6'}}],[6,'L',2],[6,'U',4],[7,'L',1],[7,'U',3],
+  [8,'A',0],[8,'B',2],[8,'C',4],[9,'A',0],[9,'B',2],[9,'C',4],[9,'M',5,{n:{'Plancha':'Lo hice en casa'}}],
+  [10,'A',0,{only:['Press de banca','Press militar','Fondos en paralelas']}],[10,'C',3],
+  [11,'A',0,{n:{'Press militar':'Molestia en el hombro, bajé a 35 kg'}}],[11,'B',2],[11,'C',4],
+  [12,'B',1,{only:['Dominadas','Remo con barra'],n:{'Remo con barra':'Corté antes, tenía poco tiempo'}}],[12,'M',3],
+  [13,'A',0],[13,'B',2,{n:{'Dominadas':'Hice 9 en la primera serie'}}],[13,'C',4],
+  [14,'A',0,{n:{'Press de banca':'Las 4 series completas, sin ayuda'}}],[14,'B',2],[14,'C',5,{late:{'Peso muerto':6},n:{'Sentadilla':'Rodilla derecha un poco cargada'}}],
+  [15,'A',0,{late:{'Press militar':1},n:{'Press de banca':'Subí a 82,5 kg en la última'}}],[15,'M',1],[15,'B',2,{n:{'Dominadas':'Me costó la última serie'}}],[15,'C',5]];
+/* RMs que registró el alumno: [fecha, kg, repeticiones] */
+const ARMS={'Press de banca':[['2026-02-25',70,1],['2026-03-25',72.5,1],['2026-04-22',75,1],['2026-05-13',80,1],['2026-06-03',85,3]],
+  'Sentadilla':[['2026-02-27',85,1],['2026-04-03',90,1],['2026-05-01',95,1],['2026-05-29',100,1]],
+  'Remo con barra':[['2026-04-24',60,1],['2026-05-22',65,1]],'Peso muerto':[['2026-05-08',120,5]]};
+let HD=null;
+function histData(){if(HD)return HD;
+  const W0=addDays(monday(HOY),-105),gi=d=>Math.round((monday(d)-W0)/6048e5),ses=[];
+  HSPEC.forEach(([w,r,d,o],i)=>{o=o||{};const[rn,exs]=HR[r],plan=r!=='M',ws=addDays(W0,7*w),base=addDays(ws,d);
+    const ex=exs.filter(([n])=>!o.only||o.only.includes(n)).map(([n,p],j)=>({n,p,j,day:o.late&&o.late[n]!==undefined?addDays(ws,o.late[n]):base,note:(o.n&&o.n[n])||null})).sort((x,y)=>x.day-y.day||x.j-y.j);
+    ses.push({id:'s'+i,rn,plan,pn:plan?(w<8?'Hipertrofia A/B':'Fuerza 5×5'):null,pw:plan?(w<8?w+1:w-7):null,date:plan?ex[0].day:base,ex});});
+  ses.sort((x,y)=>y.date-x.date||x.rn.localeCompare(y.rn,'es'));
+  const wk={},day={},occ={};let old=HOY;
+  ses.forEach(s=>{(wk[gi(s.date)]=wk[gi(s.date)]||[]).push(s);if(s.date<old)old=s.date;const mine={};
+    s.ex.forEach(e=>{const k=iso(e.day),m=day[k]||(day[k]={n:0,ses:[]});m.n++;if(!m.ses.includes(s))m.ses.push(s);(mine[e.n]=mine[e.n]||[]).push(e);if(e.day<old)old=e.day;});
+    Object.keys(mine).forEach(n=>(occ[n]=occ[n]||[]).push({s,list:mine[n],day:mine[n][0].day}));});
+  Object.values(occ).forEach(l=>l.sort((x,y)=>y.day-x.day||x.s.rn.localeCompare(y.s.rn,'es')));
+  const cw=gi(HOY),ow=ses.length?gi(ses[ses.length-1].date):cw;
+  let i=wk[cw]?cw:cw-1,streak=0;while(wk[i]){streak++;i--;}
+  return HD={W0,gi,ses,wk,day,occ,cw,ow,streak,moMin:-((HOY.getFullYear()-old.getFullYear())*12+HOY.getMonth()-old.getMonth())};}
+const HSTATE=()=>({tab:'ses',mo:0,day:null,open:null,wk:4,foc:null,ex:null,pick:false,q:'',exN:6});
+S.hist=HSTATE();
+function hMonth(mo){const f=new Date(HOY.getFullYear(),HOY.getMonth()+mo,1,12),l=new Date(f.getFullYear(),f.getMonth()+1,0,12),D=histData(),weeks=[];
+  for(let a=monday(f);a<=l;a=addDays(a,7)){const b=addDays(a,6);weeks.push({a,b,g:D.gi(a),fut:a>HOY,cur:a<=HOY&&HOY<=b});}
+  return{f,l,y:f.getFullYear(),m:f.getMonth(),weeks};}
+const hLine=s=>s.plan?`${s.pn} · Semana ${s.pw}`:'Rutina puntual';
+const hPill=s=>s.plan?'<span class="pill p-acc">Plan</span>':'<span class="pill p-pri">Individual</span>';
+const hNote=t=>`<div class="hnote">${ic('note',15)}<span><span class="vh">Nota del alumno: </span>«${esc(t)}»</span></div>`;
+const hExRow=(e,late)=>`<li><div class="hex-r"><button class="hex-n" data-act="hEx:${esc(e.n)}" title="Ver el detalle de ${esc(e.n)}">${esc(e.n)}</button><span class="data" style="font-size:12px;font-weight:700;white-space:nowrap">${esc(e.p)}</span></div>${late?`<div class="sub" style="margin:0;color:var(--ts)">Hecho el ${fCorta(e.day)}</div>`:''}${e.note?hNote(e.note):''}</li>`;
+const hStats=arr=>`<div class="stats">${arr.map(([v,l])=>`<div class="stat"><div class="v"${String(v).length>6?' style="font-size:15px;line-height:1.9"':''}>${v}</div><div class="l">${l}</div></div>`).join('')}</div>`;
+const hArrows=()=>{const h=S.hist,D=histData();return `<div class="harrows"><button class="wk" id="hm-prev" data-act="hMo:-1" aria-label="Mes anterior" ${h.mo<=D.moMin?'disabled':''}>${ic('chevL',18)}</button><button class="wk" id="hm-next" data-act="hMo:1" aria-label="Mes siguiente" ${h.mo>=0?'disabled':''}>${ic('chev',18)}</button></div>`;};
+function histRow(){const D=histData(),n=D.ses.length;
+  const sub=n?`${pl(n,'sesión','sesiones')} · la última, ${fRel(D.ses[0].date).toLowerCase()}`:'Todavía no registra entrenamientos';
+  const w8=[];for(let g=D.cw-7;g<=D.cw;g++)w8.push(D.wk[g]||[]);const sc=Math.max(4,...w8.map(x=>x.length));
+  const mini=n?`<span class="mini" aria-hidden="true">${w8.map(x=>{const p=x.filter(s=>s.plan).length,i=x.length-p;return `<span><i style="display:block;height:${i/sc*100}%;background:var(--priL)"></i><i style="display:block;height:${p/sc*100}%;background:var(--acc)"></i></span>`;}).join('')}</span>`:'';
+  return `<a href="#/c-hist" class="card click row" id="hist-row" data-act="histOpen" data-go="c-hist"><div class="tile">${ic('list',18)}</div><div class="grow"><div class="name">Historial de entrenamientos</div><div class="sub">${sub}</div></div>${mini}<span class="chev">${ic('chev',18)}</span></a>`;}
+function hBars(){const h=S.hist,D=histData(),M=hMonth(h.mo);let el=0,sum=0;
+  const it=M.weeks.map(w=>{const ss=D.wk[w.g]||[],p=ss.filter(s=>s.plan).length;return{w,p,i:ss.length-p,n:ss.length};}),sc=Math.max(4,...it.map(x=>x.n));
+  const bars=it.map(({w,p,i,n})=>{if(!w.fut){el++;sum+=n;}const go=!w.fut&&w.g>=D.ow&&w.g<=D.cw;
+    const lab=`Semana del ${fCorta(w.a)} al ${fCorta(w.b)}: `+(w.fut?'todavía no llegó.':`${pl(n,'sesión','sesiones')}${n?`, ${p} del plan y ${i} ${i===1?'individual':'individuales'}`:''}.${go?' Ver en la lista.':''}`);
+    return `<button class="bar" ${go?`data-act="hWeek:${w.g}"`:'disabled'} aria-label="${lab}"><span class="cnt${n?'':' z'}" aria-hidden="true">${w.fut?'':n}</span><span class="track${w.fut?' fut':''}${h.foc===w.g?' foc':w.cur?' cur':''}" aria-hidden="true">${i?`<span class="t-in" style="height:${i/sc*100}%"></span>`:''}${p?`<span class="t-pl" style="height:${p/sc*100}%"></span>`:''}</span><small aria-hidden="true"><b${w.cur?' class="cur"':''}>${w.a.getDate()}</b>${MESc[w.a.getMonth()]}</small></button>`;}).join('');
+  const sub=`${pl(sum,'sesión','sesiones')} en ${pl(el,'semana','semanas')}`+(h.mo===0?', hasta hoy':el?` · ${dec(sum/el)} por semana`:'');
+  return `<section class="card" aria-labelledby="h-bars-t"><div class="hhead"><div aria-live="polite"><h2 id="h-bars-t">Sesiones de ${MESL[M.m]}</h2><div class="sub">${sub}</div></div>${hArrows()}</div><div class="bars hb">${bars}</div>
+  <div class="hleg"><span><i style="background:var(--acc)"></i>Plan</span><span><i style="background:var(--priL)"></i>Individual</span><span style="margin-left:auto"><i style="border:2px solid #C9CFDC"></i>Esta semana</span></div></section>`;}
+function hPickRes(){const h=S.hist,D=histData(),q=norm((h.q||'').trim()),m=n=>!q||norm(n).includes(q),by=(x,y)=>x.localeCompare(y,'es');
+  const done=Object.keys(D.occ).filter(m).sort(by),oth=allEj().filter(n=>!D.occ[n]).filter(m).sort(by);
+  const row=(n,meta)=>`<button class="hpk" data-act="hEx:${esc(n)}"><span>${esc(n)}</span><span>${meta}</span></button>`;
+  return (done.length?`<div class="hpk-g">Los que hizo el alumno</div>${done.map(n=>row(n,pl(D.occ[n].length,'vez','veces'))).join('')}`:'')
+    +(oth.length?`<div class="hpk-g">Otros del catálogo</div>${oth.map(n=>row(n,'Sin registros')).join('')}`:'')
+    +(done.length+oth.length?'':'<p class="sub" style="margin:12px 0 2px;font-size:13px">No hay ejercicios con ese nombre.</p>');}
+function hFilter(){const h=S.hist,D=histData(),keys=Object.keys(D.occ).sort((x,y)=>D.occ[y].length-D.occ[x].length||x.localeCompare(y,'es'));
+  let top=keys.slice(0,3);if(h.ex&&!top.includes(h.ex))top=top.concat([h.ex]);
+  const chip=(lab,on,act)=>`<button class="chip ${on?'on':''}" aria-pressed="${on}" data-act="${act}">${esc(lab)}</button>`;
+  return `<section aria-labelledby="h-fil-t"><div class="sec" style="margin:4px 0 8px"><h4 id="h-fil-t">Filtrar por ejercicio</h4></div>
+  <div class="chips" style="flex-wrap:wrap;overflow:visible">${chip('Todos',!h.ex,'hEx')}${top.map(k=>chip(k,k===h.ex,'hEx:'+esc(k))).join('')}<button class="chip ${h.pick?'on':''}" id="h-otro" style="display:inline-flex;align-items:center;gap:6px" data-act="hPick" aria-expanded="${h.pick}" aria-controls="h-pick">${ic('search',15)}Otro…</button></div>
+  ${h.pick?`<div class="card" id="h-pick" style="padding:12px"><div class="field" style="margin:0"><label for="h-q">Buscar ejercicio</label><input class="input" id="h-q" type="search" data-hq value="${esc(h.q)}" placeholder="Sentadilla, remo…" autocomplete="off"></div><div id="h-pick-res">${hPickRes()}</div></div>`:''}</section>`;}
+function hOpen(){const h=S.hist,D=histData();if(h.open)return h.open;const o={};if(D.ses[0])o[D.ses[0].id]=true;return o;}
+function hSes(s){const op=!!hOpen()[s.id],nn=s.ex.filter(e=>e.note).length;
+  return `<article class="card hses"><button class="hses-b" id="hs-${s.id}" data-act="hTog:${s.id}" aria-expanded="${op}" aria-controls="hx-${s.id}"><span class="hday"><b>${s.date.getDate()}</b><span>${MESc[s.date.getMonth()]}</span></span>
+  <span class="grow" style="display:flex;flex-direction:column;gap:2px"><span class="name">${esc(s.rn)}</span><span class="sub" style="margin:0;color:var(--ts)">${esc(hLine(s))}</span><span class="sub" style="margin:0;color:var(--ts)">${pl(s.ex.length,'ejercicio','ejercicios')}${nn?' · '+pl(nn,'nota','notas'):''}</span></span>
+  <span style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;color:var(--ts)">${hPill(s)}${ic(op?'chevU':'chevD',18)}</span></button>
+  <ul class="hex" id="hx-${s.id}"${op?'':' hidden'}>${s.ex.map(e=>hExRow(e,iso(e.day)!==iso(s.date))).join('')}</ul></article>`;}
+function hWeeks(){const h=S.hist,D=histData(),lo=Math.max(D.ow,D.cw-h.wk+1);let out='';
+  for(let g=D.cw;g>=lo;g--){const ss=D.wk[g]||[],a=addDays(D.W0,7*g),b=addDays(a,6);
+    const lab=g===D.cw?'Esta semana':g===D.cw-1?'Semana pasada':a.getMonth()===b.getMonth()?`${a.getDate()} — ${fCorta(b)}`:`${fCorta(a)} — ${fCorta(b)}`;
+    out+=`<section class="hwk${h.foc===g?' foc':''}" aria-labelledby="wkh-${g}"><div class="hwk-h"><h3 id="wkh-${g}" tabindex="-1">${lab}</h3><span class="sub" style="margin:0;color:var(--ts)">${ss.length?pl(ss.length,'sesión','sesiones'):''}</span></div>${ss.length?`<div class="list" style="gap:8px">${ss.map(hSes).join('')}</div>`:'<div class="hdash">Sin entrenamientos esta semana.</div>'}</section>`;}
+  return `<div class="note acc">${ic('note',18)}<span>Las series son las que prescribió el entrenador en la rutina, tal como está hoy: la app no registra el peso ni las repeticiones que hizo el alumno.</span></div>${out}${lo>D.ow?`<button class="btn btn-ghost" data-act="hMore">Ver semanas anteriores ${ic('chevD',16)}</button>`:''}`;}
+function hCal(){const h=S.hist,D=histData(),M=hMonth(h.mo),lead=(M.f.getDay()+6)%7,dn=M.l.getDate(),ms=[];let last=null,td=0;
+  for(let d=1;d<=dn;d++){const x=D.day[iso(new Date(M.y,M.m,d,12))];if(x){last=iso(new Date(M.y,M.m,d,12));td++;x.ses.forEach(s=>{if(!ms.includes(s))ms.push(s);});}}
+  const sel=h.day||(h.mo===0?iso(HOY):last);
+  let cells=['L','M','M','J','V','S','D'].map(l=>`<span class="wd" aria-hidden="true">${l}</span>`).join('')+'<span class="dd pad" aria-hidden="true"></span>'.repeat(lead);
+  for(let d=1;d<=dn;d++){const dd=new Date(M.y,M.m,d,12),k=iso(dd),x=D.day[k],n=x?x.n:0,fut=dd>HOY,hoy=k===iso(HOY),lv=n>=5?3:n>=3?2:n?1:0;
+    const lab=`${d} de ${MESL[M.m]}${hoy?', hoy':''}: ${n?`${pl(x.ses.length,'sesión','sesiones')}, ${pl(n,'ejercicio','ejercicios')}`:'sin entrenamientos'}`;
+    cells+=`<button class="dd${lv?' l'+lv:''}${hoy?' hoy':''}${k===sel?' sel':''}" id="cd-${k}" ${fut?'disabled':`data-act="hDay:${k}"`} aria-pressed="${k===sel}" aria-label="${lab}">${d}</button>`;}
+  let title='Tocá un día',sub='',body='<div class="hdash" style="margin-top:12px">En este mes no hay entrenamientos.</div>';
+  if(sel){const sd=dt(sel),x=D.day[sel];title=`${DIAL[sd.getDay()]} ${sd.getDate()} de ${MESL[sd.getMonth()]}`;
+    if(x){sub=`${pl(x.ses.length,'sesión','sesiones')} · ${pl(x.n,'ejercicio hecho','ejercicios hechos')}`;
+      body=`<div class="list" style="gap:8px;margin-top:12px">${x.ses.map(s=>`<article class="card" style="padding:12px 14px"><div class="row" style="align-items:flex-start;justify-content:space-between;gap:10px"><div class="grow"><h3 class="name">${esc(s.rn)}</h3><div class="sub" style="color:var(--ts)">${esc(hLine(s))}${iso(s.date)!==sel?` · empezó el ${fCorta(s.date)}`:''}</div></div>${hPill(s)}</div><ul class="hex" style="padding:0;margin-top:8px">${s.ex.filter(e=>iso(e.day)===sel).map(e=>hExRow(e,false)).join('')}</ul></article>`).join('')}</div>`;}
+    else body='<div class="hdash" style="margin-top:12px">Sin entrenamientos ese día.</div>';}
+  const left=hStats([[td,td===1?'Día entrenado':'Días entrenados'],[ms.length,ms.length===1?'Sesión':'Sesiones'],[D.streak+' sem','Racha actual']])
+    +`<section class="card" aria-labelledby="h-cal-t"><div class="hhead"><div aria-live="polite"><h2 id="h-cal-t" style="font-size:16px">${MESL[M.m][0].toUpperCase()+MESL[M.m].slice(1)} ${M.y}</h2><div class="sub" style="color:var(--ts)">Días en que hizo ejercicios</div></div>${hArrows()}</div><div class="hcal">${cells}</div>
+    <div class="hleg" style="justify-content:flex-end"><span class="heat">Menos <i style="border:1px solid var(--border2)"></i><i style="background:rgba(34,197,94,.30)"></i><i style="background:rgba(34,197,94,.62)"></i><i style="background:var(--ok)"></i> Más</span></div></section>`;
+  return{left,right:`<section aria-labelledby="h-dia-t"><h2 id="h-dia-t" style="font-size:16px;font-weight:700">${title}</h2>${sub?`<div class="sub" style="color:var(--ts)">${sub}</div>`:''}${body}</section>`};}
+function hEj(){const h=S.hist,D=histData(),k=h.ex,list=D.occ[k]||[],rms=(ARMS[k]||[]).map(([d,w,r])=>({d:dt(d),w,r})),M=hMonth(h.mo),rmTxt=r=>`${kg(r.w)} kg${r.r>1?' × '+r.r:''}`;
+  let rm='';
+  if(rms.length>=2){const t0=+rms[0].d,t1=+rms[rms.length-1].d,vs=rms.map(r=>r.w),mn=Math.min(...vs),mx=Math.max(...vs),pad=(mx-mn)*.25||1,lo=mn-pad,hi=mx+pad;
+    const pts=rms.map((r,j)=>({x:(3+(+r.d-t0)/(t1-t0)*94).toFixed(1),y:(100-(r.w-lo)/(hi-lo)*100).toFixed(1),r,first:j===0,last:j===rms.length-1}));
+    rm=`<div role="img" aria-label="RM de ${esc(k)}: ${andList(rms.map(r=>rmTxt(r)+' el '+fCorta(r.d)))}"><div class="rmc"><div class="mid"></div><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts.map(p=>p.x+','+p.y).join(' ')}" fill="none" stroke="#8B5CF6" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
+    ${pts.map(p=>`<span class="pt${p.last?' last':''}" style="left:${p.x}%;top:${p.y}%"></span><span class="lb${p.last?' last':''}" style="left:${p.x}%;top:${p.y}%;transform:translate(${p.first?'-10%':p.last?'-90%':'-50%'},-180%)">${rmTxt(p.r)}</span>`).join('')}</div>
+    <div class="row" style="justify-content:space-between;margin:6px 10px 0;font-size:11px;color:var(--ts)"><span>${fCorta(rms[0].d)}</span><span>${fCorta(rms[rms.length-1].d)}</span></div></div>`;}
+  else if(rms.length===1)rm=`<div class="row" style="margin-top:14px;align-items:baseline;gap:8px"><span class="data" style="font-size:26px;font-weight:800">${rmTxt(rms[0])}</span><span class="sub" style="margin:0;color:var(--ts)">el ${rms[0].d.getDate()} ${MESc[rms[0].d.getMonth()]} de ${rms[0].d.getFullYear()}</span></div>`;
+  else rm='<div class="hdash" style="margin-top:12px;text-align:center">Todavía no tiene RMs de este ejercicio.</div>';
+  const dl=rms.length>=2?rms[rms.length-1].w-rms[0].w:0;
+  const rmCard=`<section class="card" aria-labelledby="h-rm-t"><div class="hhead" style="align-items:flex-start"><div><h2 id="h-rm-t">Progresión del RM</h2><div class="sub" style="color:var(--ts)">${rms.length>=2?`${pl(rms.length,'registro','registros')} desde el ${fCorta(rms[0].d)}`:rms.length?'Un solo registro':'Sin registros'}</div></div>${rms.length>=2?`<span class="pill data ${dl>=0?'p-ok':'p-mut'}" style="font-size:12px;letter-spacing:0;text-transform:none">${dl>=0?'+':'−'}${kg(Math.abs(dl))} kg</span>`:''}</div>${rm}
+    <p class="sub" style="margin-top:12px;line-height:1.5;color:var(--ts)">Sale de los RMs que registró el alumno. Las series del historial son las prescriptas: no dicen cuánto levantó.</p></section>`;
+  let freq='';
+  if(list.length){let ft=0;const ns=M.weeks.map(w=>list.filter(o=>o.day>=w.a&&o.day<=w.b).length),sc=Math.max(3,...ns);
+    const bars=M.weeks.map((w,j)=>{const n=ns[j];ft+=n;return `<div class="bar" role="img" aria-label="Semana del ${fCorta(w.a)} al ${fCorta(w.b)}: ${w.fut?'todavía no llegó':pl(n,'vez','veces')}"><span class="cnt${n?'':' z'}" aria-hidden="true">${w.fut?'':n}</span><span class="track${w.fut?' fut':w.cur?' cur':''}" style="max-width:30px" aria-hidden="true">${n?`<span class="t-ok" style="height:${n/sc*100}%"></span>`:''}</span><small aria-hidden="true"><b${w.cur?' class="cur"':''}>${w.a.getDate()}</b>${MESc[w.a.getMonth()]}</small></div>`;}).join('');
+    freq=`<section class="card" aria-labelledby="h-frec-t"><div class="hhead"><div aria-live="polite"><h2 id="h-frec-t">Veces en ${MESL[M.m]}</h2><div class="sub" style="color:var(--ts)">${pl(ft,'vez','veces')} en estas semanas${h.mo===0?', hasta hoy':''}</div></div>${hArrows()}</div><div class="bars hb" style="height:104px;margin-top:12px">${bars}</div></section>`;}
+  const left=hStats([[list.length,list.length===1?'Vez':'Veces'],[list.length?fRel(list[0].day):'—','Última vez'],[rms.length?kg(rms[rms.length-1].w)+' kg':'—','RM actual']])+rmCard+freq+hFilter();
+  if(!list.length)return{left,right:`<div class="empty"><div class="name" style="font-size:16px;color:var(--tp)">Sin registros para este ejercicio</div><p style="margin-top:8px;font-size:14px;line-height:1.5">El alumno no hizo <b style="color:var(--tp)">${esc(k)}</b> en ninguna sesión.</p></div>`};
+  const notes=[];list.forEach(o=>o.list.forEach(e=>{if(e.note)notes.push({e,s:o.s});}));notes.sort((x,y)=>y.e.day-x.e.day);
+  const shown=list.slice(0,h.exN),rest=list.length-shown.length;
+  const right=(notes.length?`<section aria-labelledby="h-not-t" style="margin-bottom:22px"><div class="hwk-h"><h2 id="h-not-t" style="font-size:13px;font-weight:700">Notas del alumno</h2><span class="sub" style="margin:0;color:var(--ts)">${notes.length}</span></div><div class="list" style="gap:8px">${notes.map(({e,s})=>`<figure class="card" style="padding:12px 14px"><blockquote style="font-size:14px;line-height:1.5;font-style:italic;overflow-wrap:anywhere">«${esc(e.note)}»</blockquote><figcaption class="sub" style="margin-top:6px;color:var(--ts)">${fCorta(e.day)} · ${esc(s.rn)}</figcaption></figure>`).join('')}</div></section>`:'')
+    +`<section aria-labelledby="h-ses-t"><div class="hwk-h"><h2 id="h-ses-t" style="font-size:13px;font-weight:700">Sesiones</h2><span class="sub" style="margin:0;color:var(--ts)">${pl(list.length,'sesión','sesiones')}</span></div><div class="list" style="gap:8px">${shown.map(o=>`<article class="card row" style="align-items:flex-start;padding:12px"><span class="hday"><b>${o.day.getDate()}</b><span>${MESc[o.day.getMonth()]}</span></span><div class="grow"><div class="row" style="align-items:flex-start;justify-content:space-between;gap:8px"><div class="grow"><h3 class="name">${esc(o.s.rn)}</h3><div class="sub" style="color:var(--ts)">${esc(hLine(o.s))}</div></div>${hPill(o.s)}</div>
+    ${o.list.map(e=>`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)"><div class="hex-r"><span style="font-size:12px;font-weight:600;color:var(--ts)">${o.list.length>1?'Hecho el '+fCorta(e.day):'Prescripto'}</span><span class="data" style="font-size:12px;font-weight:700;white-space:nowrap">${esc(e.p)}</span></div>${e.note?hNote(e.note):''}</div>`).join('')}</div></article>`).join('')}</div>
+    ${rest>0?`<button class="btn btn-ghost" style="margin-top:12px" data-act="hExMore">Ver más sesiones (${rest})</button>`:''}</section>`;
+  return{left,right};}
+function histView(){const D=histData(),h=S.hist,a=S.alum[S.alu],has=D.ses.length>0,isEx=has&&!!h.ex,isCal=has&&!isEx&&h.tab==='cal';
+  const head=isEx?`<button class="back" data-act="hEx">${ic('chevL',18)} Todo el historial</button><div class="top"><div><div class="eyebrow">${esc(a.n)} · Historial de entrenamientos</div><h1 class="title" id="h-title" tabindex="-1">${esc(h.ex)}</h1></div></div>`
+    :`<button class="back" data-act="histBack" data-go="c-alumno">${ic('chevL',18)} Volver</button><div class="top"><div><div class="eyebrow">${esc(a.n)}</div><h1 class="title" id="h-title" tabindex="-1">Historial de entrenamientos</h1></div></div>`;
+  if(!has)return head+`<div class="empty"><div class="tile" style="width:56px;height:56px;border-radius:16px;margin:0 auto 14px">${ic('list',26)}</div><div class="name" style="font-size:16px;color:var(--tp)">Todavía no registra entrenamientos</div><p style="margin-top:8px;font-size:14px;line-height:1.5">Cuando el alumno marque ejercicios como hechos, sus sesiones van a aparecer acá.</p></div>`;
+  let x;
+  if(isEx)x=hEj();
+  else if(isCal)x=hCal();
+  else x={left:hStats([[D.ses.length,'Sesiones'],[fRel(D.ses[0].date),'Última'],[(D.wk[D.cw]||[]).length,'Esta semana']])+hBars()+hFilter(),right:hWeeks()};
+  const cols=`<div class="hcols"><div class="hleft">${x.left}</div><div class="hright">${x.right}</div></div>`;
+  if(isEx)return head+cols;
+  const t=isCal?'cal':'ses',tab=(id,l,i)=>`<button role="tab" id="tab-${id}" aria-selected="${t===id}" aria-controls="h-panel" tabindex="${t===id?0:-1}" class="${t===id?'on':''}" data-act="hTab:${id}">${ic(i,16)} ${l}</button>`;
+  return `${head}<div class="seg htabs" role="tablist" aria-label="Vista del historial">${tab('ses','Sesiones','list')}${tab('cal','Calendario','calendar')}</div><div role="tabpanel" id="h-panel" aria-labelledby="tab-${t}">${cols}</div>`;}
+Cc('c-hist',{t:'Historial de entrenamientos',tab:'c-alumnos',back:'c-alumno',render:histView});
 
 const P=()=>S.role==='admin'?'a':'c';
 const rutUsos=id=>S.ruts.filter(r=>r.c.includes(id));
@@ -804,7 +1036,19 @@ const ACT={
   payFor:n=>{S.pay={al:n||S.alum[0].n,t:(S.memb.find(m=>m.n===n)||{t:0}).t,f:iso(TODAY)};},
   confirmPay:()=>{const p=S.pay,t=S.mtypes[p.t],m=S.memb.find(x=>x.n===p.al),v=iso(addDays(dt(p.f),t.d));if(m){m.v=v;m.t=+p.t;}else S.memb.push({n:p.al,t:+p.t,v});toast(`Pago registrado · ${p.al}`);go('c-membresias');},
   alRms:()=>openModal({title:`RMs de ${S.alum[S.alu].n}`,html:`<div style="margin-top:14px">${S.rms.map(r=>`<div class="trow"><span>${r.ej}</span><span class="data">${kg(r.kg)} kg</span><span>${r.f}</span></div>`).join('')}</div>`,actions:`<button class="btn btn-ghost" data-act="close">Cerrar</button>`}),
-  alHist:()=>{const opts=['Todos',...new Set(EJR.map(e=>e.n))];openModal({title:'Historial de entrenamientos',html:`<div style="margin-top:14px">${selectF('Filtrar por ejercicio',opts,'Todos','id="hist-f"')}</div><div class="list" style="gap:8px">${HIST.map(h=>`<div class="card row" style="padding:12px"><div class="grow"><div class="name">${h[0]}</div><div class="sub">${h[1]}</div></div><span class="data sub" style="margin:0">${h[2]}</span></div>`).join('')}</div>`,actions:`<button class="btn btn-ghost" data-act="close">Cerrar</button>`});},
+  /* Historial de entrenamientos del alumno (T55): reemplaza al modal alHist */
+  histOpen:()=>{S.hist=HSTATE();},
+  histBack:()=>{S.hFocus={id:'hist-row'};},
+  hTab:t=>{const h=S.hist;if(h.tab!==t){h.tab=t;h.day=null;h.pick=false;}S.hFocus={id:'tab-'+t};rerender();},
+  hMo:d=>{const h=S.hist,D=histData();h.mo=Math.max(D.moMin,Math.min(0,h.mo+ +d));h.day=null;h.foc=null;
+    const end=+d<0?h.mo<=D.moMin:h.mo>=0;S.hFocus={id:end?(+d<0?'hm-next':'hm-prev'):(+d<0?'hm-prev':'hm-next')};rerender();},
+  hDay:k=>{S.hist.day=k;S.hFocus={id:'cd-'+k};rerender();},
+  hTog:id=>{const o=Object.assign({},hOpen());o[id]=!o[id];S.hist.open=o;S.hFocus={id:'hs-'+id};rerender();},
+  hMore:()=>{S.hist.wk+=4;rerender();},
+  hWeek:g=>{const h=S.hist,D=histData();h.foc=+g;h.wk=Math.max(h.wk,D.cw-(+g)+1);S.hFocus={id:'wkh-'+g,scroll:true};rerender();},
+  hEx:k=>{const h=S.hist;h.ex=k||null;h.pick=false;h.q='';h.exN=6;S.hFocus={id:'h-title',top:true};rerender();},
+  hPick:()=>{const h=S.hist;h.pick=!h.pick;h.q='';S.hFocus={id:h.pick?'h-q':'h-otro'};rerender();},
+  hExMore:()=>{S.hist.exN+=6;rerender();},
   alPagos:()=>openModal({title:'Historial de pagos',html:`<div style="margin-top:14px">${PAGOS.map(p=>`<div class="trow"><span>${p[0]}</span><span>${p[1]}</span><span class="data" style="color:var(--tp)">${ars(p[2])}</span></div>`).join('')}</div>`,actions:`<button class="btn btn-ghost" data-act="close">Cerrar</button>`}),
   closeAcc:()=>openModal({ic:'alert',tone:'err',title:'Cerrar cuenta',body:`<b>${esc(S.alum[S.alu].n)}</b> va a dejar de tener acceso a la app. Podés reactivarla más adelante.`,actions:`<button class="btn btn-danger solid" data-act="closeAccOk">Cerrar cuenta</button><button class="btn btn-ghost" data-act="close">Cancelar</button>`}),
   closeAccOk:()=>{S.alum[S.alu].a=false;toast('Cuenta cerrada');go('c-alumnos');},
@@ -915,9 +1159,12 @@ document.addEventListener('pointerup',endDrag);document.addEventListener('pointe
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&S.modal&&!S.modal.lock)closeModal();
   if((e.key==='ArrowUp'||e.key==='ArrowDown')&&e.target.matches('[data-grab]')){e.preventDefault();const[w,j]=e.target.dataset.grab.split('|').map(Number);planMove(w,j,j+(e.key==='ArrowUp'?-1:1),'key');return;}
+  if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)&&e.target.matches('[role="tab"]')){e.preventDefault();const tabs=[...e.target.closest('[role="tablist"]').querySelectorAll('[role="tab"]')],i=tabs.indexOf(e.target);
+    tabs[e.key==='Home'?0:e.key==='End'?tabs.length-1:(i+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length].click();return;}
   if((e.key==='Enter'||e.key===' ')&&e.target.matches('[role="button"]')){e.preventDefault();e.target.click();}
 });
 document.addEventListener('input',e=>{const t=e.target;
+  if(t.dataset.hq!==undefined){S.hist.q=t.value;const r=document.getElementById('h-pick-res');if(r)r.innerHTML=hPickRes();}
   if(t.dataset.search!==undefined){S.q[t.dataset.search]=t.value;const l=document.getElementById('list');if(l&&R[CUR].list)l.innerHTML=R[CUR].list();}
   if(t.dataset.calc){S.calc[t.dataset.calc]=t.dataset.calc==='ej'?t.value:parseFloat(t.value)||0;const r=document.getElementById('c-res');if(r){r.innerHTML=calcRes();document.getElementById('c-table').innerHTML=calcTable();}}
   if(t.dataset.draft&&S.draft)S.draft[t.dataset.draft]=t.value;

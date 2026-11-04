@@ -238,10 +238,13 @@ tr:last-child td{border-bottom:0}
         <h3>Cuentas y datos</h3>
         <ul class="tips">
           <li><b>Una cuenta real de entrenador.</b> Las de demo no sirven: el backend rechaza su token.</li>
-          <li><b>Un alumno de prueba nuevo,</b> registrado desde <code>/registro</code>: <button type="button" class="tok" data-copy="QA">QA</button> <button type="button" class="tok" data-copy="Detalle">Detalle</button>, con un email tuyo con sufijo, por ejemplo <button type="button" class="tok" data-copy="tuemail+qa-detalle@gmail.com">tuemail+qa-detalle@gmail.com</button>. Arranca sin RMs ni pagos, y en RMS-03 carga dos RMs desde su cuenta.</li>
+          <li><b>Un alumno de prueba nuevo,</b> registrado desde <code>/registro</code>: <button type="button" class="tok" data-copy="QA">QA</button> <button type="button" class="tok" data-copy="Detalle">Detalle</button>, con un email tuyo con sufijo, por ejemplo <button type="button" class="tok" data-copy="tuemail+qa-detalle@gmail.com">tuemail+qa-detalle@gmail.com</button>. Arranca sin RMs ni pagos.</li>
+          <li><b>QA Detalle registra RMs desde Mis RMs</b>, en su cuenta: en RMS-03 y, para el detalle de un ejercicio, en EJE-01 (tres de un mismo ejercicio, en fechas distintas). CIE-01 los borra al final.</li>
           <li><b>Los pagos no se pueden anular.</b> PAG-03 registra uno: hacelo solo al alumno QA Detalle.</li>
           <li><b>Para FCH-02 y el historial,</b> una planificación activa con al menos dos rutinas en la semana 1 (sirve QA Plan Alumno de «Pruebas del plan del alumno» o una del seed) y una rutina vigente para la rutina puntual. Todo se asigna desde la web y el alumno marca desde su cuenta.</li>
+          <li><b>El historial necesita datos de más de un mes.</b> En RES-01 y CAL-05 le asignás a QA Detalle la rutina puntual en días que ya pasaron (P1 y P2 del mes anterior, P3 de hace tres meses; se puede, CU-E-19), y QA Detalle marca sus ejercicios con «Lo hice otro día», eligiendo ese mismo día. Sin eso, el gráfico y el calendario tienen un solo mes.</li>
           <li><b>Dos roles a la vez:</b> ventana normal para el entrenador y de incógnito para el alumno.</li>
+          <li><b>Lo que se sabe que hoy falla</b> está marcado con un aviso amarillo: FCH-01, el historial (HIS, RES, CAL, FIL y EJE), ERR-03 y ERR-04, porque el historial todavía es un modal de 460 px y no la pantalla propia (T55). Marcalo igual: así queda registrado cuándo se arregla.</li>
         </ul>
       </div>
       <div>
@@ -249,6 +252,7 @@ tr:last-child td{border-bottom:0}
         <ul class="tips">
           <li><b>Seguí el orden de la página.</b> QA Detalle arranca vacío y los casos le van sumando RMs, pagos, una planificación y lo que entrena.</li>
           <li><b>DevTools › Network</b>, filtrado por <code>user_rm</code>, <code>payment</code>, <code>planification</code> o <code>history</code>, para ver qué requests salen y qué código responden.</li>
+          <li><b>El historial, a 390 px y a 1280 px</b> (DevTools, modo dispositivo): desde 960 px pasa a dos columnas. Los casos lo recorren en el celular y ERR-03 repite en escritorio.</li>
           <li><b>Cerrar la cuenta desde el Admin</b> ya está en «Pruebas de usuarios y entrenadores». Acá se prueba el botón propio del Entrenador (FCH-04).</li>
           <li><b>Planificaciones y Rutinas puntuales</b> se usan acá solo para tener datos: asignar y quitar se prueba en «Pruebas de planificaciones» y «Pruebas de rutinas».</li>
         </ul>
@@ -315,17 +319,24 @@ tr:last-child td{border-bottom:0}
     { id: 'rms', name: 'RMs del alumno', cu: 'CU-E-04', file: 'entrenador/CU-E-04-obtener-rms-del-alumno.md' },
     { id: 'pag', name: 'Historial de pagos', cu: 'CU-E-05', file: 'entrenador/CU-E-05-consultar-historial-de-pagos-de-alumno.md' },
     { id: 'his', name: 'Historial de entrenamientos', cu: 'CU-E-06', file: 'entrenador/CU-E-06-consultar-historial-de-entrenamientos-de-alumno.md' },
+    { id: 'res', name: 'Resumen y gráfico', cu: 'CU-E-06', file: 'entrenador/CU-E-06-consultar-historial-de-entrenamientos-de-alumno.md' },
+    { id: 'cal', name: 'Calendario', cu: 'CU-E-06', file: 'entrenador/CU-E-06-consultar-historial-de-entrenamientos-de-alumno.md' },
     { id: 'fil', name: 'Filtro por ejercicio', cu: 'CU-E-07', file: 'entrenador/CU-E-07-consultar-historial-de-entrenamientos-filtro-por-ejercicio.md' },
+    { id: 'eje', name: 'Detalle de un ejercicio', cu: 'CU-E-07', file: 'entrenador/CU-E-07-consultar-historial-de-entrenamientos-filtro-por-ejercicio.md' },
     { id: 'err', name: 'Errores y pantallas', cu: null, sub: 'Servidor caído, celular, escritorio y teclado' },
     { id: 'cie', name: 'Cierre', cu: null, sub: 'Dejar al alumno de prueba sin RMs y la cuenta como estaba' },
   ];
+
+  // Aviso de los casos del historial mientras la T55 (web) no esté en Render.
+  const T55 = 'Lo arregla la T55 (web): hoy el historial es un modal de 460 px. Marcalo Falla mientras tanto.';
 
   const CASES = [
     // ── La ficha ────────────────────────────────────────────
     { id: 'FCH-01', g: 'fch', t: 'Abrir la ficha de un alumno', env: ['TODOS'],
       data: 'El alumno QA Detalle, recién registrado.',
-      steps: [`Como entrenador, en Mis alumnos, buscá ${tok('QA Detalle')} y tocá su fila.`],
-      exp: `<ul><li>Abre <code>/c/alumnos/{id}</code> con ${ui('Alumno')} arriba, su nombre como título y ${ui('Volver')}, que lleva a <code>/c/alumnos</code>.</li><li>El avatar, la píldora ${ui('Activo')} y ${ui('Alumno desde …')} con el mes y el año del alta.</li><li>Una tarjeta con ${ui('Email')} y ${ui('Membresía')}: ${ui('Sin membresía')}.</li><li>Las filas ${ui('RMs del alumno')}, ${ui('Historial de entrenamientos')}, ${ui('Planificaciones')}, ${ui('Rutinas puntuales')} (las dos con ${ui('Asignar o quitar')}), ${ui('Historial de pagos')} y ${ui('Registrar pago')}, y el botón ${ui('Cerrar cuenta del alumno')}. Sin planificación vigente, la tarjeta no tiene la fila Planificación.</li></ul>` },
+      steps: [`Como entrenador, en Mis alumnos, buscá ${tok('QA Detalle')} y tocá su fila.`, 'Mirá los requests en Network.', `Tocá ${ui('Historial de entrenamientos')}.`],
+      exp: `<ul><li>Abre <code>/c/alumnos/{id}</code> con ${ui('Alumno')} arriba, su nombre como título y ${ui('Volver')}, que lleva a <code>/c/alumnos</code>.</li><li>El avatar, la píldora ${ui('Activo')} y ${ui('Alumno desde …')} con el mes y el año del alta.</li><li>Una tarjeta con ${ui('Email')} y ${ui('Membresía')}: ${ui('Sin membresía')}.</li><li>Las filas ${ui('RMs del alumno')}, ${ui('Historial de entrenamientos')}, ${ui('Planificaciones')}, ${ui('Rutinas puntuales')} (las dos con ${ui('Asignar o quitar')}), ${ui('Historial de pagos')} y ${ui('Registrar pago')}, y el botón ${ui('Cerrar cuenta del alumno')}. Sin planificación vigente, la tarjeta no tiene la fila Planificación.</li><li>${ui('Historial de entrenamientos')} tiene el subtítulo ${ui('Todavía no registra entrenamientos')} y ningún gráfico: la ficha pide <code>GET /routine/history/{id}</code> al cargar. Con sesiones, el subtítulo pasa a ${ui('N sesiones · la última, …')}, con un mini gráfico de 8 semanas (lo ves en HIS-02).</li><li>Tocar la fila no abre un modal: navega a <code>/c/alumnos/{id}/historial</code>.</li></ul>`,
+      kt: 'Hoy falla.', known: T55 },
     { id: 'FCH-02', g: 'fch', t: 'Planificación vigente', env: ['TODOS'],
       data: 'Una planificación activa con al menos dos rutinas en la semana 1 (ver Antes de empezar).',
       steps: [`En la ficha de QA Detalle, tocá ${ui('Planificaciones')} › ${ui('Asignar planificación')} y asignale esa planificación desde hoy.`, 'Volvé a su ficha y mirá el request de <code>planification</code> en Network.'],
@@ -370,36 +381,115 @@ tr:last-child td{border-bottom:0}
 
     // ── Historial de entrenamientos ─────────────────────────
     { id: 'HIS-01', g: 'his', t: 'Sin historial', env: ['TODOS'],
-      steps: [`En la ficha de QA Detalle, que todavía no marcó nada, tocá ${ui('Historial de entrenamientos')}.`, 'Mirá el request en Network.'],
-      exp: `<p>El modal ${ui('Historial de entrenamientos')} dice ${ui('Sesiones de QA Detalle, de la más reciente a la más antigua.')}, con ${ui('Todavía no registra entrenamientos')} y ${ui('Cuando el alumno marque ejercicios como hechos, sus sesiones van a aparecer acá.')}, sin filtro, y el botón ${ui('Cerrar')}. Sale <code>GET /routine/history/{id}</code>. (CU-E-06, sin historial)</p>` },
+      steps: [`En la ficha de QA Detalle, que todavía no marcó nada, tocá ${ui('Historial de entrenamientos')}.`, 'Mirá la URL y el request en Network.', `Tocá ${ui('Volver')}.`],
+      exp: `<ul><li>Abre una pantalla, no un modal: <code>/c/alumnos/{id}/historial</code>, con ${ui('Volver')}, ${ui('QA Detalle')} como eyebrow y el título ${ui('Historial de entrenamientos')}.</li><li>Un bloque punteado con ${ui('Todavía no registra entrenamientos')} y ${ui('Cuando el alumno marque ejercicios como hechos, sus sesiones van a aparecer acá.')}, sin pestañas, resumen, gráfico ni filtro.</li><li>Los datos salen de <code>GET /routine/history/{id}</code>, la misma consulta que pidió la ficha: si entraste enseguida, puede no repetirse. (CU-E-06, sin historial)</li><li>${ui('Volver')} lleva a la ficha, con el foco en la fila ${ui('Historial de entrenamientos')}.</li></ul>`,
+      kt: 'Hoy falla.', known: T55 },
     { id: 'HIS-02', g: 'his', t: 'Las sesiones', env: ['TODOS'],
       data: 'Como entrenador: a QA Detalle, una rutina puntual para hoy (Rutinas puntuales › Asignar rutina). Como QA Detalle, en su inicio: en la rutina A de la semana 1 del plan, marcá un ejercicio hecho hoy con la nota «Me costó» y otro con «Lo hice otro día» en anteayer; en la rutina B, uno hoy; en la rutina puntual, uno hoy.',
-      steps: ['Cargá los datos.', 'Como entrenador, abrí el Historial de entrenamientos de QA Detalle.'],
-      exp: `<ul><li>Arriba: ${ui('Las series son las que prescribió el entrenador en la rutina, tal como está hoy: la app no registra el peso ni las repeticiones que hizo el alumno.')} y el selector ${ui('Filtrar por ejercicio')} en ${ui('Todos los ejercicios')}.</li><li>Tres sesiones, de la más reciente a la más antigua. Cada una con el nombre de la rutina, la fecha y, las del plan, su nombre y ${ui('Plan · Semana 1')}; la puntual, ${ui('Individual')}.</li><li>Debajo de cada ejercicio hecho, ${ui('Prescripto')} con sus bloques (como ${ui('3×8 · 60 kg')}) y, si dejó una, ${ui('Nota del alumno')} con el texto: «Me costó». Solo están los ejercicios hechos, no los pendientes. (CU-E-06, pasos 1 a 3)</li></ul>` },
+      steps: ['Cargá los datos.', 'Como entrenador, recargá la ficha de QA Detalle y mirá la fila Historial de entrenamientos.', 'Abrila y recorré la pestaña Sesiones de arriba abajo.', 'Abrí y cerrá una tarjeta de sesión.'],
+      exp: `<ul><li>La fila dice ${ui('3 sesiones · la última, hoy')}, con un mini gráfico de 8 barras: la última, la de esta semana, tiene las sesiones.</li><li>Las pestañas ${ui('Sesiones')} (elegida) y ${ui('Calendario')}. El resumen: ${ui('Sesiones')} 3, ${ui('Última')} ${ui('Hoy')} y ${ui('Esta semana')} 3 (2, si anteayer cayó en la semana pasada).</li><li>La tarjeta ${ui('Sesiones de …')} con el mes actual, una barra por semana y la leyenda ${ui('Plan')}, ${ui('Individual')} y ${ui('Esta semana')}; la barra de esta semana, con contorno (el gráfico se prueba en RES). Debajo, ${ui('Filtrar por ejercicio')} con ${ui('Todos')} marcado, los ejercicios que hizo (hasta 3) y ${ui('Otro…')}.</li><li>Arriba de la lista, ${ui('Las series son las que prescribió el entrenador en la rutina, tal como está hoy: la app no registra el peso ni las repeticiones que hizo el alumno.')}</li><li>La lista, agrupada por semana: ${ui('Esta semana')} con ${ui('3 sesiones')} (y ${ui('Semana pasada')}, si anteayer cayó ahí). Cada tarjeta tiene el día y el mes, la rutina, el nombre de la planificación con ${ui('· Semana 1')} (las del plan) o ${ui('Rutina puntual')}, ${ui('1 ejercicio')} (la rutina A, ${ui('2 ejercicios · 1 nota')}) y la píldora ${ui('Plan')} o ${ui('Individual')}.</li><li>La primera, la más nueva, viene abierta; las demás, cerradas. Abierta muestra solo los ejercicios hechos, no los pendientes: el nombre subrayado, la prescripción (como ${ui('3×8 · 60 kg')}) y la nota entre comillas, ${ui('«Me costó»')}. (CU-E-06, pasos 1 a 4)</li></ul>`,
+      kt: 'Hoy falla.', known: T55 },
     { id: 'HIS-03', g: 'his', t: 'La fecha de una sesión del plan', env: ['TODOS'],
-      steps: ['Mirá la sesión de la rutina A.'],
-      exp: `<p>Tiene la fecha de anteayer: una rutina del plan no tiene día propio y toma el día más viejo en que hizo alguno de sus ejercicios. Por eso va última. El ejercicio que hizo hoy aclara ${ui('Hecho el …')} con la fecha de hoy; el de anteayer no lo aclara. (CU-E-06, la fecha de una sesión del plan)</p>` },
+      steps: ['Mirá la tarjeta de la rutina A y abrila.'],
+      exp: `<p>Tiene el día y el mes de anteayer: una rutina del plan no tiene día propio y toma el día más viejo en que hizo alguno de sus ejercicios. Por eso va última (y en ${ui('Semana pasada')}, si anteayer cayó ahí). Abierta, el ejercicio que hizo hoy aclara ${ui('Hecho el …')} con la fecha de hoy; el de anteayer no lo aclara. (CU-E-06, la fecha de una sesión del plan)</p>`,
+      kt: 'Hoy falla.', known: T55 },
     { id: 'HIS-04', g: 'his', t: 'Dos sesiones el mismo día', env: ['TODOS'],
       steps: ['Mirá las dos sesiones de hoy: la rutina B y la puntual.'],
-      exp: '<p>Son dos sesiones separadas, ordenadas por el nombre de la rutina. Cada rutina del plan es una sesión aparte: la A y la B no se juntan aunque sean de la misma semana. (CU-E-06, dos sesiones el mismo día y cada rutina del plan es una sesión)</p>' },
+      exp: '<p>Son dos tarjetas separadas, en la misma semana y con el mismo día, ordenadas por el nombre de la rutina. Cada rutina del plan es una sesión aparte: la A y la B no se juntan aunque sean de la misma semana del plan. (CU-E-06, dos sesiones el mismo día y cada rutina del plan es una sesión)</p>',
+      kt: 'Hoy falla.', known: T55 },
     { id: 'HIS-05', g: 'his', t: 'La misma rutina en dos asignaciones', env: ['TODOS'],
       steps: ['Opcional: asignale a QA Detalle la misma planificación otra vez desde hoy, con «Asignar igual».', 'Como QA Detalle, marcá un ejercicio de la rutina A en esa segunda tarjeta del plan.', 'Abrí el historial.'],
-      exp: '<p>La rutina A aparece dos veces, una por cada asignación, cada una con lo suyo. (CU-E-06, cada rutina del plan es una sesión) Quitá esa segunda asignación al terminar.</p>' },
+      exp: '<p>La rutina A aparece dos veces, en dos tarjetas, una por cada asignación, cada una con lo suyo, y el resumen cuenta las dos. (CU-E-06, cada rutina del plan es una sesión) Quitá esa segunda asignación al terminar: su sesión queda en el historial, así que en los casos que siguen vas a tener una sesión más.</p>',
+      kt: 'Hoy falla.', known: T55 },
     { id: 'HIS-06', g: 'his', t: 'Lo que el entrenador dio de baja', env: ['TODOS'],
       steps: [`En la ficha, abrí ${ui('Planificaciones')} y quitale a QA Detalle la planificación.`, 'Eliminá la rutina de la rutina puntual desde Rutinas.', 'Abrí el historial.', 'Reincorporá la planificación y reactivá la rutina.'],
-      exp: '<p>Están las mismas sesiones y los mismos ejercicios: lo que el alumno hizo es parte de su historial aunque después le quiten el plan o den de baja la rutina. (CU-E-06, lo dado de baja que el alumno hizo)</p>' },
+      exp: '<p>Están las mismas sesiones, con los mismos ejercicios y en las mismas semanas, y el resumen y el gráfico dan lo mismo: lo que el alumno hizo es parte de su historial aunque después le quiten el plan o den de baja la rutina. (CU-E-06, lo dado de baja que el alumno hizo)</p>',
+      kt: 'Hoy falla.', known: T55 },
+
+    // ── Resumen y gráfico ───────────────────────────────────
+    { id: 'RES-01', g: 'res', t: 'El mes y sus flechas', env: ['TODOS'],
+      data: `Dos sesiones en el mes anterior. Como entrenador, en la ficha de QA Detalle › ${ui('Rutinas puntuales')} › ${ui('Asignar rutina')}, asignale la rutina puntual de HIS-02 en dos días del mes anterior: <b>P1</b>, el último día del mes, y <b>P2</b>, un día de dos o tres semanas antes. Como QA Detalle, en su inicio, andá a la semana de cada una y marcá dos de sus ejercicios con ${ui('Lo hice otro día')}, eligiendo ese mismo día.`,
+      steps: ['Cargá los datos y abrí el historial de QA Detalle.', 'Mirá la tarjeta del gráfico en el mes actual.', `Tocá ${ui('Mes anterior')} y mirá la URL.`, `Probá ${ui('Mes anterior')} otra vez y volvé con ${ui('Mes siguiente')}.`],
+      exp: `<ul><li>En el mes actual: ${ui('Sesiones de …')} con el mes en minúscula y ${ui('N sesiones en M semanas, hasta hoy')}. Una barra por cada semana completa, de lunes a domingo, que toca el mes (de 4 a 6), con el total arriba y el lunes abajo, en dos líneas (como ${ui('26')} y ${ui('oct')}). ${ui('Mes siguiente')} está deshabilitado.</li><li>Cada barra apila las sesiones del plan (violeta, abajo) y las individuales (naranja, arriba): la de esta semana tiene de las dos.</li><li>${ui('Mes anterior')} pasa al mes anterior y suma <code>?mes=AAAA-MM</code> a la URL: ${ui('N sesiones en M semanas · X por semana')}, con el promedio con un decimal. Las barras de P1 y P2 son naranjas.</li><li>Ahí ${ui('Mes anterior')} queda deshabilitado, porque es el mes de la primera sesión (P2), y el foco pasa a ${ui('Mes siguiente')}. (CU-E-06, pasos 4 y 5)</li></ul>`,
+      kt: 'Hoy falla.', known: T55 },
+    { id: 'RES-02', g: 'res', t: 'Una semana que cruza de mes', env: ['TODOS'],
+      steps: ['En el mes actual, mirá la primera barra: la de la semana que tiene el día 1.', 'Andá al mes anterior y mirá la última barra.'],
+      exp: '<p>Es la misma semana en los dos meses: el mismo lunes (del mes anterior), completa de lunes a domingo y con el mismo número, que cuenta la sesión de P1 aunque P1 sea del mes anterior, y las de los días de este mes, si hay. Los subtítulos de los dos meses la cuentan. Si el día 1 del mes actual cae lunes, ninguna semana cruza: marcalo Re-testear y probalo en otro mes. (CU-E-06, una semana que cruza de mes)</p>',
+      kt: 'Hoy falla.', known: T55 },
+    { id: 'RES-03', g: 'res', t: 'Las semanas futuras', env: ['TODOS'],
+      steps: ['Volvé al mes actual y mirá las barras que siguen a la de esta semana.', 'Probá tocar una y recorré el gráfico con Tab.'],
+      exp: `<p>La barra de esta semana tiene contorno y su lunes en blanco. Las de las semanas que todavía no empezaron van punteadas y sin número, no se pueden tocar (Tab las saltea) y el subtítulo no las cuenta (${ui('…, hasta hoy')}). Si esta semana es la última del mes, no hay futuras: marcalo Re-testear y probalo otro día.</p>`,
+      kt: 'Hoy falla.', known: T55 },
+    { id: 'RES-04', g: 'res', t: 'Tocar una barra', env: ['TODOS'],
+      steps: [`En la lista, tocá ${ui('Ver semanas anteriores')} hasta que no esté más.`, 'Recargá la página, andá al mes anterior y tocá la barra de la semana de P2.', 'Tocá la barra de otra semana.'],
+      exp: `<ul><li>${ui('Ver semanas anteriores')} suma de a 4 semanas y desaparece al llegar a la de P2, la más vieja. Las semanas se titulan ${ui('Esta semana')}, ${ui('Semana pasada')} y, de ahí para atrás, con su rango: ${ui('19 — 25 oct')}, o ${ui('26 oct — 1 nov')} si cruza de mes. Las que no tienen sesiones dicen ${ui('Sin entrenamientos esta semana.')}</li><li>Al recargar se ven 4 semanas otra vez. Tocar la barra de P2 abre la lista hasta esa semana, baja hasta ella y la resalta con un contorno violeta, en la lista y en la barra; su título toma el foco. Dice su rango y ${ui('1 sesión')}.</li><li>Tocar otra barra mueve el resaltado a esa semana. (CU-E-06, paso 6)</li></ul>`,
+      kt: 'Hoy falla.', known: T55 },
+
+    // ── Calendario ──────────────────────────────────────────
+    { id: 'CAL-01', g: 'cal', t: 'La intensidad de cada día', env: ['TODOS'],
+      data: 'Un día con 5 ejercicios o más: como QA Detalle, marcá hoy dos ejercicios más de la rutina B o de la puntual de hoy (hoy ya tiene 3).',
+      steps: ['Cargá los datos y abrí el historial.', `Tocá la pestaña ${ui('Calendario')} y mirá la URL.`, 'Mirá el color de anteayer, de hoy, de P1 (en el mes anterior) y de un día sin nada.'],
+      exp: `<ul><li>La URL suma <code>?vista=calendario</code>. Arriba, el resumen del mes: ${ui('Días entrenados')}, ${ui('Sesiones')} y ${ui('Racha actual')} en semanas (${ui('N sem')}: las semanas seguidas con al menos una sesión, contando desde esta, o desde la pasada si esta todavía no tiene).</li><li>La tarjeta con el mes y el año (como ${ui('Noviembre 2026')}), ${ui('Días en que hizo ejercicios')}, las flechas y una grilla de lunes a domingo (${ui('L M M J V S D')}).</li><li>El color sale de los ejercicios hechos ese día: sin ninguno, solo el borde; 1 o 2, verde claro (anteayer y P1); 3 o 4, verde medio; 5 o más, verde pleno (hoy). Hoy lleva un borde blanco; los días que todavía no llegaron están apagados y no se pueden tocar. Abajo, ${ui('Menos')} y ${ui('Más')} con los cuatro niveles.</li><li>En esta pestaña no están el filtro ni el aviso. (CU-E-06, paso 7)</li></ul>`,
+      kt: 'Hoy falla.', known: T55 },
+    { id: 'CAL-02', g: 'cal', t: 'Elegir un día', env: ['TODOS'],
+      steps: ['Mirá qué día está elegido al entrar a la pestaña.', 'Tocá anteayer.', 'Tocá un día pasado sin nada.', `Tocá el nombre de un ejercicio de una tarjeta y volvé con ${ui('Todo el historial')}.`],
+      exp: `<ul><li>Arranca con hoy elegido (contorno violeta). Al lado en escritorio, o debajo en el celular: el día con su nombre (como ${ui('Miércoles 4 de noviembre')}), ${ui('N sesiones · N ejercicios hechos')} y una tarjeta por sesión con la rutina, su línea, la píldora y solo los ejercicios que hizo ese día, cada uno con la prescripción y la nota. Estas tarjetas no se pliegan.</li><li>Anteayer: ${ui('1 sesión · 1 ejercicio hecho')}, la rutina A con el ejercicio de anteayer.</li><li>Un día sin nada: su título y ${ui('Sin entrenamientos ese día.')}</li><li>El nombre de un ejercicio abre su detalle (EJE). ${ui('Todo el historial')} vuelve a Calendario, en el mismo mes y con el día de por defecto. (CU-E-06, pasos 8 y 9, y un día sin entrenamientos)</li></ul>`,
+      kt: 'Hoy falla.', known: T55 },
+    { id: 'CAL-03', g: 'cal', t: 'Un día con parte de una sesión', env: ['TODOS'],
+      steps: ['Elegí hoy y mirá la tarjeta de la rutina A.', 'Elegí anteayer y mirala otra vez.'],
+      exp: `<p>Hoy, la rutina A tiene solo el ejercicio que hiciste hoy (el de ${ui('«Me costó»')}) y su línea suma ${ui('· empezó el …')} con la fecha de anteayer, que es la fecha de la sesión. Anteayer tiene el otro ejercicio, sin esa aclaración. (CU-E-06, una sesión que empezó otro día, vista desde el calendario)</p>`,
+      kt: 'Hoy falla.', known: T55 },
+    { id: 'CAL-04', g: 'cal', t: 'El mes anterior', env: ['TODOS'],
+      steps: [`Tocá ${ui('Mes anterior')}.`, `Pasá a la pestaña ${ui('Sesiones')} y volvé a ${ui('Calendario')}.`],
+      exp: `<ul><li>La URL suma <code>?mes=AAAA-MM</code> y la tarjeta pasa al mes anterior. Queda elegido su último día entrenado, P1, con sus dos ejercicios.</li><li>El resumen del mes: ${ui('Días entrenados')} 2 y ${ui('Sesiones')} 2, por P1 y P2 (uno más de cada uno si anteayer cayó en ese mes); ${ui('Racha actual')} da lo mismo que en el mes actual. ${ui('Mes anterior')} queda deshabilitado.</li><li>Sesiones muestra el mismo mes, y al volver a Calendario sigue en ese mes. (CU-E-06, paso 9)</li></ul>`,
+      kt: 'Hoy falla.', known: T55 },
+    { id: 'CAL-05', g: 'cal', t: 'Un mes sin entrenamientos', env: ['TODOS'],
+      data: `Una sesión más atrás, para que quede un mes vacío en el medio. Como entrenador, asignale a QA Detalle la rutina puntual de HIS-02 el día 15 de hace tres meses (<b>P3</b>). Como QA Detalle, marcá uno de sus ejercicios con ${ui('Lo hice otro día')}, eligiendo ese día.`,
+      steps: ['Cargá los datos y abrí el historial en Calendario.', `Tocá ${ui('Mes anterior')} hasta el de hace dos meses, el que quedó entre P2 y P3, y tocá uno de sus días.`, `Pasá a ${ui('Sesiones')} en ese mismo mes.`, `Seguí con ${ui('Mes anterior')} hasta que se deshabilite.`],
+      exp: `<ul><li>En el mes vacío: ningún día con color, ${ui('Días entrenados')} y ${ui('Sesiones')} en 0, ningún día elegido, el título ${ui('Tocá un día')} y ${ui('En este mes no hay entrenamientos.')} Tocar un día da ${ui('Sin entrenamientos ese día.')}</li><li>En Sesiones, ese mes tiene todas las barras en 0 y ${ui('0 sesiones en N semanas · 0 por semana')}.</li><li>El mes de P3 es el más viejo: ahí ${ui('Mes anterior')} se deshabilita. (CU-E-06, un mes sin entrenamientos)</li></ul>`,
+      kt: 'Hoy falla.', known: T55 },
 
     // ── Filtro por ejercicio ────────────────────────────────
     { id: 'FIL-01', g: 'fil', t: 'Filtrar por un ejercicio que hizo', env: ['TODOS'],
-      steps: [`Desplegá ${ui('Filtrar por ejercicio')}.`, 'Elegí el ejercicio de la rutina A que marcaste hoy con nota y mirá el request.', `Volvé a ${ui('Todos los ejercicios')}.`],
-      exp: `<ul><li>Arriba están ${ui('Los que hizo el alumno')} y, después, ${ui('Otros del catálogo')}.</li><li>Queda solo la sesión de la rutina A y, en ella, solo ese ejercicio, con su prescripción y ${ui('Nota del alumno')}. La sesión toma el día en que hizo ese ejercicio: hoy, no anteayer. Sale <code>GET /routine/history/{id}?exercise_id=…</code>. (CU-E-07, pasos 1 a 3, y la fecha de una sesión del plan)</li><li>Con Todos los ejercicios vuelve la lista completa.</li></ul>` },
+      steps: [`En la pestaña Sesiones, mirá los chips de ${ui('Filtrar por ejercicio')}.`, `Tocá el del ejercicio de la rutina A que marcaste hoy con nota (si no está entre los chips, buscalo con ${ui('Otro…')}) y mirá la URL y los requests.`, `Tocá ${ui('Todos')}.`],
+      exp: `<ul><li>${ui('Todos')} marcado, los 3 ejercicios que hizo en más sesiones (a igual cantidad, por nombre) y ${ui('Otro…')}.</li><li>Tocar uno abre el detalle de ese ejercicio en <code>/c/alumnos/{id}/historial?ejercicio=…</code>, con su chip marcado (si no estaba entre los 3, se suma como cuarto). Salen <code>GET /routine/history/{id}?exercise_id=…</code> y <code>GET /user_rm/user/{id}</code>.</li><li>En ${ui('Sesiones')}, la rutina A con solo ese ejercicio, su prescripción y su nota, fechada hoy, el día en que lo hizo, y no anteayer. (CU-E-07, pasos 1 a 3, y la fecha de una sesión del plan)</li><li>${ui('Todos')} vuelve a la lista completa, sin <code>?ejercicio</code>.</li></ul>`,
+      kt: 'Hoy falla.', known: T55 },
     { id: 'FIL-02', g: 'fil', t: 'Un ejercicio que no entrenó', env: ['TODOS'],
-      steps: ['Elegí un ejercicio de Otros del catálogo.'],
-      exp: `<p>${ui('Sin registros para este ejercicio')} y ${ui('El alumno no hizo … en ninguna sesión.')} con el nombre del ejercicio. El selector queda a la vista para elegir otro. (CU-E-07, sin registros para el ejercicio)</p>` },
+      steps: [`Tocá ${ui('Otro…')}.`, 'Escribí parte de un nombre que lleve tilde, pero sin la tilde (por ejemplo, «biceps»), y después algo que no exista.', `Borrá lo escrito y elegí uno de ${ui('Otros del catálogo')}.`],
+      exp: `<ul><li>Debajo de los chips se abre ${ui('Buscar ejercicio')} (con ${ui('Sentadilla, remo…')} de ejemplo), con ${ui('Los que hizo el alumno')}, cada uno con ${ui('N veces')}, y después ${ui('Otros del catálogo')}, con ${ui('Sin registros')}; los dos grupos por orden alfabético.</li><li>La búsqueda ignora tildes y mayúsculas. Sin resultados: ${ui('No hay ejercicios con ese nombre.')}</li><li>Elegir uno cierra el buscador y abre su detalle: ${ui('Sin registros para este ejercicio')} y ${ui('El alumno no hizo … en ninguna sesión.')} con su nombre. La tarjeta ${ui('Progresión del RM')} se muestra igual, y los chips siguen a la vista con ese ejercicio sumado y marcado. (CU-E-07, sin registros para el ejercicio)</li></ul>`,
+      kt: 'Hoy falla.', known: T55 },
     { id: 'FIL-03', g: 'fil', t: 'El mismo ejercicio dos veces en una sesión', env: ['TODOS'],
       data: 'Una rutina con el mismo ejercicio del catálogo en dos circuitos distintos, asignada a QA Detalle. Si no tenés una, marcá Re-testear.',
-      steps: ['Como QA Detalle, marcá ese ejercicio en los dos circuitos, en días distintos.', 'Filtrá el historial por ese ejercicio.'],
-      exp: '<p>La sesión muestra los dos, por el día en que los hizo; en el mismo día, en el orden en que los marcó. (CU-E-07, el ejercicio aparece más de una vez en una sesión)</p>' },
+      steps: ['Como QA Detalle, marcá ese ejercicio en los dos circuitos, en días distintos (uno con «Lo hice otro día»).', 'Abrí el detalle de ese ejercicio.'],
+      exp: `<p>En ${ui('Sesiones')}, esa sesión es una sola tarjeta, fechada el primero de los dos días, con una fila por vez: cada una con ${ui('Hecho el …')} y su prescripción, por el día en que lo hizo y, en el mismo día, en el orden en que los marcó. ${ui('Veces')} cuenta esa sesión una sola vez. (CU-E-07, el ejercicio aparece más de una vez en una sesión)</p>`,
+      kt: 'Hoy falla.', known: T55 },
+
+    // ── Detalle de un ejercicio ─────────────────────────────
+    { id: 'EJE-01', g: 'eje', t: 'Los números', env: ['TODOS'],
+      data: `Llamá <b>E1</b> al ejercicio de la rutina A que marcaste hoy con «Me costó» y <b>E2</b> a otro que haya hecho QA Detalle; que no sean Sentadilla ni Press de Banca Plano, los de RMS-03. Como QA Detalle, en Mis RMs, registrá tres RMs de E1: 60 kg × 1 de hace dos meses, 65 kg × 3 de hace un mes y 70 kg × 1 de hoy. A E2 no le cargues ninguno.`,
+      steps: ['Cargá los datos.', 'Como entrenador, en el historial de QA Detalle, abrí la tarjeta de la rutina A y tocá el nombre de E1.', `Volvé con ${ui('Todo el historial')}; abrí E1 de nuevo y volvé con «atrás» del navegador.`],
+      exp: `<ul><li>La URL suma <code>?ejercicio=…</code> y la página vuelve arriba, con el foco en el título. Arriba, ${ui('Todo el historial')}, el eyebrow ${ui('QA Detalle · Historial de entrenamientos')} y el nombre de E1 como título; sin pestañas. Los chips siguen a la vista, con E1 marcado.</li><li>El resumen: ${ui('Veces')} (las sesiones en las que lo hizo; ${ui('Vez')}, si es una), ${ui('Última vez')} ${ui('Hoy')} y ${ui('RM actual')} ${ui('70 kg')}, el último que registró.</li><li>${ui('Todo el historial')} y «atrás» vuelven a la lista, en la pestaña y el mes en que estabas. (CU-E-07, pasos 1 a 3 y 5)</li></ul>`,
+      kt: 'Hoy falla.', known: T55 },
+    { id: 'EJE-02', g: 'eje', t: 'La progresión del RM', env: ['TODOS'],
+      steps: [`En el detalle de E1, mirá ${ui('Progresión del RM')}.`],
+      exp: `<p>${ui('3 registros desde el …')} con la fecha de hace dos meses, y la píldora ${ui('+10 kg')}. Una línea con tres puntos, por orden de fecha y separados según el tiempo, cada uno con su valor: ${ui('60 kg')}, ${ui('65 kg × 3')} (tiene más de una repetición) y ${ui('70 kg')}, el último más grande. Debajo, la fecha del primero y la del último. Al pie, ${ui('Sale de los RMs que registró el alumno. Las series del historial son las prescriptas: no dicen cuánto levantó.')} La línea no tiene nada que ver con el peso prescripto de las sesiones. (CU-E-07, paso 3, con los RMs de CU-E-04)</p>`,
+      kt: 'Hoy falla.', known: T55 },
+    { id: 'EJE-03', g: 'eje', t: 'Un solo RM', env: ['TODOS'],
+      steps: [`Con ${ui('Otro…')}, abrí ${tok('Press de Banca Plano')}, que tiene un solo RM (el de RMS-03).`],
+      exp: `<p>${ui('Un solo registro')}, sin píldora ni línea: el valor grande, ${ui('80 kg × 5')}, y al lado ${ui('el …')} con su fecha y el año. ${ui('RM actual')}: ${ui('80 kg')}. Si QA Detalle no lo hizo nunca, abajo dice ${ui('Sin registros para este ejercicio')} y la tarjeta del RM se muestra igual. (CU-E-07, un solo RM)</p>`,
+      kt: 'Hoy falla.', known: T55 },
+    { id: 'EJE-04', g: 'eje', t: 'Sin RMs', env: ['TODOS'],
+      steps: ['Abrí el detalle de E2, desde un chip, el buscador o su nombre en una sesión.'],
+      exp: `<p>${ui('Progresión del RM')} con ${ui('Sin registros')} y ${ui('Todavía no tiene RMs de este ejercicio.')}, y el pie de siempre. ${ui('RM actual')}: ${ui('—')}. El resto del detalle, las veces y las sesiones, se ve igual. (CU-E-07, sin RMs)</p>`,
+      kt: 'Hoy falla.', known: T55 },
+    { id: 'EJE-05', g: 'eje', t: 'Las veces por semana', env: ['TODOS'],
+      steps: [`En el detalle de E1, mirá ${ui('Veces en …')}.`, `Tocá ${ui('Mes anterior')} y después ${ui('Todo el historial')}.`],
+      exp: `<ul><li>${ui('Veces en …')} con el mes actual y ${ui('N veces en estas semanas, hasta hoy')}: las mismas semanas completas del gráfico de la lista, con una barra verde por semana y el número arriba (las veces que lo hizo esa semana, por el día en que lo hizo). Esta semana, con contorno; las futuras, punteadas y sin número. Estas barras no se tocan.</li><li>${ui('Mes anterior')} cambia el mes y el <code>?mes</code> de la URL; ${ui('Todo el historial')} vuelve a la lista en ese mismo mes. (CU-E-07, pasos 3 y 4)</li></ul>`,
+      kt: 'Hoy falla.', known: T55 },
+    { id: 'EJE-06', g: 'eje', t: 'Las notas y las sesiones', env: ['TODOS'],
+      steps: [`En el detalle de E1, mirá ${ui('Notas del alumno')} y ${ui('Sesiones')}.`, 'Abrí el detalle de un ejercicio sin notas.'],
+      exp: `<ul><li>${ui('Notas del alumno')}, con cuántas son a la derecha: ${ui('«Me costó»')} y, debajo, la fecha corta de hoy (como ${ui('4 nov')}) y la rutina A.</li><li>${ui('Sesiones')}, con ${ui('N sesiones')}: una tarjeta por sesión, con el día en que lo hizo, la rutina, su línea, la píldora y solo E1: ${ui('Prescripto')}, la prescripción y la nota. Con más de 6, ${ui('Ver más sesiones (N)')} suma 6.</li><li>Un ejercicio sin notas no tiene la sección ${ui('Notas del alumno')}. (CU-E-07, paso 3)</li></ul>`,
+      kt: 'Hoy falla.', known: T55 },
 
     // ── Errores y pantallas ─────────────────────────────────
     { id: 'ERR-01', g: 'err', t: 'Servidor caído al abrir la ficha', env: ['LOCAL'],
@@ -409,16 +499,18 @@ tr:last-child td{border-bottom:0}
       steps: ['Abrí la ficha de QA Detalle y, ya cargada, apagá el backend.', 'Esperá 30 segundos y abrí RMs del alumno.', 'Prendelo y tocá Reintentar dentro del modal.'],
       exp: `<p>Después de unos segundos, el modal muestra ${ui('No pudimos cargar los datos')} con Reintentar dentro, y la ficha queda atrás sin romperse. Con el backend prendido, Reintentar trae los RMs.</p>` },
     { id: 'ERR-03', g: 'err', t: 'Celular y escritorio', env: ['TODOS'],
-      steps: ['Recorré la ficha y los modales (RMs, historial de entrenamientos y de pagos) en el celular, o en DevTools a 390 px.', 'Repetí en escritorio.'],
-      exp: '<ul><li>Sin scroll horizontal ni textos cortados; un email largo no rompe la tarjeta.</li><li>En el celular, los modales salen como hoja desde abajo y, con muchos RMs, se desplazan por dentro.</li><li>En escritorio, las filas de accesos van en dos columnas y los modales salen centrados.</li></ul>' },
+      steps: ['Recorré la ficha, los modales de RMs y de pagos y el historial (las dos pestañas y el detalle de un ejercicio) en el celular, o en DevTools a 390 px.', 'Repetí en escritorio, a 1280 px, y probá el historial a 959 y a 960 px.', 'En escritorio, en la pestaña Sesiones, bajá hasta el final de la lista.'],
+      exp: `<ul><li>Sin scroll horizontal ni textos cortados: un email largo no rompe la tarjeta, y un nombre de rutina, de ejercicio o una nota larga hacen salto de línea.</li><li>El historial es una pantalla, no un modal. En el celular, una sola columna: el resumen, el gráfico o el calendario y el filtro, y después la lista o el día elegido, con la barra de tabs abajo.</li><li>En escritorio, desde 960 px, dos columnas: a la izquierda (hasta 380 px), el resumen, el gráfico o el calendario y el filtro, que quedan fijos al hacer scroll; a la derecha, la lista, el día elegido o, en el detalle, las notas y las sesiones. Las pestañas van arriba, del ancho de la columna izquierda. A 959 px, una sola columna.</li><li>En el celular, los modales de RMs y de pagos salen como hoja desde abajo y, con muchos RMs, se desplazan por dentro. En escritorio, las filas de accesos de la ficha van en dos columnas y los modales salen centrados.</li></ul>`,
+      kt: 'Hoy falla.', known: T55 },
     { id: 'ERR-04', g: 'err', t: 'Teclado y lector de pantalla', env: ['TODOS'],
-      steps: ['Recorré la ficha solo con Tab y Enter, y abrí los modales.'],
-      exp: '<p>El foco siempre se ve y queda dentro del modal mientras está abierto; al cerrarlo vuelve a la ficha. En el historial, el selector de ejercicio se usa con las flechas.</p>' },
+      steps: ['Recorré la ficha y el historial solo con Tab, Enter, Espacio y las flechas, y abrí los modales de RMs y de pagos.', 'Con un lector de pantalla (NVDA, VoiceOver o TalkBack), recorré el gráfico del mes, el calendario y la progresión del RM de E1.', `Volvé a la ficha con ${ui('Volver')} y, otra vez, con «atrás» del navegador.`],
+      exp: `<ul><li>El foco siempre se ve. En los modales, queda dentro mientras están abiertos y, al cerrarlos, vuelve a la ficha.</li><li>Pestañas: un solo Tab entra a la elegida; ← y → pasan a la otra y la eligen, e Inicio y Fin van a la primera y a la última. El lector las anuncia como pestañas, con la elegida.</li><li>Las tarjetas de sesión se abren y se cierran con Enter o Espacio, y el lector dice si están expandidas o contraídas (<code>aria-expanded</code>).</li><li>Cada barra del gráfico anuncia su semana y sus números, como ${ui('Semana del 26 oct al 1 nov: 3 sesiones, 2 del plan y 1 individual. Ver en la lista.')}; las futuras, ${ui('todavía no llegó')}. La progresión del RM se anuncia como una imagen con todos sus valores y fechas, y cada barra de ${ui('Veces en …')}, con sus veces. Cada día del calendario anuncia sus sesiones y ejercicios (como ${ui('4 de noviembre, hoy: 2 sesiones, 5 ejercicios')}) o ${ui('sin entrenamientos')}, y si está elegido.</li><li>Cambiar de mes anuncia el mes nuevo; si la flecha queda deshabilitada, el foco pasa a la otra. Al abrir el detalle de un ejercicio y al volver con ${ui('Todo el historial')}, el foco va al título.</li><li>Al volver a la ficha, de las dos formas, el foco queda en la fila ${ui('Historial de entrenamientos')}.</li></ul>`,
+      kt: 'Hoy falla.', known: T55 },
 
     // ── Cierre ──────────────────────────────────────────────
     { id: 'CIE-01', g: 'cie', t: 'Dejar al alumno de prueba como estaba', env: ['TODOS'],
-      steps: ['Como QA Detalle, eliminá sus RMs desde Mis RMs.', 'En su ficha, quitale la planificación desde Planificaciones.', 'Si cerraste otra cuenta durante las pruebas, reactivala.', 'Si no vas a usar más a QA Detalle, cerrá su cuenta desde su ficha.'],
-      exp: '<p>QA Detalle queda sin RMs ni planificación vigente. Sus pagos, su rutina puntual entrenada y su historial quedan: el backend no permite borrarlos.</p>' },
+      steps: ['Como QA Detalle, eliminá sus RMs desde Mis RMs: los de RMS-03 y los tres de E1 (EJE-01).', 'En su ficha, quitale la planificación desde Planificaciones.', 'Si cerraste otra cuenta durante las pruebas, reactivala.', 'Si no vas a usar más a QA Detalle, cerrá su cuenta desde su ficha.'],
+      exp: '<p>QA Detalle queda sin RMs ni planificación vigente. Sus pagos, sus rutinas puntuales entrenadas (la de HIS-02, P1, P2 y P3) y su historial quedan: el backend no permite borrarlos.</p>' },
   ];
 
   // ── Estado ────────────────────────────────────────────────
