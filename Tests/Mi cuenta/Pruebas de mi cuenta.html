@@ -250,7 +250,7 @@ tr:last-child td{border-bottom:0}
           <li><b>Seguí el orden de la página.</b> El alumno QA Cuenta arranca sin pagos y los casos de historial le van sumando.</li>
           <li><b>DevTools › Network</b>, filtrado por <code>users</code> o por <code>payment</code>, para ver qué requests salen, con qué body y qué código responden.</li>
           <li><b>Cerrar sesión y cambiar contraseña</b> ya están en «Pruebas de acceso». Acá solo se mira que el menú lleve a esas pantallas.</li>
-          <li><b>Lo que hoy no cumple el caso de uso</b> está marcado con un aviso amarillo (DAT-06: la foto de perfil no se puede quitar; VAL-05 y VAL-06: el teléfono acepta letras). El arreglo empieza en el backend.</li>
+          <li><b>Lo que hoy no cumple el caso de uso</b> está marcado con un aviso amarillo (DAT-06: la foto de perfil no se puede quitar; VAL-05: el formulario deja guardar letras en el teléfono, falta la T54 del web). El arreglo de DAT-06 empieza en el backend.</li>
         </ul>
       </div>
       <div>
@@ -398,8 +398,7 @@ tr:last-child td{border-bottom:0}
       kt: 'Hoy no cumple el CU.', known: 'Se guarda cualquier texto: ni el front ni el backend validan el formato del teléfono, solo su largo. Lo arreglan la BE-43 (backend) y la T54 (web). Marcalo Falla mientras se guarde.' },
     { id: 'VAL-06', g: 'val', t: 'Teléfono con letras por la API', env: ['TODOS'],
       steps: ['Con QA Cuenta, abrí Network, guardá un cambio cualquiera y copiá el <code>POST /users/edit</code> como fetch.', `Pegalo en la consola cambiando el body por ${tok('{"phone_number":"abc"}')} y ejecutalo.`, `Repetilo con el body ${tok('{"phone_prefix":"abc"}')}.`, 'Volvé a abrir Datos personales.'],
-      exp: `<p>Los dos pedidos responden 400, con el cuerpo del error del backend (<code>statusCode</code>, <code>message</code> y <code>error: "Bad Request"</code>), aunque el front no lo hubiera dejado pasar. El teléfono y el código de país siguen como estaban. (CU-U-06, caminos alternativos)</p>`,
-      kt: 'Hoy falla.', known: 'El backend acepta cualquier texto de hasta 20 caracteres en el teléfono y de hasta 10 en el código de país, y responde 200. Lo arregla la BE-43 (backend). Marcalo Falla mientras responda 200.' },
+      exp: `<p>Los dos pedidos responden 400, con el cuerpo del error del backend (<code>statusCode</code>, <code>message</code> y <code>error: "Bad Request"</code>), aunque el front no lo hubiera dejado pasar. El teléfono y el código de país siguen como estaban. (CU-U-06, caminos alternativos)</p>` },
 
     // ── Historial de pagos ──────────────────────────────────
     { id: 'PAG-01', g: 'pag', t: 'Sin pagos', env: ['TODOS'],
