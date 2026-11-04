@@ -193,7 +193,7 @@ tr:last-child td{border-bottom:0}
 
 <div class="wrap">
   <header class="mast">
-    <div class="eyebrow"><span>PowerApp Web</span><span class="sep">/</span><span>Alumno · CU-U-14 y CU-U-15</span><span class="sep">/</span><span>Pruebas manuales</span></div>
+    <div class="eyebrow"><span>PowerApp Web</span><span class="sep">/</span><span>Alumno y Entrenador · CU-U-14, CU-U-15 y CU-E-30</span><span class="sep">/</span><span>Pruebas manuales</span></div>
     <h1>Pruebas de wiki y temporizador</h1>
     <p class="lede">Dos herramientas del alumno: la biblioteca de ejercicios, con búsqueda, filtro por grupo muscular y la ficha de cada ejercicio, y el temporizador de descanso entre series. Cada caso dice cómo probarlo y qué tenés que ver. Marcá el resultado y anotá lo que observes.</p>
   </header>
@@ -237,7 +237,7 @@ tr:last-child td{border-bottom:0}
       <div>
         <h3>Cuentas y datos</h3>
         <ul class="tips">
-          <li><b>Una cuenta real de alumno y una de admin.</b> El admin crea el ejercicio de prueba de FIC-02. Las de demo no sirven: el backend rechaza su token.</li>
+          <li><b>Una cuenta real de alumno, una de entrenador y una de admin.</b> El admin crea el ejercicio de prueba de FIC-02 y el entrenador recorre la biblioteca desde su zona (BIE-01 a BIE-05). Las de demo no sirven: el backend rechaza su token.</li>
           <li><b>Un ejercicio de prueba:</b> <button type="button" class="tok" data-copy="QA Wiki">QA Wiki</button>, con un músculo, una descripción, un video y links de imagen que no cargan. FIN-01 lo borra.</li>
           <li><b>Para el temporizador, un celular Android</b> si querés probar la vibración: iPhone y la mayoría de las compus no vibran.</li>
         </ul>
@@ -249,6 +249,8 @@ tr:last-child td{border-bottom:0}
           <li><b>DevTools › Network</b>, filtrado por <code>exercise</code> o por <code>muscles</code>, para ver qué requests salen y qué código responden.</li>
           <li><b>El temporizador se inicia a mano</b> desde su tab. Iniciarlo al terminar una serie depende de la pantalla de la rutina, que todavía no existe.</li>
           <li><b>Un reloj a mano</b> (el del celular) para comparar los tiempos del temporizador.</li>
+          <li><b>La biblioteca del entrenador</b> es la misma que la del alumno, en <code>/c/ejercicios</code>: los textos de pantalla son los mismos, y acá se prueba cómo se llega, que es solo de lectura y que queda en la zona del entrenador.</li>
+          <li><b>Lo que se sabe que hoy falla</b> está marcado con un aviso amarillo: BIE-01 a BIE-05, porque el entrenador todavía no tiene la biblioteca en <code>/c/ejercicios</code> (T55). Marcalo igual: así queda registrado cuándo se arregla.</li>
         </ul>
       </div>
       <div>
@@ -313,9 +315,13 @@ tr:last-child td{border-bottom:0}
     { id: 'fic', name: 'Ficha del ejercicio', cu: 'CU-U-15', file: 'usuario/CU-U-15-consultar-wiki-de-ejercicios.md' },
     { id: 'tim', name: 'Temporizador', cu: 'CU-U-14', file: 'usuario/CU-U-14-temporizador.md' },
     { id: 'seg', name: 'Fuera de la pantalla', cu: 'CU-U-14', file: 'usuario/CU-U-14-temporizador.md', sub: 'Otra pantalla, segundo plano y recarga' },
+    { id: 'bie', name: 'Biblioteca del entrenador', cu: 'CU-E-30', file: 'entrenador/CU-E-30-consultar-wiki-de-ejercicios.md', sub: 'La misma biblioteca, solo de lectura, en /c/ejercicios' },
     { id: 'err', name: 'Errores y pantallas', cu: null, sub: 'Servidor caído, celular, escritorio y teclado' },
     { id: 'fin', name: 'Limpieza', cu: null, sub: 'Borrar el ejercicio de prueba' },
   ];
+
+  // Aviso de los casos BIE mientras la T55 (web) no esté en Render.
+  const T55 = 'El entrenador todavía no tiene <code>/c/ejercicios</code> ni el segmento Ejercicios en Rutinas. Lo arregla la T55 (web). Marcalo Falla mientras no esté en Render.';
 
   const CASES = [
     // ── Biblioteca ──────────────────────────────────────────
@@ -391,6 +397,30 @@ tr:last-child td{border-bottom:0}
     { id: 'SEG-03', g: 'seg', t: 'Recargar y cerrar sesión', env: ['TODOS'],
       steps: [`Tocá ${ui('2:00')} y recargá la página.`, `Tocá ${ui('3:00')}, cerrá sesión desde Mi cuenta y entrá con otra cuenta de alumno.`, 'En Network, mirá si el temporizador mandó algún request.'],
       exp: `<p>Las dos veces el temporizador vuelve a ${ui('01:30')} con ${ui('listo')}: no se guarda nada ni pasa a otra cuenta. No sale ningún request. (CU-U-14, postcondición)</p>` },
+
+    // ── Biblioteca del entrenador ───────────────────────────
+    { id: 'BIE-01', g: 'bie', t: 'Llegar desde el segmento Ejercicios', env: ['TODOS'],
+      data: 'Tu cuenta real de entrenador.',
+      steps: ['Como entrenador, tocá la tab Rutinas.', `Tocá el segmento ${ui('Ejercicios')}.`, 'En Network, mirá qué requests salen.'],
+      exp: `<ul><li>Abre <code>/c/ejercicios</code> con ${ui('Biblioteca')} arriba y el título ${ui('Ejercicios')}.</li><li>Un buscador ${ui('Buscar ejercicio')} y los chips ${ui('Todos')} y uno por grupo muscular, por orden alfabético.</li><li>Cada fila muestra la miniatura (o una pesa), el nombre y sus músculos en una línea. (CU-E-30, pasos 1 y 3)</li><li>Salen <code>GET /exercise/all</code> y <code>GET /muscles/mg/all</code>, los dos con 200. En el celular queda marcada la tab Rutinas y, en escritorio, Rutinas en la barra lateral.</li></ul>`,
+      kt: 'Hoy falla.', known: T55 },
+    { id: 'BIE-02', g: 'bie', t: 'Buscar y filtrar por grupo', env: ['TODOS'],
+      steps: [`Buscá ${tok('extension')}, sin tilde, y ${tok('PRESS')}, en mayúsculas.`, `Buscá ${tok('zzz')}.`, 'Borrá la búsqueda y tocá el chip de un grupo, por ejemplo el de piernas.', 'Con ese chip, buscá un ejercicio de otro grupo, por ejemplo «press de banca».', `Tocá ${ui('Todos')}.`],
+      exp: `<p>Como en la biblioteca del alumno (WIK-03 a WIK-05). La lista se filtra mientras escribís: sin tilde encuentra los «Extensión…» y en mayúsculas encuentra los «Press…», sin que salga ningún request. Con zzz: ${ui('No hay ejercicios con ese nombre. Probá con otra búsqueda o categoría.')} Con el chip quedan solo los ejercicios que trabajan algún músculo de ese grupo, y la búsqueda se combina con el chip: un ejercicio de otro grupo no aparece. Si el grupo no tiene ejercicios: ${ui('No hay ejercicios en esa categoría. Probá con otra.')} (CU-E-30, paso 2 y caminos alternativos)</p>`,
+      kt: 'Hoy falla.', known: T55 },
+    { id: 'BIE-03', g: 'bie', t: 'La ficha y volver a la lista', env: ['TODOS'],
+      data: `${tok('Sentadilla con Barra Alta')}, o cualquier ejercicio del seed`,
+      steps: ['En <code>/c/ejercicios</code>, elegí un chip y buscá el ejercicio.', 'Tocá su fila.', `Tocá ${ui('Volver')}.`],
+      exp: `<ul><li>Abre <code>/c/ejercicios/{id}</code> con ${ui('Biblioteca')} arriba y el nombre del ejercicio como título, igual que la ficha del alumno (FIC-01): ${ui('Músculos que trabaja')} con una píldora por músculo, ${ui('Descripción')}, ${ui('Tips de seguridad')} y ${ui('Tips de activación')}. <code>GET /exercise/{id}</code> responde 200. (CU-E-30, paso 4)</li><li>Sigue marcada la tab Rutinas.</li><li>${ui('Volver')} lleva a <code>/c/ejercicios</code> con la misma búsqueda y el mismo chip (<code>?q=…&amp;grupo=…</code>), no a <code>/u/wiki</code>.</li></ul>`,
+      kt: 'Hoy falla.', known: T55 },
+    { id: 'BIE-04', g: 'bie', t: 'Solo de lectura', env: ['TODOS'],
+      steps: ['En la lista y en la ficha de un ejercicio, buscá cómo crear, editar o eliminar un ejercicio.', 'En Network, mirá qué requests salen mientras recorrés la lista y la ficha.', 'Escribí en la barra <code>/a/ejercicios</code>.'],
+      exp: '<p>No hay ningún botón para crear, editar ni eliminar, ni en la lista ni en la ficha: el catálogo lo administra el Admin (CU-E-30, fuera de alcance). Solo salen <code>GET</code>. <code>/a/ejercicios</code> vuelve a <code>/c/alumnos</code>, sin mostrar la pantalla del admin ni por un instante.</p>',
+      kt: 'Hoy falla.', known: T55 },
+    { id: 'BIE-05', g: 'bie', t: 'Link a un ejercicio que no existe', env: ['TODOS'],
+      steps: ['Abrí <code>/c/ejercicios/abc</code>.', `Tocá ${ui('Volver')}.`],
+      exp: `<p>${ui('No encontramos el ejercicio')} y ${ui('Puede que ya no esté en la biblioteca. Volvé a la lista.')}, sin botón Reintentar. ${ui('Volver')} lleva a <code>/c/ejercicios</code>.</p>`,
+      kt: 'Hoy falla.', known: T55 },
 
     // ── Errores y pantallas ─────────────────────────────────
     { id: 'ERR-01', g: 'err', t: 'Servidor caído', env: ['LOCAL'],

@@ -1,8 +1,8 @@
 # PowerApp — Especificaciones de Casos de Uso
 
-Índice de casos de uso (77 en total). Un archivo Markdown por CU.
+Índice de casos de uso (78 en total). Un archivo Markdown por CU.
 
-> **CU-E-12** es un caso de uso **agrupador**: no se cuenta a sí mismo, sino sus seis operaciones anidadas (`CU-E-12a` a `CU-E-12f`), que sí figuran en el total. Eran 75 CU hasta el 31/10/2026, cuando se sumaron `CU-E-12e` y `CU-E-12f`.
+> **CU-E-12** es un caso de uso **agrupador**: no se cuenta a sí mismo, sino sus seis operaciones anidadas (`CU-E-12a` a `CU-E-12f`), que sí figuran en el total. Eran 75 CU hasta el 31/10/2026, cuando se sumaron `CU-E-12e` y `CU-E-12f`, y 77 hasta el 04/11/2026, cuando se sumó `CU-E-30`.
 
 ## Rol Usuario
 
@@ -88,6 +88,10 @@
 - [`CU-E-27` Obtener alumnos por estado de membresía](entrenador/CU-E-27-obtener-alumnos-por-estado-de-membresia.md)
 - [`CU-E-28` Obtener alumnos por tipo de membresía](entrenador/CU-E-28-obtener-alumnos-por-tipo-de-membresia.md)
 - [`CU-E-29` Registrar pago de alumno](entrenador/CU-E-29-registrar-pago-de-alumno.md)
+
+### Biblioteca de Ejercicios
+
+- [`CU-E-30` Consultar wiki de ejercicios](entrenador/CU-E-30-consultar-wiki-de-ejercicios.md)
 
 ## Rol Admin
 
