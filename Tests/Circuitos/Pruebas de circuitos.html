@@ -238,7 +238,7 @@ tr:last-child td{border-bottom:0}
         <h3>Cuentas y datos</h3>
         <ul class="tips">
           <li><b>Una cuenta admin real y una de entrenador.</b> Las de demo no sirven: el backend rechaza su token.</li>
-          <li><b>Todo lo que crees, con el prefijo «QA»:</b> los tipos <button type="button" class="tok" data-copy="QA Principal">QA Principal</button> y <button type="button" class="tok" data-copy="QA Temporal">QA Temporal</button>, y los circuitos <button type="button" class="tok" data-copy="QA Circuito 1">QA Circuito 1</button> y <button type="button" class="tok" data-copy="QA Circuito series">QA Circuito series</button>.</li>
+          <li><b>Todo lo que crees, con el prefijo «QA»:</b> los tipos <button type="button" class="tok" data-copy="QA Principal">QA Principal</button> y <button type="button" class="tok" data-copy="QA Temporal">QA Temporal</button> (y los de TIP-11, TIP-13 y TIP-17), y los circuitos <button type="button" class="tok" data-copy="QA Circuito 1">QA Circuito 1</button> y <button type="button" class="tok" data-copy="QA Circuito series">QA Circuito series</button>.</li>
           <li><b>Ni los circuitos ni los tipos se pueden borrar,</b> solo dar de baja. Al final, FIN-01 deja los circuitos de prueba desactivados y FIN-02, los tipos.</li>
           <li><b>No guardes cambios en circuitos del seed</b> ni en sus cinco tipos (AMRAP, Enfriamiento, Entrada en calor, Principal y Superserie). Editar un circuito cambia todas las rutinas que lo usan, y renombrar un tipo cambia cómo se ve en todos sus circuitos. Con los del seed, solo abrilos para mirar.</li>
         </ul>
@@ -251,6 +251,8 @@ tr:last-child td{border-bottom:0}
           <li><b>«N rutinas»</b> se calcula con las rutinas vigentes. Mientras el bloque C2 no esté, solo las del seed usan circuitos.</li>
           <li><b>El tipo de un circuito se elige de una lista</b> que administra el admin (BE-44 y T58, en Render desde el 5/11). Los circuitos del seed que eran «normal» ahora son Principal, y los otros tipos escritos a mano pasaron a ser tipos propios.</li>
           <li><b>DevTools › Network › clic derecho › <i>Block request URL</i></b> sirve para ERR-06: bloquea <code>circuit-type/all</code> sin apagar el servidor.</li>
+          <li><b>Para TUS-04 hace falta una cuenta de alumno</b> con una rutina asignada, como QA Alumno de «Pruebas del plan del alumno».</li>
+          <li><b>No se prueban acá</b> las reglas del backend que la web nunca pone a prueba: crear o editar un circuito con un tipo que no existe (404) o mandando <code>type</code> (400), y que el entrenador cree, edite o dé de baja un tipo (403). Se prueban por Swagger.</li>
         </ul>
       </div>
       <div>
@@ -318,6 +320,7 @@ tr:last-child td{border-bottom:0}
     { id: 'edt', name: 'Editar', cu: 'CU-E-23', file: 'entrenador/CU-E-23-editar-circuito.md' },
     { id: 'dup', name: 'Duplicar', cu: null, sub: 'Una copia para cambiar sin tocar el original' },
     { id: 'baj', name: 'Desactivar y reactivar', cu: 'CU-E-24', file: 'entrenador/CU-E-24-eliminar-circuito-logico.md' },
+    { id: 'tus', name: 'Tipos en uso', cu: null, sub: 'El tipo en el contador, los chips, las rutinas y lo que ve el alumno' },
     { id: 'coa', name: 'Desde el Entrenador', cu: null, sub: 'La misma pantalla en /c/circuitos' },
     { id: 'err', name: 'Errores y pantallas', cu: null, sub: 'Servidor caído, celular, escritorio y teclado' },
     { id: 'fin', name: 'Limpieza', cu: null, sub: 'Dejar los circuitos y los tipos de prueba fuera de uso' },
@@ -332,12 +335,12 @@ tr:last-child td{border-bottom:0}
       steps: ['En escritorio, entrá desde la barra lateral › Configuración › Tipos de circuito.', 'En el celular, o en DevTools a 390 px, entrá desde Más › Tipos de circuito.'],
       exp: `<p>Los dos llevan a <code>/a/tipos-circuito</code>, con «Configuración» arriba, el título ${ui('Tipos de circuito')} y ${ui('Los entrenadores eligen uno al armar cada circuito y filtran el listado con ellos.')} En la barra lateral queda marcada Tipos de circuito; en el celular, la tab Más. (CU-A-24)</p>` },
     { id: 'TIP-02', g: 'tip', t: 'Tarjetas y orden', env: ['TODOS'],
-      steps: ['Recorré las tarjetas.', 'Anotá cuántos circuitos dice Principal y comparalo con Circuitos, con los chips Activos y Principal.'],
-      exp: `<ul><li>Cada tarjeta muestra el nombre, la descripción si tiene y ${ui('N circuitos')} (en singular, ${ui('1 circuito')}), con el lápiz y el tacho.</li><li>Primero van los activos y después los dados de baja, cada grupo por orden alfabético. Están, al menos, los cinco del seed: AMRAP, Enfriamiento, Entrada en calor, Principal y Superserie.</li><li>El número cuenta solo los circuitos activos: coincide con las tarjetas de Circuitos con los chips Activos y Principal. (CU-A-24)</li></ul>` },
+      steps: ['Recorré las tarjetas.', 'Anotá cuántos circuitos dice Principal y comparalo con Circuitos, con los chips Activos y Principal.', 'En Network, filtrá por <code>circuit-type</code> y recargá.'],
+      exp: `<ul><li>Cada tarjeta muestra el nombre, la descripción si tiene y ${ui('N circuitos')} (en singular, ${ui('1 circuito')}), con el lápiz y el tacho.</li><li>Primero van los activos y después los dados de baja, cada grupo por orden alfabético. Están, al menos, los cinco del seed: AMRAP, Enfriamiento, Entrada en calor, Principal y Superserie.</li><li>El número cuenta solo los circuitos activos: coincide con las tarjetas de Circuitos con los chips Activos y Principal. (CU-A-24)</li><li>Sale <code>GET /routine/circuit-type/all?include_inactive=true</code>, con 200, y cada tipo trae <code>circuit_count</code>.</li></ul>` },
     { id: 'TIP-03', g: 'tip', t: 'Crear un tipo', env: ['TODOS'],
       data: `${tok('QA Principal')}, descripción ${tok('Tipo de prueba para los circuitos QA')}.`,
-      steps: [`Tocá el botón flotante ${ui('Crear tipo de circuito')}.`, 'Completá nombre y descripción, y guardá.'],
-      exp: `<p>Se abre ${ui('Nuevo tipo de circuito')} con ${ui('Nombre')} y ${ui('Descripción')} (${ui('Opcional.')}). Al guardar: ${ui('Tipo de circuito creado')}, el modal se cierra y la tarjeta aparece entre los activos, en su lugar alfabético, con la descripción y ${ui('0 circuitos')}. Lo usan CRE-01 y SET-01. (CU-A-25)</p>` },
+      steps: [`Tocá el botón flotante ${ui('Crear tipo de circuito')}.`, 'Completá nombre y descripción, y guardá.', 'En Network, mirá el POST.'],
+      exp: `<p>Se abre ${ui('Nuevo tipo de circuito')} con ${ui('Nombre')} y ${ui('Descripción')} (${ui('Opcional.')}). Al guardar: ${ui('Tipo de circuito creado')}, el modal se cierra y la tarjeta aparece entre los activos, en su lugar alfabético, con la descripción y ${ui('0 circuitos')}. Lo usan CRE-01 y SET-01. <code>POST /routine/circuit-type/create</code> lleva <code>type</code> y <code>description</code>, y responde 201. (CU-A-25)</p>` },
     { id: 'TIP-04', g: 'tip', t: 'Validaciones del formulario', env: ['TODOS'],
       data: `Nombre de 51 caracteres: ${tok(LONG_TYPE)}`,
       steps: ['En Nuevo tipo de circuito, tocá Guardar con todo vacío.', 'Escribí solo espacios en el nombre y guardá.', 'Pegá el nombre de 51 caracteres y un texto de más de 100 en la descripción.'],
@@ -349,21 +352,47 @@ tr:last-child td{border-bottom:0}
     { id: 'TIP-06', g: 'tip', t: 'Editar un tipo', env: ['TODOS'],
       data: `Descripción nueva ${tok('Bloque central de los circuitos QA')}.`,
       steps: ['Tocá el lápiz de QA Principal.', 'Cambiá la descripción y guardá.', 'Volvé a abrirlo, cambiá el nombre a QA principal (con la p minúscula) y guardá. Después devolvele la P mayúscula.', 'Abrilo, cambiá algo y tocá Cancelar; repetí cerrando con Escape.'],
-      exp: `<ul><li>${ui('Editar tipo de circuito')} abre con los datos cargados y avisa ${ui('El cambio se ve en todos los circuitos que lo usan.')}</li><li>Al guardar: ${ui('Tipo de circuito guardado')} y la tarjeta muestra la descripción nueva. Cambiar solo las mayúsculas del nombre no da conflicto.</li><li>Cancelar y Escape no cambian nada. (CU-A-26)</li></ul>` },
+      exp: `<ul><li>${ui('Editar tipo de circuito')} abre con los datos cargados y avisa ${ui('El cambio se ve en todos los circuitos que lo usan.')}</li><li>Al guardar: ${ui('Tipo de circuito guardado')} y la tarjeta muestra la descripción nueva. Sale <code>POST /routine/circuit-type/edit/{id}</code> con el nombre y la descripción. Cambiar solo las mayúsculas del nombre no da conflicto.</li><li>Cancelar y Escape no cambian nada. (CU-A-26)</li></ul>` },
     { id: 'TIP-07', g: 'tip', t: 'Dar de baja', env: ['TODOS'],
       data: `${tok('QA Temporal')}, sin descripción.`,
       steps: ['Creá QA Temporal.', 'Tocá su tacho y tocá Cancelar.', 'Tocá el tacho otra vez, leé el mensaje y confirmá.'],
-      exp: `<ul><li>Cancelar no cambia nada y no sale ningún request.</li><li>${ui('Eliminar tipo de circuito')}: ${ui('¿Eliminar QA Temporal? Es una baja lógica: deja de ofrecerse para circuitos nuevos, y los circuitos que ya lo tienen lo conservan. Lo podés reactivar cuando quieras.')}</li><li>Al confirmar: ${ui('Tipo de circuito dado de baja')}. La tarjeta pasa a la zona de los dados de baja, apagada, con ${ui('Inactivo')} y el botón Reactivar en lugar del tacho. (CU-A-27)</li></ul>` },
+      exp: `<ul><li>Cancelar no cambia nada y no sale ningún request.</li><li>${ui('Eliminar tipo de circuito')}: ${ui('¿Eliminar QA Temporal? Es una baja lógica: deja de ofrecerse para circuitos nuevos, y los circuitos que ya lo tienen lo conservan. Lo podés reactivar cuando quieras.')}</li><li>Al confirmar sale <code>POST /routine/circuit-type/set-active/{id}</code> con <code>{ "active": false }</code> y aparece ${ui('Tipo de circuito dado de baja')}. La tarjeta pasa a la zona de los dados de baja, apagada, con ${ui('Inactivo')} y el botón Reactivar en lugar del tacho. (CU-A-27)</li></ul>` },
     { id: 'TIP-08', g: 'tip', t: 'El nombre de un tipo dado de baja sigue ocupado', env: ['TODOS'],
       steps: ['Creá un tipo llamado QA Temporal, como el que está dado de baja.'],
       exp: `<p>Se rechaza con ${ui('Ya hay un tipo de circuito con ese nombre. Elegí otro o editá ese tipo.')}: el nombre se controla también contra los dados de baja. Para volver a usarlo hay que reactivar el que existe. (CU-A-25)</p>` },
     { id: 'TIP-09', g: 'tip', t: 'Reactivar', env: ['TODOS'],
       steps: ['Tocá Reactivar en QA Temporal.', 'Volvé a darlo de baja: CRE-07 necesita un tipo dado de baja.'],
-      exp: `<p>No pide confirmación: ${ui('Tipo de circuito reactivado')} y la tarjeta vuelve a los activos, en su lugar alfabético. Mientras reactiva, el botón queda deshabilitado. (CU-A-27, camino alternativo)</p>` },
+      exp: `<p>No pide confirmación: sale <code>set-active</code> con <code>{ "active": true }</code>, aparece ${ui('Tipo de circuito reactivado')} y la tarjeta vuelve a los activos, en su lugar alfabético. Mientras reactiva, el botón queda deshabilitado. (CU-A-27, camino alternativo)</p>` },
     { id: 'TIP-10', g: 'tip', t: 'Solo para el Admin', env: ['TODOS'],
       data: 'Una cuenta real de entrenador y una de alumno.',
       steps: ['Como entrenador, abrí <code>/a/tipos-circuito</code>.', 'Repetí como alumno.'],
       exp: '<p>El entrenador vuelve a <code>/c/alumnos</code> y el alumno a <code>/u/plan</code>. El entrenador usa los tipos al armar circuitos (COA-03), pero no los administra. (CU-A-24, regla 1)</p>' },
+    { id: 'TIP-11', g: 'tip', t: 'Espacios en los bordes del nombre y la descripción', env: ['TODOS'],
+      data: `Nombre ${tok('   QA Espacios   ')} y descripción ${tok('   Con espacios   ')}, los dos con espacios adelante y atrás.`,
+      steps: ['Creá el tipo pegando los dos textos con sus espacios.', 'Abrí su edición y tocá Cancelar.', 'En Network, mirá el body del POST.'],
+      exp: `<p>La tarjeta dice ${ui('QA Espacios')} y ${ui('Con espacios')}, sin los espacios de los bordes, y la edición los muestra igual. El body ya va recortado. (CU-A-25, regla 1)</p>` },
+    { id: 'TIP-12', g: 'tip', t: 'Sacarle la descripción a un tipo', env: ['TODOS'],
+      steps: ['Editá QA Espacios, borrá la descripción y guardá.', 'En Network, mirá el body del POST.', 'Editalo de nuevo, escribí solo espacios en la descripción y guardá.'],
+      exp: `<p>Las dos veces la tarjeta queda sin la línea de descripción, y al reabrirlo el campo está vacío. El body no trae <code>description</code>: sin ella, la edición la borra. (CU-A-26, paso 3)</p>` },
+    { id: 'TIP-13', g: 'tip', t: 'Mayúsculas y tildes en el orden', env: ['TODOS'],
+      data: `${tok('qa índice')}, en minúsculas y con tilde.`,
+      steps: ['Creá qa índice.', 'Mirá dónde quedó su tarjeta.', 'Abrí Circuitos › Crear circuito y desplegá Tipo, sin guardar.'],
+      exp: `<p>qa índice queda en su lugar alfabético, después de QA Espacios y antes de QA Principal: el orden no distingue mayúsculas ni tildes, así que no lo manda al principio ni al final. El selector Tipo del editor usa el mismo orden. (CU-A-24, paso 3)</p>` },
+    { id: 'TIP-14', g: 'tip', t: 'Guardar sin cambiar nada', env: ['TODOS'],
+      steps: ['Abrí la edición de QA Principal y tocá Guardar sin tocar nada.'],
+      exp: `<p>${ui('Tipo de circuito guardado')}. No da el aviso de nombre repetido: el nombre se compara contra los demás tipos, no contra sí mismo. (CU-A-26, paso 4)</p>` },
+    { id: 'TIP-15', g: 'tip', t: 'Renombrar con el nombre de un tipo dado de baja', env: ['TODOS'],
+      data: 'QA Temporal dado de baja (TIP-09).',
+      steps: ['Editá QA Principal y cambiale el nombre a qa temporal.'],
+      exp: `<p>Aviso rojo dentro del modal: ${ui('Ya hay un tipo de circuito con ese nombre. Elegí otro o editá ese tipo.')} No se guarda nada: al editar, el nombre también se controla contra los dados de baja. (CU-A-26, camino alternativo)</p>` },
+    { id: 'TIP-16', g: 'tip', t: 'Editar un tipo dado de baja', env: ['TODOS'],
+      data: `QA Temporal dado de baja. Descripción ${tok('Tipo dado de baja, para las pruebas')}.`,
+      steps: ['Tocá el lápiz de QA Temporal, poné la descripción y guardá.'],
+      exp: `<p>${ui('Tipo de circuito guardado')}. La tarjeta muestra la descripción y sigue apagada, con ${ui('Inactivo')}, en la zona de los dados de baja: editarlo no lo reactiva. (CU-A-26, postcondiciones)</p>` },
+    { id: 'TIP-17', g: 'tip', t: 'Doble envío al crear', env: ['TODOS'],
+      data: `${tok('QA Doble')}.`,
+      steps: ['Completá Nuevo tipo de circuito y hacé doble clic rápido en Guardar.', 'Mientras guarda, apretá Escape.'],
+      exp: '<p>Sale un solo POST, el botón muestra que está cargando y el modal no se cierra hasta que termina. Queda una sola tarjeta QA Doble.</p>' },
 
     // ── Listado ─────────────────────────────────────────────
     { id: 'LST-01', g: 'lst', t: 'Llegar a Circuitos', env: ['TODOS'],
@@ -384,6 +413,16 @@ tr:last-child td{border-bottom:0}
     { id: 'LST-06', g: 'lst', t: 'Quién puede entrar', env: ['TODOS'],
       steps: ['Como alumno, abrí <code>/a/circuitos</code> y <code>/c/circuitos</code>.'],
       exp: '<p>En los dos casos vuelve a <code>/u/plan</code>. El entrenador tiene su propia pantalla, que se prueba en COA-01.</p>' },
+    { id: 'LST-07', g: 'lst', t: 'Buscar dentro de un tipo', env: ['TODOS'],
+      steps: ['Elegí el chip de tipo Principal y buscá parte del nombre de uno de sus circuitos.', 'Con Todos en la fila de tipos, buscá superserie.'],
+      exp: `<ul><li>Quedan solo los circuitos de Principal cuyo nombre coincide; si ninguno coincide, ${ui('Sin coincidencias')}.</li><li>El buscador mira solo el nombre, no el tipo: superserie solo encuentra circuitos con esa palabra en el nombre. Para ver los de un tipo están los chips.</li></ul>` },
+    { id: 'LST-08', g: 'lst', t: 'Qué tipos tienen chip', env: ['TODOS'],
+      steps: ['Con Activos, compará los chips de tipo con los tipos de Tipos de circuito.', 'Pasá a Inactivos y después a Todos.'],
+      exp: '<ul><li>Solo hay chip para los tipos que tiene algún circuito de los que se ven: un tipo sin circuitos (como Enfriamiento o QA Espacios) no tiene chip.</li><li>Con Inactivos, los chips son los de los circuitos inactivos; con Todos, los de todos. (CU-E-21, paso 3)</li></ul>' },
+    { id: 'LST-09', g: 'lst', t: 'Un enlace con un tipo que no está', env: ['TODOS'],
+      data: 'El id de un tipo sin circuitos, como Enfriamiento: copialo de la respuesta de <code>GET /routine/circuit-type/all</code> en Network.',
+      steps: ['Abrí <code>/a/circuitos?tipo=abc</code>.', 'Abrí <code>/a/circuitos?tipo=</code> con el id de Enfriamiento.'],
+      exp: `<p>En los dos, la fila de tipos marca ${ui('Todos')} y se ven todos los circuitos del chip Activos, sin errores. La dirección conserva el <code>tipo</code>. (CU-E-21, camino alternativo)</p>` },
 
     // ── Crear ───────────────────────────────────────────────
     { id: 'CRE-01', g: 'cre', t: 'Crear un circuito', env: ['TODOS'],
@@ -414,6 +453,10 @@ tr:last-child td{border-bottom:0}
       data: 'Backend local, una sesión de admin y otra de entrenador, y QA Circuito 1 (CRE-01), de tipo QA Principal.',
       steps: ['Como admin, en Tipos de circuito, dá de baja todos los tipos activos y anotá cuáles eran.', 'Abrí Crear circuito.', 'Como entrenador, abrí Crear circuito.', 'Como admin, abrí QA Circuito 1, cambiá la descripción y guardá.', 'Abrilo otra vez y tocá Duplicar.', 'Al terminar, reactivá todos los tipos que diste de baja.'],
       exp: `<ul><li>Admin, en el alta: el selector, deshabilitado, dice ${ui('No hay tipos activos')}; el aviso dice ${ui('No hay tipos de circuito activos: hace falta uno para crear un circuito.')}, con el botón ${ui('Ir a Tipos de circuito')}, que lleva a <code>/a/tipos-circuito</code>. ${ui('Guardar circuito')} queda deshabilitado.</li><li>Entrenador, en el alta: el mismo aviso, más ${ui('Pedile al admin que cree uno o que reactive alguno.')}, y sin el botón.</li><li>En la edición, el selector solo muestra ${ui('QA Principal (dado de baja)')}, el aviso dice ${ui('No hay tipos de circuito activos: el circuito conserva el suyo, pero por ahora no se le puede cambiar.')} y guardar funciona: ${ui('Circuito guardado')}.</li><li>Duplicar: ${ui('Duplicar circuito')} con ${ui('El tipo QA Principal está dado de baja y no hay otro tipo activo, así que por ahora no se puede duplicar.')} y solo el botón ${ui('Cerrar')}. (CU-E-22 y CU-E-23, caminos alternativos)</li></ul>` },
+    { id: 'CRE-09', g: 'cre', t: 'El selector se pone al día sin recargar', env: ['TODOS'],
+      data: 'QA Temporal dado de baja, y otra pestaña con la sesión de admin.',
+      steps: ['En esta pestaña, abrí Crear circuito y desplegá Tipo.', 'En la otra, reactivá QA Temporal y volvé a esta.', 'Desplegá Tipo otra vez.', 'En la otra, dale de baja a QA Temporal de nuevo y volvé.'],
+      exp: '<p>Al volver a la pestaña, el selector se refresca solo: QA Temporal aparece cuando está activo y desaparece cuando se da de baja, sin recargar la página. (CU-E-22, paso 1)</p>' },
 
     // ── Bloques de series ───────────────────────────────────
     { id: 'SET-01', g: 'set', t: 'Bloque básico y su resumen', env: ['TODOS'],
@@ -473,6 +516,10 @@ tr:last-child td{border-bottom:0}
       data: `QA Circuito 1b, de tipo QA Principal. Nombre temporal ${tok('QA Principal 2')}.`,
       steps: ['Como admin, en Tipos de circuito, anotá cuántos circuitos dice QA Principal.', 'Renombralo a QA Principal 2 y guardá.', 'Abrí Circuitos y mirá la tarjeta de QA Circuito 1b y los chips de tipo.', 'Abrí QA Circuito 1b y mirá el selector Tipo, sin guardar.', 'Al terminar, devolvele el nombre QA Principal.'],
       exp: `<ul><li>El número coincide con los circuitos QA activos de ese tipo, como QA Circuito 1b y QA Circuito series.</li><li>Sin tocar ningún circuito, la tarjeta dice ${ui('QA Principal 2 · N ejercicios')}, el chip pasa a ${ui('QA Principal 2')} y el selector lo muestra elegido con el nombre nuevo: el circuito guarda el tipo, no su nombre. (CU-A-26, postcondiciones)</li></ul>` },
+    { id: 'EDT-11', g: 'edt', t: 'Cambiarle el tipo a un circuito', env: ['TODOS'],
+      data: 'QA Circuito 1b, de tipo QA Principal.',
+      steps: ['En Tipos de circuito, anotá cuántos circuitos dicen QA Principal y Superserie.', 'Abrí QA Circuito 1b y mirá el selector Tipo y la respuesta de <code>GET /routine/circuit/{id}</code> en Network.', 'Cambiale el tipo a Superserie y guardá; mirá el body del POST.', 'Volvé a Tipos de circuito.', 'Al terminar, devolvele el tipo QA Principal.'],
+      exp: `<ul><li>Al abrirlo, el selector ya tiene QA Principal elegido, y la respuesta trae <code>circuit_type</code> con <code>id</code>, <code>type</code> y <code>active</code>, sin <code>type</code> suelto.</li><li>Al guardar: ${ui('Circuito guardado')}, la tarjeta dice ${ui('Superserie · N ejercicios')} y el body lleva el <code>circuit_type_id</code> de Superserie.</li><li>QA Principal cuenta un circuito menos y Superserie uno más. (CU-E-23, paso 3)</li></ul>` },
 
     // ── Duplicar ────────────────────────────────────────────
     { id: 'DUP-01', g: 'dup', t: 'Duplicar', env: ['TODOS'],
@@ -488,6 +535,10 @@ tr:last-child td{border-bottom:0}
       data: 'QA Circuito 1b, de tipo QA Principal, y otra pestaña con la sesión de admin.',
       steps: ['En el editor de QA Circuito 1b, sin cambios, tocá Duplicar.', 'En Network, mirá el body del POST /routine/circuit/create.', 'Como admin, dale de baja a QA Principal. Volvé a QA Circuito 1b y tocá Duplicar.', 'Elegí Principal como tipo de la copia y confirmá. Reactivá QA Principal al terminar.'],
       exp: `<ul><li>La copia tiene el tipo QA Principal, y el POST lleva el mismo <code>circuit_type_id</code> que el original.</li><li>Con el tipo dado de baja, Duplicar abre ${ui('Duplicar circuito')} con ${ui('El tipo QA Principal está dado de baja y una copia no puede llevarlo. Elegí el tipo de la copia.')} y el selector ${ui('Tipo de la copia')}, solo con tipos activos. ${ui('Duplicar')} se habilita al elegir uno, y la copia queda de tipo Principal.</li></ul>` },
+    { id: 'DUP-05', g: 'dup', t: 'Duplicar con un tipo de baja y cambios sin guardar', env: ['TODOS'],
+      data: 'QA Circuito 1b, de tipo QA Principal, y otra pestaña con la sesión de admin.',
+      steps: ['Como admin, dale de baja a QA Principal.', 'En QA Circuito 1b, cambiá el nombre sin guardar y tocá Duplicar.', 'Tocá Cancelar.', 'Reactivá QA Principal al terminar.'],
+      exp: `<p>${ui('Duplicar circuito')} muestra primero ${ui('Hay cambios sin guardar. La copia se hace con la versión guardada de QA Circuito 1b, sin ellos, y vas a pasar a editarla.')}, después que el tipo está dado de baja, y el selector ${ui('Tipo de la copia')}. Cancelar no crea nada y deja el nombre cambiado como estaba.</p>` },
 
     // ── Desactivar y reactivar ──────────────────────────────
     { id: 'BAJ-01', g: 'baj', t: 'Desactivar', env: ['TODOS'],
@@ -506,6 +557,22 @@ tr:last-child td{border-bottom:0}
       steps: ['Desactivá un circuito QA y mirá la tarjeta Circuitos activos del Panel.', 'Reactivalo y volvé a mirar.'],
       exp: '<p>El número baja uno y vuelve a subir.</p>' },
 
+    // ── Tipos en uso ────────────────────────────────────────
+    { id: 'TUS-01', g: 'tus', t: 'El contador cuenta solo los circuitos activos', env: ['TODOS'],
+      data: 'Una copia de QA Circuito 1b (de DUP-01), de tipo QA Principal.',
+      steps: ['En Tipos de circuito, anotá cuántos circuitos dice QA Principal.', 'Desactivá la copia y volvé a Tipos de circuito.', 'Reactivala y volvé.'],
+      exp: '<p>Al desactivar la copia, QA Principal cuenta uno menos; al reactivarla, vuelve al número de antes. Un circuito dado de baja conserva el tipo, pero no suma. (CU-A-24, regla 2)</p>' },
+    { id: 'TUS-02', g: 'tus', t: 'Un tipo dado de baja sigue en los chips', env: ['TODOS'],
+      steps: ['Como admin, dale de baja a QA Principal.', 'Abrí Circuitos y tocá el chip QA Principal.', 'Reactivá QA Principal al terminar.'],
+      exp: '<p>El chip sigue estando, con el nombre a secas (sin «dado de baja»), y filtra los circuitos QA que lo tienen; sus tarjetas siguen diciendo QA Principal. Solo el selector del editor lo marca. (CU-A-27, postcondiciones)</p>' },
+    { id: 'TUS-03', g: 'tus', t: 'Buscar circuitos por tipo al armar una rutina', env: ['TODOS'],
+      steps: [`Abrí Rutinas › ${ui('Crear rutina')} y tocá ${ui('Agregar existente')}.`, 'Mirá cómo se muestra cada circuito.', 'Buscá superserie y después qa principal.', 'Cerrá sin agregar nada y salí sin guardar.'],
+      exp: `<p>Cada circuito muestra ${ui('Tipo · N ejercicios')}, con el nombre del tipo tal cual. A diferencia del listado, este buscador también mira el tipo: superserie encuentra los circuitos Superserie aunque su nombre no lo diga, y qa principal los circuitos QA. Solo ofrece circuitos activos.</p>` },
+    { id: 'TUS-04', g: 'tus', t: 'El alumno ve el tipo', env: ['TODOS'],
+      data: 'Una cuenta de alumno con una rutina asignada, como QA Alumno de «Pruebas del plan del alumno».',
+      steps: ['Como alumno, abrí una rutina desde tu inicio.'],
+      exp: `<p>Cada circuito muestra, junto a su título, el nombre de su tipo tal como lo escribió el admin (por ejemplo ${ui('Principal')} o ${ui('Superserie')}); un circuito que el entrenador dio de baja muestra ${ui('Dado de baja')} en su lugar.</p>` },
+
     // ── Desde el Entrenador ─────────────────────────────────
     { id: 'COA-01', g: 'coa', t: 'La pantalla del entrenador', env: ['TODOS'],
       data: 'Una cuenta real de entrenador.',
@@ -518,6 +585,10 @@ tr:last-child td{border-bottom:0}
       data: 'Una cuenta real de entrenador.',
       steps: ['Como entrenador, en <code>/c/circuitos</code>, usá los chips de tipo.', 'Abrí Crear circuito y desplegá Tipo.', 'Recorré la barra lateral, la tab bar y tu perfil buscando Tipos de circuito.'],
       exp: '<p>Los chips de tipo y el selector son los mismos que ve el admin: el entrenador filtra y elige entre los tipos activos. No tiene ninguna entrada para crear, editar o dar de baja tipos: eso es del admin. (CU-E-21, CU-E-22 y CU-A-24, regla 1)</p>' },
+    { id: 'COA-04', g: 'coa', t: 'El entrenador elige y cambia el tipo', env: ['TODOS'],
+      data: `Una cuenta real de entrenador. Circuito ${tok('QA Circuito entrenador')}.`,
+      steps: ['Como entrenador, creá QA Circuito entrenador con un ejercicio y el tipo Superserie.', 'Editalo y cambiale el tipo a QA Principal.', 'Como admin, abrí Circuitos y Tipos de circuito.'],
+      exp: '<p>El entrenador crea y cambia el tipo igual que el admin. El admin ve QA Circuito entrenador con QA Principal, y el contador de QA Principal lo incluye. Desactivalo en FIN-01. (CU-E-22 y CU-E-23)</p>' },
 
     // ── Errores y pantallas ─────────────────────────────────
     { id: 'ERR-01', g: 'err', t: 'Servidor caído al cargar', env: ['LOCAL'],
@@ -538,6 +609,9 @@ tr:last-child td{border-bottom:0}
     { id: 'ERR-06', g: 'err', t: 'Los tipos no cargan', env: ['TODOS'],
       steps: ['En Network, bloqueá la URL de <code>circuit-type/all</code> y recargá Tipos de circuito.', 'Abrí Crear circuito.', 'Abrí QA Circuito 1b.', `Desbloqueala y tocá ${ui('Reintentar')} en cada pantalla.`],
       exp: `<ul><li>Tipos de circuito: en lugar de las tarjetas, un error con ${ui('Reintentar')}.</li><li>Crear circuito: el selector Tipo queda deshabilitado, con el aviso rojo ${ui('No pudimos cargar los tipos de circuito.')} y ${ui('Reintentar')}; ${ui('Guardar circuito')} queda deshabilitado.</li><li>QA Circuito 1b: el mismo aviso rojo, pero el selector muestra su tipo y se puede guardar sin cambiarlo.</li><li>Al reintentar con la URL desbloqueada, todo carga.</li></ul>` },
+    { id: 'ERR-07', g: 'err', t: 'Servidor caído en Tipos de circuito', env: ['LOCAL'],
+      steps: ['Apagá el backend local y recargá Tipos de circuito.', 'Prendelo, tocá Reintentar y abrí Nuevo tipo de circuito con un nombre.', 'Apagalo y guardá.', 'Con el backend apagado, tocá Reactivar en un tipo dado de baja.', 'Prendelo y repetí las dos acciones.'],
+      exp: '<ul><li>Sin servidor, la pantalla muestra un error con Reintentar en lugar de las tarjetas.</li><li>Al guardar, aviso rojo dentro del modal, que sigue abierto y con los datos. Al reactivar, un aviso rojo flotante, y el tipo sigue de baja.</li><li>Con el backend prendido, las dos cosas funcionan. Si se creó el tipo, dalo de baja en FIN-02.</li></ul>' },
 
     // ── Limpieza ────────────────────────────────────────────
     { id: 'FIN-01', g: 'fin', t: 'Dejar los circuitos de prueba fuera de uso', env: ['TODOS'],
@@ -545,7 +619,7 @@ tr:last-child td{border-bottom:0}
       exp: '<p>La búsqueda vuelve vacía: los circuitos de prueba quedan solo en Inactivos.</p>' },
     { id: 'FIN-02', g: 'fin', t: 'Dar de baja los tipos de prueba', env: ['TODOS'],
       data: `Prefijo ${tok('QA (no usar)')}`,
-      steps: ['Después de FIN-01, como admin, abrí Tipos de circuito.', 'Renombrá cada tipo QA con «QA (no usar)» adelante (por ejemplo, «QA (no usar) Principal») y guardá.', 'Dá de baja los que sigan activos.', 'Abrí Crear circuito y desplegá Tipo.'],
+      steps: ['Después de FIN-01 (que también desactiva QA Circuito entrenador), como admin, abrí Tipos de circuito.', 'Renombrá cada tipo QA (QA Principal, QA Temporal, QA Espacios, qa índice, QA Doble y los que hayas creado de más) con «QA (no usar)» adelante, por ejemplo «QA (no usar) Principal», y guardá.', 'Dá de baja los que sigan activos.', 'Abrí Crear circuito y desplegá Tipo.'],
       exp: '<p>No queda ningún tipo QA activo: no aparecen en el selector de Tipo. Los tipos quedan, porque no se borran, y los circuitos QA (ya desactivados) los conservan.</p>' },
   ];
 
