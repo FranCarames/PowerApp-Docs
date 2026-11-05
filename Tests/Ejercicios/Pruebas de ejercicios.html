@@ -415,7 +415,7 @@ tr:last-child td{border-bottom:0}
       steps: ['Como alumno, en Mis RMs, registrá un RM de QA Ejercicio renombrado.', 'Como admin, intentá eliminar ese ejercicio.'],
       exp: `<p>No se elimina y aparece ${ui('No se pudo eliminar el ejercicio. Si alguien registró un RM o ya entrenó con él, no se puede borrar.')} (CU-A-06, camino alternativo)</p>` },
     { id: 'DEL-04', g: 'del', t: 'Un ejercicio que está en un circuito', env: ['TODOS'],
-      data: `Creá ${tok('QA Ejercicio 3')} y un circuito ${tok('QA Circuito ejercicios')}, de tipo ${tok('principal')}, con QA Ejercicio 3 como único ejercicio.`,
+      data: `Creá ${tok('QA Ejercicio 3')} y un circuito ${tok('QA Circuito ejercicios')}, de tipo Principal (elegilo en el selector Tipo), con QA Ejercicio 3 como único ejercicio.`,
       steps: ['En Ejercicios, intentá eliminar QA Ejercicio 3.'],
       exp: '<p>No deja eliminarlo e informa que está en uso en circuitos (CU-A-06, camino alternativo).</p>',
       kt: 'Hoy no cumple el CU.', known: 'El backend lo borra igual y lo saca de los circuitos; el diálogo ya lo avisa («Si está en circuitos, se quita de ellos»). Si te sirve así, actualizá CU-A-06; si no, es un cambio del backend. Seguí con DEL-05.' },

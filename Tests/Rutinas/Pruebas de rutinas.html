@@ -362,7 +362,7 @@ tr:last-child td{border-bottom:0}
       steps: ['Usá Subir y Bajar para dejar el circuito repetido primero.', 'Quitá una de las dos copias.', 'Guardá y abrí la rutina de nuevo.'],
       exp: '<p>Subir está apagado en el primero y Bajar en el último. El orden guardado es el que dejaste y la copia quitada no vuelve. (CU-E-16, paso 3)</p>' },
     { id: 'CIR-04', g: 'cir', t: 'Crear un circuito desde la rutina', env: ['TODOS'],
-      data: `Circuito ${tok('QA Circuito rutina')}, tipo ${tok('principal')}, un ejercicio.`,
+      data: `Circuito ${tok('QA Circuito rutina')}, tipo Principal (elegilo en el selector Tipo), un ejercicio.`,
       steps: ['En QA Rutina A, cambiá la nota sin guardar.', `Tocá ${ui('Nuevo circuito')}.`, 'Completá el circuito y tocá Guardar circuito.'],
       exp: `<p>Abre <code>/a/circuitos/nuevo</code>. Al guardar: ${ui('Circuito creado')} y vuelve a QA Rutina A con el circuito nuevo al final y la nota que habías escrito. Todavía no está guardado en la rutina: falta tocar Guardar rutina.</p>` },
     { id: 'CIR-05', g: 'cir', t: 'Editar un circuito desde la rutina', env: ['TODOS'],
