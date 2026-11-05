@@ -249,7 +249,7 @@ tr:last-child td{border-bottom:0}
           <li><b>Ya están en «Pruebas de acceso»</b> y acá no se repiten: rutas sin sesión, «/», el rol equivocado en el inicio de otro rol, <code>/cualquier-cosa</code>, la sesión vencida al abrir Datos personales y la cuenta cerrada con la sesión abierta (NAV-01 a NAV-07, OUT-03, OUT-04 y LOG-13). El catálogo y cómo se llega a cada sección están en el plan de cada sección.</li>
           <li><b>DevTools › Network</b> sirve para tres cosas: ver los requests, bloquear uno (clic derecho › <i>Block request URL</i>) y simular un servidor lento (<i>Throttling</i> › <i>Add custom profile</i> con 5000 ms de latencia).</li>
           <li><b>Local Storage</b> (DevTools › Application) guarda la sesión en <code>powerapp.session</code>. SES-01 le cambia el token.</li>
-          <li><b>Lo que se sabe que hoy falla</b> está marcado con un aviso amarillo: RUT-02 y COA-04, porque el entrenador todavía no tiene la biblioteca de ejercicios en <code>/c/ejercicios</code> (T55), y MAS-01 y MAS-03, porque todavía no existe la pantalla Tipos de circuito del admin (BE-44 y T58). Marcalo igual: así queda registrado cuándo se arregla.</li>
+          <li><b>Lo que se sabe que hoy falla</b> está marcado con un aviso amarillo: RUT-02 y COA-04, porque el entrenador todavía no tiene la biblioteca de ejercicios en <code>/c/ejercicios</code> (T55). Marcalo igual: así queda registrado cuándo se arregla.</li>
         </ul>
       </div>
       <div>
@@ -344,15 +344,13 @@ tr:last-child td{border-bottom:0}
     // ── Más y la barra lateral del Admin ────────────────────
     { id: 'MAS-01', g: 'mas', t: 'La pantalla Más', env: ['TODOS'],
       steps: ['A 390 px, tocá la tab Más.', 'Tocá cada fila y volvé.'],
-      exp: `<p>Abre <code>/a/mas</code> con ${ui('Administración')} arriba y el título ${ui('Más secciones')}. Las filas son ${ui('Planificaciones')}, ${ui('Circuitos')}, ${ui('Entrenadores')}, ${ui('Catálogo')}, ${ui('Membresías')}, ${ui('Tipos de circuito')} (${ui('Para clasificar y filtrar circuitos')}, lleva a <code>/a/tipos-circuito</code>) y ${ui('Mi cuenta')}, cada una con su línea de ayuda, y llevan a su sección.</p>`,
-      kt: 'Hoy falla.', known: 'Todavía no está la fila Tipos de circuito: la pantalla no existe. Lo arreglan la BE-44 (backend) y la T58 (web). Marcalo Falla mientras no estén en Render.' },
+      exp: `<p>Abre <code>/a/mas</code> con ${ui('Administración')} arriba y el título ${ui('Más secciones')}. Las filas son ${ui('Planificaciones')}, ${ui('Circuitos')}, ${ui('Entrenadores')}, ${ui('Catálogo')}, ${ui('Membresías')}, ${ui('Tipos de circuito')} (${ui('Para clasificar y filtrar circuitos')}, lleva a <code>/a/tipos-circuito</code>) y ${ui('Mi cuenta')}, cada una con su línea de ayuda, y llevan a su sección.</p>` },
     { id: 'MAS-02', g: 'mas', t: 'La tab bar del Admin', env: ['TODOS'],
       steps: ['A 390 px, recorré la tab bar.', 'Abrí <code>/a/circuitos</code>, <code>/a/entrenadores</code>, <code>/a/catalogo</code>, <code>/a/membresias</code>, <code>/a/planes</code> y <code>/cuenta</code>.', 'Abrí <code>/a/usuarios</code>, un ejercicio y <code>/a/rutinas</code>.'],
       exp: '<p>Las tabs son Inicio, Usuarios, Ejercicios, Rutinas y Más. En las secciones que no tienen tab queda marcada Más, y nunca hay dos tabs marcadas a la vez. En Usuarios, en un ejercicio y en Rutinas se marca su tab.</p>' },
     { id: 'MAS-03', g: 'mas', t: 'La barra lateral del Admin', env: ['TODOS'],
       steps: ['A más de 960 px, recorré la barra lateral.', 'Abrí <code>/a/convertir</code>, un circuito y <code>/a/tipos-circuito</code>.'],
-      exp: `<ul><li>Arriba, el logo con ${ui('PowerApp')} y ${ui('Admin')}. Después Inicio, Usuarios y Entrenadores; ${ui('Entrenamiento')} con Ejercicios, Circuitos, Rutinas y Planificaciones; y ${ui('Configuración')} con Catálogo, Membresías, Tipos de circuito y Perfil.</li><li>Abajo, tu avatar, tu nombre, ${ui('Admin')} y el botón de cerrar sesión.</li><li>En <code>/a/convertir</code> queda marcada Entrenadores; en un circuito, Circuitos; y en <code>/a/tipos-circuito</code>, Tipos de circuito.</li></ul>`,
-      kt: 'Hoy falla.', known: 'Configuración todavía no tiene Tipos de circuito: la pantalla no existe. Lo arreglan la BE-44 (backend) y la T58 (web). Marcalo Falla mientras no estén en Render.' },
+      exp: `<ul><li>Arriba, el logo con ${ui('PowerApp')} y ${ui('Admin')}. Después Inicio, Usuarios y Entrenadores; ${ui('Entrenamiento')} con Ejercicios, Circuitos, Rutinas y Planificaciones; y ${ui('Configuración')} con Catálogo, Membresías, Tipos de circuito y Perfil.</li><li>Abajo, tu avatar, tu nombre, ${ui('Admin')} y el botón de cerrar sesión.</li><li>En <code>/a/convertir</code> queda marcada Entrenadores; en un circuito, Circuitos; y en <code>/a/tipos-circuito</code>, Tipos de circuito.</li></ul>` },
 
     // ── Inicio del Entrenador ───────────────────────────────
     { id: 'COA-01', g: 'coa', t: 'Mis alumnos', env: ['TODOS'],
