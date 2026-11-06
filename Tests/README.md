@@ -109,6 +109,7 @@ Con eso, **no hace falta importar a mano**:
 - [Pruebas de wiki y temporizador](Wiki%20y%20temporizador/Pruebas%20de%20wiki%20y%20temporizador.html) — Herramientas del alumno: la biblioteca de ejercicios con búsqueda, filtro por grupo muscular y ficha de cada ejercicio, el temporizador de descanso entre series, y la misma biblioteca de solo lectura desde el entrenador (CU-U-14, CU-U-15 y CU-E-30).
   - [Tanda 1](Wiki%20y%20temporizador/1-pruebas-wiki-timer.resultados.json)
   - [Tanda 2](Wiki%20y%20temporizador/2-pruebas-wiki-timer.resultados.json)
+  - [Tanda 3](Wiki%20y%20temporizador/3-pruebas-wiki-timer.resultados.json)
 - [Pruebas de RMs y calculadora](RMs%20y%20calculadora/Pruebas%20de%20RMs%20y%20calculadora.html) — Los récords del alumno: listado agrupado por ejercicio, registrar, editar y eliminar un RM, y la calculadora que estima el 1RM sin guardarlo (CU-U-16 a CU-U-20).
   - [Tanda 1](RMs%20y%20calculadora/1-pruebas-rms.resultados.json)
   - [Tanda 2](RMs%20y%20calculadora/2-pruebas-rms.resultados.json)
