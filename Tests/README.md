@@ -71,6 +71,7 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 3](Acceso/3-pruebas-acceso.resultados.json)
   - [Tanda 4](Acceso/4-pruebas-acceso.resultados.json)
   - [Tanda 5](Acceso/5-pruebas-acceso.resultados.json)
+  - [Tanda 6](Acceso/6-pruebas-acceso.resultados.json)
 - [Pruebas de ejercicios](Ejercicios/Pruebas%20de%20ejercicios.html) — Catálogo de ejercicios del Admin: listado, búsqueda y filtro por grupo, alta y edición con sus músculos, borrado, y cómo llegan a los circuitos, a la wiki y a los RMs del alumno (CU-A-01 a CU-A-06).
   - [Tanda 1](Ejercicios/1-pruebas-ejercicios.resultados.json)
   - [Tanda 2](Ejercicios/2-pruebas-ejercicios.resultados.json)
@@ -96,6 +97,7 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 1](Circuitos/1-pruebas-circuitos.resultados.json)
   - [Tanda 2](Circuitos/2-pruebas-circuitos.resultados.json)
   - [Tanda 3](Circuitos/3-pruebas-circuitos.resultados.json)
+  - [Tanda 4](Circuitos/4-pruebas-circuitos.resultados.json)
 - [Pruebas del panel y la navegación](Panel%20y%20navegacion/Pruebas%20del%20panel%20y%20la%20navegaci%C3%B3n.html) — El marco de la app: el panel del Admin, «Más», el inicio del Entrenador y del alumno con su tab bar y barra lateral, qué rol entra a qué ruta, las direcciones que no existen, el aviso de servidor dormido y la sesión que se cierra sola (sin CU).
   - [Tanda 1](Panel%20y%20navegacion/1-pruebas-navegacion.resultados.json)
   - [Tanda 2 (la 1, adaptada al plan del 25/10)](Panel%20y%20navegacion/2-pruebas-navegacion.resultados.json)
@@ -109,6 +111,7 @@ Con eso, **no hace falta importar a mano**:
 - [Pruebas de wiki y temporizador](Wiki%20y%20temporizador/Pruebas%20de%20wiki%20y%20temporizador.html) — Herramientas del alumno: la biblioteca de ejercicios con búsqueda, filtro por grupo muscular y ficha de cada ejercicio, el temporizador de descanso entre series, y la misma biblioteca de solo lectura desde el entrenador (CU-U-14, CU-U-15 y CU-E-30).
   - [Tanda 1](Wiki%20y%20temporizador/1-pruebas-wiki-timer.resultados.json)
   - [Tanda 2](Wiki%20y%20temporizador/2-pruebas-wiki-timer.resultados.json)
+  - [Tanda 3](Wiki%20y%20temporizador/3-pruebas-wiki-timer.resultados.json)
 - [Pruebas de RMs y calculadora](RMs%20y%20calculadora/Pruebas%20de%20RMs%20y%20calculadora.html) — Los récords del alumno: listado agrupado por ejercicio, registrar, editar y eliminar un RM, y la calculadora que estima el 1RM sin guardarlo (CU-U-16 a CU-U-20).
   - [Tanda 1](RMs%20y%20calculadora/1-pruebas-rms.resultados.json)
   - [Tanda 2](RMs%20y%20calculadora/2-pruebas-rms.resultados.json)
@@ -128,6 +131,7 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 2](Planificaciones/2-pruebas-planificaciones.resultados.json)
   - [Tanda 3](Planificaciones/3-pruebas-planificaciones.resultados.json)
   - [Tanda 4](Planificaciones/4-pruebas-planificaciones.resultados.json)
+  - [Tanda 5](Planificaciones/5-pruebas-planificaciones.resultados.json)
 - [Pruebas de rutinas](Rutinas/Pruebas%20de%20rutinas.html) — Rutinas desde el Admin y el Entrenador: listado y búsqueda, alta y edición con sus circuitos en orden, baja y reactivación, y las rutinas puntuales de un alumno: asignarlas para un día y quitarlas (CU-E-15 a CU-E-20).
   - [Tanda 1](Rutinas/1-pruebas-rutinas.resultados.json)
   - [Tanda 2](Rutinas/2-pruebas-rutinas.resultados.json)
