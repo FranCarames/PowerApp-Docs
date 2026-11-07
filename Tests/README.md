@@ -99,6 +99,7 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 3](Circuitos/3-pruebas-circuitos.resultados.json)
   - [Tanda 4](Circuitos/4-pruebas-circuitos.resultados.json)
   - [Tanda 5](Circuitos/5-pruebas-circuitos.resultados.json)
+  - [Tanda 6](Circuitos/6-pruebas-circuitos.resultados.json)
 - [Pruebas del panel y la navegación](Panel%20y%20navegacion/Pruebas%20del%20panel%20y%20la%20navegaci%C3%B3n.html) — El marco de la app: el panel del Admin, «Más», el inicio del Entrenador y del alumno con su tab bar y barra lateral, qué rol entra a qué ruta, las direcciones que no existen, el aviso de servidor dormido y la sesión que se cierra sola (sin CU).
   - [Tanda 1](Panel%20y%20navegacion/1-pruebas-navegacion.resultados.json)
   - [Tanda 2 (la 1, adaptada al plan del 25/10)](Panel%20y%20navegacion/2-pruebas-navegacion.resultados.json)
@@ -122,6 +123,7 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 3](Detalle%20del%20alumno/3-pruebas-detalle-alumno.resultados.json)
   - [Tanda 4](Detalle%20del%20alumno/4-pruebas-detalle-alumno.resultados.json)
   - [Tanda 5](Detalle%20del%20alumno/5-pruebas-detalle-alumno.resultados.json)
+  - [Tanda 6](Detalle%20del%20alumno/6-pruebas-detalle-alumno.resultados.json)
 - [Pruebas de membresías del entrenador](Membresias%20del%20entrenador/Pruebas%20de%20membres%C3%ADas%20del%20entrenador.html) — El control de membresías del Entrenador: contadores por estado, alumnos filtrados por estado y por tipo, y el registro de un pago (CU-E-25 a CU-E-29).
   - [Tanda 1](Membresias%20del%20entrenador/1-pruebas-membresias-entrenador.resultados.json)
   - [Tanda 2 (la 1, adaptada al plan del 25/10)](Membresias%20del%20entrenador/2-pruebas-membresias-entrenador.resultados.json)
