@@ -42,7 +42,14 @@ function readPlan(htmlPath) {
   const extra = (src.match(/^  const LONG_\w+ = .*$/gm) || []).join('\n');
   const head = g(/const DOCS = .*;\n.*const tok = .*;\n.*const ui = .*;/);
   const cases = g(/const CASES = \[[\s\S]*?\n  \];/);
-  const CASES = new Function(`${head}\n${extra}\n${cases}\nreturn CASES;`)();
+  let CASES;
+  try { CASES = new Function(`${head}\n${extra}\n${cases}\nreturn CASES;`)(); }
+  catch (e) {
+    // Constantes propias del plan (p. ej. un aviso reutilizado por varios casos): se toma todo lo declarado antes de CASES.
+    if (!(e instanceof ReferenceError)) throw e;
+    const upto = src.slice(src.indexOf('const DOCS = '), src.indexOf('const CASES = ['));
+    CASES = new Function(`${upto}\n${cases}\nreturn CASES;`)();
+  }
   const m = /const PAGE_ID = '([^']+)'/.exec(src) || /const PLAN_ID = '([^']+)'/.exec(src);
   return { cases: CASES, plan: m[1].replace(/-powerapp$/, '') };
 }
@@ -127,13 +134,21 @@ function ingestOne(rel) {
 
 /** Pone la rama sobre main (planes y README al día) antes de validar; si hay conflicto, la deja como estaba. */
 function syncWithMain() {
-  try { git(['merge-base', '--is-ancestor', BASE, BRANCH], WT); return; } catch { /* main se adelantó */ }
+  // Se usa origin/main (lo mergeado en GitHub, p. ej. un plan actualizado) salvo que el main local esté más adelantado.
+  try { git(['fetch', 'origin', BASE]); } catch { /* sin red: se sigue con lo local */ }
+  let ref = BASE;
   try {
-    git(['rebase', BASE], WT);
-    log(`rama ${BRANCH} rebaseada sobre ${BASE} (si ya estaba pusheada, /upload-test-results la sube con --force-with-lease)`);
+    git(['rev-parse', '--verify', `origin/${BASE}`]);
+    ref = `origin/${BASE}`;
+    try { git(['merge-base', '--is-ancestor', ref, BASE]); ref = BASE; } catch { /* origin/main no está dentro de main */ }
+  } catch { /* no hay origin/main */ }
+  try { git(['merge-base', '--is-ancestor', ref, BRANCH], WT); return; } catch { /* la base se adelantó */ }
+  try {
+    git(['rebase', ref], WT);
+    log(`rama ${BRANCH} rebaseada sobre ${ref} (si ya estaba pusheada, /upload-test-results la sube con --force-with-lease)`);
   } catch (e) {
     try { git(['rebase', '--abort'], WT); } catch { /* no había rebase en curso */ }
-    log(`✗ no pude rebasear ${BRANCH} sobre ${BASE}: ${(e.stderr || e.message).toString().trim().split('\n')[0]}`);
+    log(`✗ no pude rebasear ${BRANCH} sobre ${ref}: ${(e.stderr || e.message).toString().trim().split('\n')[0]}`);
   }
 }
 
