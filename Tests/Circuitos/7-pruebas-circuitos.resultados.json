@@ -1,0 +1,508 @@
+{
+  "plan": "pruebas-circuitos",
+  "version": 1,
+  "exportedAt": "2026-11-09T17:38:09.655Z",
+  "summary": {
+    "total": 81,
+    "ok": 80,
+    "fail": 1,
+    "retest": 0,
+    "none": 0,
+    "sev": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 1,
+      "sinClasificar": 0
+    }
+  },
+  "results": {
+    "TIP-01": {
+      "title": "Llegar a Tipos de circuito",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-06T00:15:20.258Z"
+    },
+    "TIP-02": {
+      "title": "Tarjetas y orden",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-09T17:21:06.587Z"
+    },
+    "TIP-03": {
+      "title": "Crear un tipo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-06T16:00:47.981Z"
+    },
+    "TIP-04": {
+      "title": "Validaciones del formulario",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-06T16:02:04.822Z"
+    },
+    "TIP-05": {
+      "title": "Nombre repetido",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-06T16:02:29.032Z"
+    },
+    "TIP-06": {
+      "title": "Editar un tipo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-06T16:02:40.584Z"
+    },
+    "TIP-07": {
+      "title": "Dar de baja",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-06T16:03:05.253Z"
+    },
+    "TIP-08": {
+      "title": "El nombre de un tipo dado de baja sigue ocupado",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-06T16:03:17.367Z"
+    },
+    "TIP-09": {
+      "title": "Reactivar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-06T16:03:23.764Z"
+    },
+    "TIP-10": {
+      "title": "Solo para el Admin",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-06T16:03:29.688Z"
+    },
+    "TIP-11": {
+      "title": "Espacios en los bordes del nombre y la descripción",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-06T16:06:53.211Z"
+    },
+    "TIP-12": {
+      "title": "Sacarle la descripción a un tipo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-06T16:07:02.816Z"
+    },
+    "TIP-13": {
+      "title": "Mayúsculas y tildes en el orden",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-06T16:07:29.780Z"
+    },
+    "TIP-14": {
+      "title": "Guardar sin cambiar nada",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-06T16:07:48.629Z"
+    },
+    "TIP-15": {
+      "title": "Renombrar con el nombre de un tipo dado de baja",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-07T22:03:40.686Z"
+    },
+    "TIP-16": {
+      "title": "Editar un tipo dado de baja",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-06T17:36:39.404Z"
+    },
+    "TIP-17": {
+      "title": "Doble envío al crear",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-06T16:36:39.327Z"
+    },
+    "TIP-18": {
+      "title": "Buscar y ver los dados de baja",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-09T17:37:40.983Z"
+    },
+    "LST-01": {
+      "title": "Llegar a Circuitos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:43:43.064Z"
+    },
+    "LST-02": {
+      "title": "Tarjetas",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T19:47:11.562Z"
+    },
+    "LST-03": {
+      "title": "Activos, inactivos y todos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T19:47:35.621Z"
+    },
+    "LST-04": {
+      "title": "Buscar circuitos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T19:47:56.817Z"
+    },
+    "LST-05": {
+      "title": "Filtrar por tipo",
+      "status": "ok",
+      "note": "Hay que implementar categorias. Ya esta siendo refinado en Miro\nHoy no cumple el CU. La pantalla muestra el tipo en cada tarjeta, pero no tiene filtro por tipo: el buscador mira solo el nombre. Marcalo Falla; es un ajuste del front. Ademas necesita mas opciones de filtrado o categorias de circuitos.",
+      "at": "2026-11-07T22:35:02.107Z"
+    },
+    "LST-06": {
+      "title": "Quién puede entrar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:18:30.228Z"
+    },
+    "LST-07": {
+      "title": "Buscar dentro de un tipo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-06T17:37:24.431Z"
+    },
+    "LST-08": {
+      "title": "Qué tipos tienen chip",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-06T17:37:32.938Z"
+    },
+    "LST-09": {
+      "title": "Un enlace con un tipo que no está",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-06T17:37:44.026Z"
+    },
+    "CRE-01": {
+      "title": "Crear un circuito",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:49:08.859Z"
+    },
+    "CRE-02": {
+      "title": "Validaciones del circuito",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:49:20.496Z"
+    },
+    "CRE-03": {
+      "title": "Un ejercicio no se repite",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:49:43.906Z"
+    },
+    "CRE-04": {
+      "title": "Ordenar y quitar ejercicios",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:50:36.524Z"
+    },
+    "CRE-05": {
+      "title": "Nota del entrenador",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:51:25.227Z"
+    },
+    "CRE-06": {
+      "title": "Doble envío",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:51:42.769Z"
+    },
+    "CRE-07": {
+      "title": "Solo se ofrecen los tipos activos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-07T22:05:54.366Z"
+    },
+    "CRE-08": {
+      "title": "Sin tipos de circuito activos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-07T22:07:52.988Z"
+    },
+    "CRE-09": {
+      "title": "El selector se pone al día sin recargar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-07T22:08:26.994Z"
+    },
+    "SET-01": {
+      "title": "Bloque básico y su resumen",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:51:47.559Z"
+    },
+    "SET-02": {
+      "title": "Rangos de series, repeticiones, peso y % del RM",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T19:41:27.392Z"
+    },
+    "SET-03": {
+      "title": "RPE o RIR",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:52:09.037Z"
+    },
+    "SET-04": {
+      "title": "AMRAP",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T19:40:30.890Z"
+    },
+    "SET-05": {
+      "title": "RM",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T19:40:47.325Z"
+    },
+    "SET-06": {
+      "title": "Varios bloques",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:57:08.737Z"
+    },
+    "SET-07": {
+      "title": "Lo guardado vuelve igual",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:57:10.344Z"
+    },
+    "EDT-01": {
+      "title": "Editar un circuito",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:57:15.881Z"
+    },
+    "EDT-02": {
+      "title": "Cambiar los ejercicios",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:57:19.029Z"
+    },
+    "EDT-03": {
+      "title": "Vaciar la descripción y una nota",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T17:59:41.989Z"
+    },
+    "EDT-04": {
+      "title": "Dejarlo sin ejercicios",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:09:36.677Z"
+    },
+    "EDT-05": {
+      "title": "Aviso de varias rutinas",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T23:55:47.532Z"
+    },
+    "EDT-06": {
+      "title": "Link a un circuito que no existe",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:10:20.641Z"
+    },
+    "EDT-07": {
+      "title": "Guardar uno que desactivaron en otra pestaña",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:19:30.239Z"
+    },
+    "EDT-08": {
+      "title": "Volver sin guardar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:11:36.891Z"
+    },
+    "EDT-09": {
+      "title": "Un circuito con el tipo dado de baja",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-07T22:10:56.108Z"
+    },
+    "EDT-10": {
+      "title": "El nombre nuevo de un tipo se ve en sus circuitos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-07T22:11:42.500Z"
+    },
+    "EDT-11": {
+      "title": "Cambiarle el tipo a un circuito",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-07T22:12:12.023Z"
+    },
+    "DUP-01": {
+      "title": "Duplicar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:12:11.764Z"
+    },
+    "DUP-02": {
+      "title": "Duplicar con cambios sin guardar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:13:59.137Z"
+    },
+    "DUP-03": {
+      "title": "La copia es independiente",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:14:57.263Z"
+    },
+    "DUP-04": {
+      "title": "La copia conserva el tipo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-07T22:12:54.281Z"
+    },
+    "DUP-05": {
+      "title": "Duplicar con un tipo de baja y cambios sin guardar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-07T22:14:06.468Z"
+    },
+    "BAJ-01": {
+      "title": "Desactivar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T19:48:15.384Z"
+    },
+    "BAJ-02": {
+      "title": "Cancelar la desactivación",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T19:48:16.959Z"
+    },
+    "BAJ-03": {
+      "title": "Un circuito inactivo no se edita",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T19:49:01.175Z"
+    },
+    "BAJ-04": {
+      "title": "Reactivar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T19:48:23.965Z"
+    },
+    "BAJ-05": {
+      "title": "El panel cuenta solo los activos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T19:48:49.761Z"
+    },
+    "TUS-01": {
+      "title": "El contador cuenta solo los circuitos activos",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-07T22:17:00.312Z"
+    },
+    "TUS-02": {
+      "title": "Un tipo dado de baja sigue en los chips",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-07T22:17:33.821Z"
+    },
+    "TUS-05": {
+      "title": "El tipo al agregar circuitos a una rutina",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-09T17:38:06.202Z"
+    },
+    "TUS-04": {
+      "title": "El alumno ve el tipo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-07T22:31:28.100Z"
+    },
+    "COA-01": {
+      "title": "La pantalla del entrenador",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:15:51.385Z"
+    },
+    "COA-02": {
+      "title": "Cambios entre roles",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:16:00.497Z"
+    },
+    "COA-03": {
+      "title": "Filtra y elige tipos, pero no los administra",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-07T22:31:39.652Z"
+    },
+    "COA-04": {
+      "title": "El entrenador elige y cambia el tipo",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-07T22:32:03.718Z"
+    },
+    "ERR-01": {
+      "title": "Servidor caído al cargar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:16:03.767Z"
+    },
+    "ERR-02": {
+      "title": "Servidor caído al guardar",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:16:04.928Z"
+    },
+    "ERR-03": {
+      "title": "Celular y escritorio",
+      "status": "fail",
+      "sev": 4,
+      "note": "no se ajusta bien a la pantalla del telefono",
+      "at": "2026-10-31T13:55:08.636Z"
+    },
+    "ERR-04": {
+      "title": "Teclado y lector de pantalla",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-17T21:16:17.909Z"
+    },
+    "ERR-05": {
+      "title": "Tipos de circuito en celular, escritorio y teclado",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-09T17:22:49.200Z"
+    },
+    "ERR-06": {
+      "title": "Los tipos no cargan",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-07T22:33:47.270Z"
+    },
+    "ERR-07": {
+      "title": "Servidor caído en Tipos de circuito",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-07T22:32:09.953Z"
+    },
+    "FIN-01": {
+      "title": "Dejar los circuitos de prueba fuera de uso",
+      "status": "ok",
+      "note": "",
+      "at": "2026-10-26T23:57:39.520Z"
+    },
+    "FIN-02": {
+      "title": "Dar de baja los tipos de prueba",
+      "status": "ok",
+      "note": "",
+      "at": "2026-11-07T22:33:50.983Z"
+    }
+  }
+}
