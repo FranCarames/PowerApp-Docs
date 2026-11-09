@@ -344,6 +344,21 @@ a.card{color:inherit;text-decoration:none}
 .lib-t{font-family:var(--fD);font-size:24px;font-weight:700;line-height:1.1}
 .lib-i{padding:10px 12px}
 
+/* Asignar una planificación (T61, 9/11): el plan y el alumno de a uno, «Semanas» en lugar del fin y el aviso de solapamiento junto al botón */
+.asg-step{margin-bottom:14px}
+.asg-l{display:block;font-size:12px;font-weight:600;color:var(--ts);margin-bottom:6px}
+.asg-h{margin:0 0 12px;font-size:12px;line-height:1.5;color:var(--tm)}
+.input[aria-invalid="true"]{border-color:var(--err)}
+.ferr{margin-top:6px;font-size:12px;line-height:1.4;color:var(--err)}
+.ferr:empty{display:none}
+.asg-sum:not(:empty){display:grid;gap:4px;margin:0 0 8px;padding:12px 14px;border-radius:12px;background:var(--accS);border:1px solid rgba(139,92,246,.25)}
+.asg-r{font-family:var(--fM);font-size:14px;font-weight:700;color:var(--tp);overflow-wrap:anywhere}
+.asg-x{font-size:13px;line-height:1.5;color:#C4B5FD}
+.asg-ov{display:grid;gap:10px;margin-bottom:12px}
+.asg-ov .note{margin-bottom:0}
+.asg-ov .card{padding:12px 14px}
+.asg-pick{text-align:left}
+
 /* Desktop */
 @media (min-width:960px){
   .hcols{grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:28px}
@@ -478,7 +493,9 @@ const S={
   mus:[{n:'Pectoral mayor',g:'Pecho'},{n:'Dorsal ancho',g:'Espalda'},{n:'Trapecio',g:'Espalda'},{n:'Cuádriceps',g:'Piernas'},{n:'Bíceps femoral',g:'Piernas'},{n:'Glúteo mayor',g:'Piernas'},{n:'Deltoides',g:'Hombros'},{n:'Bíceps braquial',g:'Brazos'},{n:'Tríceps',g:'Brazos'},{n:'Recto abdominal',g:'Core'}],
   gru:['Pecho','Espalda','Piernas','Hombros','Brazos','Core'],
   coaches:[{n:'Diego Fernández',e:'diego@gym.com',a:12,act:true},{n:'Carla Giménez',e:'carla@gym.com',a:9,act:true},{n:'Martín López',e:'martin@gym.com',a:5,act:true},{n:'Andrea Ruiz',e:'andrea@gym.com',a:0,act:false}],
-  alu:0,pay:{al:'Lucía Méndez',t:0,f:'2026-06-13'},plan:null,draft:null,rut:null,assign:{name:'Fuerza 5×5',kind:'Planificación',back:'c-planes',sel:['Lucía Méndez','Tomás Ríos']},
+  alu:0,pay:{al:'Lucía Méndez',t:0,f:'2026-06-13'},plan:null,draft:null,rut:null,assign:null,
+  /* Planificaciones ya asignadas (para el aviso de solapamiento de «Asignar»): el alumno, el plan y las fechas */
+  asigs:[{al:'Lucía Méndez',plan:'Fuerza 5×5',start:'2026-06-08',end:'2026-08-02',act:true},{al:'Tomás Ríos',plan:'Hipertrofia A/B',start:'2026-06-01',end:'2026-07-12',act:true},{al:'Sofía Paz',plan:'Full Body',start:'2026-06-08',end:'2026-07-05',act:true}],
   cat:'musculos',ejEdit:null,circEdit:null,cdraft:null,circReturn:'',add:null,conv:'Sofía Paz',
 };
 
@@ -696,7 +713,7 @@ Cc('c-alumno',{t:'Alumno',tab:'c-alumnos',back:'c-alumnos',render:()=>{const a=S
   return `${pageHead('Alumno',a.n)}
   <div class="row" style="margin-bottom:18px"><div class="avatar ${a.a?'':'gray'}" style="width:64px;height:64px;font-size:26px">${a.n[0]}</div><div><span class="pill ${a.a?'p-ok':'p-warn'}">${a.a?'Activo':'Inactivo'}</span><div class="sub" style="margin-top:6px">${a.p}</div></div></div>
   <div class="stats" style="margin-bottom:18px"><div class="stat"><div class="v">${a.adh}%</div><div class="l">Adherencia</div></div><div class="stat"><div class="v">${histData().ses.length}</div><div class="l">Sesiones</div></div><div class="stat"><div class="v">3</div><div class="l">Meses</div></div></div>
-  <div class="list g2">${menu([[null,'RMs del alumno','Récords por ejercicio','trophy','alRms']])}${histRow()}${menu([[null,'Historial de pagos','Membresías y pagos','wallet','alPagos'],['c-pago','Registrar pago','Nuevo pago de membresía','plus','payFor:'+a.n]])}</div>
+  <div class="list g2">${menu([[null,'RMs del alumno','Récords por ejercicio','trophy','alRms']])}${histRow()}${menu([[null,'Historial de pagos','Membresías y pagos','wallet','alPagos'],['c-pago','Registrar pago','Nuevo pago de membresía','plus','payFor:'+a.n],...(a.a?[['c-asignar','Asignar planificación','Elegí el plan y cuántas semanas dura','calendar','assignAl:'+a.n]]:[])])}</div>
   ${a.a?`<button class="btn btn-danger" style="margin-top:16px" data-act="closeAcc">Cerrar cuenta del alumno</button>`:''}`;}});
 
 /* ===== Historial de entrenamientos del alumno (T55, 4/11) =====
@@ -1013,15 +1030,100 @@ Cc('c-rutina',{t:'Rutina',tab:'c-rutinas',back:'c-rutinas',list:libList,render:r
 Cc('c-agregar-circuitos',{t:'Agregar circuitos',tab:'c-rutinas',back:'c-rutina',list:addList,render:circAddScreen});
 Cc('c-circuito',{t:'Circuito',tab:'c-rutinas',back:()=>S.circReturn||'c-rutina',render:circuitEditor});
 
-Cc('c-asignar',{t:'Asignar',tab:'c-planes',back:()=>S.assign.back,list:()=>{const q=(S.q.asig||'').toLowerCase(),sel=S.assign.sel;
-  return S.alum.filter(a=>a.a&&a.n.toLowerCase().includes(q)).map(a=>{const on=sel.includes(a.n);return `<button class="card row click" data-act="selAl:${a.n}" aria-pressed="${on}" style="${on?'border-color:var(--pri)':''}"><div class="avatar" style="width:36px;height:36px;font-size:14px">${a.n[0]}</div><div class="grow"><div class="name">${a.n}</div><div class="sub">${a.p}</div></div><span class="radio ${on?'on':''}">${on?ic('check',13):''}</span></button>`;}).join('')||empty('No hay alumnos activos con ese nombre.');},
-  render:()=>{const a=S.assign;
-  return `${pageHead(`${a.kind} · ${esc(a.name)}`,'Asignar a alumnos')}<div class="narrow">
-  ${a.kind==='Planificación'?`<div class="two">${field('Fecha de inicio','type="date"','2026-06-15')}${field('Fecha de fin','type="date"','2026-08-10')}</div>`:''}
-  ${search('asig','Buscar alumno')}
-  <div class="sec" style="margin-top:8px"><h4>Seleccioná alumnos</h4><span class="sub" style="margin:0">${a.sel.length} seleccionados</span></div>
-  <div class="list" style="gap:8px" id="list">${R['c-asignar'].list()}</div>
-  <button class="btn btn-pri" style="margin-top:18px" data-act="assignOk" ${a.sel.length?'':'disabled'}>Asignar a ${a.sel.length} alumno${a.sel.length===1?'':'s'}</button></div>`;}});
+/* ===== Asignar una planificación a un alumno (T61, 9/11; CU-E-13) =====
+   De a un alumno. Se entra desde el plan (ya viene elegido: se busca al alumno) o desde el alumno (ya viene elegido: se busca el plan).
+   Después van las fechas: el inicio y cuántas SEMANAS dura, en lugar de «Fecha de fin». «Semanas» arranca en la duración del plan y el resumen
+   calcula el fin (el domingo de la última semana); la web manda siempre end_date. Reglas y textos: Doc/plans/2026-11-09-hallazgo-pre-03-asignar-por-semanas-plan.md.
+   En la web: /c/planes/:id/asignar y /c/alumnos/:id/asignar. */
+const ASG_MAX=52; // PLAN_WEEKS_MAX: el tope técnico de la duración en el editor de planificación
+const WDAY=['dom','lun','mar','mié','jue','vie','sáb'];
+const asgNew=o=>({kind:'Planificación',from:'plan',plan:null,rut:null,al:null,back:'c-planes',start:iso(TODAY),weeks:'',note:'',ov:null,tried:false,sTouch:false,wTouch:false,...o});
+const asg=()=>S.assign||(S.assign=asgNew({plan:0}));
+const asgPlan=()=>{const a=asg();return a.plan===null?null:S.planes[a.plan];};
+const asgReady=()=>{const a=asg();return a.al!==null&&(a.kind==='Rutina'||a.plan!==null);};
+const asgRCount=p=>p.wk.reduce((n,w)=>n+w.length,0);
+/* Al elegir al alumno (o el plan) el formulario arranca de cero: inicio hoy, semanas = duración del plan, sin nota */
+const asgReset=()=>{const a=asg(),p=asgPlan();Object.assign(a,{start:iso(TODAY),weeks:p&&p.w?String(p.w):'',note:'',ov:null,tried:false,sTouch:false,wTouch:false});};
+const asgOpen=(o,tab)=>{S.assign=asgNew(o);asgReset();R['c-asignar'].tab=tab;S.q.asig='';};
+/* El fin: el domingo de la semana N, contando como semana 1 la de lunes a domingo que contiene el inicio (defaultEndDate de la web con las semanas elegidas) */
+const asgEnd=(start,weeks)=>addDays(monday(dt(start)),7*weeks-1);
+const fDia=d=>`${WDAY[d.getDay()]} ${fCorta(d)}`;
+function asgCalc(){const a=asg(),p=asgPlan(),dur=p?p.w:0,rut=a.kind==='Rutina',t=String(a.weeks).trim(),sOk=a.start!==''&&!isNaN(dt(a.start));
+  let w=0,wErr='',end=null;
+  if(!rut){
+    if(t==='')wErr='Indicá cuántas semanas dura';
+    else if(!/^\d+$/.test(t)||+t<1)wErr='Poné un número entero de semanas, de 1 en adelante';
+    else w=Math.min(+t,ASG_MAX);
+    if(sOk&&w){end=asgEnd(a.start,w);if(end.getFullYear()>9999){end=null;w=0;wErr='Con ese inicio el fin queda fuera del calendario: poné menos semanas o un inicio anterior';}}
+  }
+  return{sOk,sErr:sOk?'':(rut?'Elegí el día en que el alumno hace la rutina':'Elegí el día de inicio'),w,wErr,end,dur};}
+/* El resumen: el rango y, si las semanas no son las del plan, qué ve el alumno. Sin resumen si el inicio o las semanas no son válidos */
+function asgSumHTML(c){if(!c.sOk||!c.w)return '';const a=asg(),from=c.dur+1,n=c.w-c.dur;
+  const x=!c.dur?'':c.w>c.dur?(n===1?`La semana ${from} no tiene rutinas: el alumno la ve vacía.`:n===2?`Las semanas ${from} y ${c.w} no tienen rutinas: el alumno las ve vacías.`:`Las semanas ${from} a ${c.w} no tienen rutinas: el alumno las ve vacías.`):c.w<c.dur?`El alumno ve hasta la semana ${c.w}.`:'';
+  return `<div class="asg-r">Del ${fDia(dt(a.start))} al ${fDia(c.end)}</div>${x?`<div class="asg-x">${x}</div>`:''}`;}
+/* Los errores salen al tocar «Asignar» o al salir del campo, y de ahí en más se siguen al escribir */
+const asgShowS=()=>{const a=asg();return a.tried||a.sTouch;};
+const asgShowW=()=>{const a=asg();return a.tried||a.wTouch;};
+const asgErrP=(id,msg,show)=>`<p class="ferr" id="${id}" role="alert">${show&&msg?esc(msg):''}</p>`;
+const asgStepper=()=>{const a=asg(),v=String(a.weeks),n=parseInt(v,10)||0,bad=asgShowW()&&asgCalc().wErr;
+  return `<div class="stepper"><button type="button" class="stp minus" data-act="asgStep:-1" aria-label="Disminuir semanas" ${n<=1?'disabled':''}>−</button>
+  <input class="input" id="asg-w" inputmode="numeric" autocomplete="off" data-asg="weeks" value="${esc(v)}" placeholder="Ej: 8" aria-describedby="asg-w-h asg-w-e"${bad?' aria-invalid="true"':''}>
+  <button type="button" class="stp plus" data-act="asgStep:1" aria-label="Aumentar semanas" ${n>=ASG_MAX?'disabled':''}>+</button></div>`;};
+const asgHelp=p=>p.w?`El plan dura ${pl(p.w,'semana','semanas')}.`:'Este plan no tiene duración fija: indicá cuántas semanas dura.';
+/* Las asignaciones vigentes del alumno que se pisan con las fechas elegidas (lo que mandaría el 409), mientras el aviso sea de estas fechas */
+function asgPisa(c){const a=asg();if(!a.ov||!c.end||a.ov.key!==`${a.start}|${c.w}`)return[];const e=iso(c.end);
+  return S.asigs.map((x,i)=>({...x,i})).filter(x=>x.al===a.al&&x.act&&x.start<=e&&x.end>=a.start);}
+/* El pie del formulario: el aviso de solapamiento pegado al botón (no arriba del formulario), y el botón, que pasa a «Asignar igual» */
+function asgTail(){const a=asg(),c=asgCalc(),pisa=a.kind==='Planificación'?asgPisa(c):[],hoy=iso(TODAY);
+  const ov=pisa.length?`<div class="asg-ov"><div class="note warn" role="alert">${ic('alert',18)}<span>${pisa.length===1?'El alumno ya tiene una planificación en esas fechas. Podés ajustar las fechas, quitar la anterior':`El alumno ya tiene ${pisa.length} planificaciones en esas fechas. Podés ajustar las fechas, quitar las anteriores`} o asignarla igual: las dos conviven y el alumno ve las dos en su home.</span></div>
+  ${pisa.map(x=>{const st=x.end<hoy?['Terminada','p-mut']:x.start>hoy?['Próxima','p-acc']:['Vigente','p-ok'];
+    return `<div class="card row"><div class="grow"><div class="name">${esc(x.plan)}</div><div class="sub">${fmtD(dt(x.start))} → ${fmtD(dt(x.end))}</div></div><span class="pill ${st[1]}">${st[0]}</span><button class="btn btn-ghost btn-sm" data-act="asgRm:${x.i}" aria-label="Quitar ${esc(x.plan)}">Quitar</button></div>`;}).join('')}</div>`:'';
+  return `${ov}<button class="btn btn-pri" data-act="asgOk">${pisa.length?'Asignar igual':a.kind==='Planificación'?'Asignar planificación':'Asignar rutina'}</button>`;}
+/* El pie se redibuja solo si cambió: si no, el «change» al salir de un campo (que pasa al apretar el botón) reemplaza el botón y se pierde el clic */
+let asgTailH='';
+const asgTailBox=()=>{asgTailH=asgTail();return `<div id="asg-tail">${asgTailH}</div>`;};
+function asgFormHTML(){const a=asg(),c=asgCalc(),sBad=asgShowS()&&c.sErr;
+  const dia=`<input class="input" id="asg-s" type="date" data-asg="start" value="${esc(a.start)}" aria-describedby="asg-s-e"${sBad?' aria-invalid="true"':''}>`;
+  if(a.kind==='Rutina')return `<div class="field"><label for="asg-s">Día</label>${dia}<p class="sub" style="margin-top:6px">El día en que el alumno hace la rutina. Puede ser pasado o futuro.</p>${asgErrP('asg-s-e',c.sErr,asgShowS())}</div>${asgTailBox()}`;
+  return `<div class="two" style="align-items:start"><div class="field"><label for="asg-s">Fecha de inicio</label>${dia}${asgErrP('asg-s-e',c.sErr,asgShowS())}</div>
+  <div class="field"><label for="asg-w">Semanas</label>${asgStepper()}${asgErrP('asg-w-e',c.wErr,asgShowW())}</div></div>
+  <p class="asg-h" id="asg-w-h">${asgHelp(asgPlan())}</p>
+  <div class="asg-sum" id="asg-sum" role="status">${asgSumHTML(c)}</div>
+  <p class="asg-h">La semana 1 es la de lunes a domingo que contiene el inicio.</p>
+  <div class="field"><label for="asg-n">Nota del coach</label><textarea class="input" id="asg-n" data-asg="note" maxlength="100" placeholder="Indicaciones para el alumno" aria-describedby="asg-n-h">${esc(a.note)}</textarea><p class="sub" id="asg-n-h" style="margin-top:6px">Opcional. La ve el alumno.</p></div>
+  ${asgTailBox()}`;}
+/* Lo que cambia al escribir, sin redibujar la pantalla (para no perder el foco) */
+function asgRefresh(){if(CUR!=='c-asignar'||!asgReady())return;const a=asg(),c=asgCalc(),$=id=>document.getElementById(id);
+  const sErr=asgShowS()&&c.sErr,wErr=asgShowW()&&c.wErr,put=(id,msg)=>{const e=$(id);if(e)e.textContent=msg||'';},inv=(id,bad)=>{const e=$(id);if(e){if(bad)e.setAttribute('aria-invalid','true');else e.removeAttribute('aria-invalid');}};
+  put('asg-s-e',sErr);put('asg-w-e',wErr);inv('asg-s',sErr);inv('asg-w',wErr);
+  const sum=$('asg-sum'),sh=asgSumHTML(c);if(sum&&sum.innerHTML!==sh)sum.innerHTML=sh;
+  const tail=$('asg-tail'),th=asgTail();if(tail&&th!==asgTailH){tail.innerHTML=th;asgTailH=th;}
+  const n=parseInt(a.weeks,10)||0,mn=document.querySelector('[data-act="asgStep:-1"]'),mx=document.querySelector('[data-act="asgStep:1"]');if(mn)mn.disabled=n<=1;if(mx)mx.disabled=n>=ASG_MAX;}
+function asgInput(t){const a=asg(),k=t.dataset.asg;if(k==='note'){a.note=t.value;return;}
+  if(k==='start'){a.start=t.value;a.sTouch=true;}else a.weeks=t.value;
+  a.ov=null;asgRefresh();}
+function asgChanged(t){const a=asg(),k=t.dataset.asg;
+  if(k==='weeks'){a.wTouch=true;const n=String(a.weeks).trim();if(/^\d+$/.test(n)&&+n>ASG_MAX){a.weeks=String(ASG_MAX);t.value=a.weeks;a.ov=null;}}
+  if(k==='start')a.sTouch=true;
+  asgRefresh();}
+const asgPlanInner=p=>`<div class="grow"><div class="name">${esc(p.n)}</div><div class="sub">${pl(p.w,'semana','semanas')} · ${p.t}</div></div><span class="data" style="font-size:12px;color:var(--acc)">${rc(asgRCount(p))}</span>`;
+const asgAlInner=n=>{const s=S.alum.find(x=>x.n===n);return `<div class="avatar" style="width:36px;height:36px;font-size:14px">${esc(n[0])}</div><div class="grow"><div class="name">${esc(n)}</div><div class="sub">${esc(s?s.p:'')}</div></div>`;};
+const asgChosen=inner=>`<div class="card row">${inner}<button type="button" class="btn btn-ghost btn-sm" data-act="asgChange">Cambiar</button></div>`;
+const asgStep=(id,label,body)=>`<div class="asg-step" role="group" aria-labelledby="${id}"><span class="asg-l" id="${id}">${label}</span>${body}</div>`;
+
+Cc('c-asignar',{t:'Asignar',tab:'c-planes',back:()=>asg().back,list:()=>{const a=asg(),q=norm((S.q.asig||'').trim());
+  if(a.from==='alumno'){const it=S.planes.map((p,i)=>[p,i]).filter(([p])=>asgRCount(p)>0&&norm(p.n).includes(q));
+    return it.map(([p,i])=>`<button type="button" class="card row click asg-pick" data-act="asgPick:${i}">${asgPlanInner(p)}<span class="chev">${ic('chev',18)}</span></button>`).join('')||empty('No hay planificaciones que coincidan con la búsqueda.');}
+  return S.alum.filter(x=>x.a&&norm(x.n).includes(q)).map(x=>`<button type="button" class="card row click asg-pick" data-act="asgPick:${esc(x.n)}">${asgAlInner(x.n)}<span class="chev">${ic('chev',18)}</span></button>`).join('')||empty('No hay alumnos activos con ese nombre.');},
+  render:()=>{const a=asg(),p=asgPlan(),rut=a.rut!==null?S.ruts[a.rut]:null,ready=asgReady(),porAlumno=a.from==='alumno';
+  const fixed=porAlumno?['Alumno',asgAlInner(a.al)]:a.kind==='Rutina'?['Rutina',`<div class="grow"><div class="name">${esc(rut.n)}</div><div class="sub">${esc(rut.m)}</div></div>`]:['Planificación',asgPlanInner(p)];
+  const pick=porAlumno?a.plan!==null:a.al!==null;
+  const choice=porAlumno?['Planificación',pick?asgChosen(asgPlanInner(p)):`${search('asig','Buscar planificación')}<div class="list" style="gap:8px" id="list">${R['c-asignar'].list()}</div>`]
+    :['Alumno',pick?asgChosen(asgAlInner(a.al)):`${search('asig','Buscar alumno por nombre')}<div class="list" style="gap:8px" id="list">${R['c-asignar'].list()}</div>`];
+  return `${pageHead(porAlumno?esc(a.al):`${a.kind} · ${esc(a.kind==='Rutina'?rut.n:p.n)}`,porAlumno?'Asignar planificación':'Asignar a un alumno')}<div class="narrow">
+  ${asgStep('asg-l1',fixed[0],`<div class="card row">${fixed[1]}</div>`)}
+  ${asgStep('asg-l2',choice[0],choice[1])}
+  ${ready?asgFormHTML():`<p class="asg-h" style="font-size:13px">Elegí ${porAlumno?'una planificación':'un alumno'} para indicar ${a.kind==='Rutina'?'el día':'las fechas'}.</p>`}</div>`;}});
 
 const coachTimer=()=>timerHTML();
 Cc('c-timer',{t:'Temporizador',tab:'c-timer',render:coachTimer});
@@ -1201,10 +1303,26 @@ const ACT={
     Object.assign(p,{n:d.n.trim(),w,k,t:d.t,notas:d.notas,wk:resizeWeeks(p.wk,w)});toast('Planificación guardada');go(P()+'-planes');},
   planDel:()=>confirmDel('Eliminar planificación',`¿Eliminar <b>${esc(S.planes[S.plan].n)}</b>? Se quita de los alumnos que la tengan asignada.`,'planDelOk'),
   planDelOk:()=>{S.planes.splice(S.plan,1);toast('Planificación eliminada');go(P()+'-planes');},
-  assignPlan:i=>{S.assign={name:S.planes[+i].n,kind:'Planificación',back:'c-planes',sel:[]};S.q.asig='';},
-  assignRut:()=>{S.assign={name:S.ruts[S.rut].n,kind:'Rutina',back:'c-rutina',sel:[]};S.q.asig='';},
-  selAl:n=>{const s=S.assign.sel,i=s.indexOf(n);i<0?s.push(n):s.splice(i,1);rerender();},
-  assignOk:()=>{const a=S.assign;toast(`${a.name} asignada a ${a.sel.length} alumno${a.sel.length===1?'':'s'}`);go(a.back);},
+  /* Asignar (T61): se entra desde el plan (assignPlan), desde el alumno (assignAl) o desde la rutina (assignRut); de a un alumno */
+  assignPlan:i=>asgOpen({kind:'Planificación',from:'plan',plan:+i,back:'c-planes'},'c-planes'),
+  assignAl:n=>asgOpen({kind:'Planificación',from:'alumno',al:n,back:'c-alumno'},'c-alumnos'),
+  assignRut:()=>asgOpen({kind:'Rutina',from:'rutina',rut:S.rut,back:'c-rutina'},'c-rutinas'),
+  asgPick:v=>{const a=asg();if(a.from==='alumno')a.plan=+v;else a.al=v;asgReset();S.q.asig='';rerender();},
+  asgChange:()=>{const a=asg();if(a.from==='alumno')a.plan=null;else a.al=null;S.q.asig='';rerender();},
+  asgStep:d=>{const a=asg();a.weeks=String(Math.max(1,Math.min(ASG_MAX,(parseInt(a.weeks,10)||0)+ +d)));a.wTouch=true;a.ov=null;rerender();
+    const b=document.querySelector(`[data-act="asgStep:${d}"]`);if(b&&!b.disabled)b.focus({preventScroll:true});},
+  asgOk:()=>{const a=asg(),c=asgCalc();a.tried=true;
+    if(c.sErr||c.wErr){asgRefresh();const f=document.getElementById(c.sErr?'asg-s':'asg-w');if(f)f.focus();return;}
+    if(a.kind==='Rutina'){toast(`${S.ruts[a.rut].n} asignada a ${a.al} · ${fmtD(dt(a.start))}`);go(a.back);return;}
+    const p=asgPlan(),e=iso(c.end);
+    /* El 409: si el alumno ya tiene un plan en esas fechas, el aviso sale junto al botón y no se asigna; «Asignar igual» confirma */
+    if(S.asigs.some(x=>x.al===a.al&&x.act&&x.start<=e&&x.end>=a.start)&&!(a.ov&&a.ov.key===`${a.start}|${c.w}`)){a.ov={key:`${a.start}|${c.w}`};asgRefresh();
+      const b=document.querySelector('[data-act="asgOk"]');if(b)b.focus({preventScroll:true});
+      /* El aviso empuja el botón hacia abajo: se lleva el pie (aviso, tarjetas y botón) a la vista */
+      const t=document.getElementById('asg-tail');if(t)t.scrollIntoView({block:'center'});return;}
+    S.asigs.push({al:a.al,plan:p.n,start:a.start,end:e,act:true});toast(`${p.n} asignada a ${a.al} · del ${fmtD(dt(a.start))} al ${fmtD(c.end)}`);go(a.back);},
+  asgRm:i=>{const x=S.asigs[+i];openModal({ic:'trash',tone:'err',title:'Quitar planificación',body:`<b>${esc(x.plan)}</b> deja de verse en el home de <b>${esc(x.al)}</b>, que ya no puede marcar ni anotar en ella. Es una baja lógica: lo que entrenó se conserva y la podés reincorporar desde su detalle.`,actions:`<button class="btn btn-danger solid" data-act="asgRmOk:${i}">Quitar</button><button class="btn btn-ghost" data-act="close">Cancelar</button>`});},
+  asgRmOk:i=>{S.asigs[+i].act=false;S.modal=null;toast('Planificación quitada');rerender();},
   /* ser: el interruptor «Ver series» de cada tarjeta (arranca apagado; no se guarda) */
   rut:i=>{S.rut=i==='new'?null:+i;const r=S.rut===null?{n:'',notas:'',m:'',c:[]}:S.ruts[S.rut];S.draft={n:r.n,notas:r.notas||'',m:r.m||'',c:[...r.c],ser:[]};},
   circRm:ci=>{S.draft.c.splice(+ci,1);if(S.draft.ser)S.draft.ser.splice(+ci,1);rerender();},
@@ -1313,6 +1431,7 @@ document.addEventListener('keydown',e=>{
   if((e.key==='Enter'||e.key===' ')&&e.target.matches('[role="button"]')){e.preventDefault();e.target.click();}
 });
 document.addEventListener('input',e=>{const t=e.target;
+  if(t.dataset.asg!==undefined){asgInput(t);return;}
   if(t.dataset.hq!==undefined){S.hist.q=t.value;const r=document.getElementById('h-pick-res');if(r)r.innerHTML=hPickRes();}
   if(t.dataset.search!==undefined){S.q[t.dataset.search]=t.value;const l=document.getElementById('list');if(l&&R[CUR].list)l.innerHTML=R[CUR].list();}
   if(t.dataset.calc){S.calc[t.dataset.calc]=t.dataset.calc==='ej'?t.value:parseFloat(t.value)||0;const r=document.getElementById('c-res');if(r){r.innerHTML=calcRes();document.getElementById('c-table').innerHTML=calcTable();}}
@@ -1320,7 +1439,9 @@ document.addEventListener('input',e=>{const t=e.target;
   if(t.dataset.cdraft&&S.cdraft)S.cdraft[t.dataset.cdraft]=t.value;
   if(t.dataset.pw!==undefined){const r=document.getElementById('reqs');if(r)r.innerHTML=reqsHTML(t.value);}
 });
-document.addEventListener('change',e=>{const t=e.target;if(t.id==='dup-t'){const b=document.getElementById('dup-ok');if(b)b.disabled=!t.value;return;}if(t.id==='cd-t'&&S.cdraft){S.cdraft.t=t.value;rerender();return;}if(t.dataset.plannum&&S.draft){planNumSet(t.dataset.plannum,t.value);return;}if(t.dataset.pay){S.pay[t.dataset.pay]=t.dataset.pay==='t'?+t.value:t.value;if(t.dataset.pay==='al'){const m=S.memb.find(x=>x.n===t.value);if(m)S.pay.t=m.t;}rerender();}});
+/* Asignar: salir del inicio o de las semanas los marca como tocados (los errores salen desde ahí), aunque no se haya escrito */
+document.addEventListener('focusout',e=>{const t=e.target;if(t.dataset&&(t.dataset.asg==='start'||t.dataset.asg==='weeks'))asgChanged(t);});
+document.addEventListener('change',e=>{const t=e.target;if(t.dataset.asg!==undefined){asgChanged(t);return;}if(t.id==='dup-t'){const b=document.getElementById('dup-ok');if(b)b.disabled=!t.value;return;}if(t.id==='cd-t'&&S.cdraft){S.cdraft.t=t.value;rerender();return;}if(t.dataset.plannum&&S.draft){planNumSet(t.dataset.plannum,t.value);return;}if(t.dataset.pay){S.pay[t.dataset.pay]=t.dataset.pay==='t'?+t.value:t.value;if(t.dataset.pay==='al'){const m=S.memb.find(x=>x.n===t.value);if(m)S.pay.t=m.t;}rerender();}});
 
 setInterval(()=>{const t=S.timer;if(!t.running||t.left<=0)return;t.left--;
   if(t.left===0){t.running=false;if(CUR.endsWith('timer'))rerender();toast('Descanso terminado');return;}

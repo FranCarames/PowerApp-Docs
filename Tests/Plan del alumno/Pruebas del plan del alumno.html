@@ -249,7 +249,8 @@ tr:last-child td{border-bottom:0}
         <h3>Cómo encararlo</h3>
         <ul class="tips">
           <li><b>Seguí el orden de la página.</b> Las marcas y los progresos que esperan los casos dependen de lo que hicieron los anteriores.</li>
-          <li><b>«Esta semana» es la semana 1 del plan:</b> PRE-03 lo asigna con inicio hoy. Los días que dicen los casos (hoy, ayer) son los de cuando probás.</li>
+          <li><b>«Esta semana» es la semana 1 del plan:</b> PRE-03 lo asigna con inicio hoy y 3 semanas (una más que la duración). Los días que dicen los casos (hoy, ayer) son los de cuando probás.</li>
+          <li><b>Aviso amarillo «Hoy falla.» en PRE-03</b> (hallazgo de la tanda 4, 09/11): al asignar una planificación se elige cuántas semanas dura, con «Semanas» y un resumen del rango, y ya no «Fecha de fin». Lo arregla <b>la T61 de la web (o el siguiente número libre)</b>; se saca el aviso cuando esté en Render. Con la web de hoy, hacé el caso igual con el fin el domingo de dentro de dos semanas: es lo mismo y los casos que siguen salen igual.</li>
           <li><b>DevTools › Network</b>, filtrado por <code>routine</code>, para ver qué requests salen y qué código responden.</li>
           <li><b>Tildar series no guarda nada:</b> es una ayuda de la pantalla. Lo que queda registrado es «Marcar hecho», por ejercicio (CU-U-12).</li>
         </ul>
@@ -335,8 +336,9 @@ tr:last-child td{border-bottom:0}
       steps: [`Creá ${tok('QA Rutina U1')} con la nota ${tok('Calentá antes')} y los circuitos QA Circuito U y QA Circuito U2, en ese orden.`, `Creá ${tok('QA Rutina U2')} con QA Circuito U2.`],
       exp: '<p>Las dos rutinas quedan activas.</p>' },
     { id: 'PRE-03', g: 'pre', t: 'La planificación, asignada', env: ['TODOS'],
-      steps: [`Creá ${tok('QA Plan Alumno')}: 2 semanas, 3 rutinas previstas.`, 'Agregale QA Rutina U1 y QA Rutina U2 a la semana 1, en ese orden, y QA Rutina U1 a la semana 2.', `Tocá Asignar y elegí a QA Alumno: inicio hoy, fin el domingo de dentro de dos semanas (la semana 3, una más que la duración) y la nota ${tok('Arrancá suave')}.`],
-      exp: '<p>Se asigna con ese fin. QA Alumno queda con un plan de tres semanas de calendario: dos con rutinas y una vacía.</p>' },
+      steps: [`Creá ${tok('QA Plan Alumno')}: 2 semanas, 3 rutinas previstas.`, 'Agregale QA Rutina U1 y QA Rutina U2 a la semana 1, en ese orden, y QA Rutina U1 a la semana 2.', `Tocá Asignar y elegí a QA Alumno. Dejá el inicio en hoy y poné 3 semanas (una más que la duración: viene precargada en 2). Mirá el resumen, escribí la nota ${tok('Arrancá suave')} y asigná.`],
+      exp: `<ul><li>«Semanas» arranca en 2, con ${ui('El plan dura 2 semanas.')} Al poner 3, el resumen dice ${ui('Del … al …')} (de hoy al domingo de dentro de dos semanas, contando esta semana como la 1) y ${ui('La semana 3 no tiene rutinas: el alumno la ve vacía.')}, y debajo sigue ${ui('La semana 1 es la de lunes a domingo que contiene el inicio.')}</li><li>Se asigna con ese fin: <code>POST /planification/user/assign</code> manda <code>end_date</code> con ese domingo. QA Alumno queda con un plan de tres semanas de calendario: dos con rutinas y una vacía.</li></ul>`,
+      kt: 'Hoy falla.', known: 'Hoy la pantalla de asignar no tiene «Semanas» ni el resumen: pide una «Fecha de fin (opcional)». Lo arregla la T61 de la web (o el siguiente número libre). Hasta que esté en Render, hacé el caso con la web de hoy (el fin, el domingo de dentro de dos semanas) para que los casos que siguen salgan igual, y marcalo Falla.' },
 
     // ── Inicio y semanas ────────────────────────────────────
     { id: 'HOM-01', g: 'hom', t: 'El inicio', env: ['TODOS'],
