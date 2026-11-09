@@ -140,6 +140,7 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 1](Rutinas/1-pruebas-rutinas.resultados.json)
   - [Tanda 2](Rutinas/2-pruebas-rutinas.resultados.json)
   - [Tanda 3](Rutinas/3-pruebas-rutinas.resultados.json)
+  - [Tanda 4](Rutinas/4-pruebas-rutinas.resultados.json)
 - [Pruebas del plan del alumno](Plan%20del%20alumno/Pruebas%20del%20plan%20del%20alumno.html) — El entrenamiento del alumno: el inicio semana por semana, el detalle de cada rutina y de cada ejercicio, sus RMs del ejercicio, marcar y desmarcar lo hecho con su nota, y cómo se ve todo cuando el entrenador cambia algo (CU-U-08 a CU-U-13).
   - [Tanda 1](Plan%20del%20alumno/1-pruebas-plan-alumno.resultados.json)
   - [Tanda 2](Plan%20del%20alumno/2-pruebas-plan-alumno.resultados.json)
