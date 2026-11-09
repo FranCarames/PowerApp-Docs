@@ -125,6 +125,7 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 4](Detalle%20del%20alumno/4-pruebas-detalle-alumno.resultados.json)
   - [Tanda 5](Detalle%20del%20alumno/5-pruebas-detalle-alumno.resultados.json)
   - [Tanda 6](Detalle%20del%20alumno/6-pruebas-detalle-alumno.resultados.json)
+  - [Tanda 7](Detalle%20del%20alumno/7-pruebas-detalle-alumno.resultados.json)
 - [Pruebas de membresías del entrenador](Membresias%20del%20entrenador/Pruebas%20de%20membres%C3%ADas%20del%20entrenador.html) — El control de membresías del Entrenador: contadores por estado, alumnos filtrados por estado y por tipo, y el registro de un pago (CU-E-25 a CU-E-29).
   - [Tanda 1](Membresias%20del%20entrenador/1-pruebas-membresias-entrenador.resultados.json)
   - [Tanda 2 (la 1, adaptada al plan del 25/10)](Membresias%20del%20entrenador/2-pruebas-membresias-entrenador.resultados.json)
@@ -137,11 +138,13 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 4](Planificaciones/4-pruebas-planificaciones.resultados.json)
   - [Tanda 5](Planificaciones/5-pruebas-planificaciones.resultados.json)
   - [Tanda 6](Planificaciones/6-pruebas-planificaciones.resultados.json)
+  - [Tanda 7](Planificaciones/7-pruebas-planificaciones.resultados.json)
 - [Pruebas de rutinas](Rutinas/Pruebas%20de%20rutinas.html) — Rutinas desde el Admin y el Entrenador: listado y búsqueda, alta y edición con sus circuitos en orden, baja y reactivación, y las rutinas puntuales de un alumno: asignarlas para un día y quitarlas (CU-E-15 a CU-E-20).
   - [Tanda 1](Rutinas/1-pruebas-rutinas.resultados.json)
   - [Tanda 2](Rutinas/2-pruebas-rutinas.resultados.json)
   - [Tanda 3](Rutinas/3-pruebas-rutinas.resultados.json)
   - [Tanda 4](Rutinas/4-pruebas-rutinas.resultados.json)
+  - [Tanda 5](Rutinas/5-pruebas-rutinas.resultados.json)
 - [Pruebas del plan del alumno](Plan%20del%20alumno/Pruebas%20del%20plan%20del%20alumno.html) — El entrenamiento del alumno: el inicio semana por semana, el detalle de cada rutina y de cada ejercicio, sus RMs del ejercicio, marcar y desmarcar lo hecho con su nota, y cómo se ve todo cuando el entrenador cambia algo (CU-U-08 a CU-U-13).
   - [Tanda 1](Plan%20del%20alumno/1-pruebas-plan-alumno.resultados.json)
   - [Tanda 2](Plan%20del%20alumno/2-pruebas-plan-alumno.resultados.json)
