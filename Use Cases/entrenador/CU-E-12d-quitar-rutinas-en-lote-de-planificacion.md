@@ -32,7 +32,7 @@ Da de baja lógica varios vínculos Routine_Asignation en una sola operación, o
 
 ## Postcondiciones
 
-- **Al quitar:** todos los vínculos quedan con active = false y conservan su semana y su posición, y sus planificaciones dejan de mostrarlos.
+- **Al quitar:** todos los vínculos quedan con active = false y conservan su semana y su posición. Dejan de estar entre las vigentes de sus planificaciones, pero **siguen apareciendo en el detalle, aparte, entre las quitadas** (CU-E-12c), también después de salir y volver a abrir la planificación.
 - **Al reincorporar:** todos vuelven a active = true, cada uno a su lugar.
 - En los dos casos, los Routine_Exercise_Finished de los alumnos quedan intactos.
 
@@ -51,8 +51,9 @@ Da de baja lógica varios vínculos Routine_Asignation en una sola operación, o
 
 ### Reincorporar en bloque
 
-1. El entrenador vuelve a incorporar varios vínculos dados de baja.
+1. El entrenador vuelve a incorporar varios vínculos dados de baja: por ejemplo, todas las quitadas del detalle del plan («Reincorporar todas a su lugar»). Puede hacerlo **en cualquier momento**, no solo en la misma edición en que las quitó.
 2. El sistema los reactiva en una sola transacción, cada uno en su semana y su posición.
+3. **No se revisa si cada rutina sigue activa:** las dadas de baja como rutina (CU-E-18) se reincorporan igual, sin bloqueo ni aviso.
 
 ### En el paso 3 — Algún vínculo queda fuera de la duración
 

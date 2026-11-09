@@ -24,7 +24,7 @@ Cambia el orden de las rutinas vigentes de **una semana** del plan. El entrenado
 
 - Mover una rutina a otra semana: se quita y se agrega en la otra (CU-E-12c y CU-E-12a).
 - Reordenar dos semanas a la vez.
-- Mover las rutinas quitadas: no se ven, no participan.
+- Mover las rutinas quitadas: no participan. Se ven aparte, entre las quitadas del plan (CU-E-12c), no en su semana.
 - Reordenar mientras la planificación no está creada: en el alta el orden se cambia sólo en pantalla (CU-E-09, regla 2).
 
 ## Precondiciones

@@ -53,6 +53,7 @@ Modifica los datos de una planificación sistémica existente.
 
 1. La nueva duración es mayor que 0 y menor que la semana más alta ocupada por una rutina **vigente** del plan.
 2. El sistema informa en qué semana hay rutinas, no permite achicar la duración hasta ahí y no persiste.
+3. Las rutinas **quitadas** no cuentan, aunque se vean aparte en el detalle (CU-E-12c): una quitada en una semana que la nueva duración ya no cubre no impide achicarla. Si después se la reincorpora, CU-E-12c pide una semana válida.
 
 > **Alcance de esta etapa (decisión del 31/10/2026).** La duración 0 (sin duración fija) queda fuera de alcance: ver CU-E-09, «Duración inválida». El backend la sigue aceptando y, con ella, no pone límite.
 
