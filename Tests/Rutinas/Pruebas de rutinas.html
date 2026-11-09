@@ -328,6 +328,10 @@ tr:last-child td{border-bottom:0}
 
   // Aviso de los casos que arregla la T59 de la web (los circuitos en la rutina, hallazgos del 09/11).
   const T59 = 'Lo arregla la T59 de la web (o el siguiente número libre); hasta que esté en Render, marcalo Falla.';
+  // Aviso de los casos que arregla la BE-46 del back (guardar una rutina con un circuito que no estaba; hallazgos del 09/11, tanda 5).
+  const BE46_RUTINA = 'Guardar una rutina con un circuito que no estaba (agregado, repetido o la copia de Duplicar) responde 500 «Error al editar la rutina.» y la pantalla muestra «El servidor tuvo un problema. Intentá de nuevo en unos minutos.».';
+  const BE46_ARREGLO = 'Lo arregla la BE-46 del back; hasta que esté en Render, marcalo Falla.';
+  const BE46 = `${BE46_RUTINA} ${BE46_ARREGLO}`;
 
   const CASES = [
     // ── Llegar a Rutinas ────────────────────────────────────
@@ -369,17 +373,20 @@ tr:last-child td{border-bottom:0}
       kt: 'Hoy no cumple el CU.', known: T59 },
     { id: 'CIR-03', g: 'cir', t: 'Ordenar y quitar', env: ['TODOS'],
       steps: ['Usá Subir y Bajar para dejar el circuito repetido primero.', 'Quitá una de las dos copias.', 'Guardá y abrí la rutina de nuevo.'],
-      exp: '<p>Subir está apagado en el primero y Bajar en el último. El orden guardado es el que dejaste y la copia quitada no vuelve. (CU-E-16, paso 3)</p>' },
+      exp: '<p>Subir está apagado en el primero y Bajar en el último. El orden guardado es el que dejaste y la copia quitada no vuelve. (CU-E-16, paso 3)</p>',
+      kt: 'Hoy falla.', known: BE46 },
     { id: 'CIR-04', g: 'cir', t: 'Crear un circuito desde la rutina', env: ['TODOS'],
       data: `Circuito ${tok('QA Circuito rutina')}, tipo Principal (elegilo en el selector Tipo), un ejercicio.`,
       steps: ['En QA Rutina A, cambiá la nota sin guardar.', `Tocá ${ui('Nuevo circuito')}.`, 'Completá el circuito y tocá Guardar circuito.'],
       exp: `<p>Abre <code>/a/circuitos/nuevo</code>. Al guardar: ${ui('Circuito creado')} y vuelve a QA Rutina A con el circuito nuevo al final y la nota que habías escrito. Todavía no está guardado en la rutina: falta tocar Guardar rutina.</p>` },
     { id: 'CIR-05', g: 'cir', t: 'Editar un circuito desde la rutina', env: ['TODOS'],
       steps: [`En QA Rutina A, tocá ${ui('Editar QA Circuito rutina')}.`, `Tocá ${ui('Volver')}.`, 'Entrá otra vez, cambiá un bloque de series y guardá el circuito.', 'Guardá la rutina.'],
-      exp: `<p>Volver lleva a la rutina con lo escrito intacto. Al guardar el circuito: ${ui('Circuito guardado')} y vuelve a la rutina, que muestra las series nuevas. Al guardar la rutina: ${ui('Rutina guardada')}.</p>` },
+      exp: `<p>Volver lleva a la rutina con lo escrito intacto. Al guardar el circuito: ${ui('Circuito guardado')} y vuelve a la rutina, que muestra las series nuevas. Al guardar la rutina: ${ui('Rutina guardada')}.</p>`,
+      kt: 'Hoy falla.', known: `${BE46_RUTINA} Guardar el circuito con un ejercicio nuevo también responde 500 «Error al editar el circuito.». ${BE46_ARREGLO}` },
     { id: 'CIR-06', g: 'cir', t: 'Duplicar desde la rutina', env: ['TODOS'],
       steps: ['En QA Rutina A, editá QA Circuito rutina y tocá Duplicar.', 'Guardá la copia y volvé a la rutina.', 'Guardá la rutina y abrí el circuito original desde Circuitos.'],
-      exp: `<p>${ui('Copia creada y reemplazada en esta rutina')}. La rutina muestra ${ui('QA Circuito rutina (copia)')} en el lugar del original. El original no cambió y ya no está en QA Rutina A.</p>` },
+      exp: `<p>${ui('Copia creada y reemplazada en esta rutina')}. La rutina muestra ${ui('QA Circuito rutina (copia)')} en el lugar del original. El original no cambió y ya no está en QA Rutina A.</p>`,
+      kt: 'Hoy falla.', known: BE46 },
     { id: 'CIR-07', g: 'cir', t: 'Atrás del navegador', env: ['TODOS'],
       steps: ['En QA Rutina A, cambiá el nombre sin guardar y abrí un circuito con Editar.', 'Tocá Atrás del navegador.', 'Recargá la página.'],
       exp: '<p>Con Atrás vuelve a la rutina con el nombre cambiado. Al recargar, el borrador se pierde y aparece lo guardado.</p>' },
@@ -387,7 +394,7 @@ tr:last-child td{border-bottom:0}
       data: 'QA Rutina A. Celular o DevTools a 390 px.',
       steps: [`En QA Rutina A, cambiá la nota sin guardar y tocá ${ui('Agregar existente')}.`, 'Mirá la dirección, el encabezado y las tarjetas.', 'Tocá tres circuitos distintos y anotá en qué orden.', `Tocá ${ui('Agregar 3 circuitos')}.`, 'Guardá la rutina y mirá el body en Network.'],
       exp: `<ul><li>Abre <code>/a/rutinas/{id}/agregar-circuitos</code> en pantalla completa, no en un modal. Arriba, ${ui('QA Rutina A')} para volver y como sobretítulo, el título ${ui('Agregar circuitos')} y ${ui('Elegí los que quieras. Se suman al final de la rutina en el orden en que los tocaste.')}</li><li>Debajo, ${ui('Buscar circuito')} y los chips de tipo. Solo hay circuitos activos; cada tarjeta muestra el nombre, ${ui('Tipo · N ejercicios')}, los nombres de sus ejercicios y, si ya está en la rutina, ${ui('En la rutina')} o ${ui('En la rutina ×N')}.</li><li>Abajo, fijos, ${ui('Cancelar')} y el botón ${ui('Elegí uno o más')}, apagado. Cada circuito que tocás se marca con su número (1, 2, 3) y el botón pasa a ${ui('Agregar 1 circuito')}, ${ui('Agregar 2 circuitos')}…</li><li>Al agregar vuelve a QA Rutina A con la nota cambiada y los tres al final, en el orden en que los tocaste, sin guardar: no sale ningún POST hasta Guardar rutina. En <code>POST /routine/edit/{id}</code> los tres van sin <code>id</code> y con <code>order</code> según ese lugar. (CU-E-17, pasos 2 y 3)</li></ul>`,
-      kt: 'Hoy no cumple el CU.', known: T59 },
+      kt: 'Hoy no cumple el CU.', known: `Hoy fallan dos cosas. (1) La pantalla «Agregar circuitos»: la arregla la T59 de la web (o el siguiente número libre). (2) El guardado: ${BE46_RUTINA} Lo arregla la BE-46 del back. Hasta que estén las dos en Render, marcalo Falla.` },
     { id: 'CIR-09', g: 'cir', t: 'Desmarcar', env: ['TODOS'],
       data: 'Celular o DevTools a 390 px.',
       steps: ['En QA Rutina A, abrí Agregar existente y tocá tres circuitos.', 'Tocá otra vez el segundo.', 'Tocá otra vez los otros dos.', 'Tocá Cancelar.'],
@@ -417,7 +424,8 @@ tr:last-child td{border-bottom:0}
     // ── Editar ──────────────────────────────────────────────
     { id: 'EDT-01', g: 'edt', t: 'Editar una rutina', env: ['TODOS'],
       steps: ['Tocá la tarjeta de QA Rutina A.', 'Cambiá el nombre a QA Rutina A1, quitá un circuito y agregá otro.', 'Guardá y mirá el body en Network.'],
-      exp: `<p>Abre <code>/a/rutinas/{id}</code> con ${ui('Editar')} arriba y los datos cargados. Al guardar: ${ui('Rutina guardada')} y vuelve a la lista. En <code>POST /routine/edit/{id}</code>, los circuitos que quedaron llevan el <code>id</code> de su vínculo y el nuevo va sin él, con <code>order</code> según la posición. (CU-E-17)</p>` },
+      exp: `<p>Abre <code>/a/rutinas/{id}</code> con ${ui('Editar')} arriba y los datos cargados. Al guardar: ${ui('Rutina guardada')} y vuelve a la lista. <code>POST /routine/edit/{id}</code> responde 200 y, en su body, los circuitos que quedaron llevan el <code>id</code> de su vínculo y el nuevo va sin él, con <code>order</code> según la posición. (CU-E-17)</p>`,
+      kt: 'Hoy falla.', known: BE46 },
     { id: 'EDT-02', g: 'edt', t: 'Vaciar la nota', env: ['TODOS'],
       steps: ['Borrá la nota del coach de QA Rutina A1 y guardá.', 'Abrila de nuevo.'],
       exp: '<p>La nota queda vacía.</p>' },

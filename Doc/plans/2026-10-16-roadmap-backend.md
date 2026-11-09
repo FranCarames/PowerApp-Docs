@@ -180,6 +180,7 @@ Prioridad (orden por defecto): **P1** bloquea al web o a la app iOS · **P2** CU
 | BE-43 | 4 | [CU-U-06 y CU-U-01: formato del teléfono](2026-10-31-be-43-formato-del-telefono-plan.md) | Bug | CU-U-06 y CU-U-01 (31/10); Tests Mi cuenta VAL-05 y VAL-06, Acceso REG-10; `create_user.dto.ts`, `edit_user.dto.ts` | — | 0,5 h | No | P2 |
 | BE-44 | 4 | [Tipos de circuito: el `type` libre de `Circuit` pasa a una tabla `Circuit_Type` que administra el Admin](2026-11-04-be-44-tipos-de-circuito-plan.md) | Funcional | Tests Circuitos LST-05 (31/10); CU-E-21 a E-23; CU-A-24 a A-27 (nuevos); `routine.service.ts` `createCircuit`, `editCircuit` y `buildCircuitsQuery` | — (la T58 del web depende de ésta) | 6 h | **Sí** | P2 |
 | BE-45 | 4 | [Las rutinas quitadas del plan: `include_inactive` en el detalle y `active` en cada rutina](2026-11-09-be-45-rutinas-quitadas-del-plan-plan.md) | Bug | Tests Planificaciones QUI-07 (tanda 6, 07/11); CU-E-12c y CU-E-12d; `planification.service.ts` `buildPlanificationDetailResponse` | — (la T60 del web depende de ésta) | 1 h | No | P3 |
+| BE-46 | 4 | [Guardar una rutina con un circuito nuevo y un circuito con un ejercicio nuevo: `update()` de la cabecera en vez de `save()`](2026-11-09-be-46-guardar-circuitos-y-ejercicios-nuevos-plan.md) | Bug | Tests Rutinas EDT-01, CIR-05, CIR-08 (09/11) y Circuitos EDT-02; CU-E-17 y CU-E-23; `routine.service.ts` `editRoutine` y `editCircuit` | — | 1 h | No | P1 |
 
 **Por fase:**
 
@@ -188,9 +189,9 @@ Prioridad (orden por defecto): **P1** bloquea al web o a la app iOS · **P2** CU
 | 1 | 11 |
 | 2 | 24 |
 | 3 | 23 |
-| 4 | 37,5 |
+| 4 | 38,5 |
 | 5 | 9,5 |
-| **Total** | **105** |
+| **Total** | **106** |
 
 ## 4. Fases e hitos
 
@@ -200,7 +201,7 @@ Prioridad (orden por defecto): **P1** bloquea al web o a la app iOS · **P2** CU
 | **2** | Bloque A: rutina puntual y ejecución | 24 | 20 al 27/10 | **H2:** flujo puntual de punta a punta, demostrable: asignar → ver → marcar → nota → historial |
 | ⏱ | **Fecha fija:** regenerar la base (BE-23) | 2 | ≈ 1/11 | Esquema del bloque A aplicado. Lo que cambie después entra por patch y por re-aplicar el `03`, que es idempotente |
 | **3** | Bloque B: asignar planificaciones | 21 | 28/10 al 5/11 | **H3:** los 74 CU con código |
-| **4** | Brechas de CU y deuda | 37,5 | 3 al 12/11, en paralelo con el final de la fase 3 | **H4:** ningún 🟡 y el Swagger completo, candidato a "terminado" |
+| **4** | Brechas de CU y deuda | 38,5 | 3 al 12/11, en paralelo con el final de la fase 3 | **H4:** ningún 🟡 y el Swagger completo, candidato a "terminado" |
 | **5** | Verificación y cierre | 9,5 | 12 al 17/11 | **H5:** criterios de §2 cumplidos y código congelado. Del 18 al 20/11 sólo arreglos; **entrega el 20/11** |
 
 ### Por qué este orden
@@ -509,6 +510,17 @@ BE-09 → BE-10 → BE-11 → BE-13 → BE-14 → BE-17 → BE-18 → BE-21 → 
 - **Riesgo:** **cambia la forma de las respuestas**: la web vieja falla con los circuitos desde el deploy hasta la T58, así que esa ventana tiene que ser corta. El patch y el deploy van uno detrás del otro (sección 6 del plan).
 - **Sale de §8** «`Circuit.type` como conjunto cerrado»: se cierra con esta tarea.
 - **Inventario (§9):** el corte es del 16/10, anterior. **CU-A-24 a CU-A-27 no figuran** y quedan ⬜ hasta esta tarea (cuatro CU más). E-21 a E-23 siguen ✅ con la spec de entonces.
+
+#### BE-46 · Guardar una rutina con un circuito nuevo y un circuito con un ejercicio nuevo
+- **Qué** (hallazgos EDT-01, CIR-03, CIR-05, CIR-06 y CIR-08 de Pruebas de rutinas, tanda 5, y EDT-02 de Pruebas de circuitos, del 09/11; [plan](2026-11-09-be-46-guardar-circuitos-y-ejercicios-nuevos-plan.md)). El contrato no cambia (`POST /routine/edit/:id` → 200 `RoutineDetailResponseDto` y `POST /routine/circuit/edit/:id` → 200 `CircuitDetailResponseDto`; los 400 y 404, con los mismos textos); en resumen:
+  - **La causa:** `editRoutine` carga la rutina con `relations: ['routineCircuits']`, inserta los vínculos nuevos aparte y al final hace `manager.save(Routine, routine)`. En TypeORM 0.3.27, `save()` compara esa lista con la base; como `orphanedRowAction` es `'nullify'` por defecto, el vínculo nuevo queda como huérfano y sale `UPDATE "Routine_Circuit" SET "routine_id" = NULL` → 23502 (NOT NULL) → rollback → 500 «Error al editar la rutina.». `editCircuit` tiene el mismo patrón con `routineExercises` y `Routine_Exercise.circuit_id`, y responde 500 «Error al editar el circuito.».
+  - En `editRoutine`, la cabecera se escribe con `queryRunner.manager.update(Routine, routine.id, { name, coach_note: … ?? null, updated_at: new Date() })` en vez de `save(Routine, routine)`.
+  - En `editCircuit`, lo mismo con `update(Circuit, circuit.id, { name, description: … ?? null, updated_at, … })`, y `circuit_type_id` **solo si cambió**.
+  - Un comentario en cada método explica por qué no va `save()`.
+- **Acepta:** el build no alcanza, porque es un error de runtime. **Contra la base local**, primero en rojo y después en verde: una rutina con un circuito sin `id` → 200 y el vínculo queda; repetir un circuito → 200; un circuito con un ejercicio nuevo → 200; y renombrar, reordenar, quitar y los 400 de lo dado de baja, sin cambios. EDT-01, CIR-03, CIR-05, CIR-06 y CIR-08 (el guardado) de Rutinas y EDT-02 de Circuitos pasan.
+- **No hace:** no cambia el esquema, los DTO ni el Swagger. **Descartado:** `orphanedRowAction: 'disable'` en los `ManyToOne`, porque cambia el comportamiento de cualquier `save()` de esas entidades. Del web no hay nada: el body ya cumple el contrato.
+- **Riesgo:** bajo. El `update()` escribe lo mismo que el `save()` de la cabecera; hay que cuidar que `updated_at` siga moviéndose en cada edición (una edición que solo cambia los vínculos o las series tiene que cambiar la fecha).
+- **Inventario (§9):** no cambia. E-17 y E-23 ya figuran con el runtime *sin verificar* (BE-35): esta tarea es justo eso.
 
 ### Fase 5 — Verificación y cierre
 
