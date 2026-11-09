@@ -38,8 +38,8 @@ Crea una rutina ensamblando circuitos existentes (p. ej. entrada en calor + pier
 ## Camino principal (flujo básico)
 
 1. El entrenador inicia la creación de una rutina e ingresa sus datos.
-2. El sistema lista los circuitos disponibles (<<include>> Obtener Circuitos).
-3. El entrenador selecciona y ordena los circuitos.
+2. El sistema lista los circuitos activos disponibles (<<include>> Obtener Circuitos), cada uno con su tipo y sus ejercicios. Permite buscarlos por nombre (sin distinguir mayúsculas ni tildes) y filtrarlos por tipo con chips: uno por cada tipo de los circuitos activos, por orden alfabético, y otro para verlos todos. La búsqueda y el chip se combinan.
+3. El entrenador elige uno o varios circuitos a la vez, que se suman al final de la rutina en el orden en que los eligió (un circuito puede ir más de una vez), y los ordena. El sistema muestra cada circuito de la rutina con su tipo y sus ejercicios y, a pedido, las series de cada ejercicio.
 4. El sistema persiste la Routine y los Routine_Circuit, y confirma.
 
 ## Caminos alternativos / excepciones

@@ -251,6 +251,8 @@ tr:last-child td{border-bottom:0}
           <li><b>Seguí el orden de la página.</b> QA Rutina A se crea en CRE-01 y la usan los casos siguientes.</li>
           <li><b>DevTools › Network</b>, filtrado por <code>routine</code>, para ver qué requests salen, con qué body y qué código responden.</li>
           <li><b>Dos pestañas</b> para EDT-05, EDT-06, ASG-07, QUI-04 y QUI-05: en una dejás la pantalla abierta y en la otra cambiás algo.</li>
+          <li><b>Agregar circuitos depende del ancho.</b> En el celular o la tablet (o en DevTools a menos de 960 px), «Agregar existente» abre la pantalla «Agregar circuitos». En escritorio (960 px o más) ese botón no está: los circuitos se suman desde la «Biblioteca de circuitos», a la derecha del editor (CIR-13).</li>
+          <li><b>Aviso amarillo «Hoy no cumple el CU.»</b> en CRE-01, CIR-01, CIR-02, CIR-08 a CIR-13, COA-02, ERR-03 y ERR-04: lo arregla la T59 de la web (o el siguiente número libre), que suma el tipo y «Ver series» a cada circuito de la rutina y cambia el modal de agregar por la pantalla y la biblioteca. Hasta que esté en Render, marcalos Falla.</li>
         </ul>
       </div>
       <div>
@@ -313,7 +315,7 @@ tr:last-child td{border-bottom:0}
   const GROUPS = [
     { id: 'lst', name: 'Llegar a Rutinas', cu: 'CU-E-15', file: 'entrenador/CU-E-15-obtener-rutinas-sistemicas.md' },
     { id: 'cre', name: 'Crear', cu: 'CU-E-16', file: 'entrenador/CU-E-16-crear-rutina-sistemica.md' },
-    { id: 'cir', name: 'Circuitos de la rutina', cu: 'CU-E-16 y CU-E-17', file: 'entrenador/CU-E-17-editar-rutina-sistemica.md', sub: 'Agregar, repetir, ordenar, y editar o duplicar desde la rutina' },
+    { id: 'cir', name: 'Circuitos de la rutina', cu: 'CU-E-16 y CU-E-17', file: 'entrenador/CU-E-17-editar-rutina-sistemica.md', sub: 'Ver sus series, agregar varios, repetir, ordenar, y editar o duplicar desde la rutina' },
     { id: 'edt', name: 'Editar', cu: 'CU-E-17', file: 'entrenador/CU-E-17-editar-rutina-sistemica.md' },
     { id: 'baj', name: 'Eliminar y reactivar', cu: 'CU-E-18', file: 'entrenador/CU-E-18-eliminar-rutina-sistemica.md' },
     { id: 'fil', name: 'Tarjetas y búsqueda', cu: 'CU-E-15', file: 'entrenador/CU-E-15-obtener-rutinas-sistemicas.md' },
@@ -323,6 +325,9 @@ tr:last-child td{border-bottom:0}
     { id: 'err', name: 'Errores y pantallas', cu: null, sub: 'Servidor caído, celular, escritorio y teclado' },
     { id: 'fin', name: 'Limpieza', cu: null, sub: 'Dejar las rutinas y el circuito de prueba fuera de uso' },
   ];
+
+  // Aviso de los casos que arregla la T59 de la web (los circuitos en la rutina, hallazgos del 09/11).
+  const T59 = 'Lo arregla la T59 de la web (o el siguiente número libre); hasta que esté en Render, marcalo Falla.';
 
   const CASES = [
     // ── Llegar a Rutinas ────────────────────────────────────
@@ -338,8 +343,9 @@ tr:last-child td{border-bottom:0}
     // ── Crear ───────────────────────────────────────────────
     { id: 'CRE-01', g: 'cre', t: 'Crear una rutina', env: ['TODOS'],
       data: `Nombre ${tok('QA Rutina A')} · nota ${tok('Calentar 10 minutos antes')} · dos circuitos activos del seed`,
-      steps: [`Tocá ${ui('Crear rutina')}.`, 'Completá nombre y nota.', `Tocá ${ui('Agregar existente')}, buscá un circuito y elegilo; repetí con otro.`, `Tocá ${ui('Guardar rutina')} y mirá el body en Network.`],
-      exp: `<ul><li>Abre <code>/a/rutinas/nuevo</code> con ${ui('Nueva')} arriba y el título ${ui('Rutina')}: ${ui('Nombre de la rutina')}, ${ui('Nota del coach')} (${ui('Opcional. La ve quien hace la rutina.')}) y ${ui('Circuitos')} con ${ui('La rutina todavía no tiene circuitos. Agregá uno existente o creá uno nuevo.')}</li><li>${ui('Agregar circuito')} tiene buscador y muestra cada circuito con ${ui('Tipo · N ejercicios')}; solo ofrece los activos.</li><li>Al guardar: ${ui('Rutina creada')} y vuelve a la lista. <code>POST /routine/create</code> responde 201 con los dos circuitos y su <code>order</code> 1 y 2. (CU-E-16)</li></ul>` },
+      steps: [`Tocá ${ui('Crear rutina')}.`, 'Completá nombre y nota.', `Tocá ${ui('Agregar existente')}, tocá dos circuitos y tocá ${ui('Agregar 2 circuitos')}. En escritorio, tocá ${ui('Agregar')} en dos circuitos de la ${ui('Biblioteca de circuitos')}.`, `Tocá ${ui('Guardar rutina')} y mirá el body en Network.`],
+      exp: `<ul><li>Abre <code>/a/rutinas/nuevo</code> con ${ui('Nueva')} arriba y el título ${ui('Rutina')}: ${ui('Nombre de la rutina')}, ${ui('Nota del coach')} (${ui('Opcional. La ve quien hace la rutina.')}) y ${ui('Circuitos')} con ${ui('La rutina todavía no tiene circuitos. Agregá uno existente o creá uno nuevo.')}</li><li>${ui('Agregar existente')} abre la pantalla ${ui('Agregar circuitos')}, que muestra cada circuito con ${ui('Tipo · N ejercicios')} y solo ofrece los activos (el detalle se prueba en CIR-08 a CIR-13). Los dos quedan en la rutina en el orden en que los tocaste.</li><li>Al guardar: ${ui('Rutina creada')} y vuelve a la lista. <code>POST /routine/create</code> responde 201 con los dos circuitos y su <code>order</code> 1 y 2. (CU-E-16)</li></ul>`,
+      kt: 'Hoy no cumple el CU.', known: T59 },
     { id: 'CRE-02', g: 'cre', t: 'Validaciones', env: ['TODOS'],
       steps: ['En una rutina nueva, tocá Guardar rutina con todo vacío.', 'Escribí solo espacios en el nombre y guardá.', 'Pegá un texto largo en el nombre y en la nota.'],
       exp: `<p>${ui('Poné un nombre a la rutina')} y ${ui('Agregá al menos un circuito')}, también con solo espacios (CU-E-16, caminos alternativos). El nombre se corta en 50 caracteres y la nota en 100. No sale ningún request.</p>` },
@@ -353,11 +359,14 @@ tr:last-child td{border-bottom:0}
 
     // ── Circuitos de la rutina ──────────────────────────────
     { id: 'CIR-01', g: 'cir', t: 'La tarjeta de cada circuito', env: ['TODOS'],
-      steps: ['Abrí QA Rutina A y recorré sus circuitos.'],
-      exp: `<p>Cada tarjeta muestra el nombre, ${ui('N ejercicios')} y, si otra rutina vigente lo usa, ${ui('se usa en N rutinas')}. Debajo van los ejercicios con ${ui('N series')} y su tipo (${ui('Normal')}, ${ui('AMRAP')} o ${ui('RM')}). Los botones se anuncian como ${ui('Subir …')}, ${ui('Bajar …')}, ${ui('Editar …')} y ${ui('Quitar … de la rutina')}.</p>` },
+      steps: ['Abrí QA Rutina A y recorré sus circuitos.', `En uno, prendé ${ui('Ver series')}.`, 'En Network, mirá la respuesta de <code>GET /routine/{id}</code> y comparala con lo que muestra esa tarjeta.', 'Recargá la página.'],
+      exp: `<ul><li>Cada tarjeta muestra el nombre y, debajo, ${ui('Tipo · N ejercicios')} con el tipo tal como lo escribió el admin (por ejemplo ${ui('Principal · 3 ejercicios')}) y, si otra rutina vigente lo usa, ${ui('· se usa en N rutinas')}. Los botones se anuncian como ${ui('Subir …')}, ${ui('Bajar …')}, ${ui('Editar …')} y ${ui('Quitar … de la rutina')}.</li><li>Al pie del encabezado, la fila ${ui('Ver series')} con un interruptor, apagado en todas las tarjetas. Apagado, cada ejercicio muestra ${ui('N series')} y su tipo (${ui('Normal')}, ${ui('AMRAP')}, ${ui('RM')} o ${ui('AMRAP + RM')}).</li><li>Prendido, solo en esa tarjeta: cada ejercicio con su nombre y su tipo y, debajo, una línea por bloque con el resumen del editor de circuitos (por ejemplo ${ui('3×8 · 80 kg · RPE 8')}, ${ui('1×5 · 70% RM')} o ${ui('1×AMRAP · 60 s')}), que coincide con los <code>sets</code> de la respuesta. Si el ejercicio tiene nota del coach, va abajo, entre comillas.</li><li>Al recargar, todos los interruptores vuelven a estar apagados. (CU-E-16, paso 3, y CU-E-17, paso 1)</li></ul>`,
+      kt: 'Hoy no cumple el CU.', known: T59 },
     { id: 'CIR-02', g: 'cir', t: 'Repetir un circuito', env: ['TODOS'],
-      steps: ['En QA Rutina A, abrí Agregar existente.', 'Mirá los circuitos que ya están en la rutina y elegí uno de ellos.', 'Abrí Agregar existente otra vez.'],
-      exp: `<p>Los que ya están se marcan ${ui('En la rutina')} y siguen elegibles: un circuito se puede repetir. Después de agregarlo, ese circuito dice ${ui('En la rutina ×2')} y la rutina tiene dos tarjetas iguales.</p>` },
+      data: 'Celular o DevTools a 390 px.',
+      steps: [`En QA Rutina A, tocá ${ui('Agregar existente')}.`, 'Mirá los circuitos que ya están en la rutina.', `Tocá uno de ellos y otro que no esté, y tocá ${ui('Agregar 2 circuitos')}.`, 'Abrí Agregar existente otra vez y tocá Cancelar.'],
+      exp: `<p>Los que ya están dicen ${ui('En la rutina')} y se pueden elegir igual: un circuito se puede repetir. Al agregar, la rutina tiene una segunda tarjeta igual al final, seguida del otro. En la pantalla, el repetido ahora dice ${ui('En la rutina ×2')}. (CU-E-17, paso 3)</p>`,
+      kt: 'Hoy no cumple el CU.', known: T59 },
     { id: 'CIR-03', g: 'cir', t: 'Ordenar y quitar', env: ['TODOS'],
       steps: ['Usá Subir y Bajar para dejar el circuito repetido primero.', 'Quitá una de las dos copias.', 'Guardá y abrí la rutina de nuevo.'],
       exp: '<p>Subir está apagado en el primero y Bajar en el último. El orden guardado es el que dejaste y la copia quitada no vuelve. (CU-E-16, paso 3)</p>' },
@@ -374,6 +383,36 @@ tr:last-child td{border-bottom:0}
     { id: 'CIR-07', g: 'cir', t: 'Atrás del navegador', env: ['TODOS'],
       steps: ['En QA Rutina A, cambiá el nombre sin guardar y abrí un circuito con Editar.', 'Tocá Atrás del navegador.', 'Recargá la página.'],
       exp: '<p>Con Atrás vuelve a la rutina con el nombre cambiado. Al recargar, el borrador se pierde y aparece lo guardado.</p>' },
+    { id: 'CIR-08', g: 'cir', t: 'Agregar circuitos: varios a la vez y en orden', env: ['TODOS'],
+      data: 'QA Rutina A. Celular o DevTools a 390 px.',
+      steps: [`En QA Rutina A, cambiá la nota sin guardar y tocá ${ui('Agregar existente')}.`, 'Mirá la dirección, el encabezado y las tarjetas.', 'Tocá tres circuitos distintos y anotá en qué orden.', `Tocá ${ui('Agregar 3 circuitos')}.`, 'Guardá la rutina y mirá el body en Network.'],
+      exp: `<ul><li>Abre <code>/a/rutinas/{id}/agregar-circuitos</code> en pantalla completa, no en un modal. Arriba, ${ui('QA Rutina A')} para volver y como sobretítulo, el título ${ui('Agregar circuitos')} y ${ui('Elegí los que quieras. Se suman al final de la rutina en el orden en que los tocaste.')}</li><li>Debajo, ${ui('Buscar circuito')} y los chips de tipo. Solo hay circuitos activos; cada tarjeta muestra el nombre, ${ui('Tipo · N ejercicios')}, los nombres de sus ejercicios y, si ya está en la rutina, ${ui('En la rutina')} o ${ui('En la rutina ×N')}.</li><li>Abajo, fijos, ${ui('Cancelar')} y el botón ${ui('Elegí uno o más')}, apagado. Cada circuito que tocás se marca con su número (1, 2, 3) y el botón pasa a ${ui('Agregar 1 circuito')}, ${ui('Agregar 2 circuitos')}…</li><li>Al agregar vuelve a QA Rutina A con la nota cambiada y los tres al final, en el orden en que los tocaste, sin guardar: no sale ningún POST hasta Guardar rutina. En <code>POST /routine/edit/{id}</code> los tres van sin <code>id</code> y con <code>order</code> según ese lugar. (CU-E-17, pasos 2 y 3)</li></ul>`,
+      kt: 'Hoy no cumple el CU.', known: T59 },
+    { id: 'CIR-09', g: 'cir', t: 'Desmarcar', env: ['TODOS'],
+      data: 'Celular o DevTools a 390 px.',
+      steps: ['En QA Rutina A, abrí Agregar existente y tocá tres circuitos.', 'Tocá otra vez el segundo.', 'Tocá otra vez los otros dos.', 'Tocá Cancelar.'],
+      exp: `<p>Al desmarcar el segundo, el que era 3 pasa a ser 2 y el botón dice ${ui('Agregar 2 circuitos')}. Sin ninguno marcado vuelve a ${ui('Elegí uno o más')}, apagado. Cancelar vuelve a la rutina sin cambios.</p>`,
+      kt: 'Hoy no cumple el CU.', known: T59 },
+    { id: 'CIR-10', g: 'cir', t: 'Buscar y filtrar por tipo al agregar', env: ['TODOS'],
+      data: 'Celular o DevTools a 390 px.',
+      steps: ['En QA Rutina A, abrí Agregar existente y mirá la fila de chips.', 'Buscá parte del nombre de un circuito sin tildes y en mayúsculas.', `Con ${ui('Todos')} elegido, buscá ${tok('superserie')}.`, 'Tocá el chip Principal y buscá parte del nombre de uno de sus circuitos.', `Marcá un circuito, buscá ${tok('zzz')} y después borrá la búsqueda.`, 'Tocá Cancelar.'],
+      exp: `<ul><li>La fila tiene ${ui('Todos')}, elegido de entrada, y un chip por cada tipo de los circuitos activos, por orden alfabético.</li><li>El buscador mira solo el nombre, sin tildes ni mayúsculas, como el listado de Circuitos: superserie solo encuentra circuitos con esa palabra en el nombre, no los de tipo Superserie. Para ver los de un tipo están los chips.</li><li>El chip y el buscador se combinan: con Principal quedan solo los de ese tipo cuyo nombre coincide.</li><li>Con zzz: ${ui('Sin coincidencias')} y ${ui('No hay circuitos con ese filtro.')} Lo marcado no se pierde: el botón sigue diciendo ${ui('Agregar 1 circuito')} y, al borrar la búsqueda, el circuito sigue con su número. (CU-E-16, paso 2)</li></ul>`,
+      kt: 'Hoy no cumple el CU.', known: T59 },
+    { id: 'CIR-11', g: 'cir', t: 'Salir de Agregar circuitos sin perder lo escrito', env: ['TODOS'],
+      data: `Nombre provisorio ${tok('QA Rutina A borrador')}. Celular o DevTools a 390 px.`,
+      steps: ['En QA Rutina A, cambiá el nombre a QA Rutina A borrador sin guardar y abrí Agregar existente.', `Marcá dos circuitos y tocá ${ui('Cancelar')}.`, 'Abrila otra vez, marcá dos y volvé con Atrás del navegador.', 'Abrila otra vez, marcá dos y volvé con el enlace de arriba.', `En la rutina, tocá ${ui('Volver')} sin guardar.`, 'Abrí una rutina nueva sin nombre y tocá Agregar existente.'],
+      exp: `<ul><li>Arriba dice ${ui('QA Rutina A borrador')}, para volver y como sobretítulo: es el nombre escrito, aunque no esté guardado.</li><li>Las tres formas vuelven a la rutina con el nombre cambiado y sin circuitos nuevos: lo marcado se descarta. Después de Volver, la rutina sigue llamándose QA Rutina A.</li><li>En la rutina nueva, arriba dice ${ui('Rutina nueva')} y la dirección es <code>/a/rutinas/nuevo/agregar-circuitos</code>.</li></ul>`,
+      kt: 'Hoy no cumple el CU.', known: T59 },
+    { id: 'CIR-12', g: 'cir', t: 'El tope de 50 circuitos', env: ['TODOS'],
+      data: 'Una rutina nueva, sin guardar. Celular o DevTools a 390 px, y después escritorio.',
+      steps: ['En Crear rutina, agregá circuitos de a varios: en Agregar existente, marcá todos los de la lista y tocá Agregar. Repetí hasta que a la rutina le falten para 50 menos circuitos de los que hay en la lista (por ejemplo, con 8 en la lista, hasta tener 43 o más). Anotá cuántos tiene.', 'Abrí Agregar existente y marcá circuitos hasta que no te deje marcar más.', 'Tocá uno sin marcar.', 'Tocá el botón para agregarlos y mirá los botones de abajo de los circuitos.', 'Pasá a escritorio (960 px o más) y mirá la Biblioteca de circuitos.', 'Tocá Volver sin guardar.'],
+      exp: `<ul><li>Se pueden marcar tantos como lugares libres quedan hasta 50 (con 46, cuatro). Al llegar aparece ${ui('Con estos, la rutina llega al máximo de 50 circuitos. Para elegir otro, desmarcá alguno.')} y los que no están marcados se ven apagados: tocarlos no hace nada. Los marcados se pueden desmarcar.</li><li>Al agregarlos, la rutina tiene 50: ${ui('Agregar existente')} y ${ui('Nuevo circuito')} quedan apagados, con ${ui('Llegaste al máximo de 50 circuitos por rutina.')}</li><li>En escritorio, los ${ui('Agregar')} de la biblioteca quedan apagados y el panel dice lo mismo.</li><li>Es el mismo tope del backend: una rutina no puede tener más de 50 circuitos.</li></ul>`,
+      kt: 'Hoy no cumple el CU.', known: T59 },
+    { id: 'CIR-13', g: 'cir', t: 'La biblioteca en escritorio', env: ['TODOS'],
+      data: 'QA Rutina A. Escritorio (960 px o más).',
+      steps: ['Abrí QA Rutina A y mirá la columna de la derecha y los botones de abajo de los circuitos.', 'Buscá un circuito y usá los chips de tipo.', `Tocá ${ui('Agregar')} en un circuito que ya está en la rutina y en otro que no.`, 'Bajá hasta el final de la rutina.', 'Achicá la ventana por debajo de 960 px y volvé a agrandarla.', 'Tocá Volver sin guardar y abrí QA Rutina A otra vez.'],
+      exp: `<ul><li>El editor va en dos columnas: a la izquierda el formulario y los circuitos, y a la derecha ${ui('Biblioteca de circuitos')} con ${ui('Sumá circuitos al final de la rutina. Uno puede ir más de una vez.')} y el mismo buscador y los mismos chips que Agregar circuitos (CIR-10).</li><li>Cada circuito tiene su nombre, ${ui('Tipo · N ejercicios')}, ${ui('En la rutina')} o ${ui('En la rutina ×N')} si ya está, y el botón ${ui('Agregar')}, que se anuncia como ${ui('Agregar …')} con el nombre del circuito. No está ${ui('Agregar existente')}; ${ui('Nuevo circuito')}, sí.</li><li>Cada Agregar suma el circuito al final al instante, sin salir y sin guardar: la tarjeta aparece abajo y su marca suma uno (el repetido pasa a ${ui('En la rutina ×2')}). No sale ningún POST hasta Guardar rutina.</li><li>El panel queda fijo al bajar. Por debajo de 960 px desaparece y vuelve Agregar existente, con lo agregado intacto.</li><li>Al salir sin guardar y volver a abrirla, la rutina está como antes. (CU-E-17, pasos 2 y 3)</li></ul>`,
+      kt: 'Hoy no cumple el CU.', known: T59 },
 
     // ── Editar ──────────────────────────────────────────────
     { id: 'EDT-01', g: 'edt', t: 'Editar una rutina', env: ['TODOS'],
@@ -432,8 +471,9 @@ tr:last-child td{border-bottom:0}
       steps: ['Como entrenador, abrí la tab Rutinas, segmento Rutinas.', 'Abrí QA Rutina A1.', 'Abrí una rutina nueva con Crear rutina y volvé.'],
       exp: `<p>Es el mismo listado en <code>/c/rutinas</code>, con los segmentos ${ui('Rutinas')} y ${ui('Circuitos')}, y el mismo editor en <code>/c/rutinas/{id}</code>. En una rutina vigente, abajo están ${ui('Asignar a alumno')} y ${ui('Eliminar')} lado a lado. En una nueva o en una inactiva no aparece Asignar a alumno.</p>` },
     { id: 'COA-02', g: 'coa', t: 'Circuitos desde la rutina del entrenador', env: ['TODOS'],
-      steps: ['En QA Rutina A1, editá un circuito QA y guardalo.'],
-      exp: '<p>Va a <code>/c/circuitos/{id}</code> y vuelve a <code>/c/rutinas/{id}</code>. La tab Rutinas queda marcada todo el tiempo.</p>' },
+      steps: ['En QA Rutina A1, editá un circuito QA y guardalo.', 'En el celular o en DevTools a 390 px, tocá Agregar existente y después Cancelar.'],
+      exp: '<p>Va a <code>/c/circuitos/{id}</code> y vuelve a <code>/c/rutinas/{id}</code>. Agregar existente abre <code>/c/rutinas/{id}/agregar-circuitos</code>, la misma pantalla que la del admin, y Cancelar vuelve a <code>/c/rutinas/{id}</code>. La tab Rutinas queda marcada todo el tiempo.</p>',
+      kt: 'Hoy no cumple el CU.', known: T59 },
     { id: 'COA-03', g: 'coa', t: 'Ir a asignar no pierde lo escrito', env: ['TODOS'],
       steps: ['En QA Rutina A1, cambiá el nombre sin guardar.', `Tocá ${ui('Asignar a alumno')} y después ${ui('Volver')}.`],
       exp: '<p>Vuelve al editor con el nombre cambiado: lo escrito se guardó en memoria antes de salir.</p>' },
@@ -501,11 +541,13 @@ tr:last-child td{border-bottom:0}
       steps: ['Cambiá algo en QA Rutina A1.', 'Apagá el backend y guardá.', 'Prendelo y guardá otra vez.'],
       exp: '<p>Aviso rojo arriba del formulario y lo escrito se conserva. Con el backend prendido se guarda.</p>' },
     { id: 'ERR-03', g: 'err', t: 'Celular y escritorio', env: ['TODOS'],
-      steps: ['Recorré el listado, el editor con varios circuitos y el selector en el celular, o en DevTools a 390 px.', 'Repetí en escritorio.'],
-      exp: '<ul><li>Sin scroll horizontal ni textos cortados; los botones de cada tarjeta de circuito entran en una fila.</li><li>El selector sale como hoja desde abajo en el celular y centrado en escritorio.</li><li>En escritorio, las rutinas van en dos columnas.</li></ul>' },
+      steps: ['En el celular, o en DevTools a 390 px, recorré el listado, el editor con varios circuitos (con Ver series prendido en uno de nombres largos) y Agregar circuitos hasta el final de la lista.', 'Repetí a 768 px (tablet).', 'Repetí en escritorio.'],
+      exp: `<ul><li>Sin scroll horizontal ni textos cortados; los botones de cada tarjeta de circuito entran en una fila, y las líneas de las series se acomodan en renglones sin salirse de la tarjeta.</li><li>En el celular y en la tablet, Agregar circuitos ocupa la pantalla entera; la barra con ${ui('Cancelar')} y ${ui('Agregar …')} queda fija abajo, encima de la tab bar, y no tapa la última tarjeta.</li><li>En escritorio, el editor va en dos columnas con la Biblioteca de circuitos fija a la derecha, y las rutinas del listado van en dos columnas.</li></ul>`,
+      kt: 'Hoy no cumple el CU.', known: T59 },
     { id: 'ERR-04', g: 'err', t: 'Teclado y lector de pantalla', env: ['TODOS'],
-      steps: ['Recorré el editor solo con Tab y Enter, incluidos Subir, Bajar y el selector.'],
-      exp: '<p>El foco siempre se ve, los botones de cada circuito se anuncian con su nombre y los errores aparecen junto a su campo.</p>' },
+      steps: ['Recorré el editor solo con Tab, Enter y Espacio, incluidos Subir, Bajar y Ver series.', 'En el celular o a 390 px, recorré Agregar circuitos igual: marcá y desmarcá con Enter.', 'En escritorio, agregá un circuito desde la biblioteca con Enter.', 'Si podés, repetí con un lector de pantalla (NVDA o VoiceOver).'],
+      exp: `<ul><li>El foco siempre se ve, los botones de cada circuito se anuncian con su nombre y los errores aparecen junto a su campo.</li><li>${ui('Ver series')} es un interruptor: se anuncia como ${ui('Ver series de …')} con el nombre del circuito y su estado, y se prende y apaga con Enter o Espacio.</li><li>En Agregar circuitos, cada tarjeta es un botón que se anuncia presionado o no y, marcada, con su número.</li><li>En la biblioteca, ${ui('Agregar …')} deja el foco en el mismo botón y el lector anuncia ${ui('… agregado al final de la rutina')}.</li></ul>`,
+      kt: 'Hoy no cumple el CU.', known: T59 },
 
     // ── Limpieza ────────────────────────────────────────────
     { id: 'FIN-01', g: 'fin', t: 'Dejar las rutinas de prueba fuera de uso', env: ['TODOS'],

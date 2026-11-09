@@ -37,9 +37,9 @@ Edita una rutina pasando la lista completa de circuitos, que reconcilia el conju
 
 ## Camino principal (flujo básico)
 
-1. El entrenador abre una rutina con sus circuitos actuales.
-2. El sistema lista los circuitos disponibles (<<include>> Obtener Circuitos).
-3. El entrenador define la nueva lista completa de circuitos y su orden.
+1. El entrenador abre una rutina con sus circuitos actuales. El sistema muestra cada circuito con su tipo y sus ejercicios y, a pedido, las series de cada ejercicio.
+2. El sistema lista los circuitos activos disponibles (<<include>> Obtener Circuitos), cada uno con su tipo y sus ejercicios. Permite buscarlos por nombre (sin distinguir mayúsculas ni tildes) y filtrarlos por tipo con chips: uno por cada tipo de los circuitos activos, por orden alfabético, y otro para verlos todos. La búsqueda y el chip se combinan.
+3. El entrenador define la nueva lista completa de circuitos y su orden: puede elegir varios a la vez, que se suman al final en el orden en que los eligió, y volver a elegir uno que ya está.
 4. El sistema reconcilia: mantiene los repetidos, crea los nuevos vínculos y elimina los ausentes.
 5. El sistema persiste y confirma.
 
