@@ -138,6 +138,7 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 4](Planificaciones/4-pruebas-planificaciones.resultados.json)
   - [Tanda 5](Planificaciones/5-pruebas-planificaciones.resultados.json)
   - [Tanda 6](Planificaciones/6-pruebas-planificaciones.resultados.json)
+  - [Tanda 7](Planificaciones/7-pruebas-planificaciones.resultados.json)
 - [Pruebas de rutinas](Rutinas/Pruebas%20de%20rutinas.html) — Rutinas desde el Admin y el Entrenador: listado y búsqueda, alta y edición con sus circuitos en orden, baja y reactivación, y las rutinas puntuales de un alumno: asignarlas para un día y quitarlas (CU-E-15 a CU-E-20).
   - [Tanda 1](Rutinas/1-pruebas-rutinas.resultados.json)
   - [Tanda 2](Rutinas/2-pruebas-rutinas.resultados.json)
