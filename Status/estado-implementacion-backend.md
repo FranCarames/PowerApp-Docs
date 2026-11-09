@@ -1,34 +1,109 @@
 # PowerApp Backend — Estado de implementación vs. Casos de Uso
 
-> **Corte:** 2026-10-31 · **Fuente:** `Use Cases/` del repo PowerApp-Docs (fuente de verdad de los CU) comparado contra `power-app/src`
-> **Método:** mapeo 1:1 de los 77 CU contra los `controller` y `service` del código, con el criterio del inventario del [roadmap del 16/10](https://github.com/FranCarames/PowerApp-Docs/blob/main/Doc/plans/2026-10-16-roadmap-backend.md) (§9): un CU es ✅ sólo si **todos los caminos de su spec** se cumplen.
+> **Corte:** 2026-11-09 · **Fuente:** `Use Cases/` del repo PowerApp-Docs (fuente de verdad de los CU) comparado contra `power-app/src`
+> **Método:** mapeo 1:1 de los 82 CU contra los `controller` y `service` del código, con el criterio del inventario del [roadmap del 16/10](https://github.com/FranCarames/PowerApp-Docs/blob/main/Doc/plans/2026-10-16-roadmap-backend.md) (§9): un CU es ✅ sólo si **todos los caminos de su spec** se cumplen.
 
 ## Resumen
 
 | Estado | CU | % | Significado |
 |---|---:|---:|---|
-| ✅ Implementado | 75 | 97% | El endpoint existe, ejecuta lógica real y cumple todos los caminos de su spec |
+| ✅ Implementado | 80 | 98% | El endpoint existe, ejecuta lógica real y cumple todos los caminos de su spec |
 | 🟡 Parcial | 1 | 1% | Un camino de la spec no se cumple, o la lógica existe sin la ruta o el rol que pide el CU |
 | 🔵 Andamiaje | 0 | 0% | Ruta declarada sin lógica: con `@Res()`, **no responde** (cuelga) |
 | ⬜ No implementado | 0 | 0% | Sin endpoint |
 | — Sin backend | 1 | 1% | Por su spec es del cliente (CU-U-14) |
-| **Total** | **77** | | |
+| **Total** | **82** | | |
 
-**75 de los 76 CU con backend están completos (99%).** Falta 1, parcial (CU-U-04, BE-29): ya no queda ninguno sin endpoint ni en andamiaje. Uno de los ✅ tiene un defecto abierto (⚠): CU-A-04.
+**80 de los 81 CU con backend están completos (99%).** Falta 1, parcial (CU-U-04, BE-29): ya no queda ninguno sin endpoint ni en andamiaje. Uno de los ✅ tiene un defecto abierto (⚠): CU-A-04.
 > **Nota (17/10):** los ✅ bajan de 63 (corte del 4/9) a 57 porque **cambió el criterio, no porque se rompiera algo**. El de antes daba ✅ a todo endpoint con lógica real; el del roadmap exige además que se cumpla cada camino de la spec. Por eso pasaron a 🟡 CU-U-04 (no envía el mail), CU-A-10 y CU-A-15 (borran en cascada en vez de impedirlo), CU-A-13 y CU-A-14 (no validan el nombre único) y CU-A-17 (falta "ya es entrenador"). Ver los cambios del 17/10.
-> **Base de datos:** la de Render se recreó el 3/10 con el esquema vigente (dato del Status web). Es free tier y **vence alrededor del 2/11** (*sin verificar*), así que hay que regenerarla antes (BE-23). **Desde el 17/10 el esquema del bloque A ya está en `Db Creator`** (BE-10): al regenerar con `01` → `02` → `03` no hace falta el patch `patches/2026-10-17-be-10.sql`, que es para una base viva. **Desde el 23/10 el `03` también trae la cadena de entrenamiento** (BE-21: circuitos, rutinas, planificaciones, asignaciones y ejecuciones, con un escenario por alumno): sobre la base actual alcanza con volver a aplicar el `03`, que es idempotente.
+> **Base de datos:** la de Render se recreó el 3/10 con el esquema vigente (dato del Status web). Es free tier y **vence alrededor del 2/11** (*sin verificar*), así que hay que regenerarla antes (BE-23). **Desde el 17/10 el esquema del bloque A ya está en `Db Creator`** (BE-10): al regenerar con `01` → `02` → `03` no hace falta el patch `patches/2026-10-17-be-10.sql`, que es para una base viva. **Desde el 23/10 el `03` también trae la cadena de entrenamiento** (BE-21: circuitos, rutinas, planificaciones, asignaciones y ejecuciones, con un escenario por alumno): sobre la base actual alcanza con volver a aplicar el `03`, que es idempotente. **Desde el 4/11 (BE-44) el esquema cambia otra vez:** una base viva necesita el patch `patches/2026-11-04-be-44.sql` (tipos de circuito) justo antes de desplegar el backend; una regenerada con `01` → `02` → `03` ya lo trae.
 
 ### Cobertura por rol
 
 | Rol | CU | ✅ | 🟡 | 🔵 | ⬜ | Sin backend | % ✅ (sobre los CU con backend) |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | Usuario | 20 | 18 | 1 | 0 | 0 | 1 | 95% |
-| Entrenador | 34 | 34 | 0 | 0 | 0 | 0 | 100% |
-| Admin | 23 | 23 | 0 | 0 | 0 | 0 | 100% |
-| **Total** | **77** | **75** | **1** | **0** | **0** | **1** | **99%** |
+| Entrenador | 35 | 35 | 0 | 0 | 0 | 0 | 100% |
+| Admin | 27 | 27 | 0 | 0 | 0 | 0 | 100% |
+| **Total** | **82** | **80** | **1** | **0** | **0** | **1** | **99%** |
 
 > **Nota (4/9):** `CU-E-12` es un CU **agrupador** y no se cuenta a sí mismo; cuentan sus cuatro operaciones anidadas (`CU-E-12a` a `CU-E-12d`). Por eso el total pasó de 72 a **75** sin que haya funcionalidad nueva respecto del corte anterior.
 > **Nota (31/10):** `CU-E-12` pasa a seis operaciones: `CU-E-12e` (reordenar las rutinas de una semana) y `CU-E-12f` (repetir una semana en otras) se suman al inventario y el total pasa de 75 a **77**. Nacen ✅ con BE-42, así que los ✅ suben de 73 a 75; la única 🟡 sigue siendo CU-U-04.
+> **Nota (4/11):** el total pasa de 77 a **82**, como el índice de `Use Cases/`. Entran **CU-A-24 a CU-A-27** (tipos de circuito, un paquete nuevo del Admin), que nacen ✅ con BE-44, y **CU-E-30** (consultar la wiki de ejercicios desde el Entrenador), que Docs sumó el 4/11 sin tarea de backend: ya lo cubren `GET /exercise/all` y `GET /exercise/:id`, así que también entra ✅. Los ✅ suben de 75 a 80; la única 🟡 sigue siendo CU-U-04.
+
+## Cambios recientes (2026-11-09 · BE-45: las rutinas quitadas del plan)
+
+- **BE-45** (hallazgo QUI-07 de la tanda 6 de *Pruebas de planificaciones*, exportada el 7/11; contrato fijado por Fran el 9/11). Plan: `Doc/plans/2026-11-09-be-45-rutinas-quitadas-del-plan-plan.md` (repo PowerApp-Docs); CU-E-12c y CU-E-12d. **Sin cambios de conteo: sigue en 80 ✅ · 1 🟡 · 0 🔵 de 82 (1 sin backend).** E-12c y E-12d ya figuraban ✅; con su spec actual (la rutina quitada sigue visible en el detalle del plan, aparte de las vigentes, y se reincorpora en cualquier momento) habrían quedado 🟡 hasta esta tarea, y la tarea los deja ✅ de nuevo. **No cambia ninguna entidad, el esquema ni `Db Creator`** (sin diff en `entities/` ni en `Db Creator/`).
+- **El defecto:** `GET /planification/:id` descartaba los vínculos con `active = false` y ningún endpoint listaba las quitadas, así que al salir del editor se perdían: la única salida era agregar la rutina de nuevo, que crea otro vínculo.
+- **Contrato nuevo** (los textos van exactos: el web los compara):
+  - **`GET /planification/:id?include_inactive=`** (E-12c y E-12d): `true` o `false`, por defecto `false`, con la misma transformación que `/all` y `/user/:userId`. Con `true`, `routines` trae también los vínculos dados de baja, **mezclados con los vigentes en una sola lista** y en el orden de siempre (`week`, `order` y `created_at` ascendentes): el cliente separa por `active`. Sin el parámetro, o con `false`, responde como antes: sólo los vigentes.
+  - **Cada elemento de `routines` suma `active`:** el del **vínculo** (`Routine_Asignation.active`), no el de la rutina (ese sigue en `routine.active`). Va **siempre**, en todas las respuestas con la forma del detalle: `GET /planification/:id`, `GET /planification/all-plus`, `POST /planification/create` y `edit/:id`, y `POST /planification/routine/assign`, `assign-bulk`, `repeat-week` y `reorder`. Sólo puede venir `false` en el detalle con `include_inactive=true`; en todo lo demás vale `true`.
+  - **`routine_count` sigue contando sólo las vigentes**, con o sin el parámetro: un plan que sólo tiene quitadas dice `0` aunque `routines` traiga alguna.
+  - **Un valor que no es `true` ni `false` es `400`:** `{ message: ['include_inactive must be a boolean value'], error: 'Bad Request', statusCode: 400 }`, del class-validator (no hay constante propia). Los demás códigos no cambian: `400` del id que no es UUID («El ID debe ser un UUID válido en formato PostgreSQL») y `404` «Planificación no encontrada». Responde también por un plan dado de baja, como hoy.
+  - **Otros parámetros en el query ya no se ignoran** (plan, 3.5.1): `?foo=1` da `400` «property foo should not exist», igual que en `/all` y `/user/:userId` (el `ValidationPipe` global tiene `forbidNonWhitelisted`). La web no manda ninguno.
+  - **No cambian:** `GET /planification/all-plus` (no suma el parámetro: su join sigue filtrando `active = true`, y sus filas traen `active: true`), `routine/set-active` y `set-active-bulk` (devuelven los vínculos, no el plan) y **reincorporar**, que sigue sin mirar `routine.active`: una rutina dada de baja como rutina (E-18) se reincorpora igual, sin bloqueo ni aviso. Agregar una rutina dada de baja sigue siendo `400` (E-12a y E-12b).
+- **Cómo quedó hecho:**
+  - **`dtos/planification/get_planification_detail_query.dto.ts`** (nuevo): `GetPlanificationDetailQueryDto`, con sólo `include_inactive` y el mismo `@IsOptional`, `@Transform` e `@IsBoolean` que `GetPlanificationsQueryDto` y `GetUserPlanificationsQueryDto`.
+  - **Controller:** `getPlanificationById` recibe el query y se lo pasa al service. El Swagger declara el query, la descripción del `200` y el `400` (el id que no es UUID o el flag inválido, con sus dos textos).
+  - **Service:** `getPlanificationById(id, query, res)` pasa el flag al builder. `buildPlanificationDetailResponse(planification, includeInactive = false)` sigue siendo el único lugar que decide qué se ve: `routine_count` cuenta siempre las vigentes; `routines` lleva todos los vínculos con el flag y sólo los vigentes sin él; cada elemento suma `active`. **Sólo el detalle pasa el flag:** create, edit, assign, assign-bulk, repeat-week, reorder y `/all-plus` llaman al builder como antes. `findPlanificationDetail` no cambia (ya carga todos los vínculos, ordenados).
+  - **`planification_detail_response.dto.ts`:** `PlanificationAsignationResponseDto` suma `active` (boolean **requerido**, entre `order` y `routine`, con su descripción) y `PlanificationDetailResponseDto.routines` cambia la suya.
+- **Decisiones mías que el plan no fijaba** (vetables): el `400` del detalle se declara sólo con su descripción, sin `schema`, como lo pedía el plan (su cuerpo es la forma de Nest, no la `{ error }` del service); el `404` y el `500` del detalle siguen sin declararse (son de BE-34, como dice el plan). Una observación, no una decisión: con el id **y** el flag inválidos a la vez, el `400` trae un solo mensaje (el del flag), porque Nest valida `@Query` y `@Param` por separado; el plan no promete combinarlos.
+- **Verificación, sin levantar el server.** Hecho:
+  - Build en verde.
+  - **Un script nuevo (69 chequeos), en verde:** el `PlanificationController` y el `PlanificationService` **reales** (el `dist` recién compilado), con repositorios falsos, el `ValidationPipe` exacto de `main.ts`, supertest y el documento Swagger que genera Nest. Cubre: sin el parámetro y con `false` (sólo las vigentes, `routine_count`, `active` en `true`, la forma de la cabecera y de cada elemento); con `true` (las cuatro mezcladas y en orden, `active` por vínculo sin mezclarse con `routine.active`, `routine_count` sólo vigentes, un plan de baja con una sola quitada); los `400` (valor inválido con el texto exacto, vacío, `1`, `?foo=1`, id que no es UUID) y el `404`; el builder sin flag (lo que usan los demás siete llamadores) y que no muta el plan; y el Swagger (query boolean, opcional, por defecto `false`, con su descripción; el `400` y el `200`; `active` requerido, entre `order` y `routine`, con su descripción; la descripción nueva de `routines`; `/all` y `/all-plus` con los mismos parámetros que antes; y que `create`, `edit`, `assign`, `assign-bulk`, `repeat-week` y `reorder` responden el mismo DTO y `set-active` y `set-active-bulk` siguen devolviendo el vínculo).
+  - **El script se escribió después del código, no en rojo.** Para comprobar que detecta el defecto se mutó el `dist` (el builder devolviendo siempre sólo las vigentes): el script **falla** (se cae al no encontrar las quitadas). Se recompiló y volvió a verde.
+  - **Sin regresión corrida:** no se volvieron a correr los scripts de tareas anteriores. El cambio es un flag y un campo en el builder, un DTO de query nuevo y decoradores del Swagger, sin diff en ningún otro service ni en entidades.
+  - **Qué NO se verificó:** el runtime contra Postgres (BE-35), así que el SQL del detalle no se ejercitó acá (los repositorios del script son falsos; `findPlanificationDetail` no cambió), ni las pantallas (T60).
+- **Para el web (T60) y para Docs:** el contrato queda disponible para `api:fetch` cuando el usuario despliegue en Render; **el web empieza después de eso** (plan, sección 6). Los avisos amarillos de QUI-01 a QUI-07, QUI-09, QUI-10 y ASG-13 se sacan cuando estén hechas **las dos** tareas (BE-45 y T60) y en Render, no antes. **QUI-08 no es de esta tarea y sigue abierto:** el backend no revisa que el plan esté activo al quitar o reincorporar rutinas (`routine/set-active` y `set-active-bulk`).
+
+## Cambios recientes (2026-11-04 · BE-44: tipos de circuito)
+
+- **BE-44** (hallazgo LST-05 de la corrida del 31/10 de *Pruebas de circuitos*; decisiones de Fran del 31/10, D59 a D64). Plan: `Doc/plans/2026-11-04-be-44-tipos-de-circuito-plan.md`; spec: `Doc/specs/2026-11-04-tipos-de-circuito-design.md` (repo PowerApp-Docs). **Cambian los conteos: 75 → 80 ✅ de 82.** Entran al inventario **CU-A-24 a CU-A-27** (obtener, crear, editar y dar de baja o reactivar tipos de circuito; paquete nuevo «Administrar tipos de circuito») y nacen ✅. **CU-E-21 a CU-E-23** siguen ✅ con sus specs del 4/11 (el tipo es un `Circuit_Type`, el filtro por tipo, conservar un tipo de baja). Entra también **CU-E-30**, que no es de esta tarea (ver la nota del Resumen). Sigue 1 🟡 (U-04) · 0 🔵 · 1 sin backend; el Entrenador queda en **35 de 35** y el Admin en **27 de 27**. Cierra «`Circuit.type` como conjunto cerrado», que estaba fuera de alcance en el roadmap (§8).
+- **Cambia el esquema** (D59):
+  - **Tabla nueva `Circuit_Type`:** `id` UUID, `type` VARCHAR(50) NOT NULL, `description` VARCHAR(100) NULL, `active` (default `true`), `created_at` y `updated_at` (`@UpdateDateColumn`, como todas desde BE-30). Entidad `CircuitType` en `entities/circuit_type.entity.ts`.
+  - **`Circuit` pierde `type`** (y su índice `idx_circuit_type`) **y gana `circuit_type_id`** UUID NOT NULL, con la FK `fk_circuit_circuit_type` en `ON DELETE RESTRICT` y el índice `idx_circuit_circuit_type_id`.
+  - **El modelo de `Doc/`** (`PowerApp - Modelo DB.svg`, exportado de Miro el 4/11) llama a la tabla `CircuitType` y muestra `Circuit.description` como `Varchar(30)`. El plan y la spec dicen que vale D1 en las dos (Fran, 4/11): la tabla es `Circuit_Type` y `description` sigue en 100. Corregirlo en Miro es de Docs.
+- **Contrato nuevo** (los textos van exactos: el web los compara):
+  - `GET /routine/circuit-type/all?include_inactive=` (**A-24**; entrenador y admin): los tipos por `type` ascendente, sólo los activos salvo con `include_inactive=true`. Cada uno es `{ id, type, description, active, circuit_count, created_at, updated_at }`: `description` es texto o `null`, y `circuit_count` cuenta sólo los circuitos **activos** de ese tipo.
+  - `POST /routine/circuit-type/create` `{ type, description? }` (**A-25**; admin): nombre y descripción recortados (1 a 50 y hasta 100 caracteres, ya recortados), la descripción vacía o de espacios queda en `null`. `409` «Ya existe un tipo de circuito con ese nombre» si el nombre, recortado y en minúsculas, es el de **cualquier** tipo, activo o dado de baja. `201` con `active: true` y `circuit_count: 0`.
+  - `POST /routine/circuit-type/edit/:id` (**A-26**; admin): el mismo cuerpo, que pisa los dos campos (sin `description`, la borra). No cambia `active`. Orden: el `400` del DTO → `404` «Tipo de circuito no encontrado» → `409` (sólo si el nombre cambia: «principal» → «Principal» no es un conflicto). **`200`** con su `circuit_count` (las membresías responden `201` al editar; acá no).
+  - `POST /routine/circuit-type/set-active/:id` `{ active }` (**A-27**; admin): baja lógica y reactivar, sin restricciones (un tipo con circuitos se da de baja igual; el mismo valor responde `200` sin cambios). `404` con el texto de la edición. Sin borrado físico (D61).
+  - `POST /routine/circuit/create` y `POST /routine/circuit/edit/:id` reciben **`circuit_type_id`** en lugar de `type` (un cuerpo que todavía trae `type` es `400`). Un id que no es UUID: `400` «El ID del tipo de circuito debe ser un UUID válido». Alta, en este orden: DTO → reglas del payload → `404` «Tipo de circuito no encontrado» → `400` «El tipo de circuito está dado de baja.» → `404` de los ejercicios. Edición: DTO → payload → `404` y `400` del circuito → **sólo si `circuit_type_id` cambia**, el `404` y el `400` del tipo (conservar uno dado de baja está permitido) → `404` de los ejercicios. Nada se crea ni se guarda si falla algo.
+  - `GET /routine/circuit/all` y `all-plus`: el query `type` pasa a **`circuit_type_id`** (UUID; uno que no es de ningún tipo da `[]`; `?type=` es `400`), y se combina con `keyword` e `include_inactive`.
+  - **Toda respuesta que traía el `type` de un circuito trae ahora `circuit_type: { id, type, active }`**, y ninguna trae `circuit_type_id` suelto: `circuit/all`, `circuit/all-plus`, `circuit/:id`, `circuit/create`, `circuit/edit/:id`, `circuit/set-active/:id`, `routine/all-plus`, `routine/:id`, `routine/create`, `routine/edit/:id` y las dos lecturas del alumno (`assign-user/:id` y `assign-plan/:userPlanificationId/:routineAsignationId`). **`circuit/all` y `circuit/set-active/:id` dejan de devolver la entidad** y se arman a mano (`CircuitListItemResponseDto` y el nuevo `CircuitResponseDto`).
+- **Cómo quedó hecho:**
+  - **DTOs** en `dtos/circuit_type/` (`CreateCircuitTypeDto`, `EditCircuitTypeDto extends CreateCircuitTypeDto`, `SetCircuitTypeActiveDto`, `GetCircuitTypesQueryDto`, `CircuitTypeResponseDto`, `CircuitTypeRefDto`); el recorte y la descripción vacía son un `@Transform`, así que los largos se controlan sobre el texto recortado.
+  - **Service** (`routine.service.ts`): una sección «TIPOS DE CIRCUITO» con las cuatro operaciones y un `buildCircuitTypeResponse` único. La unicidad del nombre va **en memoria**, como `MembershipService` (`normalizeName` e `isTypeNameTaken`). `circuit_count` sale en **una sola consulta** para todo el listado (`loadRelationCountAndMap` con `circuit.active = true`). El control del tipo en el alta y la edición va **dentro de la transacción** del circuito (`checkCircuitTypeAssignable` con el `queryRunner.manager`). `buildCircuitsQuery` trae la relación y filtra por `circuit_type_id`; `findCircuitDetail` y `findRoutineDetail` suman la relación, y con eso quedan cubiertas las lecturas de rutinas y las dos del alumno.
+  - **Las tres constantes** de los textos (`CIRCUIT_TYPE_NOT_FOUND_ERROR`, `CIRCUIT_TYPE_DUPLICATE_NAME_ERROR`, `CIRCUIT_TYPE_INACTIVE_ERROR`) están junto a las demás del service y se exportan: el Swagger del controller usa las mismas. La del UUID es del DTO (`dtos/circuit_type/circuit_type_messages.ts`), compartida por el cuerpo y el query.
+  - **Swagger:** las cuatro rutas nuevas y `circuit/create`, `circuit/edit/:id`, `circuit/all`, `circuit/all-plus` y `circuit/set-active/:id` declaran **todos** sus códigos (`200`/`201`, `400`, `403`, `404` y `409` donde aplican, y `500`) con su cuerpo: `{ error }` para los del service, la forma de Nest (`{ statusCode, message, error }`) para el `400` del DTO y el `403` de los guards, y un `oneOf` donde el `400` puede venir de los dos lados. Los textos exactos van en el ejemplo y en la descripción. `circuit_type_id` dice «Id de un tipo de circuito activo (`GET /routine/circuit-type/all`). Al editar, puede ser el tipo que el circuito ya tiene aunque esté dado de baja».
+- **`Db Creator`** (regenerado con `python3 build_sql.py`; dos corridas dan los mismos bytes, y el diff de los tres `.sql` sólo toca `Circuit_Type` y `Circuit`):
+  - `ddl.py` → `01`: `Circuit_Type` antes que `Circuit`, y `Circuit` con `circuit_type_id`, la FK y el índice nuevo.
+  - `gen_seed.py` (`CIRCUIT_TYPES` y `circuit_type_uuid`) y `build_sql.py` → `02`: los cinco tipos (Entrada en calor, Principal, Superserie, AMRAP y Enfriamiento) con UUID v5 de `circuit_type:<tipo>`; los ids son los de la tabla del plan (4.2).
+  - `dynamic_data.py` → `03`: los siete circuitos pasan a Principal (5), Superserie (1) y AMRAP (1); `_build_training()` corta la generación si un circuito nombra un tipo que no es del seed.
+  - README de `Db Creator` actualizado.
+- **El patch para la base viva:** `Db Creator/patches/2026-11-04-be-44.sql`. Crea la tabla, siembra los cinco tipos con los mismos ids, mapea `normal` y vacío a Principal y crea un tipo por cada otro valor (sin distinguir mayúsculas ni espacios de los bordes), completa `circuit_type_id`, lo pone NOT NULL con la FK y el índice, y borra `type`. Es idempotente, va en una transacción y **aborta sin tocar nada** ante un estado inesperado. Se corre con `psql -v ON_ERROR_STOP=1 -f 2026-11-04-be-44.sql` y, **en Render, justo antes de desplegar el backend** (plan, sección 6). Alternativa equivalente: recrear la base con `01` → `02` → `03`.
+- **Decisiones mías que el plan no fijaba** (vetables):
+  - **La edición compara `circuit_type_id` en minúscula** para decidir si el tipo cambió: Postgres devuelve el uuid en minúscula y el iOS lo manda en mayúscula. Sin esto, un cliente iOS no podría conservar un tipo dado de baja. Si no cambió, se deja el id guardado.
+  - `circuit_type_id` lleva `@IsNotEmpty` además del `@IsUUID`, como `exercise_id`: sin el campo, el `400` trae los dos mensajes (el del UUID incluido).
+  - Los textos de los `500`: «Error al obtener los tipos de circuito.», «Error al crear el tipo de circuito.», «Error al editar el tipo de circuito.» y «Error al actualizar el estado del tipo de circuito.».
+  - **Dos guardas más en el patch**, además de las tres del plan: aborta si `Circuit_Type` ya tiene dos nombres iguales (recortados y en minúsculas) mientras `type` exista, porque el mapeo sería ambiguo; y si hay una FK de `Circuit` a `Circuit_Type` con otro nombre, como el patch de BE-24/25. Y otra después del mapeo, que pide el plan: si queda algún circuito sin tipo, se deshace todo.
+  - El Swagger no declara el `401` (falta o vence el token), igual que el resto de los controllers.
+  - **CU-E-30 entra al inventario** para que el total coincida con el índice de docs (82).
+- **Verificación, sin levantar el server de producción.** Hecho:
+  - Build en verde.
+  - **Un script nuevo (189 chequeos), escrito antes del código y corrido en rojo** (con el código y la base anteriores: 68 de 72 fallaron, porque las rutas no existían y el DTO viejo aceptaba `type`; las secciones que no pudieron seguir no llegaron a contar los demás). Después, en verde. Es el **`AppModule` real en proceso** (supertest, sin `listen`) con el `ValidationPipe` y el interceptor de `main.ts`, **contra un PostgreSQL 16 local** creado con los tres `.sql` nuevos. Cubre:
+    - las cuatro operaciones de tipos, con el recorte, la unicidad contra activos y dados de baja, el orden de los errores, `circuit_count` y el `200` de la edición;
+    - el alta y la edición de circuitos: el `404` y el `400` del tipo, conservar un tipo de baja (también con el id en mayúsculas), el orden de los errores y que no se crea ni se guarda nada;
+    - los filtros de los listados;
+    - las formas de las ocho filas de 3.7 (y que ninguna respuesta trae `circuit_type_id` ni `type` sueltos);
+    - los roles (el entrenador lee y recibe `403` al administrar; el alumno recibe `403`);
+    - el Swagger real: códigos, cuerpos, textos y schemas;
+    - el esquema y el seed en la base.
+  - **El script detectó las cinco mutaciones deliberadas del `dist`** que se probaron: controlar siempre el tipo en la edición, compararlo sin minúsculas, contar los circuitos de baja, la unicidad sólo contra los activos y no controlar el tipo de baja.
+  - **Regresión:** los scripts de BE-12 a BE-43 no están en este entorno. En su lugar, una **foto de 130 lecturas** (rutinas, circuitos, planificaciones, ejercicios, membresías, las dos vistas del alumno, home, historial y planes de cada alumno) con el código y la base **anteriores**, comparada con la del código y la base nuevos: **idénticas**, salvo los 194 circuitos donde `type` pasó a `circuit_type`. eslint no suma ninguna regla nueva sobre lo tocado, aparte del formato (prettier, que el repo no aplica).
+  - **El patch, en el mismo Postgres local (36 chequeos):** sobre una base creada con los `.sql` **anteriores**, con circuitos de tipo `Core`, `core `, `''`, `'   '`, `amrap`, `principal`, `Entrada en Calor `, `NORMAL` y `movilidad`. Crea dos tipos (`Core`, uno solo para `Core` y `core `, y `movilidad`) y deja cada circuito en su tipo, sin tocar su `updated_at`. `Circuit` y `Circuit_Type` quedan como en el `01` (columnas, restricciones e índices), y la segunda corrida deja la base idéntica. Cada una de las seis guardas aborta sin cambiar nada. **La base vieja parchada da las mismas 130 lecturas que una creada con los `.sql` nuevos**, byte a byte, y el `02` y el `03` se pueden volver a aplicar sobre las dos sin duplicar.
+  - **Qué NO se verificó:** el runtime contra la base de Render (BE-35) y las pantallas (T58).
+- **Para el web (T58) y para Docs:** el contrato queda disponible para `api:fetch` cuando el usuario corra el patch en Render y despliegue. **Desde el deploy hasta la T58, la web vieja falla con los circuitos** (lee `type` y su editor lo manda), así que esa ventana tiene que ser corta. Del lado del backend ya están los endpoints de TIP-01 a TIP-09, LST-02, LST-05, CRE-01, CRE-02, CRE-07, EDT-09, DUP-04 y COA-03; los avisos amarillos de esos casos (más ERR-05 y FIN-02, y MAS-01 y MAS-03 del plan del panel) se sacan cuando estén hechas **las dos** tareas (BE-44 y T58) y en Render, no antes.
 
 ## Cambios recientes (2026-10-31 · BE-43: formato del teléfono en el alta y en Mi cuenta)
 
@@ -1007,7 +1082,7 @@ Alineación de las entidades con el modelo vigente de `Doc/` (spec: `Doc/specs/2
 | **2** | Bloque A: rutina puntual y ejecución | BE-09 a BE-16 | 20 al 27/10 | **H2:** el flujo puntual de punta a punta: asignar → ver → marcar → nota → historial | ✅ cerrada el 18/10 (BE-10 y BE-10b el 17/10; BE-11 a BE-16 el 18/10) |
 | ⏱ | Regenerar la base de Render | BE-23 | 30/10 al 1/11 | La base nueva con el esquema y el seed completos, antes de que venza la vieja (≈ 2/11) | **runbook listo (23/10); lo ejecuta el usuario** |
 | **3** | Bloque B: asignar planificaciones | BE-17 a BE-23 | 28/10 al 5/11 | **H3:** los 74 CU con backend tienen código | en curso: BE-17, BE-18, BE-18b, BE-19, BE-20, BE-20e, BE-20b, BE-20c, BE-20d y BE-21 hechas (20 a 23/10) |
-| **4** | Brechas de CU y deuda | BE-24 a BE-34 | 3 al 12/11 | **H4:** ningún 🟡 y el Swagger completo | en curso: BE-24, BE-25 y BE-26 adelantadas (22/10), con dos de las FK de BE-22; BE-27, BE-28 y BE-30 (24/10); BE-41, BE-42 y BE-43 (31/10) |
+| **4** | Brechas de CU y deuda | BE-24 a BE-34 | 3 al 12/11 | **H4:** ningún 🟡 y el Swagger completo | en curso: BE-24, BE-25 y BE-26 adelantadas (22/10), con dos de las FK de BE-22; BE-27, BE-28 y BE-30 (24/10); BE-41, BE-42 y BE-43 (31/10); BE-44 (4/11); BE-45 (9/11) |
 | **5** | Verificación y cierre | BE-35 a BE-39 | 12 al 17/11 | **H5:** criterios de "backend terminado" cumplidos y código congelado | |
 
 > **Dependencias del usuario:** el diagrama de `Doc/` actualizado antes de BE-10 (el modelo manda), la fecha real de vencimiento de la base de Render (BE-23), la cuenta del proveedor de mail (BE-29) y la corrida del plan de pruebas (BE-35).
@@ -1050,7 +1125,7 @@ Alineación de las entidades con el modelo vigente de `Doc/` (spec: `Doc/specs/2
 
 ---
 
-## Detalle — Rol Entrenador (34 CU · 100%)
+## Detalle — Rol Entrenador (35 CU · 100%)
 
 ### Administrar alumnos
 | CU | Caso de uso | Estado | Endpoint / nota |
@@ -1073,8 +1148,8 @@ Alineación de las entidades con el modelo vigente de `Doc/` (spec: `Doc/specs/2
 | CU-E-12 | Gestionar rutinas de una planificación | — *agrupador* | no se cuenta: agrupa a E-12a → E-12f |
 | CU-E-12a | Asignar una rutina a planificación | ✅ Implementado | `POST /planification/routine/assign` · `week` obligatoria (≤ `duration` si es > 0); `order` opcional, al final **de esa semana** si se omite (17/10) |
 | CU-E-12b | Asignar rutinas en lote | ✅ Implementado | `POST /planification/routine/assign-bulk` · transaccional, una semana por lote, consecutivas al final de la semana (17/10) |
-| CU-E-12c | Quitar o reincorporar una rutina (lógico) | ✅ Implementado | `POST /planification/routine/set-active/:id` · la baja conserva semana y orden; `week` y `order` opcionales al reincorporar (17/10) |
-| CU-E-12d | Quitar o reincorporar rutinas en lote (lógico) | ✅ Implementado | `POST /planification/routine/set-active-bulk` · transaccional; cada una vuelve a su lugar, 400 si alguna queda fuera de la duración (17/10) |
+| CU-E-12c | Quitar o reincorporar una rutina (lógico) | ✅ Implementado | `POST /planification/routine/set-active/:id` · la baja conserva semana y orden; `week` y `order` opcionales al reincorporar (17/10) · las quitadas siguen en el detalle: `GET /planification/:id?include_inactive=true` las trae, mezcladas con las vigentes y cada una con el `active` de su vínculo; reincorporar no revisa si la rutina sigue activa (BE-45, 9/11) |
+| CU-E-12d | Quitar o reincorporar rutinas en lote (lógico) | ✅ Implementado | `POST /planification/routine/set-active-bulk` · transaccional; cada una vuelve a su lugar, 400 si alguna queda fuera de la duración (17/10) · las quitadas siguen en el detalle (ver E-12c); reincorporar en bloque tampoco revisa si cada rutina sigue activa (BE-45, 9/11) |
 | CU-E-12e | Reordenar las rutinas de una semana | ✅ Implementado | `POST /planification/routine/reorder` · la lista tiene que ser exactamente las vigentes de la semana (`400` «La lista no coincide…» si no); las renumera 1..n en una transacción; las quitadas y las otras semanas no se tocan · `200` con el detalle (BE-42, 31/10) |
 | CU-E-12f | Repetir una semana en otras semanas | ✅ Implementado | `POST /planification/routine/repeat-week` · copia las vigentes de `from_week`, en su orden, al final de cada semana de `to_weeks` (1 a 50, distintas) · todo o nada, en una transacción · `201` con el detalle (BE-42, 31/10) |
 | CU-E-13 | Asignar planificación a alumno | ✅ Implementado | `POST /planification/user/assign` · sólo coach (`coach_id` del token; `403` si no tiene su fila activa en `Coach`) · el fin por defecto es el domingo de la semana `duration` (obligatorio con duración 0) · `409` con las asignaciones activas que se pisan, salvo `confirm_overlap: true` · 400 → 403 → 404 → 400 → 400 → 400 → 404 → 400 → 409 (BE-18b, 21/10) |
@@ -1093,9 +1168,9 @@ Alineación de las entidades con el modelo vigente de `Doc/` (spec: `Doc/specs/2
 ### Administrar circuitos
 | CU | Caso de uso | Estado | Endpoint / nota |
 |---|---|---|---|
-| CU-E-21 | Obtener circuitos | ✅ Implementado | `GET /routine/circuit/all` · filtros keyword/type/include_inactive + `exercise_count` |
-| CU-E-22 | Crear circuito | ✅ Implementado | `POST /routine/circuit/create` · circuito + ejercicios + series en una transacción |
-| CU-E-23 | Editar circuito | ✅ Implementado | `POST /routine/circuit/edit/:id` · reconciliación por `exercise_id`, baja lógica si hay historial |
+| CU-E-21 | Obtener circuitos | ✅ Implementado | `GET /routine/circuit/all` · filtros keyword/include_inactive + `exercise_count` · cada circuito trae `circuit_type: { id, type, active }` y el filtro por tipo es `circuit_type_id` (un id de ningún tipo da `[]`) (BE-44, 4/11) |
+| CU-E-22 | Crear circuito | ✅ Implementado | `POST /routine/circuit/create` · circuito + ejercicios + series en una transacción · `circuit_type_id` de un tipo activo: `404` si no existe, `400` si está de baja, antes que los ejercicios (BE-44, 4/11) |
+| CU-E-23 | Editar circuito | ✅ Implementado | `POST /routine/circuit/edit/:id` · reconciliación por `exercise_id`, baja lógica si hay historial · puede cambiar el tipo por uno activo; el tipo se controla sólo si cambia, así que conservar uno dado de baja está permitido (BE-44, 4/11) |
 | CU-E-24 | Eliminar circuito (lógico) | ✅ Implementado | `POST /routine/circuit/set-active/:id` · flag `{ active }` |
 
 ### Gestionar membresías
@@ -1107,9 +1182,14 @@ Alineación de las entidades con el modelo vigente de `Doc/` (spec: `Doc/specs/2
 | CU-E-28 | Obtener alumnos por tipo de membresía | ✅ Implementado | `GET /membership/type/users?membership_id=` · sin el param, agrupa por tipo |
 | CU-E-29 | Registrar pago de alumno | ✅ Implementado | `POST /membership/payment/register` · `404` si el alumno o el tipo no existen; `400` si el destinatario no es un alumno, su cuenta está cerrada o el tipo está dado de baja (en ese orden) (BE-28, 24/10) |
 
+### Biblioteca de ejercicios
+| CU | Caso de uso | Estado | Endpoint / nota |
+|---|---|---|---|
+| CU-E-30 | Consultar wiki de ejercicios | ✅ Implementado | `GET /exercise/all` (público) y `GET /exercise/:id` (`@Auth()`, cualquier rol) · la misma consulta que CU-U-15, desde la zona del entrenador; entró al inventario el 4/11 sin tarea de backend (la pantalla es la T55 del web) |
+
 ---
 
-## Detalle — Rol Admin (23 CU · 100%)
+## Detalle — Rol Admin (27 CU · 100%)
 
 ### Administrar ejercicios
 | CU | Caso de uso | Estado | Endpoint / nota |
@@ -1153,6 +1233,14 @@ Alineación de las entidades con el modelo vigente de `Doc/` (spec: `Doc/specs/2
 | CU-A-21 | Crear membresía | ✅ Implementado | `POST /membership/create` |
 | CU-A-22 | Editar membresía | ✅ Implementado | `POST /membership/edit/:id` |
 | CU-A-23 | Eliminar membresía | ✅ Implementado | `POST /membership/set-active/:id` · baja lógica con flag `{ active }` |
+
+### Administrar tipos de circuito
+| CU | Caso de uso | Estado | Endpoint / nota |
+|---|---|---|---|
+| CU-A-24 | Obtener tipos de circuito | ✅ Implementado | `GET /routine/circuit-type/all?include_inactive=` · entrenador y admin · por `type`, sólo los activos salvo con `include_inactive=true`, cada uno con `circuit_count` (sus circuitos activos) (BE-44, 4/11) |
+| CU-A-25 | Crear tipo de circuito | ✅ Implementado | `POST /routine/circuit-type/create` · sólo admin · nombre y descripción recortados; `409` «Ya existe un tipo de circuito con ese nombre» contra activos y dados de baja, sin mayúsculas ni espacios de los bordes (BE-44, 4/11) |
+| CU-A-26 | Editar tipo de circuito | ✅ Implementado | `POST /routine/circuit-type/edit/:id` · sólo admin · pisa nombre y descripción, no cambia `active`; `404` → `409` (sólo si el nombre cambia) · `200` (BE-44, 4/11) |
+| CU-A-27 | Eliminar tipo de circuito (lógico) | ✅ Implementado | `POST /routine/circuit-type/set-active/:id` · sólo admin · baja y reactivar, sin restricción por uso: los circuitos conservan el tipo (BE-44, 4/11) |
 
 ---
 

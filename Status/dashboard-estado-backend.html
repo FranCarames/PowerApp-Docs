@@ -200,21 +200,21 @@
   <header class="mast">
     <div class="eyebrow"><span class="dot"></span> PowerApp Backend · NestJS · Auditoría de cobertura</div>
     <h1>Estado de implementación frente a los Casos de Uso</h1>
-    <p class="lede">Mapeo uno a uno de los 77 casos de uso especificados contra los <em>controllers</em> y <em>services</em> presentes en el código. Un CU cuenta como implementado sólo si su endpoint existe, ejecuta lógica real y cumple <em>todos</em> los caminos de su spec.</p>
+    <p class="lede">Mapeo uno a uno de los 82 casos de uso especificados contra los <em>controllers</em> y <em>services</em> presentes en el código. Un CU cuenta como implementado sólo si su endpoint existe, ejecuta lógica real y cumple <em>todos</em> los caminos de su spec.</p>
     <div class="meta">
-      <span><b>77</b> casos de uso</span>
+      <span><b>82</b> casos de uso</span>
       <span><b>9</b> módulos</span>
       <span>Fuente: <b>Use Cases/</b> (PowerApp-Docs) vs <b>power-app/src</b></span>
-      <span>Corte: <b>2026-10-31</b></span>
+      <span>Corte: <b>2026-11-09</b></span>
     </div>
   </header>
 
   <!-- OVERALL -->
   <section>
-    <div class="sec-head"><h2>Panorama general</h2><span class="kicker">77 CU clasificados</span></div>
+    <div class="sec-head"><h2>Panorama general</h2><span class="kicker">82 CU clasificados</span></div>
     <div class="tiles">
       <div class="tile done">
-        <div class="n">75</div><div class="lbl">Implementado</div><div class="pct">97% · cumple su spec</div>
+        <div class="n">80</div><div class="lbl">Implementado</div><div class="pct">98% · cumple su spec</div>
       </div>
       <div class="tile partial">
         <div class="n">1</div><div class="lbl">Parcial</div><div class="pct">1% · un camino sin cumplir</div>
@@ -228,13 +228,13 @@
     </div>
 
     <div class="bar-block">
-      <div class="bar" role="img" aria-label="75 implementados, 1 parcial, 0 andamiaje, 0 no implementados y 1 sin backend, de 77">
-        <span class="s-done" style="width:97.40%"></span>
-        <span class="s-partial" style="width:1.30%"></span>
-        <span class="s-client" style="width:1.30%"></span>
+      <div class="bar" role="img" aria-label="80 implementados, 1 parcial, 0 andamiaje, 0 no implementados y 1 sin backend, de 82">
+        <span class="s-done" style="width:97.56%"></span>
+        <span class="s-partial" style="width:1.22%"></span>
+        <span class="s-client" style="width:1.22%"></span>
       </div>
       <div class="bar-cap">
-        <span><b>75 de los 76</b> CU con backend completos (99%) · <span class="warn">⚠</span> 1 con un defecto abierto (A-04)</span>
+        <span><b>80 de los 81</b> CU con backend completos (99%) · <span class="warn">⚠</span> 1 con un defecto abierto (A-04)</span>
         <span><b>1</b> pendiente (U-04, parcial) · ninguno sin endpoint ni en andamiaje · 1 sin backend (U-14)</span>
       </div>
     </div>
@@ -262,26 +262,26 @@
       </div>
 
       <div class="role-card">
-        <h3>Entrenador <em>34 CU</em></h3>
+        <h3>Entrenador <em>35 CU</em></h3>
         <div class="role-pct" style="color:var(--done)">100%</div>
-        <div class="role-sub">34 de 34 · circuitos, rutinas, planificaciones (con sus rutinas por semana: armarlas, ordenarlas y repetirlas), la asignación individual, el historial y asignar y quitar planificaciones cerrados</div>
+        <div class="role-sub">35 de 35 · circuitos (con su tipo del catálogo y el filtro por tipo), la biblioteca de ejercicios, rutinas, planificaciones (con sus rutinas por semana: armarlas, ordenarlas y repetirlas), la asignación individual, el historial y asignar y quitar planificaciones cerrados</div>
         <div class="mini-bar">
           <span style="width:100%;background:var(--done)"></span>
         </div>
         <div class="role-legend">
-          <i><span class="swatch" style="background:var(--done)"></span><b>34</b> impl.</i>
+          <i><span class="swatch" style="background:var(--done)"></span><b>35</b> impl.</i>
         </div>
       </div>
 
       <div class="role-card">
-        <h3>Admin <em>23 CU</em></h3>
+        <h3>Admin <em>27 CU</em></h3>
         <div class="role-pct" style="color:var(--done)">100%</div>
-        <div class="role-sub">23 de 23 · ejercicios, músculos, grupos, entrenadores y membresías cerrados</div>
+        <div class="role-sub">27 de 27 · ejercicios, músculos, grupos, entrenadores, membresías y tipos de circuito cerrados</div>
         <div class="mini-bar">
           <span style="width:100%;background:var(--done)"></span>
         </div>
         <div class="role-legend">
-          <i><span class="swatch" style="background:var(--done)"></span><b>23</b> impl.</i>
+          <i><span class="swatch" style="background:var(--done)"></span><b>27</b> impl.</i>
         </div>
       </div>
 
@@ -315,7 +315,7 @@
           <tr><td class="cu">2</td><td class="name">Bloque A: rutina puntual y ejecución <span class="muted">· BE-09 a BE-16</span></td><td class="endpoint">20 al 27/10</td><td><b>H2:</b> el flujo puntual de punta a punta: asignar → ver → marcar → nota → historial</td><td><span class="chip done"><span class="cd"></span>Cerrada 18/10</span></td></tr>
           <tr><td class="cu">⏱</td><td class="name">Regenerar la base de Render <span class="muted">· BE-23</span></td><td class="endpoint">30/10 al 1/11</td><td>La base nueva con el esquema y el seed completos, antes de que venza la vieja (≈ 2/11, sin verificar)</td><td><span class="muted">fecha fija · runbook listo (23/10): lo ejecuta el usuario</span></td></tr>
           <tr><td class="cu">3</td><td class="name">Bloque B: asignar planificaciones <span class="muted">· BE-17 a BE-23</span></td><td class="endpoint">28/10 al 5/11</td><td><b>H3:</b> los 74 CU con backend tienen código</td><td><span class="chip partial"><span class="cd"></span>En curso</span> <span class="muted">BE-17, BE-18, BE-18b, BE-19, BE-20, BE-20e, BE-20b, BE-20c, BE-20d y BE-21 (20 a 23/10)</span></td></tr>
-          <tr><td class="cu">4</td><td class="name">Brechas de CU y deuda <span class="muted">· BE-24 a BE-34</span></td><td class="endpoint">3 al 12/11</td><td><b>H4:</b> ningún parcial y el Swagger completo</td><td><span class="chip partial"><span class="cd"></span>En curso</span> <span class="muted">BE-24, BE-25 y BE-26 adelantadas (22/10); BE-27, BE-28 y BE-30 (24/10); BE-41, BE-42 y BE-43 (31/10)</span></td></tr>
+          <tr><td class="cu">4</td><td class="name">Brechas de CU y deuda <span class="muted">· BE-24 a BE-34</span></td><td class="endpoint">3 al 12/11</td><td><b>H4:</b> ningún parcial y el Swagger completo</td><td><span class="chip partial"><span class="cd"></span>En curso</span> <span class="muted">BE-24, BE-25 y BE-26 adelantadas (22/10); BE-27, BE-28 y BE-30 (24/10); BE-41, BE-42 y BE-43 (31/10); BE-44 (4/11); BE-45 (9/11)</span></td></tr>
           <tr><td class="cu">5</td><td class="name">Verificación y cierre <span class="muted">· BE-35 a BE-39</span></td><td class="endpoint">12 al 17/11</td><td><b>H5:</b> criterios de "backend terminado" cumplidos y código congelado</td><td></td></tr>
         </tbody>
       </table>
@@ -363,7 +363,7 @@
 
   <!-- DETAIL: ENTRENADOR -->
   <section>
-    <div class="sec-head"><h2>Rol Entrenador</h2><span class="kicker">34 CU · 100% implementado</span></div>
+    <div class="sec-head"><h2>Rol Entrenador</h2><span class="kicker">35 CU · 100% implementado</span></div>
     <div class="table-scroll">
       <table>
         <thead>
@@ -387,8 +387,8 @@
           <tr><td class="cu">CU-E-12</td><td class="name">Gestionar rutinas de una planificación</td><td><span class="muted">agrupador</span></td><td class="endpoint"><span class="muted">no se cuenta: agrupa a E-12a → E-12f</span></td></tr>
           <tr><td class="cu">CU-E-12a</td><td class="name">Asignar una rutina a planificación</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/routine/assign <span class="muted">· <code>week</code> obligatoria (≤ <code>duration</code> si es &gt; 0); order opcional, al final de esa semana si se omite (17/10)</span></td></tr>
           <tr><td class="cu">CU-E-12b</td><td class="name">Asignar rutinas en lote</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/routine/assign-bulk <span class="muted">· transaccional, una semana por lote, consecutivas al final de la semana (17/10)</span></td></tr>
-          <tr><td class="cu">CU-E-12c</td><td class="name">Quitar o reincorporar una rutina (lógico)</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/routine/set-active/:id <span class="muted">· la baja conserva semana y orden; week y order opcionales al reincorporar (17/10)</span></td></tr>
-          <tr><td class="cu">CU-E-12d</td><td class="name">Quitar o reincorporar rutinas en lote (lógico)</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/routine/set-active-bulk <span class="muted">· transaccional; cada una vuelve a su lugar, 400 si alguna queda fuera de la duración (17/10)</span></td></tr>
+          <tr><td class="cu">CU-E-12c</td><td class="name">Quitar o reincorporar una rutina (lógico)</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/routine/set-active/:id <span class="muted">· la baja conserva semana y orden; week y order opcionales al reincorporar (17/10) · las quitadas siguen en el detalle: <code>GET /planification/:id?include_inactive=true</code> las trae, mezcladas con las vigentes y cada una con el <code>active</code> de su vínculo; reincorporar no revisa si la rutina sigue activa (BE-45, 9/11)</span></td></tr>
+          <tr><td class="cu">CU-E-12d</td><td class="name">Quitar o reincorporar rutinas en lote (lógico)</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/routine/set-active-bulk <span class="muted">· transaccional; cada una vuelve a su lugar, 400 si alguna queda fuera de la duración (17/10) · las quitadas siguen en el detalle (ver E-12c); reincorporar en bloque tampoco revisa si cada rutina sigue activa (BE-45, 9/11)</span></td></tr>
           <tr><td class="cu">CU-E-12e</td><td class="name">Reordenar las rutinas de una semana</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/routine/reorder <span class="muted">· la lista tiene que ser exactamente las vigentes de la semana (400 «La lista no coincide…» si no); las renumera 1..n en una transacción; las quitadas y las otras semanas no se tocan · 200 con el detalle (BE-42, 31/10)</span></td></tr>
           <tr><td class="cu">CU-E-12f</td><td class="name">Repetir una semana en otras semanas</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/routine/repeat-week <span class="muted">· copia las vigentes de <code>from_week</code>, en su orden, al final de cada semana de <code>to_weeks</code> (1 a 50, distintas) · todo o nada, en una transacción · 201 con el detalle (BE-42, 31/10)</span></td></tr>
           <tr><td class="cu">CU-E-13</td><td class="name">Asignar planificación a alumno</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /planification/user/assign <span class="muted">· sólo coach (403 sin su fila activa en Coach) · el fin por defecto es el domingo de la semana duration; obligatorio con duración 0 · 409 con las que se pisan, salvo confirm_overlap: true (BE-18b, 21/10)</span></td></tr>
@@ -403,9 +403,9 @@
           <tr><td class="cu">CU-E-20</td><td class="name">Eliminar rutina a alumno</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">DELETE</span> /routine/assign-user/:id <span class="muted">· borrado físico; 409 si el alumno ya la entrenó (18/10) · lo abre desde el listado (BE-12)</span></td></tr>
 
           <tr class="pkg"><td colspan="4"><span class="pkg-lbl">Administrar circuitos</span></td></tr>
-          <tr><td class="cu">CU-E-21</td><td class="name">Obtener circuitos</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /routine/circuit/all <span class="muted">· keyword/type/include_inactive + exercise_count</span></td></tr>
-          <tr><td class="cu">CU-E-22</td><td class="name">Crear circuito</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /routine/circuit/create <span class="muted">· circuito + ejercicios + series en una transacción</span></td></tr>
-          <tr><td class="cu">CU-E-23</td><td class="name">Editar circuito</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /routine/circuit/edit/:id <span class="muted">· reconciliación por exercise_id, baja lógica si hay historial</span></td></tr>
+          <tr><td class="cu">CU-E-21</td><td class="name">Obtener circuitos</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /routine/circuit/all <span class="muted">· keyword/include_inactive + exercise_count · cada circuito trae <code>circuit_type: { id, type, active }</code> y el filtro por tipo es <code>circuit_type_id</code> (BE-44, 4/11)</span></td></tr>
+          <tr><td class="cu">CU-E-22</td><td class="name">Crear circuito</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /routine/circuit/create <span class="muted">· circuito + ejercicios + series en una transacción · <code>circuit_type_id</code> de un tipo activo: 404 si no existe, 400 si está de baja (BE-44, 4/11)</span></td></tr>
+          <tr><td class="cu">CU-E-23</td><td class="name">Editar circuito</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /routine/circuit/edit/:id <span class="muted">· reconciliación por exercise_id, baja lógica si hay historial · el tipo se controla sólo si cambia: conservar uno de baja está permitido (BE-44, 4/11)</span></td></tr>
           <tr><td class="cu">CU-E-24</td><td class="name">Eliminar circuito (lógico)</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /routine/circuit/set-active/:id <span class="muted">· flag { active }</span></td></tr>
 
           <tr class="pkg"><td colspan="4"><span class="pkg-lbl">Gestionar membresías</span></td></tr>
@@ -414,6 +414,9 @@
           <tr><td class="cu">CU-E-27</td><td class="name">Obtener alumnos por estado de membresía</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /membership/status/users?status= <span class="muted">· active / expiring_soon / expired / no_payments</span></td></tr>
           <tr><td class="cu">CU-E-28</td><td class="name">Obtener alumnos por tipo de membresía</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /membership/type/users?membership_id= <span class="muted">· sin el param, agrupa por tipo</span></td></tr>
           <tr><td class="cu">CU-E-29</td><td class="name">Registrar pago de alumno</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /membership/payment/register <span class="muted">· 404 si el alumno o el tipo no existen; 400 si el destinatario no es un alumno, su cuenta está cerrada o el tipo está dado de baja, en ese orden (BE-28, 24/10)</span></td></tr>
+
+          <tr class="pkg"><td colspan="4"><span class="pkg-lbl">Biblioteca de ejercicios</span></td></tr>
+          <tr><td class="cu">CU-E-30</td><td class="name">Consultar wiki de ejercicios</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /exercise/all <span class="muted">· y</span> <span class="verb">GET</span> /exercise/:id <span class="muted">· la misma consulta que U-15; entró el 4/11 sin tarea de backend</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -421,7 +424,7 @@
 
   <!-- DETAIL: ADMIN -->
   <section>
-    <div class="sec-head"><h2>Rol Admin</h2><span class="kicker">23 CU · 100% implementado</span></div>
+    <div class="sec-head"><h2>Rol Admin</h2><span class="kicker">27 CU · 100% implementado</span></div>
     <div class="table-scroll">
       <table>
         <thead>
@@ -460,6 +463,12 @@
           <tr><td class="cu">CU-A-21</td><td class="name">Crear membresía</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /membership/create</td></tr>
           <tr><td class="cu">CU-A-22</td><td class="name">Editar membresía</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /membership/edit/:id</td></tr>
           <tr><td class="cu">CU-A-23</td><td class="name">Eliminar membresía</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /membership/set-active/:id <span class="muted">· baja lógica {active}</span></td></tr>
+
+          <tr class="pkg"><td colspan="4"><span class="pkg-lbl">Administrar tipos de circuito</span></td></tr>
+          <tr><td class="cu">CU-A-24</td><td class="name">Obtener tipos de circuito</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">GET</span> /routine/circuit-type/all?include_inactive= <span class="muted">· entrenador y admin · por nombre, con circuit_count (sus circuitos activos) (BE-44, 4/11)</span></td></tr>
+          <tr><td class="cu">CU-A-25</td><td class="name">Crear tipo de circuito</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /routine/circuit-type/create <span class="muted">· sólo admin · 409 si el nombre ya es de otro tipo, activo o de baja (BE-44, 4/11)</span></td></tr>
+          <tr><td class="cu">CU-A-26</td><td class="name">Editar tipo de circuito</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /routine/circuit-type/edit/:id <span class="muted">· sólo admin · 404 → 409 (sólo si el nombre cambia) · 200; no cambia active (BE-44, 4/11)</span></td></tr>
+          <tr><td class="cu">CU-A-27</td><td class="name">Eliminar tipo de circuito (lógico)</td><td><span class="chip done"><span class="cd"></span>Implementado</span></td><td class="endpoint"><span class="verb">POST</span> /routine/circuit-type/set-active/:id <span class="muted">· sólo admin · baja y reactivar, sin restricción por uso (BE-44, 4/11)</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -480,7 +489,7 @@
 
   <footer>
     <span>PowerApp Backend · auditoría de casos de uso</span>
-    <span>75 impl · 1 parc · 0 andam · 0 falta · 1 sin backend — de 77 · corte 2026-10-31</span>
+    <span>80 impl · 1 parc · 0 andam · 0 falta · 1 sin backend — de 82 · corte 2026-11-09</span>
   </footer>
 
 </div>
