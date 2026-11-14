@@ -150,3 +150,4 @@ Con eso, **no hace falta importar a mano**:
   - [Tanda 1](Plan%20del%20alumno/1-pruebas-plan-alumno.resultados.json)
   - [Tanda 2](Plan%20del%20alumno/2-pruebas-plan-alumno.resultados.json)
   - [Tanda 3](Plan%20del%20alumno/3-pruebas-plan-alumno.resultados.json)
+  - [Tanda 4](Plan%20del%20alumno/4-pruebas-plan-alumno.resultados.json)
