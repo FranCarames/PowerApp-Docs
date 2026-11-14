@@ -24,6 +24,7 @@ Muestra el detalle de un ejercicio dentro de la rutina de una asignación (serie
 
 - Presentación del Exercise y sus Exercise_Set (orden, reps, peso, RPE/RIR, AMRAP/RM) tal como están en la rutina.
 - Acceso a RMs propios del ejercicio, marcado de series y nota personal.
+- Los músculos que trabaja el ejercicio, cada uno con acceso a su detalle en la biblioteca (CU «Consultar wiki de ejercicios»).
 
 **Fuera de alcance:**
 
@@ -45,6 +46,7 @@ Muestra el detalle de un ejercicio dentro de la rutina de una asignación (serie
 2. El sistema ya tiene el Exercise y sus Exercise_Set ordenadas, recuperados junto con el detalle de la rutina.
 3. El sistema presenta reps, peso, tipo de serie (normal / AMRAP / RM) y notas: la del entrenador (coach_note) y la propia del usuario (user_note), si dejó una en esa asignación.
 4. El sistema ofrece las acciones incluidas: ver RMs, marcar serie y dejar nota.
+5. El sistema presenta los músculos que trabaja el ejercicio. El usuario puede abrir uno para ver su detalle en la biblioteca (CU «Consultar wiki de ejercicios») y volver al ejercicio sin perder lo que marcó.
 
 ## Caminos alternativos / excepciones
 
