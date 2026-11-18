@@ -16,7 +16,7 @@ El código de la API vive en el repo hermano **[PowerApp-Backend](https://github
 | 📱 **[Prototipo de interfaces](https://francarames.github.io/PowerApp-Docs/UI%20Front/powerapp-prototype-app.html)** | Mockups navegables de las pantallas, por rol — app mobile y [versión web](https://francarames.github.io/PowerApp-Docs/UI%20Front/powerapp-prototype-web.html) |
 | 📊 **[Estado de implementación](https://francarames.github.io/PowerApp-Docs/Status/dashboard-estado-backend.html)** | Dashboard de avance: cada CU vs. el código — backend y [versión web](https://francarames.github.io/PowerApp-Docs/Status/dashboard-estado-web.html) (copias, ver nota) |
 | 📄 **[Especificaciones de CU](https://francarames.github.io/PowerApp-Docs/Use%20Cases/)** | Las especificaciones de casos de uso, por rol y paquete |
-| 🗃️ **[Modelo de datos](https://francarames.github.io/PowerApp-Docs/Doc/modelo-db.html)** | Visor del diagrama entidad-relación de la base, con zoom y arrastre ([PDF](https://francarames.github.io/PowerApp-Docs/Doc/PowerApp%20-%20Modelo%20DB.pdf)) |
+| 🗺️ **[Diagramas](https://francarames.github.io/PowerApp-Docs/Diagrams/)** | Visor de los diagramas del proyecto (casos de uso, modelo de datos, diseño y arquitectura), con zoom y arrastre. El índice está en [`Diagrams/README.md`](Diagrams/README.md) |
 | ✅ **[Planes de prueba](https://francarames.github.io/PowerApp-Docs/Tests/)** | Pruebas manuales caso por caso, con resultado y notas. El índice está en [`Tests/README.md`](Tests/README.md) |
 | 🧱 **[Tablero de fallas](https://francarames.github.io/PowerApp-Docs/Tests/errores.html)** | Las fallas y los casos por re-testear de todos los planes en columnas por gravedad, para recategorizarlos a mano |
 
@@ -25,7 +25,8 @@ El código de la API vive en el repo hermano **[PowerApp-Backend](https://github
 ## 📁 Estructura
 
 ```
-Doc/         → Documentación vigente: modelo de datos (SVG/PDF + visor), specs y planes de cada cambio, contexto para la app iOS.
+Doc/         → Documentación vigente: modelo de datos (SVG/PDF), specs y planes de cada cambio, contexto para la app iOS.
+Diagrams/    → Diagramas del proyecto (SVG + PDF exportados de Miro) + índice (README.md) y visor.
 Use Cases/   → Especificaciones de los casos de uso (1 .md por CU, por rol) + índice y visor.
 UI Front/    → Prototipos HTML de las interfaces (app y web).
 Tests/       → Planes de prueba manuales (una carpeta por plan: .html + resultados en JSON) + índice, visor y tablero de fallas (`errores.html`).

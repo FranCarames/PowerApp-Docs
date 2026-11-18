@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PowerApp — Backend + Web · Documentación</title>
-<meta name="description" content="Portada de documentación de PowerApp (backend y web): documentación de la API en Swagger, prototipo de interfaces, estado de implementación de los casos de uso, modelo de datos de la base y planes de prueba.">
+<meta name="description" content="Portada de documentación de PowerApp (backend y web): documentación de la API en Swagger, prototipo de interfaces, estado de implementación de los casos de uso, diagramas del proyecto (casos de uso, modelo de datos y UML) y planes de prueba.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800;900&family=Saira:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -375,33 +375,25 @@
       <div class="card-go">Abrir especificaciones <span class="arw">→</span></div>
     </a>
 
-    <div class="card card--multi">
+    <a class="card" href="Diagrams/">
       <div class="card-top">
         <span class="card-idx">04 / 05</span>
         <span class="card-ico" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <ellipse cx="12" cy="5" rx="8" ry="3"/>
-            <path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/>
-            <path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/>
+            <rect x="3" y="3" width="7" height="5" rx="1.2"/><rect x="14" y="3" width="7" height="5" rx="1.2"/>
+            <rect x="8.5" y="16" width="7" height="5" rx="1.2"/><path d="M6.5 8v3.5h11V8M12 11.5V16"/>
           </svg>
         </span>
       </div>
-      <div class="eyebrow">Base de datos</div>
-      <h2>Modelo de datos</h2>
-      <p>Diagrama entidad-relación vigente: tablas, columnas, claves y relaciones. Es la fuente de verdad del modelo del backend.</p>
+      <div class="eyebrow">Arquitectura y diseño</div>
+      <h2>Diagramas del proyecto</h2>
+      <p>Todos los diagramas de PowerApp en un solo visor: casos de uso, modelo de datos, diseño y arquitectura. Se eligen desde una barra lateral y se ven con zoom y arrastre.</p>
       <div class="tags">
-        <span class="tag">entidad-relación</span><span class="tag">zoom y arrastre</span>
-        <span class="tag">vigente</span>
+        <span class="tag">casos de uso</span><span class="tag">modelo de datos</span>
+        <span class="tag">UML</span><span class="tag">zoom y arrastre</span>
       </div>
-      <div class="card-actions">
-        <a class="card-btn" href="Doc/modelo-db.html">
-          Abrir el visor <span class="arw">→</span>
-        </a>
-        <a class="card-btn sec" href="Doc/PowerApp%20-%20Modelo%20DB.pdf" target="_blank" rel="noopener">
-          PDF <span class="arw">↓</span>
-        </a>
-      </div>
-    </div>
+      <div class="card-go">Abrir los diagramas <span class="arw">→</span></div>
+    </a>
 
     <a class="card card--wide" href="Tests/">
       <div class="card-top">
@@ -431,7 +423,7 @@
       FranCarames/PowerApp-Docs
     </a>
     <a href="https://powerapp-backend.onrender.com/docs" target="_blank" rel="noopener">API · Swagger</a>
-    <a href="Doc/modelo-db.html">Modelo de datos</a>
+    <a href="Diagrams/">Diagramas</a>
     <a href="Tests/">Planes de prueba</a>
     <a href="Tests/errores.html">Tablero de fallas</a>
     <span>Documentación estática · GitHub Pages</span>
