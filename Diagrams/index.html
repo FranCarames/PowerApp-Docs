@@ -127,6 +127,7 @@
       radial-gradient(700px 460px at 92% 100%, rgba(79,141,247,.10), transparent 62%),
       var(--base);
     cursor:grab;touch-action:none;
+    -webkit-user-select:none;user-select:none;
   }
   .stage::after{
     content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
@@ -141,6 +142,9 @@
     background:#fff;
     box-shadow:0 30px 90px -30px rgba(0,0,0,.9);
     will-change:transform;
+    /* El diagrama no recibe el mouse: no se selecciona su texto ni se siguen sus links;
+       todo clic llega al stage y solo arrastra. */
+    pointer-events:none;
   }
   .canvas svg{display:block;}
 

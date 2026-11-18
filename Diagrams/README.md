@@ -12,9 +12,9 @@ El modelo de datos vive en `Doc/` porque es la fuente de verdad del modelo.
 
 ## Casos de uso
 
-- [Casos de uso del Usuario](Diagrama%20CU%20-%20Usuario%20-%202026.svg) — UML · casos de uso
-- [Casos de uso del Entrenador](Diagrama%20CU%20-%20Entrenador%20-%202026.svg) — UML · casos de uso
-- [Casos de uso del Admin](Diagrama%20CU%20-%20Admin%20-%202026.svg) — UML · casos de uso
+- [Casos de uso del Usuario](Diag%20CU%20-%20Usuario.svg) — UML · casos de uso
+- [Casos de uso del Entrenador](Diag%20CU%20-%20Entrenador.svg) — UML · casos de uso
+- [Casos de uso del Admin](Diag%20CU%20-%20Admin.svg) — UML · casos de uso
 
 ## Datos
 

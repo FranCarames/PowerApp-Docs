@@ -14,7 +14,7 @@ Hoy la portada tiene una card «Modelo de datos» que abre `Doc/modelo-db.html`:
 | Diagrama de clases | `Diagrams/Diagrama de clases.pdf` (versionado, falta el SVG) |
 | Componentes del servidor | `Diagrams/Diagramas de componentes del servidor.pdf` (versionado, falta el SVG) |
 | Diagrama de despliegue | `Diagrams/Diagrama de despliegue.svg` + `.pdf` (sin versionar) |
-| Casos de uso del Usuario, del Entrenador y del Admin | `Diagrams/Diagrama CU - <Rol> - 2026.svg` + `.pdf`: Fran los está terminando (se sumaron el 17/11, durante la implementación) |
+| Casos de uso del Usuario, del Entrenador y del Admin | `Diagrams/Diag CU - <Rol>.svg` + `.pdf`: se sumaron durante la implementación (Fran los exportó el 18/11, junto con los SVG de clases y componentes) |
 
 El objetivo es que **la portada lleve a todos los diagramas del proyecto**, en un visor con una **barra lateral** que los liste y que, al elegir uno, lo muestre **igual que hoy se ve el modelo de datos**.
 
@@ -53,9 +53,9 @@ nombre y agregar una línea bajo su grupo.
 
 ## Casos de uso
 
-- [Casos de uso del Usuario](Diagrama%20CU%20-%20Usuario%20-%202026.svg) — UML · casos de uso
-- [Casos de uso del Entrenador](Diagrama%20CU%20-%20Entrenador%20-%202026.svg) — UML · casos de uso
-- [Casos de uso del Admin](Diagrama%20CU%20-%20Admin%20-%202026.svg) — UML · casos de uso
+- [Casos de uso del Usuario](Diag%20CU%20-%20Usuario.svg) — UML · casos de uso
+- [Casos de uso del Entrenador](Diag%20CU%20-%20Entrenador.svg) — UML · casos de uso
+- [Casos de uso del Admin](Diag%20CU%20-%20Admin.svg) — UML · casos de uso
 
 ## Datos
 
@@ -98,6 +98,7 @@ Dos columnas, como en el prototipo:
 - **Al elegir un diagrama:** cada ítem es un link a `#<id>`, así que cambia el hash con una entrada nueva en el historial (como en `Use Cases/`). Eso dispara `hashchange`, que actualiza el título de la pestaña y la barra superior, carga el SVG y lo ajusta a la pantalla. En el celular se cierra el panel lateral.
 - **`hashchange`** (clic en la lista, link pegado o atrás/adelante): selecciona el diagrama correspondiente.
 - **Carga del SVG:** igual que hoy en `Doc/modelo-db.html`: `fetch` + `DOMParser`, se saca el `style` de la raíz, se fijan `width`/`height` y **se inyecta inline** (no `<img>`) para que carguen las `@font-face` de Miro. El SVG ya parseado se guarda en memoria: volver a un diagrama no lo pide de nuevo.
+- **El diagrama no se selecciona ni se cliquea** (pedido de Fran del 18/11): el lienzo tiene `user-select: none` y el SVG `pointer-events: none`, así que hacer clic o arrastrar sobre un texto solo desplaza el diagrama, y los links que pueda traer el SVG de Miro no se siguen.
 - **Zoom y arrastre:** el código actual de `Doc/modelo-db.html` sin cambios funcionales: rueda, doble clic, pinch, teclas `+ − 0 1`, clic en el % para volver al 100 %, re-ajuste al cambiar el tamaño si estaba ajustado. Ocultar o mostrar la barra lateral cambia el ancho del lienzo y dispara ese re-ajuste.
 - **Mientras carga:** spinner y «Cargando el diagrama…». Los botones de zoom quedan deshabilitados hasta que hay un SVG.
 
