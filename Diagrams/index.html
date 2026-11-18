@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>PowerApp — Diagramas</title>
+<meta name="description" content="Visor de los diagramas de PowerApp: modelo de datos, clases, componentes del servidor y despliegue, con zoom, arrastre y descarga en SVG o PDF.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800&family=Saira:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --base:#06070D; --card:#13161F; --card2:#0F1219; --el:#1B1F2E;
+    --border:#232739; --border2:#2E3347;
+    --pri:#E8450A; --priL:#FF6B3D; --acc:#8B5CF6; --teal:#12B3A6; --blue:#4F8DF7; --green:#3DD47A;
+    --tp:#F5F1EB; --ts:#8892A8; --tm:#4A5068;
+    --fDisplay:"Saira Condensed",-apple-system,sans-serif;
+    --fBody:"Saira",-apple-system,BlinkMacSystemFont,sans-serif;
+    --fMono:"JetBrains Mono","SF Mono",monospace;
+    --side-w:290px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+  html,body{height:100%;overflow:hidden;}
+  body{background:var(--base);font-family:var(--fBody);color:var(--tp);}
+  [hidden]{display:none!important;}
+
+  .app{
+    height:100%;display:grid;grid-template-columns:var(--side-w) minmax(0,1fr);
+    transition:grid-template-columns .28s cubic-bezier(.2,.7,.2,1);
+  }
+  .app.collapsed{grid-template-columns:0 minmax(0,1fr);}
+
+  /* ---------- Barra lateral ---------- */
+  .side{
+    min-width:0;overflow:hidden auto;
+    background:linear-gradient(180deg,rgba(19,22,31,.92),rgba(15,18,25,.92));
+    border-right:1px solid var(--border);
+  }
+  .app.collapsed .side{visibility:hidden;transition:visibility 0s .28s;}
+  .side::-webkit-scrollbar{width:8px;}
+  .side::-webkit-scrollbar-thumb{background:var(--border2);border-radius:8px;}
+  .side-in{width:var(--side-w);padding:20px 14px 28px;}
+
+  .brand{display:flex;align-items:center;gap:11px;padding:4px 8px 16px;}
+  .brand .mark{
+    width:34px;height:34px;border-radius:10px;flex:0 0 auto;position:relative;
+    background:linear-gradient(135deg,var(--pri),var(--priL));
+    display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(232,69,10,.35);
+  }
+  .brand .mark svg{width:17px;height:17px;}
+  .brand .mark::after{content:"";position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:var(--acc);box-shadow:0 0 8px var(--acc);}
+  .brand .txt b{font-family:var(--fDisplay);font-size:19px;font-weight:800;letter-spacing:-.3px;display:block;line-height:1;}
+  .brand .txt span{font-family:var(--fMono);font-size:10px;color:var(--ts);letter-spacing:.4px;}
+  .home-link{display:inline-flex;align-items:center;gap:6px;font-family:var(--fMono);font-size:11px;color:var(--ts);padding:0 8px 18px;text-decoration:none;transition:color .2s;}
+  .home-link:hover{color:var(--pri);}
+
+  .grp-head{
+    display:flex;align-items:center;gap:9px;padding:12px 10px 7px;
+    font-family:var(--fMono);font-size:10.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--ts);
+  }
+  .grp-head .dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto;}
+  .grp-head .n{margin-left:auto;color:var(--tm);font-size:10px;background:var(--el);border-radius:20px;padding:2px 7px;}
+  .dg{
+    display:flex;align-items:center;gap:11px;padding:9px 10px;margin-bottom:2px;border-radius:10px;
+    border-left:2px solid transparent;text-decoration:none;color:inherit;
+    transition:background .15s,border-color .15s;
+  }
+  .dg:hover{background:rgba(255,255,255,.035);}
+  .dg:focus-visible{outline:2px solid var(--gc);outline-offset:-2px;}
+  .dg-ico{
+    width:30px;height:30px;border-radius:9px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+    background:color-mix(in srgb,var(--gc) 12%,transparent);
+    border:1px solid color-mix(in srgb,var(--gc) 30%,transparent);color:var(--gc);
+  }
+  .dg-ico svg{width:16px;height:16px;}
+  .dg-txt{min-width:0;flex:1;}
+  .dg .name{display:block;font-size:13.5px;color:var(--ts);line-height:1.25;}
+  .dg .kind{display:block;font-family:var(--fMono);font-size:10px;color:var(--tm);margin-top:2px;}
+  .dg.active{background:color-mix(in srgb,var(--gc) 12%,transparent);border-left-color:var(--gc);}
+  .dg.active .name{color:var(--tp);font-weight:600;}
+
+  /* ---------- Panel ---------- */
+  .pane{min-width:0;min-height:0;display:flex;flex-direction:column;}
+  .bar{
+    flex:0 0 auto;min-height:60px;
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    padding:10px clamp(12px,2.4vw,20px);
+    background:linear-gradient(180deg,var(--card),rgba(19,22,31,.82));
+    border-bottom:1px solid var(--border);
+    z-index:5;
+  }
+  .titles{flex:1 1 200px;min-width:0;}
+  .titles h1{font-family:var(--fDisplay);font-size:21px;font-weight:700;letter-spacing:-.2px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .titles h1 b{color:var(--pri);font-weight:700;}
+  .titles .sub{font-family:var(--fMono);font-size:10.5px;color:var(--tm);letter-spacing:.3px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+  .tools{display:flex;align-items:center;gap:8px;flex:0 0 auto;flex-wrap:wrap;}
+  .grp{display:flex;align-items:stretch;background:var(--el);border:1px solid var(--border);border-radius:11px;overflow:hidden;}
+  .grp .btn{border:0;border-radius:0;background:transparent;}
+  .btn{
+    font-family:var(--fMono);font-size:12px;font-weight:500;color:var(--ts);
+    background:var(--el);border:1px solid var(--border);border-radius:11px;
+    padding:9px 13px;cursor:pointer;text-decoration:none;line-height:1;
+    display:inline-flex;align-items:center;gap:7px;
+    transition:color .18s,background .18s,border-color .18s;
+  }
+  .btn:hover{color:var(--tp);background:#232842;}
+  .btn:focus-visible{outline:2px solid var(--blue);outline-offset:2px;}
+  .btn.ico{min-width:38px;justify-content:center;font-size:15px;}
+  .btn.ico svg{width:16px;height:16px;}
+  .btn.pri{color:var(--tp);border-color:color-mix(in srgb, var(--blue) 42%, transparent);background:color-mix(in srgb, var(--blue) 12%, transparent);}
+  .btn.pri:hover{background:color-mix(in srgb, var(--blue) 22%, transparent);}
+  .btn:disabled,.btn[aria-disabled="true"],#zoomLabel:disabled{opacity:.35;cursor:default;pointer-events:none;}
+  #zoomLabel{
+    font-family:var(--fMono);font-size:11.5px;color:var(--tp);
+    min-width:64px;text-align:center;padding:0 4px;cursor:pointer;
+    background:transparent;border:0;border-left:1px solid var(--border);border-right:1px solid var(--border);
+  }
+  #zoomLabel:hover{color:var(--blue);}
+  #zoomLabel:focus-visible{outline:2px solid var(--blue);outline-offset:-2px;}
+
+  /* ---------- Lienzo ---------- */
+  .stage{
+    flex:1 1 auto;position:relative;overflow:hidden;
+    background:
+      radial-gradient(700px 420px at 12% 0%, rgba(232,69,10,.10), transparent 62%),
+      radial-gradient(700px 460px at 92% 100%, rgba(79,141,247,.10), transparent 62%),
+      var(--base);
+    cursor:grab;touch-action:none;
+  }
+  .stage::after{
+    content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+    background-image:
+      linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);
+    background-size:44px 44px;
+  }
+  .stage.drag{cursor:grabbing;}
+  .canvas{
+    position:absolute;top:0;left:0;transform-origin:0 0;
+    background:#fff;
+    box-shadow:0 30px 90px -30px rgba(0,0,0,.9);
+    will-change:transform;
+  }
+  .canvas svg{display:block;}
+
+  /* ---------- Estados ---------- */
+  .state{
+    position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;cursor:default;
+  }
+  .state p{font-family:var(--fMono);font-size:12.5px;color:var(--ts);max-width:52ch;line-height:1.7;}
+  .state code{background:var(--el);border:1px solid var(--border);border-radius:6px;padding:2px 7px;color:var(--tp);}
+  .err-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;}
+  .spin{
+    width:26px;height:26px;border-radius:50%;
+    border:2px solid var(--border2);border-top-color:var(--pri);
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* ---------- Ayuda ---------- */
+  .hint{
+    position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:3;
+    font-family:var(--fMono);font-size:10.5px;color:var(--tm);
+    background:rgba(6,7,13,.78);border:1px solid var(--border);border-radius:999px;
+    padding:7px 15px;pointer-events:none;white-space:nowrap;
+    transition:opacity .6s;
+  }
+
+  /* ---------- Mobile: la barra lateral es un panel ---------- */
+  .scrim{display:none;}
+  @media (max-width:860px){
+    .app,.app.collapsed{grid-template-columns:minmax(0,1fr);}
+    .side{
+      position:fixed;left:0;top:0;bottom:0;z-index:40;width:min(var(--side-w),86vw);
+      transform:translateX(-102%);transition:transform .28s cubic-bezier(.2,.7,.2,1);
+    }
+    .app.collapsed .side{visibility:visible;transition:transform .28s cubic-bezier(.2,.7,.2,1);}
+    .side-in{width:100%;}
+    body.nav-open .side{transform:none;}
+    .scrim{
+      display:block;position:fixed;inset:0;z-index:30;background:rgba(3,4,8,.6);
+      opacity:0;visibility:hidden;transition:opacity .28s,visibility .28s;
+    }
+    body.nav-open .scrim{opacity:1;visibility:visible;}
+  }
+  @media (max-width:700px){
+    .titles .sub{display:none;}
+    .titles h1{font-size:18px;}
+    .btn{padding:8px 11px;}
+    .hint{display:none;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .spin{animation:none;}
+    .app,.side,.scrim{transition:none!important;}
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <aside class="side" id="side" aria-label="Lista de diagramas">
+    <div class="side-in">
+      <div class="brand">
+        <span class="mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="#fff"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>
+        </span>
+        <span class="txt"><b>PowerApp</b><span>Diagramas</span></span>
+      </div>
+      <a class="home-link" href="../index.html">&larr; Volver a la portada</a>
+      <nav id="nav" aria-label="Diagramas"></nav>
+    </div>
+  </aside>
+
+  <div class="pane">
+    <header class="bar">
+      <button class="btn ico" id="toggleSide" aria-controls="side" aria-expanded="true"
+              title="Mostrar u ocultar la lista" aria-label="Mostrar u ocultar la lista de diagramas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="16" rx="2"/><line x1="9" y1="4" x2="9" y2="20"/>
+        </svg>
+      </button>
+      <div class="titles">
+        <h1 id="title">Power<b>App</b> — Diagramas</h1>
+        <div class="sub" id="meta">Cargando el índice&hellip;</div>
+      </div>
+      <div class="tools">
+        <div class="grp">
+          <button class="btn ico" id="zOut" title="Alejar (tecla −)" aria-label="Alejar" disabled>&minus;</button>
+          <button id="zoomLabel" title="Volver al 100% (tecla 1)" aria-label="Nivel de zoom, click para volver al 100%" disabled>100%</button>
+          <button class="btn ico" id="zIn" title="Acercar (tecla +)" aria-label="Acercar" disabled>+</button>
+        </div>
+        <button class="btn" id="fit" title="Ajustar a la pantalla (tecla 0)" disabled>Ajustar</button>
+        <a class="btn pri" id="lnkSvg" href="#" download aria-disabled="true" title="Descargar el diagrama en SVG">SVG&nbsp;&darr;</a>
+        <a class="btn" id="lnkPdf" href="#" target="_blank" rel="noopener" aria-disabled="true" title="Abrir el diagrama en PDF">PDF</a>
+      </div>
+    </header>
+
+    <div class="stage" id="stage">
+      <div class="canvas" id="canvas" hidden></div>
+
+      <div class="state" id="loading">
+        <div class="spin" aria-hidden="true"></div>
+        <p>Cargando&hellip;</p>
+      </div>
+
+      <div class="state" id="error" hidden>
+        <p id="errMsg"></p>
+        <p id="errHelp">Si estás abriendo el archivo desde el disco, el navegador bloquea la carga.
+           Servido por <code>GitHub Pages</code> o cualquier servidor HTTP funciona.</p>
+        <div class="err-actions" id="errActions">
+          <a class="btn pri" id="errPdf" href="#" target="_blank" rel="noopener">Abrir el PDF</a>
+          <a class="btn" id="errSvg" href="#" target="_blank" rel="noopener">Abrir el SVG directo</a>
+        </div>
+      </div>
+
+      <div class="hint" id="hint">arrastrá para mover &middot; rueda para zoom &middot; doble clic para acercar</div>
+    </div>
+  </div>
+
+</div>
+<div class="scrim" id="scrim"></div>
+
+<script id="index-parser">
+/* Índice de diagramas (Diagrams/README.md). Funciones puras, sin DOM:
+   también las usa .claude/tools/audit-diagrams.js. */
+function slugify(s){
+  return String(s).normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+function parseIndex(md){
+  var out = [], group = null, fence = false;
+  String(md).replace(/\r\n?/g, "\n").split("\n").forEach(function(line){
+    if (/^\s*```/.test(line)){ fence = !fence; return; }
+    if (fence) return;
+    var g = /^##\s+(.+?)\s*$/.exec(line);
+    if (g){ group = g[1]; return; }
+    var d = /^-\s+\[([^\]]+)\]\(([^)\s]+\.svg)\)(?:\s+[—–-]\s+(.+?))?\s*$/i.exec(line);
+    if (!d || !group) return;
+    out.push({
+      group: group,
+      title: d[1],
+      id: slugify(d[1]),
+      kind: d[3] || "",
+      svg: d[2],
+      pdf: d[2].replace(/\.svg$/i, ".pdf")
+    });
+  });
+  return out;
+}
+</script>
+
+<script>
+(function(){
+  "use strict";
+
+  var PAD = 48;               // margen al ajustar
+  var MIN = 0.02, MAX = 12;   // límites de zoom
+  var PALETTE = ["var(--blue)", "var(--acc)", "var(--teal)", "var(--pri)", "var(--green)"];
+  var ICONS = {
+    cu:  '<circle cx="12" cy="5" r="2.5"/><path d="M12 7.5v7M6.5 10.5h11M12 14.5l-4 6.5M12 14.5l4 6.5"/>',
+    db:  '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/>',
+    cls: '<rect x="4" y="3" width="16" height="18" rx="2"/><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/>',
+    cmp: '<rect x="7" y="4" width="13" height="16" rx="2"/><rect x="4" y="8" width="6" height="3" rx=".8"/><rect x="4" y="13" width="6" height="3" rx=".8"/>',
+    dep: '<path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/>',
+    any: '<rect x="3" y="3" width="7" height="5" rx="1.2"/><rect x="14" y="3" width="7" height="5" rx="1.2"/><rect x="8.5" y="16" width="7" height="5" rx="1.2"/><path d="M6.5 8v3.5h11V8M12 11.5V16"/>'
+  };
+
+  function $(id){ return document.getElementById(id); }
+  var app = $("app"), nav = $("nav"), stage = $("stage"), canvas = $("canvas");
+  var loading = $("loading"), errBox = $("error"), errMsg = $("errMsg"), errHelp = $("errHelp"), errActions = $("errActions");
+  var label = $("zoomLabel"), hint = $("hint"), titleEl = $("title"), meta = $("meta");
+  var lnkSvg = $("lnkSvg"), lnkPdf = $("lnkPdf"), toggle = $("toggleSide");
+  var btnIn = $("zIn"), btnOut = $("zOut"), btnFit = $("fit");
+  var mobile = window.matchMedia("(max-width:860px)");
+
+  var list = [], byId = {}, cache = {};   // cache: id -> { node, W, H }
+  var current = null, token = 0;
+  var k = 1, tx = 0, ty = 0;   // escala y traslación actuales
+  var W = 0, H = 0;            // tamaño natural del diagrama elegido
+  var wasFit = true;           // ¿el usuario sigue en "ajustado"?
+
+  function esc(s){
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+  function iconFor(kind){
+    var t = kind.toLowerCase();
+    if (t.indexOf("casos de uso") !== -1) return ICONS.cu;
+    if (t.indexOf("entidad") !== -1)     return ICONS.db;
+    if (t.indexOf("clases") !== -1)      return ICONS.cls;
+    if (t.indexOf("componentes") !== -1) return ICONS.cmp;
+    if (t.indexOf("despliegue") !== -1)  return ICONS.dep;
+    return ICONS.any;
+  }
+
+  /* ---------- estados ---------- */
+  function setTools(on){
+    btnIn.disabled = btnOut.disabled = btnFit.disabled = label.disabled = !on;
+    lnkSvg.setAttribute("aria-disabled", on ? "false" : "true");
+  }
+  function showLoading(){
+    canvas.hidden = true; errBox.hidden = true; loading.hidden = false;
+    setTools(false);
+  }
+  // d: el diagrama que falló (muestra los botones al PDF y al SVG); help: la nota de file://
+  function showError(msg, d, help){
+    canvas.hidden = true; loading.hidden = true; errBox.hidden = false;
+    setTools(false);
+    errMsg.textContent = msg;
+    errHelp.hidden = !help;
+    errActions.hidden = !d;
+    if (d){ $("errPdf").href = d.pdf; $("errSvg").href = d.svg; }
+    hint.style.opacity = 0;
+  }
+
+  /* ---------- barra lateral ---------- */
+  function buildNav(){
+    var groups = [], html = "";
+    list.forEach(function(d){ if (groups.indexOf(d.group) === -1) groups.push(d.group); });
+    groups.forEach(function(g, i){
+      var color = PALETTE[i % PALETTE.length];
+      var items = list.filter(function(d){ return d.group === g; });
+      html += '<div class="grp-head"><span class="dot" style="background:' + color + '"></span>'
+            + esc(g) + '<span class="n">' + items.length + '</span></div>';
+      items.forEach(function(d){
+        html += '<a class="dg" href="#' + d.id + '" data-id="' + d.id + '" style="--gc:' + color + '">'
+              +   '<span class="dg-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + iconFor(d.kind) + '</svg></span>'
+              +   '<span class="dg-txt"><span class="name">' + esc(d.title) + '</span>'
+              +   (d.kind ? '<span class="kind">' + esc(d.kind) + '</span>' : '')
+              +   '</span></a>';
+      });
+    });
+    nav.innerHTML = html;
+  }
+
+  function syncToggle(){
+    var open = mobile.matches ? document.body.classList.contains("nav-open") : !app.classList.contains("collapsed");
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  function closeDrawer(){
+    document.body.classList.remove("nav-open");
+    syncToggle();
+  }
+  toggle.addEventListener("click", function(){
+    if (mobile.matches) document.body.classList.toggle("nav-open");
+    else app.classList.toggle("collapsed");
+    syncToggle();
+  });
+  $("scrim").addEventListener("click", closeDrawer);
+  nav.addEventListener("click", function(e){ if (e.target.closest(".dg")) closeDrawer(); });
+  if (mobile.addEventListener) mobile.addEventListener("change", syncToggle);
+  syncToggle();
+
+  /* ---------- elegir un diagrama ---------- */
+  function route(){
+    if (!list.length) return;
+    var d = byId[decodeURIComponent(location.hash.replace(/^#/, ""))] || list[0];
+    if (d !== current) select(d);
+  }
+
+  function select(d){
+    current = d;
+    var my = ++token;
+    nav.querySelectorAll(".dg").forEach(function(a){
+      var on = a.getAttribute("data-id") === d.id;
+      a.classList.toggle("active", on);
+      if (on) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+    });
+    document.title = "PowerApp — " + d.title;
+    titleEl.innerHTML = "Power<b>App</b> — " + esc(d.title);
+    meta.textContent = d.kind || "Diagrama";
+    lnkSvg.href = d.svg;
+    lnkPdf.href = d.pdf;
+    lnkPdf.setAttribute("aria-disabled", "false");
+
+    if (cache[d.id]) { show(d, cache[d.id]); return; }
+    showLoading();
+    fetch(d.svg)
+      .then(function(res){
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.text();
+      })
+      .then(function(txt){
+        var doc = new DOMParser().parseFromString(txt, "image/svg+xml");
+        var svg = doc.documentElement;
+        if (!svg || svg.nodeName.toLowerCase() !== "svg") throw new Error("el archivo no es un SVG válido");
+        var w = parseFloat(svg.getAttribute("width"))  || 1000;
+        var h = parseFloat(svg.getAttribute("height")) || 1000;
+        svg.removeAttribute("style");
+        svg.setAttribute("width",  w);
+        svg.setAttribute("height", h);
+        cache[d.id] = { node: document.importNode(svg, true), W: w, H: h };
+        if (my === token) show(d, cache[d.id]);
+      })
+      .catch(function(err){
+        if (my === token) showError("No se pudo cargar el diagrama (" + err.message + ").", d, false);
+      });
+  }
+
+  function show(d, c){
+    W = c.W; H = c.H;
+    canvas.replaceChildren(c.node);
+    canvas.style.width  = W + "px";
+    canvas.style.height = H + "px";
+    loading.hidden = true; errBox.hidden = true; canvas.hidden = false;
+    setTools(true);
+    meta.textContent = (d.kind ? d.kind + " · " : "") + Math.round(W) + " × " + Math.round(H) + " px";
+    fit();
+  }
+
+  /* ---------- carga del índice ---------- */
+  fetch("README.md")
+    .then(function(res){
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.text();
+    })
+    .then(function(md){
+      list = parseIndex(md);
+      if (!list.length){
+        meta.textContent = "Sin diagramas";
+        showError("No hay diagramas en el índice (Diagrams/README.md).", null, false);
+        return;
+      }
+      list.forEach(function(d){ byId[d.id] = d; });
+      buildNav();
+      window.addEventListener("hashchange", route);
+      route();
+      setTimeout(function(){ hint.style.opacity = 0; }, 6000);
+    })
+    .catch(function(err){
+      meta.textContent = "Sin índice";
+      showError("No se pudo cargar el índice de diagramas (" + err.message + ").", null, true);
+    });
+
+  /* ---------- zoom (igual que el visor del modelo) ---------- */
+  function clamp(v){ return Math.min(MAX, Math.max(MIN, v)); }
+
+  function apply(){
+    canvas.style.transform = "translate(" + tx + "px," + ty + "px) scale(" + k + ")";
+    label.textContent = Math.round(k * 100) + "%";
+  }
+
+  function fit(){
+    var r = stage.getBoundingClientRect();
+    if (!W || !H || !r.width || !r.height) return;
+    k  = clamp(Math.min((r.width - PAD) / W, (r.height - PAD) / H));
+    tx = (r.width  - W * k) / 2;
+    ty = (r.height - H * k) / 2;
+    wasFit = true;
+    apply();
+  }
+
+  // zoom dejando fijo el punto (cx,cy), en coordenadas del stage
+  function zoomAt(cx, cy, factor){
+    var nk = clamp(k * factor);
+    if (nk === k) return;
+    tx = cx - (cx - tx) * (nk / k);
+    ty = cy - (cy - ty) * (nk / k);
+    k  = nk;
+    wasFit = false;
+    apply();
+  }
+
+  function zoomCenter(factor){
+    var r = stage.getBoundingClientRect();
+    zoomAt(r.width / 2, r.height / 2, factor);
+  }
+
+  function local(e){
+    var r = stage.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  }
+
+  /* ---------- arrastre y pinch ---------- */
+  var pointers = new Map(), panFrom = null, pinch = null;
+
+  function pinchState(){
+    var a = Array.from(pointers.values());
+    var r = stage.getBoundingClientRect();
+    return {
+      dist: Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y),
+      cx: (a[0].x + a[1].x) / 2 - r.left,
+      cy: (a[0].y + a[1].y) / 2 - r.top
+    };
+  }
+
+  stage.addEventListener("pointerdown", function(e){
+    if (canvas.hidden) return;
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    stage.setPointerCapture(e.pointerId);
+    if (pointers.size === 1){
+      var p = local(e);
+      panFrom = { x: p.x - tx, y: p.y - ty };
+      stage.classList.add("drag");
+    } else if (pointers.size === 2){
+      panFrom = null;
+      pinch = pinchState();
+    }
+  });
+
+  stage.addEventListener("pointermove", function(e){
+    if (!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pointers.size === 2 && pinch){
+      var now = pinchState();
+      if (now.dist > 0 && pinch.dist > 0){
+        zoomAt(pinch.cx, pinch.cy, now.dist / pinch.dist);
+        tx += now.cx - pinch.cx;
+        ty += now.cy - pinch.cy;
+        apply();
+      }
+      pinch = now;
+      return;
+    }
+
+    if (panFrom){
+      var p = local(e);
+      tx = p.x - panFrom.x;
+      ty = p.y - panFrom.y;
+      wasFit = false;
+      apply();
+    }
+  });
+
+  function endPointer(e){
+    pointers.delete(e.pointerId);
+    if (pointers.size < 2) pinch = null;
+    if (pointers.size === 0){
+      panFrom = null;
+      stage.classList.remove("drag");
+    } else if (pointers.size === 1){
+      var only = pointers.values().next().value;
+      var r = stage.getBoundingClientRect();
+      panFrom = { x: (only.x - r.left) - tx, y: (only.y - r.top) - ty };
+    }
+  }
+  stage.addEventListener("pointerup", endPointer);
+  stage.addEventListener("pointercancel", endPointer);
+
+  /* ---------- rueda ---------- */
+  stage.addEventListener("wheel", function(e){
+    if (canvas.hidden) return;
+    e.preventDefault();
+    var p = local(e);
+    var step = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
+    zoomAt(p.x, p.y, Math.exp(-step * 0.0016));
+  }, { passive: false });
+
+  /* ---------- doble clic ---------- */
+  stage.addEventListener("dblclick", function(e){
+    if (canvas.hidden) return;
+    var p = local(e);
+    zoomAt(p.x, p.y, 1.8);
+  });
+
+  /* ---------- botones y teclado ---------- */
+  function toActualSize(){
+    var r = stage.getBoundingClientRect();
+    zoomAt(r.width / 2, r.height / 2, 1 / k);
+  }
+
+  btnIn.addEventListener("click",  function(){ zoomCenter(1.25); });
+  btnOut.addEventListener("click", function(){ zoomCenter(1 / 1.25); });
+  btnFit.addEventListener("click", fit);
+  label.addEventListener("click",  toActualSize);
+
+  document.addEventListener("keydown", function(e){
+    if (canvas.hidden || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.key === "+" || e.key === "=")      { zoomCenter(1.25);     e.preventDefault(); }
+    else if (e.key === "-" || e.key === "_") { zoomCenter(1 / 1.25); e.preventDefault(); }
+    else if (e.key === "0")                  { fit();                e.preventDefault(); }
+    else if (e.key === "1")                  { toActualSize();       e.preventDefault(); }
+  });
+
+  /* ---------- resize (y ocultar la lista): si estaba ajustado, se re-ajusta ---------- */
+  if (window.ResizeObserver){
+    new ResizeObserver(function(){
+      if (!canvas.hidden && wasFit) fit();
+    }).observe(stage);
+  } else {
+    window.addEventListener("resize", function(){
+      if (!canvas.hidden && wasFit) fit();
+    });
+  }
+})();
+</script>
+</body>
+</html>
